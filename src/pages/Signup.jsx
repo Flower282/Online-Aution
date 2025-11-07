@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { signup } from "../store/auth/authSlice";
+// USING TEST VERSION (no backend needed)
+import { signup } from "../store/auth/authSlice.test";
+// import { signup } from "../store/auth/authSlice"; // Use this when you have backend
 import { Link } from "react-router";
 import LoadingScreen from "../components/LoadingScreen";
 
@@ -9,27 +11,18 @@ const Signup = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { user, loading } = useSelector((state) => state.auth);
+  const { user, loading, error } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
-  const [isError, setIsError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await dispatch(signup(formData)).unwrap();
-      navigate("/");
-    } catch (error) {
-      console.log("Signup Failed", error);
-      setIsError(error || "something went wrong");
-      setTimeout(() => {
-        setIsError("");
-      }, 10000);
-    }
+    // Dispatch signup action (test version - no unwrap needed)
+    dispatch(signup(formData));
   };
 
   useEffect(() => {
@@ -123,9 +116,9 @@ const Signup = () => {
                 </p>
               </div>
 
-              {isError && (
+              {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 mb-4 -mt-2 py-3 rounded-md">
-                  {isError}
+                  {error}
                 </div>
               )}
 

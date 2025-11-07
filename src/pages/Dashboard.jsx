@@ -1,20 +1,66 @@
-import AuctionCard from "../components/AuctionCard.jsx";
-import { Link } from "react-router";
-import { useQuery } from "@tanstack/react-query";
-import { dashboardStats } from "../api/auction.js";
+// import AuctionCard from "../components/AuctionCard.jsx"; // Not exist yet
+import { Link, useNavigate } from "react-router";
+// import { useQuery } from "@tanstack/react-query";
+// import { dashboardStats } from "../api/auction.js"; // Not exist yet
 import LoadingScreen from "../components/LoadingScreen.jsx";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../store/auth/authSlice.test";
 
 const Dashboard = () => {
-  const { data, isLoading } = useQuery({
-    queryKey: ["stats"],
-    queryFn: () => dashboardStats(),
-    staleTime: 30 * 1000,
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
+  // Mock data for testing (no backend needed)
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState({
+    totalAuctions: 0,
+    activeAuctions: 0,
+    userAuctionCount: 0,
+    latestAuctions: [],
+    latestUserAuctions: []
   });
+
+  useEffect(() => {
+    // Simulate loading
+    setTimeout(() => {
+      setData({
+        totalAuctions: 156,
+        activeAuctions: 42,
+        userAuctionCount: 8,
+        latestAuctions: [],
+        latestUserAuctions: []
+      });
+      setIsLoading(false);
+    }, 500);
+  }, []);
+
+  const handleLogout = async () => {
+    await dispatch(logout());
+    navigate("/login");
+  };
 
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 min-h-screen">
+      {/* Header with user info and logout */}
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-sm text-gray-600">Welcome back, {user?.name || 'User'}!</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 text-white px-4 py-2 rounded-sm hover:bg-red-700 transition-colors font-medium"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -54,19 +100,11 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          {data.latestAuctions.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-sm shadow-sm border border-gray-200">
-              <p className="text-gray-500 text-lg">
-                No auctions available at the moment.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center gap-4">
-              {data.latestAuctions.map((auction) => (
-                <AuctionCard key={auction._id} auction={auction} />
-              ))}
-            </div>
-          )}
+          <div className="text-center py-12 bg-white rounded-sm shadow-sm border border-gray-200">
+            <p className="text-gray-500 text-lg">
+              No auctions available at the moment.
+            </p>
+          </div>
         </div>
 
         {/* Your Auctions Section */}
@@ -81,24 +119,16 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          {data.latestUserAuctions.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-sm shadow-sm border border-gray-200">
-              <p className="text-gray-500 text-lg">
-                You haven't created any auctions yet.
-              </p>{" "}
-              <Link to="/create">
-                <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-sm hover:bg-blue-700 transition-colors">
-                  Create Your First Auction
-                </button>
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center gap-4">
-              {data.latestUserAuctions.map((auction) => (
-                <AuctionCard key={auction._id} auction={auction} />
-              ))}
-            </div>
-          )}
+          <div className="text-center py-12 bg-white rounded-sm shadow-sm border border-gray-200">
+            <p className="text-gray-500 text-lg">
+              You haven't created any auctions yet.
+            </p>{" "}
+            <Link to="/create">
+              <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-sm hover:bg-blue-700 transition-colors">
+                Create Your First Auction
+              </button>
+            </Link>
+          </div>
         </div>
       </main>
     </div>
