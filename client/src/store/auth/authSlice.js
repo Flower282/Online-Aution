@@ -64,7 +64,7 @@ export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValu
 // initial auth state
 const initialState = {
     user: null,
-    loading: false,  // Changed to false so app doesn't stuck on loading
+    loading: true,
     error: null,
 };
 
