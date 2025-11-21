@@ -108,11 +108,11 @@ export const UsersList = () => {
     try {
       setDeleteLoading(true);
       await deleteUser(userToDelete._id);
-      // Refresh the users list
+      // Refresh the users list - user will disappear from list
       await fetchUsers(currentPage, searchTerm, sortBy, sortOrder);
       setDeleteDialogOpen(false);
       setUserToDelete(null);
-      setToast({ message: 'Vô hiệu hóa tài khoản thành công!', type: 'success' });
+      setToast({ message: 'Vô hiệu hóa tài khoản thành công! User đã bị ẩn khỏi danh sách.', type: 'success' });
     } catch (error) {
       console.error('Error deleting user:', error);
       setToast({ message: error.message || 'Không thể vô hiệu hóa tài khoản. Vui lòng thử lại.', type: 'error' });
@@ -137,11 +137,11 @@ export const UsersList = () => {
     try {
       setReactivateLoading(true);
       await reactivateUser(userToReactivate._id);
-      // Refresh the users list
+      // Refresh the users list - user will appear in list again
       await fetchUsers(currentPage, searchTerm, sortBy, sortOrder);
       setReactivateDialogOpen(false);
       setUserToReactivate(null);
-      setToast({ message: 'Kích hoạt lại tài khoản thành công!', type: 'success' });
+      setToast({ message: 'Kích hoạt lại tài khoản thành công! User đã xuất hiện trở lại.', type: 'success' });
     } catch (error) {
       console.error('Error reactivating user:', error);
       setToast({ message: error.message || 'Không thể kích hoạt lại tài khoản. Vui lòng thử lại.', type: 'error' });

@@ -8,9 +8,10 @@ const Dashboard = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["stats"],
     queryFn: () => dashboardStats(),
-    staleTime: 30 * 1000,
-    refetchInterval: 10000, // Auto refresh every 10 seconds
+    staleTime: 10 * 1000, // Consider data fresh for 10 seconds
+    refetchInterval: 15000, // Auto refresh every 15 seconds
     refetchOnWindowFocus: true, // Refresh when user returns to tab
+    refetchOnMount: true, // Always refetch when component mounts
   });
 
   if (isLoading) return <LoadingScreen />;

@@ -68,11 +68,11 @@ export const AdminDashboard = () => {
     try {
       setDeleteLoading(true);
       await deleteUser(userToDelete._id);
-      // Refresh the dashboard data
+      // Refresh the dashboard data and auction lists
       await fetchDashboardData();
       setDeleteDialogOpen(false);
       setUserToDelete(null);
-      setToast({ message: 'Vô hiệu hóa tài khoản thành công!', type: 'success' });
+      setToast({ message: 'Vô hiệu hóa tài khoản thành công! Dữ liệu đã được cập nhật.', type: 'success' });
     } catch (error) {
       console.error('Error deleting user:', error);
       setToast({ message: error.message || 'Không thể vô hiệu hóa tài khoản. Vui lòng thử lại.', type: 'error' });

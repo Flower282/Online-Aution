@@ -37,8 +37,13 @@ export const ViewAuction = () => {
   const deleteAuctionMutate = useMutation({
     mutationFn: (id) => deleteAuction(id),
     onSuccess: () => {
+      // Invalidate all auction-related queries to refresh data everywhere
       queryClient.invalidateQueries({ queryKey: ["allAuction"] });
       queryClient.invalidateQueries({ queryKey: ["stats"] });
+      queryClient.invalidateQueries({ queryKey: ["myauctions"] });
+      queryClient.invalidateQueries({ queryKey: ["viewAuctions"] });
+      queryClient.invalidateQueries({ queryKey: ["adminDashboard"] });
+
       setToast({ message: "Xóa auction thành công!", type: "success" });
       // Navigate after a short delay to show the toast
       setTimeout(() => navigate("/auction"), 1500);
