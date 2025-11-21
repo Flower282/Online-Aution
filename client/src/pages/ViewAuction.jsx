@@ -1,7 +1,7 @@
-import { useRef } from "react";
-import { useParams, Link } from "react-router";
+import { useRef, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { placeBid, viewAuction } from "../api/auction.js";
+import { placeBid, viewAuction, deleteAuction } from "../api/auction.js";
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 
@@ -9,9 +9,11 @@ export const ViewAuction = () => {
   const { id } = useParams();
   const { user } = useSelector((state) => state.auth);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const inputRef = useRef();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
     queryFn: () => viewAuction(id),
     staleTime: 30 * 1000,
@@ -25,11 +27,71 @@ export const ViewAuction = () => {
       if (inputRef.current) inputRef.current.value = "";
     },
     onError: (error) => {
-      console.log("Error: ", error.message);
+      alert(error.message || "Failed to place bid. Please try again.");
     },
   });
 
+  const deleteAuctionMutate = useMutation({
+    mutationFn: (id) => deleteAuction(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allAuction"] });
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
+      alert("Auction deleted successfully!");
+      navigate("/auction");
+    },
+    onError: (error) => {
+      alert(error.message || "Failed to delete auction. Please try again.");
+    },
+  });
+
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    deleteAuctionMutate.mutate(id);
+    setShowDeleteConfirm(false);
+  };
+
   if (isLoading) return <LoadingScreen />;
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-100 max-w-md">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Auction</h2>
+          <p className="text-gray-600 mb-6">{error.message || "Failed to load auction details"}</p>
+          <div className="flex gap-3 justify-center">
+            <Link to="/auction" className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors font-semibold">
+              Back to Auctions
+            </Link>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors font-semibold"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle undefined data
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-yellow-100 max-w-md">
+          <h2 className="text-2xl font-bold text-yellow-600 mb-4">Auction Not Found</h2>
+          <p className="text-gray-600 mb-6">This auction may have been removed or doesn't exist.</p>
+          <Link to="/auction" className="inline-block bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors font-semibold">
+            Back to Auctions
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleBidSubmit = (e) => {
     e.preventDefault();
@@ -65,11 +127,10 @@ export const ViewAuction = () => {
                   {data.itemCategory}
                 </span>
                 <span
-                  className={`px-2 py-1 rounded-md text-xs font-medium ${
-                    isActive
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
+                  className={`px-2 py-1 rounded-md text-xs font-medium ${isActive
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                    }`}
                 >
                   {isActive ? "Active" : "Ended"}
                 </span>
@@ -109,9 +170,8 @@ export const ViewAuction = () => {
                 <div>
                   <p className="text-sm text-gray-500">Time Left</p>
                   <p
-                    className={`text-lg font-semibold ${
-                      isActive ? "text-red-600" : "text-gray-500"
-                    }`}
+                    className={`text-lg font-semibold ${isActive ? "text-red-600" : "text-gray-500"
+                      }`}
                   >
                     {isActive ? `${daysLeft} days` : "Ended"}
                   </p>
@@ -159,6 +219,23 @@ export const ViewAuction = () => {
               <h3 className="text-lg font-semibold mb-3">Seller Information</h3>
               <p className="text-gray-900 font-medium">{data.seller.name}</p>
             </div>
+
+            {/* Admin Delete Button */}
+            {user?.user?.role === "admin" && (
+              <div className="bg-white p-6 rounded-md shadow-md border border-red-200">
+                <h3 className="text-lg font-semibold mb-3 text-red-600">Admin Actions</h3>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleteAuctionMutate.isPending}
+                  className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deleteAuctionMutate.isPending ? "Deleting..." : "Delete Auction"}
+                </button>
+                <p className="text-sm text-gray-500 mt-2">
+                  ⚠️ This action cannot be undone. All bids will be permanently deleted.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -198,6 +275,32 @@ export const ViewAuction = () => {
           </div>
         </div>
       </main>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this auction? This action cannot be undone and all bids will be permanently deleted.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

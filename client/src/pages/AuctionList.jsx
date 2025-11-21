@@ -6,7 +6,7 @@ import LoadingScreen from "../components/LoadingScreen";
 
 export const AuctionList = () => {
   const [filter, setFilter] = useState("all");
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["allAuction"],
     queryFn: getAuctions,
     staleTime: 30 * 1000,
@@ -15,6 +15,33 @@ export const AuctionList = () => {
   });
 
   if (isLoading) return <LoadingScreen />;
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50">
+        <main className="max-w-7xl mx-auto px-4 py-10">
+          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-100">
+            <div className="flex flex-col items-center">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Auctions</h2>
+              <p className="text-gray-600 mb-6">{error.message || "Failed to load auctions"}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors font-semibold"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   // Handle empty or undefined data
   const auctions = data || [];

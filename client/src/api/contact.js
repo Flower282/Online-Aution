@@ -8,7 +8,7 @@ export const sendMessage = async (formData) => {
         )
         return res.data;
     } catch (error) {
-        console.log(error?.response?.data?.error || "Something went wrong");
-        throw error;
+        console.error(error?.response?.data?.error || "Something went wrong");
+        throw new Error(error?.response?.data?.error || "Failed to send message. Please try again.");
     }
 }
