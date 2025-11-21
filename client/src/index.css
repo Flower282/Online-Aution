@@ -1,1 +1,96 @@
 @import "tailwindcss";
+
+@layer base {
+    :root {
+        /* Ocean Blue Theme */
+        --color-primary: 14 165 233;
+        /* Sky Blue */
+        --color-primary-dark: 2 132 199;
+        /* Darker Blue */
+        --color-primary-light: 56 189 248;
+        /* Light Sky Blue */
+        --color-accent: 6 182 212;
+        /* Cyan */
+        --color-bg-primary: 240 249 255;
+        /* Light Blue Background */
+        --color-bg-secondary: 224 242 254;
+        /* Lighter Blue */
+    }
+
+    body {
+        @apply bg-white text-gray-800;
+    }
+}
+
+@layer utilities {
+    .gradient-blue {
+        background: linear-gradient(135deg, rgb(14 165 233) 0%, rgb(6 182 212) 100%);
+    }
+
+    .gradient-blue-soft {
+        background: linear-gradient(135deg, rgb(240 249 255) 0%, rgb(224 242 254) 100%);
+    }
+
+    .text-gradient-blue {
+        @apply bg-clip-text text-transparent;
+        background-image: linear-gradient(135deg, rgb(14 165 233) 0%, rgb(6 182 212) 100%);
+    }
+
+    .btn-primary {
+        @apply bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105;
+    }
+
+    .btn-secondary {
+        @apply bg-white hover:bg-sky-50 text-sky-600 font-semibold px-6 py-3 rounded-lg border-2 border-sky-500 transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105;
+    }
+
+    .card-blue {
+        @apply bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-sky-100;
+    }
+
+    .animate-blob {
+        animation: blob 7s infinite;
+    }
+
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+}
+
+@keyframes blob {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+}
+
+@keyframes slideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-slideUp {
+    animation: slideUp 0.3s ease-out;
+}

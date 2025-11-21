@@ -41,19 +41,22 @@ const Signup = () => {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-sky-50 via-white to-cyan-50">
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white p-8 rounded-sm shadow">
-            <h1 className="text-2xl font-bold mb-6 text-center">
-              Create an Account
-            </h1>
+          <div className="bg-white p-10 rounded-2xl shadow-2xl border-2 border-sky-100">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-cyan-500 mb-2">
+                Join Us Today!
+              </h1>
+              <p className="text-gray-600">Create your account to get started</p>
+            </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="mb-4">
+              <div className="mb-5">
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
                   Full Name
                 </label>
@@ -67,18 +70,18 @@ const Signup = () => {
                       name: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+                  className="w-full px-4 py-3 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                   placeholder="John Doe"
                   required
                 />
               </div>
 
-              <div className="mb-4">
+              <div className="mb-5">
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Email
+                  Email Address
                 </label>
                 <input
                   id="email"
@@ -90,7 +93,7 @@ const Signup = () => {
                       email: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+                  className="w-full px-4 py-3 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                   placeholder="you@example.com"
                   required
                 />
@@ -99,7 +102,7 @@ const Signup = () => {
               <div className="mb-6">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
                   Password
                 </label>
@@ -113,18 +116,18 @@ const Signup = () => {
                       password: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+                  className="w-full px-4 py-3 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                   placeholder="••••••••"
                   required
                   minLength={8}
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-500">
                   Password must be at least 8 characters long
                 </p>
               </div>
 
               {isError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 mb-4 -mt-2 py-3 rounded-md">
+                <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 mb-5 py-3 rounded-lg font-medium">
                   {isError}
                 </div>
               )}
@@ -132,9 +135,9 @@ const Signup = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-indigo-800 text-white py-2 px-4 rounded-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-sky-500 to-cyan-500 text-white py-3 px-4 rounded-lg hover:from-sky-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
               >
-                {loading ? "Creating account..." : "Sign Up"}
+                {loading ? "Creating account..." : "Create Account"}
               </button>
             </form>
 
@@ -142,9 +145,9 @@ const Signup = () => {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-indigo-800 font-medium hover:underline"
+                className="text-sky-600 font-bold hover:text-sky-700 hover:underline"
               >
-                Login
+                Sign in
               </Link>
             </div>
           </div>
