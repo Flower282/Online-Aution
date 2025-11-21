@@ -5,7 +5,7 @@ import { dashboardStats } from "../api/auction.js";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 
 const Dashboard = () => {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["stats"],
     queryFn: () => dashboardStats(),
     staleTime: 30 * 1000,
@@ -14,6 +14,42 @@ const Dashboard = () => {
   });
 
   if (isLoading) return <LoadingScreen />;
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50 flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-100 max-w-md">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Dashboard</h2>
+          <p className="text-gray-600 mb-6">{error.message || "Failed to load dashboard data"}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle undefined or null data
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50 flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-yellow-100 max-w-md">
+          <h2 className="text-2xl font-bold text-yellow-600 mb-4">No Data Available</h2>
+          <p className="text-gray-600 mb-6">Unable to load dashboard statistics. Please try again.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50">
@@ -56,7 +92,7 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          {data.latestAuctions.length === 0 ? (
+          {!data.latestAuctions || data.latestAuctions.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-sky-100">
               <p className="text-gray-600 text-xl font-medium">
                 No auctions available at the moment.
@@ -83,7 +119,7 @@ const Dashboard = () => {
             </Link>
           </div>
 
-          {data.latestUserAuctions.length === 0 ? (
+          {!data.latestUserAuctions || data.latestUserAuctions.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-sky-100">
               <p className="text-gray-600 text-xl font-medium mb-6">
                 You haven't created any auctions yet.

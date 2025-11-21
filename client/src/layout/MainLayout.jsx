@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useNavigate, useLocation } from "react-router";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import LoadingScreen from "../components/LoadingScreen";
@@ -9,12 +9,17 @@ import { useEffect } from "react";
 export const MainLayout = () => {
   const { user, loading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!loading && !user) {
       navigate("/login");
     }
-  }, [loading, user, navigate]);
+    // Redirect admin from index route to admin panel
+    if (!loading && user && user.user.role === "admin" && location.pathname === "/") {
+      navigate("/admin");
+    }
+  }, [loading, user, navigate, location.pathname]);
 
   if (loading) return <LoadingScreen />;
 

@@ -293,10 +293,6 @@ const adminNavLink = [
     link: "/admin",
   },
   {
-    name: "Dashboard",
-    link: "/",
-  },
-  {
     name: "Create Auction",
     link: "/create",
   },
