@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import LoadingScreen from '../../components/LoadingScreen';
-import { getAllUsers } from '../../api/admin';
+import { getAllUsers, deleteUser } from '../../api/admin';
 
 export const UsersList = () => {
   const [users, setUsers] = useState([]);
@@ -12,6 +12,9 @@ export const UsersList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchUsers = async (page = 1, search = '', sort = 'createdAt', order = 'desc') => {
     try {
@@ -87,6 +90,34 @@ export const UsersList = () => {
     );
   };
 
+  const handleDeleteClick = (user) => {
+    setUserToDelete(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete) return;
+
+    try {
+      setDeleteLoading(true);
+      await deleteUser(userToDelete._id);
+      // Refresh the users list
+      await fetchUsers(currentPage, searchTerm, sortBy, sortOrder);
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user. Please try again.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setUserToDelete(null);
+  };
+
   if (loading) return <LoadingScreen />;
 
   return (
@@ -144,7 +175,7 @@ export const UsersList = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th 
+                  <th
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort('name')}
                   >
@@ -153,7 +184,7 @@ export const UsersList = () => {
                       {getSortIcon('name')}
                     </div>
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort('role')}
                   >
@@ -162,7 +193,7 @@ export const UsersList = () => {
                       {getSortIcon('role')}
                     </div>
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort('createdAt')}
                   >
@@ -171,7 +202,7 @@ export const UsersList = () => {
                       {getSortIcon('createdAt')}
                     </div>
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort('lastLogin')}
                   >
@@ -185,6 +216,9 @@ export const UsersList = () => {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -202,9 +236,9 @@ export const UsersList = () => {
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             {user.avatar ? (
-                              <img 
-                                className="h-10 w-10 rounded-full object-cover" 
-                                src={user.avatar} 
+                              <img
+                                className="h-10 w-10 rounded-full object-cover"
+                                src={user.avatar}
                                 alt={user.name}
                               />
                             ) : (
@@ -222,11 +256,10 @@ export const UsersList = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.role === 'admin' 
-                            ? 'bg-purple-100 text-purple-800' 
-                            : 'bg-green-100 text-green-800'
-                        }`}>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin'
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-green-100 text-green-800'
+                          }`}>
                           {user.role}
                         </span>
                       </td>
@@ -243,6 +276,18 @@ export const UsersList = () => {
                         <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                           Active
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button
+                          onClick={() => handleDeleteClick(user)}
+                          disabled={user.role === 'admin'}
+                          className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          title={user.role === 'admin' ? 'Cannot delete admin users' : 'Delete user'}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -298,27 +343,26 @@ export const UsersList = () => {
                         <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </button>
-                    
+
                     {/* Page numbers */}
                     {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                       const pageNum = Math.max(1, Math.min(pagination.totalPages - 4, currentPage - 2)) + i;
                       if (pageNum > pagination.totalPages) return null;
-                      
+
                       return (
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                            pageNum === currentPage
-                              ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                          }`}
+                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${pageNum === currentPage
+                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                            }`}
                         >
                           {pageNum}
                         </button>
                       );
                     })}
-                    
+
                     <button
                       onClick={() => setCurrentPage(Math.min(pagination.totalPages, currentPage + 1))}
                       disabled={!pagination.hasNextPage}
@@ -335,6 +379,50 @@ export const UsersList = () => {
             </div>
           )}
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        {deleteDialogOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-red-100">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-red-100 to-red-200 rounded-full">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+
+              <h3 className="text-2xl font-extrabold text-gray-900 text-center mb-3">
+                Delete User?
+              </h3>
+
+              <p className="text-gray-600 text-center mb-2 text-base">
+                Are you sure you want to delete
+              </p>
+              <p className="text-center mb-6">
+                <span className="font-bold text-red-600 text-lg">{userToDelete?.name}</span>
+              </p>
+              <p className="text-gray-500 text-center text-sm mb-8">
+                This action cannot be undone.
+              </p>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={handleDeleteCancel}
+                  disabled={deleteLoading}
+                  className="flex-1 px-5 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 shadow-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={deleteLoading}
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                >
+                  {deleteLoading ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

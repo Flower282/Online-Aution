@@ -43,16 +43,17 @@ export const Contact = () => {
   };
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-2xl font-bold text-center mb-8">Contact Us</h1>
+    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-cyan-500 text-center mb-3">Contact Us</h1>
+        <p className="text-center text-gray-600 mb-8 text-base">We'd love to hear from you!</p>
 
-        <div className="bg-white rounded-md shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-sky-100 p-8">
           {submitted ? (
-            <div className="text-center py-8">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-4">
+            <div className="text-center py-10">
+              <div className="inline-flex items-center justify-center w-18 h-18 rounded-full bg-gradient-to-r from-green-400 to-green-600 mb-5 shadow-lg">
                 <svg
-                  className="h-6 w-6 text-green-600"
+                  className="h-9 w-9 text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -61,32 +62,32 @@ export const Contact = () => {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
+                    strokeWidth={3}
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
               </div>
-              <h2 className="text-xl font-medium text-gray-900 mb-2">
-                Thank you for your message!
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                Thank you!
               </h2>
-              <p className="text-gray-500 mb-6">
-                We'll get back to you as soon as possible.
+              <p className="text-gray-600 mb-7 text-base">
+                We've received your message and will get back to you as soon as possible.
               </p>
               <button
                 onClick={() => setSubmitted(false)}
-                className="text-indigo-600 hover:text-indigo-800 font-medium"
+                className="text-sky-600 hover:text-sky-700 font-bold text-base hover:underline"
               >
-                Send another message
+                Send another message →
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Name
+                  Your Name
                 </label>
                 <input
                   type="text"
@@ -95,17 +96,17 @@ export const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="Your name"
+                  className="w-full px-4 py-2.5 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                  placeholder="John Doe"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
-                  Email
+                  Email Address
                 </label>
                 <input
                   type="email"
@@ -114,7 +115,7 @@ export const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full px-4 py-2.5 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                   placeholder="your.email@example.com"
                 />
               </div>
@@ -122,7 +123,7 @@ export const Contact = () => {
               <div>
                 <label
                   htmlFor="subject"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
                   Subject
                 </label>
@@ -133,7 +134,7 @@ export const Contact = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full px-4 py-2.5 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
                   placeholder="How can we help you?"
                 />
               </div>
@@ -141,7 +142,7 @@ export const Contact = () => {
               <div>
                 <label
                   htmlFor="message"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
                   Message
                 </label>
@@ -152,28 +153,28 @@ export const Contact = () => {
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="Your message..."
+                  className="w-full px-4 py-2.5 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all resize-none"
+                  placeholder="Tell us what's on your mind..."
                 ></textarea>
               </div>
               {/* Error Message */}
               {isError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-2.5 rounded-lg text-sm font-medium">
                   {isError}
                 </div>
               )}
 
-              <div className="flex justify-end ">
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="flex justify-center items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex justify-center items-center px-7 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 text-white rounded-lg hover:from-sky-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-base shadow-md hover:shadow-lg transition-all"
                 >
                   {isPending ? (
                     "Sending..."
                   ) : (
                     <>
-                      Send
+                      Send Message
                       <FiSend className="h-4 w-4 ml-2" />
                     </>
                   )}
