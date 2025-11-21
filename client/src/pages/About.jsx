@@ -11,7 +11,7 @@ export const About = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
             About This Project
           </h1>
-
+          {/* 
           <div className="prose max-w-none text-gray-700 leading-relaxed space-y-6">
             <p className="text-lg">
               Welcome to our Online Auction System - a comprehensive web
@@ -50,7 +50,7 @@ export const About = () => {
               </ul>
             </section>
 
-            {/* {!user && <AdsComponent dataAdSlot="1002244889" />} */}
+            {/* {!user && <AdsComponent dataAdSlot="1002244889" />} *​/}
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -143,6 +143,7 @@ export const About = () => {
               </p>
             </div>
           </div>
+          */}
         </div>
       </div>
     </div>
