@@ -46,7 +46,7 @@ export const ViewAuction = () => {
 
       setToast({ message: "Xóa auction thành công!", type: "success" });
       // Navigate after a short delay to show the toast
-      setTimeout(() => navigate("/auction"), 1500);
+      setTimeout(() => navigate("/auction"), 1000);
     },
     onError: (error) => {
       setToast({ message: error.message || "Không thể xóa auction. Vui lòng thử lại.", type: "error" });
