@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { placeBid, viewAuction, deleteAuction } from "../api/auction.js";
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import Toast from "../components/Toast.jsx";
+import socket from "../utils/socket.js";
 
 export const ViewAuction = () => {
   const { id } = useParams();
@@ -14,6 +15,9 @@ export const ViewAuction = () => {
   const inputRef = useRef();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState(null);
+  const [topBids, setTopBids] = useState([]);
+  const [currentPrice, setCurrentPrice] = useState(null);
+  const [totalBids, setTotalBids] = useState(0);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
@@ -21,6 +25,89 @@ export const ViewAuction = () => {
     staleTime: 30 * 1000,
     placeholderData: () => undefined,
   });
+
+  // Socket.io integration
+  useEffect(() => {
+    if (!id) return;
+
+    console.log('🔵 Joining auction room:', id);
+    
+    // Join auction room
+    socket.emit('auction:join', { auctionId: id });
+
+    // Get initial state
+    socket.emit('auction:get-state', { auctionId: id });
+
+    // Listen for join confirmation
+    socket.on('auction:joined', (data) => {
+      console.log('✅ Joined auction:', data);
+    });
+
+    // Listen for auction state
+    socket.on('auction:state', (state) => {
+      console.log('📊 Auction state received:', state);
+      setTopBids(state.topBids || []);
+      setTotalBids(state.totalBids || 0);
+      if (state.highestBid) {
+        setCurrentPrice(state.highestBid.amount);
+      }
+    });
+
+    // Listen for bid updates from other users
+    socket.on('auction:bid:updated', (update) => {
+      console.log('📡 Bid updated:', update);
+      setTopBids(update.topBids || []);
+      setTotalBids(update.totalBids || 0);
+      if (update.topBids && update.topBids.length > 0) {
+        setCurrentPrice(update.topBids[0].amount);
+      }
+      // Refresh query to update UI
+      queryClient.invalidateQueries({ queryKey: ["viewAuctions", id] });
+      
+      // Show notification if bid is from another user
+      if (update.userId !== user?.user?._id) {
+        setToast({ 
+          message: `Có người vừa đặt giá: $${update.amount}`, 
+          type: "info" 
+        });
+      }
+    });
+
+    // Listen for bid success
+    socket.on('auction:bid:success', (result) => {
+      console.log('✅ Bid success:', result);
+      setToast({ message: "Đặt giá thành công!", type: "success" });
+      if (inputRef.current) inputRef.current.value = "";
+    });
+
+    // Listen for bid errors
+    socket.on('auction:bid:error', (error) => {
+      console.error('❌ Bid error:', error);
+      let errorMessage = error.message;
+      if (error.code === 'PRICE_EXISTS') {
+        errorMessage = `Giá $${error.existingAmount} đã có người đặt. Vui lòng chọn giá khác!`;
+      }
+      setToast({ message: errorMessage, type: "error" });
+    });
+
+    // Listen for general errors
+    socket.on('auction:error', (error) => {
+      console.error('❌ Auction error:', error);
+      setToast({ message: error.message, type: "error" });
+    });
+
+    // Cleanup on unmount
+    return () => {
+      console.log('🔴 Leaving auction room:', id);
+      socket.emit('auction:leave', { auctionId: id });
+      socket.off('auction:joined');
+      socket.off('auction:state');
+      socket.off('auction:bid:updated');
+      socket.off('auction:bid:success');
+      socket.off('auction:bid:error');
+      socket.off('auction:error');
+    };
+  }, [id, user?.user?._id, queryClient]);
 
   const placeBidMutate = useMutation({
     mutationFn: ({ bidAmount, id }) => placeBid({ bidAmount, id }),
@@ -107,8 +194,29 @@ export const ViewAuction = () => {
 
   const handleBidSubmit = (e) => {
     e.preventDefault();
-    let bidAmount = e.target.bidAmount.value.trim();
-    placeBidMutate.mutate({ bidAmount, id });
+    const bidAmount = parseFloat(e.target.bidAmount.value.trim());
+    
+    if (!bidAmount || bidAmount <= 0) {
+      setToast({ message: "Vui lòng nhập giá hợp lệ", type: "error" });
+      return;
+    }
+
+    // user.user._id vì Redux state có cấu trúc { user: { user: { _id, name, ... } } }
+    const userId = user?.user?._id;
+    
+    if (!userId) {
+      setToast({ message: "Vui lòng đăng nhập để đặt giá", type: "error" });
+      return;
+    }
+
+    console.log('🟢 Placing bid via socket:', { auctionId: id, userId, amount: bidAmount });
+    
+    // Send bid via socket instead of HTTP
+    socket.emit('auction:bid', {
+      auctionId: id,
+      userId: userId,
+      amount: bidAmount
+    });
   };
 
   const daysLeft = Math.ceil(
