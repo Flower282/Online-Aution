@@ -37,10 +37,8 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 auctionId,
                 message: `Joined auction ${auctionId}`
             });
-
-            console.log(`Socket ${socket.id} joined room ${roomName}`);
         } catch (error) {
-            console.error('Error joining auction room:', error);
+            console.error('Error joining auction:', error);
             socket.emit('auction:error', {
                 code: 'JOIN_FAILED',
                 message: error.message
@@ -76,7 +74,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
             const redisKey = `auction:${auctionId}:bids`;
 
             // 2. Kiểm tra xem giá đã tồn tại chưa
-            const existingBidsWithSamePrice = await redisClient.zrangebyscore(
+            const existingBidsWithSamePrice = await redisClient.zRangeByScore(
                 redisKey,
                 amount,
                 amount
@@ -92,18 +90,15 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
             }
 
             // 3. Thêm bid vào Redis ZSET
-            // ZADD key NX score member - chỉ thêm nếu member chưa tồn tại
-            const addResult = await redisClient.zadd(
+            const addResult = await redisClient.zAdd(
                 redisKey,
-                'NX', // Only add if member doesn't exist
-                amount,
-                userId
+                { score: amount, value: userId },
+                { NX: true }
             );
 
             // Nếu userId đã tồn tại, cập nhật score
             if (addResult === 0) {
-                // User đã bid trước đó, cập nhật với score mới
-                await redisClient.zadd(redisKey, amount, userId);
+                await redisClient.zAdd(redisKey, { score: amount, value: userId });
             }
 
             // 4. Lấy thông tin bid mới nhất
@@ -126,41 +121,38 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 });
             } catch (logError) {
                 console.error('MongoDB logging failed:', logError);
-                // Không throw error để không ảnh hưởng đến luồng chính
             }
 
             // 6. Lấy top bids để gửi về client
-            const topBids = await redisClient.zrevrange(
+            const topBids = await redisClient.zRangeWithScores(
                 redisKey,
                 0,
                 9,
-                'WITHSCORES'
+                { REV: true }
             );
 
             // Format top bids thành array of objects
-            const formattedBids = [];
-            for (let i = 0; i < topBids.length; i += 2) {
-                formattedBids.push({
-                    userId: topBids[i],
-                    amount: parseFloat(topBids[i + 1])
-                });
-            }
+            const formattedBids = topBids.map(bid => ({
+                userId: bid.value,
+                amount: bid.score
+            }));
 
             // 7. Emit event cho tất cả clients trong room
             const roomName = `auction:${auctionId}`;
-            io.to(roomName).emit('auction:bid:updated', {
+            
+            const updateData = {
                 ...bidData,
                 topBids: formattedBids,
-                totalBids: await redisClient.zcard(redisKey)
-            });
+                totalBids: await redisClient.zCard(redisKey)
+            };
+            
+            io.to(roomName).emit('auction:bid:updated', updateData);
 
             // 8. Confirm thành công cho client đã bid
             socket.emit('auction:bid:success', {
                 message: 'Bid placed successfully',
                 bid: bidData
             });
-
-            console.log(`Bid placed: User ${userId} bid ${amount} on auction ${auctionId}`);
 
         } catch (error) {
             console.error('Error handling bid:', error);
@@ -189,21 +181,18 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
             const redisKey = `auction:${auctionId}:bids`;
 
             // Lấy top 10 bids
-            const topBids = await redisClient.zrevrange(
+            const topBids = await redisClient.zRangeWithScores(
                 redisKey,
                 0,
                 9,
-                'WITHSCORES'
+                { REV: true }
             );
 
             // Format bids
-            const formattedBids = [];
-            for (let i = 0; i < topBids.length; i += 2) {
-                formattedBids.push({
-                    userId: topBids[i],
-                    amount: parseFloat(topBids[i + 1])
-                });
-            }
+            const formattedBids = topBids.map(bid => ({
+                userId: bid.value,
+                amount: bid.score
+            }));
 
             // Lấy highest bid
             const highestBid = formattedBids.length > 0 ? formattedBids[0] : null;
@@ -212,7 +201,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 auctionId,
                 topBids: formattedBids,
                 highestBid,
-                totalBids: await redisClient.zcard(redisKey)
+                totalBids: await redisClient.zCard(redisKey)
             });
 
         } catch (error) {
@@ -237,8 +226,6 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
 
             const roomName = `auction:${auctionId}`;
             await socket.leave(roomName);
-            
-            console.log(`Socket ${socket.id} left room ${roomName}`);
         } catch (error) {
             console.error('Error leaving auction room:', error);
         }
@@ -248,7 +235,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
      * Handle disconnect
      */
     socket.on('disconnect', () => {
-        console.log(`Socket ${socket.id} disconnected from auction`);
+        // Silent disconnect
     });
 };
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import { createAuction, showAuction, auctionById, placeBid, dashboardData, myAuction, joinAuction } from '../controllers/auction.controller.js';
+import { createAuction, showAuction, auctionById, placeBid, dashboardData, myAuction, joinAuction, deleteAuction } from '../controllers/auction.controller.js';
 import upload from '../middleware/multer.js';
 import { checkAdmin } from '../middleware/checkAdmin.js';
 
