@@ -17,10 +17,14 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: String,
     },
-     role: {
+    role: {
         type: String,
         enum: ['user', 'admin'],
         default: 'user',
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
     },
     ipAddress: {
         type: String

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import AuctionCard from '../../components/AuctionCard';
 import LoadingScreen from '../../components/LoadingScreen';
+import Toast from '../../components/Toast';
 import { getAdminDashboard, getAllUsers, deleteUser } from '../../api/admin';
 
 export const AdminDashboard = () => {
@@ -12,14 +13,24 @@ export const AdminDashboard = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [toast, setToast] = useState(null);
 
   // Fetch dashboard statistics
   const fetchDashboardData = async () => {
     try {
       const data = await getAdminDashboard();
       console.log('Admin Dashboard Data:', data); // Debug log
-      setDashboardData(data || {});
-      setUsers(data.recentUsersList || []); // Set users from dashboard data
+
+      // Filter out inactive users
+      const activeUsers = (data.recentUsersList || []).filter(user => user.isActive !== false);
+
+      // Server already filtered auctions from inactive sellers, no need to filter again
+      // Just use the data as-is
+      setDashboardData({
+        ...data,
+        recentUsersList: activeUsers     // Only active users
+      });
+      setUsers(activeUsers);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       console.error('Error details:', error.response?.data); // More detailed error
@@ -57,13 +68,14 @@ export const AdminDashboard = () => {
     try {
       setDeleteLoading(true);
       await deleteUser(userToDelete._id);
-      // Refresh the dashboard data
+      // Refresh the dashboard data and auction lists
       await fetchDashboardData();
       setDeleteDialogOpen(false);
       setUserToDelete(null);
+      setToast({ message: 'Vô hiệu hóa tài khoản thành công! Dữ liệu đã được cập nhật.', type: 'success' });
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert('Failed to delete user. Please try again.');
+      setToast({ message: error.message || 'Không thể vô hiệu hóa tài khoản. Vui lòng thử lại.', type: 'error' });
     } finally {
       setDeleteLoading(false);
     }
@@ -194,7 +206,7 @@ export const AdminDashboard = () => {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Recent Active Auctions</h2>
               <Link
-                to="/auctionlist"
+                to="/auction"
                 className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline"
               >
                 View All Auctions
@@ -295,8 +307,11 @@ export const AdminDashboard = () => {
                           {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                            Active
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
+                            }`}>
+                            {user.isActive === false ? 'Inactive' : 'Active'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -304,10 +319,10 @@ export const AdminDashboard = () => {
                             onClick={() => handleDeleteClick(user)}
                             disabled={user.role === 'admin'}
                             className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            title={user.role === 'admin' ? 'Cannot delete admin users' : 'Delete user'}
+                            title={user.role === 'admin' ? 'Cannot deactivate admin users' : 'Deactivate user'}
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                             </svg>
                           </button>
                         </td>
@@ -331,17 +346,17 @@ export const AdminDashboard = () => {
               </div>
 
               <h3 className="text-2xl font-extrabold text-gray-900 text-center mb-3">
-                Delete User?
+                Vô hiệu hóa tài khoản?
               </h3>
 
               <p className="text-gray-600 text-center mb-2 text-base">
-                Are you sure you want to delete
+                Bạn có chắc chắn muốn vô hiệu hóa
               </p>
               <p className="text-center mb-6">
                 <span className="font-bold text-red-600 text-lg">{userToDelete?.name}</span>
               </p>
               <p className="text-gray-500 text-center text-sm mb-8">
-                This action cannot be undone.
+                Tài khoản sẽ không thể đăng nhập và các auction của họ sẽ bị ẩn.
               </p>
 
               <div className="flex gap-4">
@@ -350,18 +365,27 @@ export const AdminDashboard = () => {
                   disabled={deleteLoading}
                   className="flex-1 px-5 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 shadow-md"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleteLoading}
                   className="flex-1 px-5 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
                 >
-                  {deleteLoading ? 'Deleting...' : 'Delete'}
+                  {deleteLoading ? 'Đang xử lý...' : 'Vô hiệu hóa'}
                 </button>
               </div>
             </div>
           </div>
+        )}
+
+        {/* Toast Notification */}
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
         )}
       </div>
     </div>

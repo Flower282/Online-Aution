@@ -9,8 +9,8 @@ export const changePassword = async (formData) => {
         );
         return res.data;
     } catch (error) {
-        console.log(error?.response?.data?.error || "Can't update password")
-        throw error;
+        console.error(error?.response?.data?.error || "Can't update password")
+        throw new Error(error?.response?.data?.error || "Failed to update password. Please try again.");
     }
 }
 
@@ -22,7 +22,7 @@ export const loginHistory = async () => {
         );
         return res.data;
     } catch (error) {
-        console.log(error?.response?.data?.error || "Can't show login history")
-        throw error;
+        console.error(error?.response?.data?.error || "Can't show login history")
+        throw new Error(error?.response?.data?.error || "Failed to load login history. Please try again.");
     }
 }

@@ -19,6 +19,11 @@ export const handleUserLogin = async (req, res) => {
             return res.status(400).json({ error: "User not found" });
         }
 
+        // Check if user is active
+        if (!user.isActive) {
+            return res.status(403).json({ error: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin." });
+        }
+
         // Password Validate
         const psswordValidate = await bcrypt.compare(password, user.password);
         if (!psswordValidate) {

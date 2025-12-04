@@ -9,8 +9,8 @@ export const getAdminDashboard = async () => {
         );
         return res.data;
     } catch (error) {
-        console.log(error?.response?.data?.error || "Can't load admin dashboard");
-        throw error;
+        console.error(error?.response?.data?.error || "Can't load admin dashboard");
+        throw new Error(error?.response?.data?.error || "Failed to load admin dashboard. Please try again.");
     }
 };
 
@@ -23,8 +23,8 @@ export const getAllUsers = async (page = 1, search = '', role = 'all', limit = 1
         });
         return res.data;
     } catch (error) {
-        console.log(error?.response?.data?.error || "Can't load users");
-        throw error;
+        console.error(error?.response?.data?.error || "Can't load users");
+        throw new Error(error?.response?.data?.error || "Failed to load users. Please try again.");
     }
 };
 
@@ -37,12 +37,12 @@ export const updateUserRole = async (userId, newRole) => {
         );
         return res.data;
     } catch (error) {
-        console.log(error?.response?.data?.error || "Can't update user role");
-        throw error;
+        console.error(error?.response?.data?.error || "Can't update user role");
+        throw new Error(error?.response?.data?.error || "Failed to update user role. Please try again.");
     }
 };
 
-// Delete user (future functionality)
+// Deactivate user (was delete)
 export const deleteUser = async (userId) => {
     try {
         const res = await axios.delete(`${VITE_API}/admin/users/${userId}`,
@@ -50,8 +50,22 @@ export const deleteUser = async (userId) => {
         );
         return res.data;
     } catch (error) {
-        console.log(error?.response?.data?.error || "Can't delete user");
-        throw error;
+        console.error(error?.response?.data?.error || "Can't deactivate user");
+        throw new Error(error?.response?.data?.error || "Failed to deactivate user. Please try again.");
+    }
+};
+
+// Reactivate user
+export const reactivateUser = async (userId) => {
+    try {
+        const res = await axios.patch(`${VITE_API}/admin/users/${userId}/reactivate`,
+            {},
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error(error?.response?.data?.error || "Can't reactivate user");
+        throw new Error(error?.response?.data?.error || "Failed to reactivate user. Please try again.");
     }
 };
 
@@ -64,7 +78,7 @@ export const toggleUserStatus = async (userId, status) => {
         );
         return res.data;
     } catch (error) {
-        console.log(error?.response?.data?.error || "Can't update user status");
-        throw error;
+        console.error(error?.response?.data?.error || "Can't update user status");
+        throw new Error(error?.response?.data?.error || "Failed to update user status. Please try again.");
     }
 };

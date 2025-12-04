@@ -47,23 +47,29 @@ export const showAuction = async (req, res) => {
     try {
         await connectDB();
         const auction = await Product.find({ itemEndDate: { $gt: new Date() } })
-            .populate("seller", "name")
+            .populate("seller", "name isActive")
             .select("itemName itemDescription currentPrice bids itemEndDate itemCategory itemPhoto seller")
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
+
         const formatted = auction.map(auction => ({
             _id: auction._id,
             itemName: auction.itemName,
             itemDescription: auction.itemDescription,
             currentPrice: auction.currentPrice,
-            bidsCount: auction.bids.length,
+            bidsCount: auction.bids?.length || 0,
             timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
             itemCategory: auction.itemCategory,
-            sellerName: auction.seller.name,
+            sellerName: auction.seller?.isActive === false
+                ? "Tài khoản bị vô hiệu hóa"
+                : (auction.seller?.name || "Người dùng không tồn tại"),
+            sellerActive: auction.seller?.isActive !== false,
             itemPhoto: auction.itemPhoto,
         }));
 
         res.status(200).json(formatted);
     } catch (error) {
+        console.error("Error in showAuction:", error);
         return res.status(500).json({ message: 'Error fetching auctions', error: error.message });
     }
 }
@@ -73,12 +79,22 @@ export const auctionById = async (req, res) => {
         await connectDB();
         const { id } = req.params;
         const auction = await Product.findById(id)
-            .populate("seller", "name")
-            .populate("bids.bidder", "name");
-        auction.bids.sort((a, b) => new Date(b.bidTime) - new Date(a.bidTime));
+            .populate("seller", "name isActive")
+            .populate("bids.bidder", "name")
+            .lean();
+
+        if (!auction) {
+            return res.status(404).json({ message: 'Auction not found' });
+        }
+
+        if (auction.bids && auction.bids.length > 0) {
+            auction.bids.sort((a, b) => new Date(b.bidTime) - new Date(a.bidTime));
+        }
+
         res.status(200).json(auction);
     } catch (error) {
-        return res.status(500).json({ message: 'Error fetching auctions', error: error.message });
+        console.error("Error in auctionById:", error);
+        return res.status(500).json({ message: 'Error fetching auction details', error: error.message });
     }
 }
 
@@ -89,10 +105,20 @@ export const placeBid = async (req, res) => {
         const user = req.user.id;
         const { id } = req.params;
 
-        const product = await Product.findById(id).populate('bids.bidder', "name");
+        const product = await Product.findById(id)
+            .populate('bids.bidder', "name")
+            .populate('seller', 'isActive');
         if (!product) return res.status(404).json({ message: "Auction not found" });
 
-        if (new Date(product.itemEndDate) < new Date()) return res.status(400).json({ message: "Auction has already ended" });
+        // Check if auction has ended
+        if (new Date(product.itemEndDate) < new Date()) {
+            return res.status(400).json({ message: "Phiên đấu giá đã kết thúc. Không thể đặt giá thêm." });
+        }
+
+        // Check if seller is active
+        if (product.seller && product.seller.isActive === false) {
+            return res.status(403).json({ message: "Không thể đấu giá. Tài khoản người bán đã bị vô hiệu hóa." });
+        }
 
         const minBid = Math.max(product.currentPrice, product.startingPrice) + 1;
         const maxBid = Math.max(product.currentPrice, product.startingPrice) + 10;
@@ -120,6 +146,8 @@ export const dashboardData = async (req, res) => {
         await connectDB();
         const userObjectId = new mongoose.Types.ObjectId(req.user.id);
         const dateNow = new Date();
+
+        // Get statistics
         const stats = await Product.aggregate([
             {
                 $facet: {
@@ -133,40 +161,79 @@ export const dashboardData = async (req, res) => {
             }
         ]);
 
-        const totalAuctions = stats[0].totalAuctions[0]?.count || 0;
-        const userAuctionCount = stats[0].userAuctionCount[0]?.count || 0;
-        const activeAuctions = stats[0].activeAuctions[0]?.count || 0;
+        const totalAuctions = stats[0]?.totalAuctions[0]?.count || 0;
+        const userAuctionCount = stats[0]?.userAuctionCount[0]?.count || 0;
+        const activeAuctions = stats[0]?.activeAuctions[0]?.count || 0;
 
-        const globalAuction = await Product.find({ itemEndDate: { $gt: dateNow } }).populate("seller", "name").sort({ createdAt: -1 }).limit(3);;
-        const latestAuctions = globalAuction.map(auction => ({
-            _id: auction._id,
-            itemName: auction.itemName,
-            itemDescription: auction.itemDescription,
-            currentPrice: auction.currentPrice,
-            bidsCount: auction.bids.length,
-            timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
-            itemCategory: auction.itemCategory,
-            sellerName: auction.seller.name,
-            itemPhoto: auction.itemPhoto,
-        }));
+        // Get latest global auctions with error handling
+        let latestAuctions = [];
+        try {
+            const globalAuction = await Product.find({ itemEndDate: { $gt: dateNow } })
+                .populate("seller", "name isActive")
+                .sort({ createdAt: -1 })
+                .limit(3)
+                .lean();
 
-        const userAuction = await Product.find({ seller: userObjectId }).populate("seller", "name").sort({ createdAt: -1 }).limit(3);
-        const latestUserAuctions = userAuction.map(auction => ({
-            _id: auction._id,
-            itemName: auction.itemName,
-            itemDescription: auction.itemDescription,
-            currentPrice: auction.currentPrice,
-            bidsCount: auction.bids.length,
-            timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
-            itemCategory: auction.itemCategory,
-            sellerName: auction.seller.name,
-            itemPhoto: auction.itemPhoto,
-        }));
+            latestAuctions = globalAuction.map(auction => ({
+                _id: auction._id,
+                itemName: auction.itemName,
+                itemDescription: auction.itemDescription,
+                currentPrice: auction.currentPrice,
+                startingPrice: auction.startingPrice,
+                bidsCount: auction.bids?.length || 0,
+                timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
+                itemCategory: auction.itemCategory,
+                sellerName: auction.seller?.name || "Người dùng không tồn tại",
+                sellerActive: auction.seller?.isActive !== false,
+                itemPhoto: auction.itemPhoto,
+            }));
+        } catch (err) {
+            console.error("Error fetching global auctions:", err.message);
+        }
 
-        return res.status(200).json({ totalAuctions, userAuctionCount, activeAuctions, latestAuctions, latestUserAuctions })
+        // Get user's auctions with error handling
+        let latestUserAuctions = [];
+        try {
+            console.log(`🔍 Fetching auctions for user: ${userObjectId}`);
+            const userAuction = await Product.find({ seller: userObjectId })
+                .populate("seller", "name isActive")
+                .sort({ createdAt: -1 })
+                .limit(3)
+                .lean();
+
+            console.log(`📊 Found ${userAuction.length} auctions for user`);
+
+            latestUserAuctions = userAuction.map(auction => ({
+                _id: auction._id,
+                itemName: auction.itemName,
+                itemDescription: auction.itemDescription,
+                currentPrice: auction.currentPrice,
+                startingPrice: auction.startingPrice,
+                bidsCount: auction.bids?.length || 0,
+                timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
+                itemCategory: auction.itemCategory,
+                sellerName: auction.seller?.name || "Người dùng không tồn tại",
+                sellerActive: auction.seller?.isActive !== false,
+                itemPhoto: auction.itemPhoto,
+            }));
+        } catch (err) {
+            console.error("❌ Error fetching user auctions:", err.message);
+        }
+
+        return res.status(200).json({
+            totalAuctions,
+            userAuctionCount,
+            activeAuctions,
+            latestAuctions,
+            latestUserAuctions
+        });
 
     } catch (error) {
-        res.status(500).json({ message: "Error getting dashboard data", error: error.message })
+        console.error("Dashboard error:", error);
+        return res.status(500).json({
+            message: "Error getting dashboard data",
+            error: error.message
+        });
     }
 }
 
@@ -174,24 +241,57 @@ export const myAuction = async (req, res) => {
     try {
         await connectDB();
         const auction = await Product.find({ seller: req.user.id })
-            .populate("seller", "name")
+            .populate("seller", "name isActive")
             .select("itemName itemDescription currentPrice bids itemEndDate itemCategory itemPhoto seller")
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
+
         const formatted = auction.map(auction => ({
             _id: auction._id,
             itemName: auction.itemName,
             itemDescription: auction.itemDescription,
             currentPrice: auction.currentPrice,
-            bidsCount: auction.bids.length,
+            bidsCount: auction.bids?.length || 0,
             timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
             itemCategory: auction.itemCategory,
-            sellerName: auction.seller.name,
+            sellerName: auction.seller?.name || "Người dùng không tồn tại",
             itemPhoto: auction.itemPhoto,
         }));
 
         res.status(200).json(formatted);
     } catch (error) {
-        return res.status(500).json({ message: 'Error fetching auctions', error: error.message });
+        console.error("Error in myAuction:", error);
+        return res.status(500).json({ message: 'Error fetching your auctions', error: error.message });
+    }
+}
+
+// Delete auction (Admin only)
+export const deleteAuction = async (req, res) => {
+    try {
+        await connectDB();
+        const { id } = req.params;
+
+        // Find auction
+        const auction = await Product.findById(id);
+
+        if (!auction) {
+            return res.status(404).json({ message: 'Auction not found' });
+        }
+
+        // Delete auction
+        await Product.findByIdAndDelete(id);
+
+        return res.status(200).json({
+            message: 'Auction deleted successfully',
+            deletedAuction: {
+                _id: auction._id,
+                itemName: auction.itemName
+            }
+        });
+
+    } catch (error) {
+        console.error("Error in deleteAuction:", error);
+        return res.status(500).json({ message: 'Error deleting auction', error: error.message });
     }
 }
 

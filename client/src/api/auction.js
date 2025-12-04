@@ -10,11 +10,12 @@ export const getAuctions = async () => {
         );
         return res.data;
     } catch (error) {
-        console.log("Error on getting auction data", error.message);
+        console.error("Error on getting auction data", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load auctions. Please try again.");
     }
 }
 
-// getting list of all auction
+// getting list of user's auctions
 export const getMyAuctions = async () => {
     try {
         const res = await axios.get(`${VITE_AUCTION_API}/myauction`,
@@ -22,7 +23,8 @@ export const getMyAuctions = async () => {
         );
         return res.data;
     } catch (error) {
-        console.log("Error on getting my auction data", error.message);
+        console.error("Error on getting my auction data", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load your auctions. Please try again.");
     }
 }
 
@@ -35,7 +37,8 @@ export const viewAuction = async (id) => {
         );
         return res.data;
     } catch (error) {
-        console.log("Error on getting auction data", error.message);
+        console.error("Error on getting auction data", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load auction details. Please try again.");
     }
 }
 
@@ -48,7 +51,8 @@ export const placeBid = async ({ bidAmount, id }) => {
         )
         return res.data;
     } catch (error) {
-        console.log("Error placing bid", error.message);
+        console.error("Error placing bid", error.message);
+        throw new Error(error.response?.data?.message || "Failed to place bid. Please try again.");
     }
 }
 
@@ -56,7 +60,6 @@ export const placeBid = async ({ bidAmount, id }) => {
 // creating new auction
 export const createAuction = async (data) => {
     try {
-
         const formData = new FormData();
         formData.append("itemName", data.itemName);
         formData.append("startingPrice", data.startingPrice);
@@ -77,11 +80,12 @@ export const createAuction = async (data) => {
         );
         return res.data;
     } catch (error) {
-        console.log("Error creating auction", error.message);
+        console.error("Error creating auction", error.message);
+        throw new Error(error.response?.data?.message || "Failed to create auction. Please try again.");
     }
 }
 
-// getting single auction using _id
+// getting dashboard statistics
 export const dashboardStats = async () => {
     try {
         const res = await axios.get(`${VITE_AUCTION_API}/stats`,
@@ -89,6 +93,20 @@ export const dashboardStats = async () => {
         );
         return res.data;
     } catch (error) {
-        console.log("Error on getting dashboard data", error.message);
+        console.error("Error on getting dashboard data", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load dashboard data. Please try again.");
+    }
+}
+
+// delete auction (Admin only)
+export const deleteAuction = async (id) => {
+    try {
+        const res = await axios.delete(`${VITE_AUCTION_API}/${id}`,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error deleting auction", error.message);
+        throw new Error(error.response?.data?.message || "Failed to delete auction. Please try again.");
     }
 }
