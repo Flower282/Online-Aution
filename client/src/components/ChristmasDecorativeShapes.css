@@ -1,0 +1,272 @@
+/* Christmas Decorative Shapes Container */
+.christmas-shapes-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Base Decorative Blob Style */
+.decorative-blob {
+    position: absolute;
+    background: #FFFFFF;
+    box-shadow:
+        0px 0px 7px rgba(0, 0, 0, 0.03),
+        0px 10px 24px rgba(220, 38, 38, 0.08),
+        0px 15px 48px rgba(220, 38, 38, 0.12);
+    border-radius: 200px;
+    opacity: 0.15;
+    filter: blur(40px);
+    will-change: transform;
+}
+
+/* Blob 1 - Large Red - Top Left */
+.blob-1 {
+    width: 800px;
+    height: 800px;
+    top: -400px;
+    left: -400px;
+    background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+    animation: float-1 20s ease-in-out infinite, rotate-slow 30s linear infinite;
+}
+
+/* Blob 2 - Medium Pink - Top Right */
+.blob-2 {
+    width: 600px;
+    height: 600px;
+    top: -200px;
+    right: -300px;
+    background: linear-gradient(135deg, #F43F5E 0%, #FB7185 100%);
+    animation: float-2 18s ease-in-out infinite, rotate-reverse 25s linear infinite;
+    animation-delay: 2s;
+}
+
+/* Blob 3 - Large Rose - Bottom Left */
+.blob-3 {
+    width: 700px;
+    height: 700px;
+    bottom: -350px;
+    left: -200px;
+    background: linear-gradient(135deg, #BE123C 0%, #E11D48 100%);
+    animation: float-3 22s ease-in-out infinite, pulse-slow 15s ease-in-out infinite;
+    animation-delay: 4s;
+}
+
+/* Blob 4 - Medium Red - Bottom Right */
+.blob-4 {
+    width: 650px;
+    height: 650px;
+    bottom: -250px;
+    right: -250px;
+    background: linear-gradient(135deg, #DC2626 0%, #F87171 100%);
+    animation: float-4 19s ease-in-out infinite, rotate-slow 35s linear infinite;
+    animation-delay: 6s;
+}
+
+/* Blob 5 - Small Gold Accent - Center Top */
+.blob-5 {
+    width: 400px;
+    height: 400px;
+    top: 10%;
+    right: 30%;
+    background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+    opacity: 0.1;
+    animation: float-5 16s ease-in-out infinite, pulse-fast 8s ease-in-out infinite;
+    animation-delay: 1s;
+}
+
+/* Blob 6 - Small Rose Accent - Center Bottom */
+.blob-6 {
+    width: 450px;
+    height: 450px;
+    bottom: 20%;
+    left: 25%;
+    background: linear-gradient(135deg, #FB7185 0%, #FECDD3 100%);
+    opacity: 0.12;
+    animation: float-6 17s ease-in-out infinite, rotate-reverse 28s linear infinite;
+    animation-delay: 3s;
+}
+
+/* Floating Animations */
+@keyframes float-1 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(30px, 50px) scale(1.05);
+    }
+
+    50% {
+        transform: translate(-20px, 80px) scale(0.95);
+    }
+
+    75% {
+        transform: translate(40px, 40px) scale(1.02);
+    }
+}
+
+@keyframes float-2 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(-40px, 60px) scale(1.08);
+    }
+
+    66% {
+        transform: translate(20px, 30px) scale(0.92);
+    }
+}
+
+@keyframes float-3 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    30% {
+        transform: translate(50px, -40px) scale(1.06);
+    }
+
+    60% {
+        transform: translate(-30px, -70px) scale(0.94);
+    }
+}
+
+@keyframes float-4 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    40% {
+        transform: translate(-35px, -50px) scale(1.04);
+    }
+
+    80% {
+        transform: translate(25px, -30px) scale(0.96);
+    }
+}
+
+@keyframes float-5 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(-60px, 40px) scale(1.1);
+    }
+}
+
+@keyframes float-6 {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(50px, -50px) scale(1.08);
+    }
+}
+
+/* Rotation Animations */
+@keyframes rotate-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes rotate-reverse {
+    from {
+        transform: rotate(360deg);
+    }
+
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+/* Pulse Animations */
+@keyframes pulse-slow {
+
+    0%,
+    100% {
+        opacity: 0.15;
+        filter: blur(40px);
+    }
+
+    50% {
+        opacity: 0.25;
+        filter: blur(30px);
+    }
+}
+
+@keyframes pulse-fast {
+
+    0%,
+    100% {
+        opacity: 0.1;
+        filter: blur(40px);
+    }
+
+    50% {
+        opacity: 0.2;
+        filter: blur(35px);
+    }
+}
+
+/* Responsive - Smaller blobs on mobile */
+@media (max-width: 768px) {
+    .blob-1 {
+        width: 500px;
+        height: 500px;
+        top: -250px;
+        left: -250px;
+    }
+
+    .blob-2 {
+        width: 400px;
+        height: 400px;
+        top: -150px;
+        right: -200px;
+    }
+
+    .blob-3 {
+        width: 450px;
+        height: 450px;
+        bottom: -225px;
+        left: -150px;
+    }
+
+    .blob-4 {
+        width: 400px;
+        height: 400px;
+        bottom: -150px;
+        right: -150px;
+    }
+
+    .blob-5,
+    .blob-6 {
+        width: 250px;
+        height: 250px;
+    }
+}

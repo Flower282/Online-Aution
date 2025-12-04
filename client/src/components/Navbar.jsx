@@ -2,23 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../store/auth/authSlice";
+import { Gavel, Search, User, Heart, Bell, Menu, X, Gift, Sparkles } from "lucide-react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import {
-  MdOutlineCreate,
-  MdOutlineDashboard,
-  MdMailOutline,
-  MdAttachMoney,
-  MdMenuOpen,
   MdOutlineAccountCircle,
-  MdOutlineHome,
-  MdOutlinePrivacyTip,
-  MdAdminPanelSettings,
 } from "react-icons/md";
 import {
-  IoCloseSharp,
-  IoDocumentTextOutline,
   IoLogOutOutline,
 } from "react-icons/io5";
-import { RiAuctionLine } from "react-icons/ri";
 
 export const Navbar = () => {
   const dispatch = useDispatch();
@@ -50,43 +42,87 @@ export const Navbar = () => {
 
   return (
     <>
-      <header className="bg-white shadow-md sticky top-0 z-40 border-b-2 border-sky-100">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2 group">
-              <RiAuctionLine className="h-7 w-7 text-sky-500 group-hover:text-sky-600 transition-colors" />
-              <span className="text-xl font-bold text-sky-600 group-hover:text-sky-700 transition-colors">
-                Online Auction
+      <header className="sticky top-0 z-50 w-full border-b-2 border-red-300 bg-white/95 backdrop-blur shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-100 via-red-50 to-red-100 opacity-60"></div>
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 relative">
+          <div className="flex items-center gap-6">
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="relative">
+                <Gavel className="h-6 w-6 text-red-600 group-hover:text-red-700 transition-colors christmas-sparkle" />
+                <Sparkles className="h-3 w-3 text-yellow-500 absolute -top-1 -right-1 animate-pulse" />
+              </div>
+              <span className="font-bold text-lg bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent">
+                🎅 Online Auction
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
+            <nav className="hidden md:flex items-center gap-6">
               {(user ? getNavLinks(user.user.role) : navMenu).map((item) => (
                 <NavLink
                   to={item.link}
                   key={item.link}
                   className={({ isActive }) =>
                     isActive
-                      ? "text-sky-600 hover:text-sky-700 font-semibold border-b-2 border-sky-500 pb-1"
-                      : "text-gray-600 hover:text-sky-600 font-medium transition-colors"
+                      ? "text-sm text-primary font-medium transition-colors"
+                      : "text-sm hover:text-primary transition-colors"
                   }
                 >
                   {item.name}
                 </NavLink>
               ))}
             </nav>
+          </div>
 
-            {/* Mobile Menu Button */}
-            <button
+          <div className="hidden lg:flex flex-1 max-w-md mx-6">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-600" />
+              <Input
+                placeholder="🎁 Tìm kiếm đấu giá Christmas..."
+                className="pl-9 bg-red-50 border-red-200 focus:border-red-400 focus:ring-red-400"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-red-50 text-red-600">
+              <Heart className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-green-50 text-green-600">
+              <Gift className="h-5 w-5 christmas-sparkle" />
+            </Button>
+            {user ? (
+              <>
+                <Button variant="ghost" size="icon" className="hover:bg-red-50" asChild>
+                  <Link to="/profile">
+                    <User className="h-5 w-5 text-red-600" />
+                  </Link>
+                </Button>
+                <Button
+                  className="hidden sm:flex bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-700 hover:via-red-800 hover:to-red-900 text-white gap-2 shadow-lg"
+                  onClick={handleLogout}
+                >
+                  <IoLogOutOutline className="h-5 w-5" />
+                  🎅 Đăng xuất
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" className="hidden sm:flex border-red-600 text-red-600 hover:bg-red-50" asChild>
+                  <Link to="/login">Đăng nhập</Link>
+                </Button>
+                <Button className="hidden sm:flex bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 shadow-lg" asChild>
+                  <Link to="/signup">🎅 Đăng ký</Link>
+                </Button>
+              </>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={toggleMenu}
-              className="text-sky-600 hover:text-sky-700 focus:outline-none transition-colors"
-              aria-expanded={isMenuOpen}
-              aria-label="Toggle menu"
+              className="md:hidden hover:bg-red-50 text-red-600"
             >
-              <MdMenuOpen className="h-6 w-6" />
-            </button>
+              <Menu className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </header>
@@ -99,29 +135,31 @@ export const Navbar = () => {
       />
 
       <div
-        className={`fixed top-0 right-0 h-full w-72 bg-gradient-to-b from-white to-sky-50 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
       >
-        <div className="flex justify-between items-center p-4 border-b-2 border-sky-200 bg-white">
+        <div className="flex justify-between items-center p-4 border-b-2 border-red-300 bg-gradient-to-r from-red-100 via-red-50 to-red-100">
           <div className="flex items-center space-x-2">
-            <RiAuctionLine className="h-6 w-6 text-sky-500" />
-            <span className="text-xl font-bold text-sky-600">
-              Online Auction
+            <Gavel className="h-6 w-6 text-red-600 christmas-sparkle" />
+            <span className="text-xl font-bold bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent">
+              🎅 Auction
             </span>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setIsMenuOpen(false)}
-            className="text-sky-600 hover:text-sky-700 focus:outline-none pr-2 transition-colors"
             aria-label="Close menu"
+            className="hover:bg-red-100 text-red-600"
           >
-            <IoCloseSharp className="h-6 w-6" />
-          </button>
+            <X className="h-5 w-5" />
+          </Button>
         </div>
 
         {user && (
-          <div className="p-4 border-b border-sky-200 bg-sky-50/50">
+          <div className="p-4 border-b border-red-300 bg-gradient-to-r from-red-100 to-red-50">
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-full bg-sky-100 flex items-center justify-center overflow-hidden ring-2 ring-sky-300">
+              <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center overflow-hidden ring-2 ring-red-400">
                 {user.user.avatar ? (
                   <img
                     src={user.user.avatar}
@@ -129,12 +167,12 @@ export const Navbar = () => {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <MdOutlineAccountCircle className="h-10 w-10 text-sky-500" />
+                  <User className="h-6 w-6 text-red-600" />
                 )}
               </div>
               <div>
-                <p className="font-semibold text-sky-700">{user.user.name}</p>
-                <p className="text-sm text-sky-600 truncate">
+                <p className="font-semibold text-red-900">🎅 {user.user.name}</p>
+                <p className="text-sm text-red-600 truncate">
                   {user.user.email}
                 </p>
               </div>
@@ -150,8 +188,8 @@ export const Navbar = () => {
                   to={item.link}
                   className={({ isActive }) =>
                     isActive
-                      ? "flex items-center py-3 px-3 text-sky-600 hover:text-sky-700 font-semibold bg-sky-100 rounded-lg transition-all"
-                      : "flex items-center py-3 px-3 text-gray-600 hover:text-sky-600 hover:bg-sky-50 font-medium rounded-lg transition-all"
+                      ? "flex items-center py-3 px-3 text-primary font-semibold bg-primary/10 rounded-lg transition-all"
+                      : "flex items-center py-3 px-3 hover:text-primary hover:bg-muted/50 font-medium rounded-lg transition-all"
                   }
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -162,7 +200,7 @@ export const Navbar = () => {
           </ul>
 
           {user ? (
-            <div className="mt-6 pt-6 border-t border-sky-200">
+            <div className="mt-6 pt-6 border-t">
               <ul className="space-y-4">
                 {protectedNavLink.slice(4, 7).map((item) => (
                   <li key={item.link}>
@@ -170,46 +208,42 @@ export const Navbar = () => {
                       to={item.link}
                       className={({ isActive }) =>
                         isActive
-                          ? "flex items-center py-3 px-3 text-sky-600 hover:text-sky-700 font-semibold bg-sky-100 rounded-lg transition-all"
-                          : "flex items-center py-3 px-3 text-gray-600 hover:text-sky-600 hover:bg-sky-50 font-medium rounded-lg transition-all"
+                          ? "flex items-center py-3 px-3 text-primary font-semibold bg-primary/10 rounded-lg transition-all"
+                          : "flex items-center py-3 px-3 hover:text-primary hover:bg-muted/50 font-medium rounded-lg transition-all"
                       }
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      {item.icon}
                       {item.name}
                     </NavLink>
                   </li>
                 ))}
                 <li>
-                  <button
-                    className="flex items-center w-full py-3 px-3 text-red-600 hover:text-red-700 hover:bg-red-50 font-medium text-left cursor-pointer rounded-lg transition-all"
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={() => {
                       setIsMenuOpen(false);
                       handleLogout();
                     }}
                   >
-                    <IoLogOutOutline className="mr-3 h-5 w-5" />
-                    Sign out
-                  </button>
+                    <IoLogOutOutline className="mr-2 h-5 w-5" />
+                    Đăng xuất
+                  </Button>
                 </li>
               </ul>
             </div>
           ) : (
-            <div className="mt-6 pt-6 border-t border-sky-200 space-y-3">
-              <Link
-                to="/login"
-                className="block w-full py-3 px-4 text-center text-sky-600 font-semibold border-2 border-sky-500 rounded-lg hover:bg-sky-50 transition-all"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Log in
-              </Link>
-              <Link
-                to="/signup"
-                className="block w-full py-3 px-4 text-center bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600 shadow-md hover:shadow-lg transition-all"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sign up
-              </Link>
+            <div className="mt-6 pt-6 border-t space-y-3">
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                  Đăng nhập
+                </Link>
+              </Button>
+              <Button className="w-full" asChild>
+                <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
+                  Đăng ký
+                </Link>
+              </Button>
             </div>
           )}
         </nav>
@@ -220,18 +254,12 @@ export const Navbar = () => {
 export const LoginSignup = () => {
   return (
     <>
-      <Link
-        to="/login"
-        className="px-6 py-2.5 text-sky-600 font-semibold border-2 border-sky-500 rounded-lg hover:bg-sky-50 transition-all hidden md:block"
-      >
-        Log in
-      </Link>
-      <Link
-        to="/signup"
-        className="px-6 py-2.5 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600 shadow-md hover:shadow-lg transition-all hidden md:block"
-      >
-        Sign up
-      </Link>
+      <Button variant="ghost" className="hidden md:flex" asChild>
+        <Link to="/login">Đăng nhập</Link>
+      </Button>
+      <Button className="hidden md:flex" asChild>
+        <Link to="/signup">Đăng ký</Link>
+      </Button>
     </>
   );
 };

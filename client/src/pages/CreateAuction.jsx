@@ -125,9 +125,15 @@ export const CreateAuction = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-md shadow-md border border-gray-200">
+        <div className="mb-6 text-center">
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
+            🎅 Create Christmas Auction
+          </h1>
+          <p className="text-gray-700">List your item for the Christmas season ❤️</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-lg border-2 border-red-200">
           <div className="p-6 md:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Item Name */}
@@ -136,7 +142,7 @@ export const CreateAuction = () => {
                   htmlFor="itemName"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Item Name <span className="text-red-600">*</span>
+                  🎁 Item Name <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -144,7 +150,7 @@ export const CreateAuction = () => {
                   name="itemName"
                   value={formData.itemName}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   placeholder="Enter the name of your item"
                   required
                 />
@@ -156,7 +162,7 @@ export const CreateAuction = () => {
                   htmlFor="itemDescription"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Item Description <span className="text-red-600">*</span>
+                  📝 Item Description <span className="text-red-600">*</span>
                 </label>
                 <textarea
                   id="itemDescription"
@@ -164,7 +170,7 @@ export const CreateAuction = () => {
                   value={formData.itemDescription}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+                  className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-vertical"
                   placeholder="Provide a detailed description of your item including condition, features, and any relevant information"
                   required
                 />
@@ -178,14 +184,14 @@ export const CreateAuction = () => {
                     htmlFor="itemCategory"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Category <span className="text-red-600">*</span>
+                    🏷️ Category <span className="text-red-600">*</span>
                   </label>
                   <select
                     id="itemCategory"
                     name="itemCategory"
                     value={formData.itemCategory}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     required
                   >
                     <option value="">Select a category</option>
@@ -203,7 +209,7 @@ export const CreateAuction = () => {
                     htmlFor="startingPrice"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Starting Price ($) <span className="text-red-600">*</span>
+                    💰 Starting Price ($) <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="number"
@@ -213,7 +219,7 @@ export const CreateAuction = () => {
                     onChange={handleInputChange}
                     min="1"
                     step="1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     placeholder="0.0"
                     required
                   />
@@ -228,7 +234,7 @@ export const CreateAuction = () => {
                     htmlFor="itemStartDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Auction Start Date <span className="text-red-600">*</span>
+                    📅 Auction Start Date <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="date"
@@ -238,7 +244,7 @@ export const CreateAuction = () => {
                     value={formData.itemStartDate}
                     max={maxStartDate}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     required
                   />
                 </div>
@@ -249,7 +255,7 @@ export const CreateAuction = () => {
                     htmlFor="itemEndDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Auction End Date <span className="text-red-600">*</span>
+                    🎄 Auction End Date <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="date"
@@ -259,7 +265,7 @@ export const CreateAuction = () => {
                     onChange={handleInputChange}
                     min={formData.itemStartDate}
                     max={maxEndDate}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     required
                   />
                 </div>
@@ -271,7 +277,7 @@ export const CreateAuction = () => {
                   htmlFor="itemPhoto"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Item Photo <span className="text-red-600">*</span>
+                  📷 Item Photo <span className="text-red-600">*</span>
                 </label>
                 <div className="space-y-3">
                   <input
@@ -281,7 +287,7 @@ export const CreateAuction = () => {
                     onChange={handleFileChange}
                     ref={fileInputRef}
                     accept="image/*"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
                   />
                   {formData.itemPhoto && (
                     <div className="mt-3">
@@ -314,13 +320,13 @@ export const CreateAuction = () => {
               )}
 
               {/* Form Actions */}
-              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-red-200">
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="flex-1 sm:flex-none bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                  className="flex-1 sm:flex-none bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-6 rounded-md hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold transition-all shadow-lg hover:shadow-xl"
                 >
-                  {isPending ? "Creating Auction..." : "Create Auction"}
+                  {isPending ? "🎅 Creating Auction..." : "🎄 Create Auction"}
                 </button>
               </div>
             </form>
@@ -336,31 +342,31 @@ export const CreateAuction = () => {
 
 export const HelpSection = () => {
   return (
-    <div className="mt-8 bg-blue-50 border border-blue-200 rounded-md p-6">
-      <h3 className="text-lg font-semibold text-blue-900 mb-3">
-        Tips for Creating a Successful Auction
+    <div className="mt-8 bg-red-50 border-2 border-red-200 rounded-lg p-6">
+      <h3 className="text-lg font-semibold text-red-900 mb-3">
+        🎅 Tips for Creating a Successful Christmas Auction
       </h3>
-      <ul className="space-y-2 text-blue-800 text-sm">
+      <ul className="space-y-2 text-red-800 text-sm">
         <li className="flex items-start">
-          <span className="text-blue-600 mr-2">•</span>
+          <span className="text-red-600 mr-2">🎁</span>
           Use clear, high-quality photos that show your item from multiple
           angles
         </li>
         <li className="flex items-start">
-          <span className="text-blue-600 mr-2">•</span>
+          <span className="text-red-600 mr-2">📝</span>
           Write detailed descriptions including condition, dimensions, and any
           flaws
         </li>
         <li className="flex items-start">
-          <span className="text-blue-600 mr-2">•</span>
+          <span className="text-red-600 mr-2">💰</span>
           Set a reasonable starting price to attract bidders
         </li>
         <li className="flex items-start">
-          <span className="text-blue-600 mr-2">•</span>
+          <span className="text-red-600 mr-2">⏰</span>
           Choose appropriate auction duration (3-7 days typically work best)
         </li>
         <li className="flex items-start">
-          <span className="text-blue-600 mr-2">•</span>
+          <span className="text-red-600 mr-2">🏷️</span>
           Select the most accurate category to help buyers find your item
         </li>
       </ul>
