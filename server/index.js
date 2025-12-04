@@ -2,6 +2,9 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from "cookie-parser";
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import { createClient } from 'redis';
 dotenv.config();
 import { connectDB } from './connection.js'
 import auctionRouter from './routes/auction.js';
@@ -10,12 +13,84 @@ import userAuthRouter from './routes/userAuth.js';
 import userRouter from './routes/user.js';
 import contactRouter from "./routes/contact.js";
 import adminRouter from './routes/admin.js';
+import handleAuctionSocket from './socket/auction.socket.js';
 
 const port = process.env.PORT || 4000;
 
 connectDB();
 
 const app = express();
+const httpServer = createServer(app);
+
+// Cấu hình Socket.io
+const io = new Server(httpServer, {
+    cors: {
+        origin: process.env.ORIGIN || "http://localhost:5173",
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
+// Cấu hình Redis Client
+if (!process.env.REDIS_URL) {
+    console.warn('⚠️  REDIS_URL not found in .env, using default: redis://localhost:6379');
+}
+
+const redisClient = createClient({
+    url: process.env.REDIS_URL || 'redis://localhost:6379'
+});
+
+redisClient.on('error', (err) => console.error('❌ Redis Client Error:', err));
+redisClient.on('connect', () => console.log('✅ Redis Client Connected'));
+redisClient.on('reconnecting', () => console.log('🔄 Redis Client Reconnecting...'));
+redisClient.on('ready', () => console.log('✅ Redis Client Ready'));
+
+try {
+    await redisClient.connect();
+} catch (error) {
+    console.error('❌ Failed to connect to Redis:', error.message);
+    console.log('⚠️  Server will start but auction bidding features will not work');
+}
+
+// MongoDB Logger cho bid history
+if (!process.env.MONGO_URL) {
+    console.error('❌ MONGO_URL not found in .env file');
+    process.exit(1);
+}
+
+const mongoLogger = {
+    logBid: async ({ auctionId, userId, amount, timestamp }) => {
+        try {
+            await connectDB();
+            const Product = (await import('./models/product.js')).default;
+            const product = await Product.findById(auctionId);
+            if (product) {
+                product.bids.push({
+                    bidder: userId,
+                    bidAmount: amount,
+                    bidTime: timestamp
+                });
+                product.currentPrice = amount;
+                await product.save();
+                console.log(`✅ Bid logged to MongoDB: ${userId} bid ${amount} on auction ${auctionId}`);
+            } else {
+                console.warn(`⚠️  Auction ${auctionId} not found in MongoDB`);
+            }
+        } catch (error) {
+            console.error('❌ MongoDB logging error:', error);
+        }
+    }
+};
+
+// Socket.io connection handler
+io.on('connection', (socket) => {
+    console.log(`User connected: ${socket.id}`);
+    handleAuctionSocket(socket, io, { redisClient, mongoLogger });
+});
+
+// Export io để sử dụng trong controllers
+export { io };
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
@@ -24,6 +99,11 @@ app.use(cors({
     credentials: true,
 }));
 
+// Attach io to req để controllers có thể sử dụng
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
 
 app.get('/', async (req, res) => {
     res.json({ msg: 'Welcome to Online Auction System API' });
@@ -34,6 +114,6 @@ app.use('/auction', secureRoute, auctionRouter);
 app.use('/contact', contactRouter);
 app.use('/admin', secureRoute, adminRouter)
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
