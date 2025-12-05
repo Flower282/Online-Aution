@@ -43,15 +43,15 @@ export const Contact = () => {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50">
+    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-cyan-500 text-center mb-3">Contact Us</h1>
-        <p className="text-center text-gray-600 mb-8 text-base">We'd love to hear from you!</p>
+        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-center mb-3">🎅 Contact Us</h1>
+        <p className="text-center text-gray-700 mb-8 text-base">We'd love to hear from you! ❤️</p>
 
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-sky-100 p-8">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-red-200 p-8">
           {submitted ? (
             <div className="text-center py-10">
-              <div className="inline-flex items-center justify-center w-18 h-18 rounded-full bg-gradient-to-r from-green-400 to-green-600 mb-5 shadow-lg">
+              <div className="inline-flex items-center justify-center w-18 h-18 rounded-full bg-gradient-to-r from-red-500 to-red-700 mb-5 shadow-lg">
                 <svg
                   className="h-9 w-9 text-white"
                   xmlns="http://www.w3.org/2000/svg"
@@ -68,14 +68,14 @@ export const Contact = () => {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                Thank you!
+                🎁 Thank you!
               </h2>
               <p className="text-gray-600 mb-7 text-base">
                 We've received your message and will get back to you as soon as possible.
               </p>
               <button
                 onClick={() => setSubmitted(false)}
-                className="text-sky-600 hover:text-sky-700 font-bold text-base hover:underline"
+                className="text-red-600 hover:text-red-700 font-bold text-base hover:underline"
               >
                 Send another message →
               </button>
@@ -96,7 +96,7 @@ export const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                   placeholder="John Doe"
                 />
               </div>
@@ -115,7 +115,7 @@ export const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                   placeholder="your.email@example.com"
                 />
               </div>
@@ -134,7 +134,7 @@ export const Contact = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
                   placeholder="How can we help you?"
                 />
               </div>
@@ -153,7 +153,7 @@ export const Contact = () => {
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="w-full px-4 py-2.5 border-2 border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all resize-none"
+                  className="w-full px-4 py-2.5 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all resize-none"
                   placeholder="Tell us what's on your mind..."
                 ></textarea>
               </div>
@@ -168,13 +168,13 @@ export const Contact = () => {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="flex justify-center items-center px-7 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 text-white rounded-lg hover:from-sky-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-base shadow-md hover:shadow-lg transition-all"
+                  className="flex justify-center items-center px-7 py-3 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-base shadow-md hover:shadow-lg transition-all"
                 >
                   {isPending ? (
-                    "Sending..."
+                    "🎅 Sending..."
                   ) : (
                     <>
-                      Send Message
+                      🎄 Send Message
                       <FiSend className="h-4 w-4 ml-2" />
                     </>
                   )}
