@@ -1,12 +1,5 @@
 import multer from 'multer';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-// multer-storage-cloudinary is a CommonJS package; require it and handle multiple export shapes
-const pkg = require('multer-storage-cloudinary');
-let CloudinaryStorage = pkg.CloudinaryStorage || pkg.default || pkg;
-if (!CloudinaryStorage) {
-    throw new Error('Could not load CloudinaryStorage from multer-storage-cloudinary');
-}
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import { v2 as cloudinary } from 'cloudinary';
 
 
