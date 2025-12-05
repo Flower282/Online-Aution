@@ -65,14 +65,14 @@ export const AuctionList = () => {
         {/* Hero section */}
         <div className="mb-12 text-center space-y-4 relative">
           <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-6xl animate-bounce">
-            🎅
+
           </div>
           <h1 className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent text-4xl font-bold mt-8">
-            ❤️ Đấu Giá Giáng Sinh 🎅
+            Đấu Giá Giáng Sinh
           </h1>
           <p className="text-red-900 max-w-2xl mx-auto font-medium">
-            🎁 Khám phá các sản phẩm độc đáo và đặt giá cho quà tặng yêu thích của bạn.
-            Đấu giá mới mỗi ngày với sản phẩm được xác minh! ❄️
+            Khám phá các sản phẩm độc đáo và đặt giá cho quà tặng yêu thích của bạn.
+            Đấu giá mới mỗi ngày với sản phẩm được xác minh!
           </p>
           <div className="flex justify-center gap-4 text-3xl">
             <span className="animate-pulse">❤️</span>
@@ -96,7 +96,7 @@ export const AuctionList = () => {
         {/* Christmas Red Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="p-4 rounded-lg bg-gradient-to-br from-red-100 to-red-200 text-center border-2 border-red-300 hover:shadow-xl transition-all hover:scale-105">
-            <p className="text-3xl font-bold text-red-700">🎁 {auctions.length}</p>
+            <p className="text-3xl font-bold text-red-700"> {auctions.length}</p>
             <p className="text-sm text-red-800 font-medium">Đấu giá đang diễn ra</p>
           </div>
           <div className="p-4 rounded-lg bg-gradient-to-br from-red-50 to-red-100 text-center border-2 border-red-200 hover:shadow-xl transition-all hover:scale-105">
@@ -106,11 +106,11 @@ export const AuctionList = () => {
             <p className="text-sm text-red-700 font-medium">Tổng lượt đấu giá</p>
           </div>
           <div className="p-4 rounded-lg bg-gradient-to-br from-rose-50 to-rose-100 text-center border-2 border-rose-200 hover:shadow-xl transition-all hover:scale-105">
-            <p className="text-3xl font-bold text-rose-600">🎅 24/7</p>
+            <p className="text-3xl font-bold text-rose-600"> 24/7</p>
             <p className="text-sm text-rose-700 font-medium">Luôn hoạt động</p>
           </div>
           <div className="p-4 rounded-lg bg-gradient-to-br from-pink-50 to-pink-100 text-center border-2 border-pink-200 hover:shadow-xl transition-all hover:scale-105">
-            <p className="text-3xl font-bold text-pink-600">⭐ 100%</p>
+            <p className="text-3xl font-bold text-pink-600"> 100%</p>
             <p className="text-sm text-pink-700 font-medium">An toàn</p>
           </div>
         </div>
@@ -118,9 +118,9 @@ export const AuctionList = () => {
         {/* Christmas Auction grid */}
         {filteredAuctions.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-2xl border-2 border-red-200">
-            <div className="text-6xl mb-4">🎅</div>
+            <div className="text-6xl mb-4"></div>
             <p className="text-gray-700 font-medium">
-              {auctions.length === 0 ? "❄️ Chưa có đấu giá nào" : "🎄 Không có đấu giá trong danh mục này"}
+              {auctions.length === 0 ? " Chưa có đấu giá nào" : " Không có đấu giá trong danh mục này"}
             </p>
           </div>
         ) : (

@@ -44,15 +44,15 @@ export const Navbar = () => {
     <>
       <header className="sticky top-0 z-50 w-full border-b-2 border-red-300 bg-white/95 backdrop-blur shadow-lg">
         <div className="absolute inset-0 bg-gradient-to-r from-red-100 via-red-50 to-red-100 opacity-60"></div>
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 relative">
+        <div className="container mx-auto flex h-20 items-center justify-between px-4 relative">
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2 group">
               <div className="relative">
-                <Gavel className="h-6 w-6 text-red-600 group-hover:text-red-700 transition-colors christmas-sparkle" />
-                <Sparkles className="h-3 w-3 text-yellow-500 absolute -top-1 -right-1 animate-pulse" />
+                <Gavel className="h-7 w-7 text-red-600 group-hover:text-red-700 transition-colors christmas-sparkle" />
+                <Sparkles className="h-3.5 w-3.5 text-yellow-500 absolute -top-1 -right-1 animate-pulse" />
               </div>
-              <span className="font-bold text-lg bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent">
-                🎅 Online Auction
+              <span className="font-bold text-xl bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent">
+                Online Auction
               </span>
             </Link>
 
@@ -63,8 +63,8 @@ export const Navbar = () => {
                   key={item.link}
                   className={({ isActive }) =>
                     isActive
-                      ? "text-sm text-primary font-medium transition-colors"
-                      : "text-sm hover:text-primary transition-colors"
+                      ? "text-base text-primary font-medium transition-colors"
+                      : "text-base hover:text-primary transition-colors"
                   }
                 >
                   {item.name}

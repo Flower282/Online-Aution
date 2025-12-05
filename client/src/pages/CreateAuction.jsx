@@ -129,9 +129,9 @@ export const CreateAuction = () => {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6 text-center">
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
-            🎅 Create Christmas Auction
+            Create Christmas Auction
           </h1>
-          <p className="text-gray-700">List your item for the Christmas season ❤️</p>
+          <p className="text-gray-700">List your item for the Christmas season </p>
         </div>
         <div className="bg-white rounded-lg shadow-lg border-2 border-red-200">
           <div className="p-6 md:p-8">
@@ -142,7 +142,7 @@ export const CreateAuction = () => {
                   htmlFor="itemName"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  🎁 Item Name <span className="text-red-600">*</span>
+                  Item Name <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -162,7 +162,7 @@ export const CreateAuction = () => {
                   htmlFor="itemDescription"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  📝 Item Description <span className="text-red-600">*</span>
+                  Item Description <span className="text-red-600">*</span>
                 </label>
                 <textarea
                   id="itemDescription"
@@ -184,7 +184,7 @@ export const CreateAuction = () => {
                     htmlFor="itemCategory"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    🏷️ Category <span className="text-red-600">*</span>
+                    Category <span className="text-red-600">*</span>
                   </label>
                   <select
                     id="itemCategory"
@@ -209,7 +209,7 @@ export const CreateAuction = () => {
                     htmlFor="startingPrice"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    💰 Starting Price ($) <span className="text-red-600">*</span>
+                    Starting Price ($) <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="number"
@@ -234,7 +234,7 @@ export const CreateAuction = () => {
                     htmlFor="itemStartDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    📅 Auction Start Date <span className="text-red-600">*</span>
+                    Auction Start Date <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="date"
@@ -255,7 +255,7 @@ export const CreateAuction = () => {
                     htmlFor="itemEndDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    🎄 Auction End Date <span className="text-red-600">*</span>
+                    Auction End Date <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="date"
@@ -326,7 +326,7 @@ export const CreateAuction = () => {
                   disabled={isPending}
                   className="flex-1 sm:flex-none bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-6 rounded-md hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold transition-all shadow-lg hover:shadow-xl"
                 >
-                  {isPending ? "🎅 Creating Auction..." : "🎄 Create Auction"}
+                  {isPending ? " Creating Auction..." : "🎄 Create Auction"}
                 </button>
               </div>
             </form>
@@ -344,29 +344,29 @@ export const HelpSection = () => {
   return (
     <div className="mt-8 bg-red-50 border-2 border-red-200 rounded-lg p-6">
       <h3 className="text-lg font-semibold text-red-900 mb-3">
-        🎅 Tips for Creating a Successful Christmas Auction
+        Tips for Creating a Successful Christmas Auction
       </h3>
       <ul className="space-y-2 text-red-800 text-sm">
         <li className="flex items-start">
-          <span className="text-red-600 mr-2">🎁</span>
+          <span className="text-red-600 mr-2"></span>
           Use clear, high-quality photos that show your item from multiple
           angles
         </li>
         <li className="flex items-start">
-          <span className="text-red-600 mr-2">📝</span>
+          <span className="text-red-600 mr-2"></span>
           Write detailed descriptions including condition, dimensions, and any
           flaws
         </li>
         <li className="flex items-start">
-          <span className="text-red-600 mr-2">💰</span>
+          <span className="text-red-600 mr-2"></span>
           Set a reasonable starting price to attract bidders
         </li>
         <li className="flex items-start">
-          <span className="text-red-600 mr-2">⏰</span>
+          <span className="text-red-600 mr-2"></span>
           Choose appropriate auction duration (3-7 days typically work best)
         </li>
         <li className="flex items-start">
-          <span className="text-red-600 mr-2">🏷️</span>
+          <span className="text-red-600 mr-2"></span>
           Select the most accurate category to help buyers find your item
         </li>
       </ul>

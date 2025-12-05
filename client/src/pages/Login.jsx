@@ -106,7 +106,7 @@ const Login = () => {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
               >
-                {loading ? "🎅 Logging in..." : "🎄 Sign In"}
+                {loading ? " Logging in..." : "🎄 Sign In"}
               </button>
             </form>
 
@@ -122,7 +122,7 @@ const Login = () => {
                 to="/signup"
                 className="text-red-600 font-bold hover:text-red-700 hover:underline"
               >
-                ❤️ Sign up now
+                Sign up now
               </Link>
             </div>
           </div>

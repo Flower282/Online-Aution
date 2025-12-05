@@ -62,15 +62,15 @@ export const MyAuction = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
-            🎅 My Christmas Auctions
+            My Christmas Auctions
           </h1>
-          <p className="text-gray-700">Manage your auction listings ❤️</p>
+          <p className="text-gray-700">Manage your auction listings </p>
         </div>
 
         {/* Filters */}
         <div className="mb-10">
           <h2 className="text-xl font-bold mb-4 text-gray-900">
-            🎁 Filter by Category
+            Filter by Category
           </h2>
           <div className="flex flex-wrap gap-3">
             {categories.map((category) => (
@@ -107,10 +107,10 @@ export const MyAuction = () => {
                 </svg>
               </div>
               <p className="text-gray-700 text-xl font-semibold mb-2">
-                {auctions.length === 0 ? "🎅 No Auctions Yet" : "❄️ No auctions found in this category"}
+                {auctions.length === 0 ? " No Auctions Yet" : "❄️ No auctions found in this category"}
               </p>
               <p className="text-gray-500 text-base">
-                {auctions.length === 0 ? "🎁 Create your first Christmas auction to get started!" : "Try selecting a different category"}
+                {auctions.length === 0 ? " Create your first Christmas auction to get started!" : "Try selecting a different category"}
               </p>
             </div>
           </div>

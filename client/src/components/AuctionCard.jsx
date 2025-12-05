@@ -107,7 +107,7 @@ export default function AuctionCard({ auction, onClick }) {
             }}
             disabled={isSellerInactive && !isEnded}
           >
-            {isEnded ? '🎁 Xem kết quả' : isSellerInactive ? '⚠️ Không khả dụng' : '❤️ Đấu giá ngay'}
+            {isEnded ? 'Xem kết quả' : isSellerInactive ? 'Không khả dụng' : 'Đấu giá ngay'}
           </Button>
         </Link>
       </CardContent>
