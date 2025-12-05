@@ -125,14 +125,17 @@ export const placeBid = async (req, res) => {
         if (bidAmount < minBid) return res.status(400).json({ message: `Bid must be at least Rs ${minBid}` })
         if (bidAmount > maxBid) return res.status(400).json({ message: `Bid must be at max Rs ${maxBid}` })
 
-        product.bids.push({
-            bidder: user,
-            bidAmount: bidAmount,
-        })
-
-        product.currentPrice = bidAmount;
-        await product.save();
-        res.status(200).json({ message: "Bid placed successfully" });
+        // Thông báo cho client gửi bid qua socket thay vì xử lý trực tiếp
+        // Socket sẽ xử lý validation giá trùng và lưu vào Redis + MongoDB
+        res.status(200).json({ 
+            message: "Please submit bid via socket connection",
+            socketEvent: "auction:bid",
+            payload: {
+                auctionId: id,
+                userId: user,
+                amount: bidAmount
+            }
+        });
     } catch (error) {
         res.status(500).json({ message: "Error placing bid", error: error.message })
     }
@@ -176,10 +179,12 @@ export const dashboardData = async (req, res) => {
                 itemName: auction.itemName,
                 itemDescription: auction.itemDescription,
                 currentPrice: auction.currentPrice,
+                startingPrice: auction.startingPrice,
                 bidsCount: auction.bids?.length || 0,
                 timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
                 itemCategory: auction.itemCategory,
                 sellerName: auction.seller?.name || "Người dùng không tồn tại",
+                sellerActive: auction.seller?.isActive !== false,
                 itemPhoto: auction.itemPhoto,
             }));
         } catch (err) {
@@ -189,25 +194,30 @@ export const dashboardData = async (req, res) => {
         // Get user's auctions with error handling
         let latestUserAuctions = [];
         try {
+            console.log(`🔍 Fetching auctions for user: ${userObjectId}`);
             const userAuction = await Product.find({ seller: userObjectId })
                 .populate("seller", "name isActive")
                 .sort({ createdAt: -1 })
                 .limit(3)
                 .lean();
 
+            console.log(`📊 Found ${userAuction.length} auctions for user`);
+
             latestUserAuctions = userAuction.map(auction => ({
                 _id: auction._id,
                 itemName: auction.itemName,
                 itemDescription: auction.itemDescription,
                 currentPrice: auction.currentPrice,
+                startingPrice: auction.startingPrice,
                 bidsCount: auction.bids?.length || 0,
                 timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
                 itemCategory: auction.itemCategory,
                 sellerName: auction.seller?.name || "Người dùng không tồn tại",
+                sellerActive: auction.seller?.isActive !== false,
                 itemPhoto: auction.itemPhoto,
             }));
         } catch (err) {
-            console.error("Error fetching user auctions:", err.message);
+            console.error("❌ Error fetching user auctions:", err.message);
         }
 
         return res.status(200).json({
@@ -282,5 +292,31 @@ export const deleteAuction = async (req, res) => {
     } catch (error) {
         console.error("Error in deleteAuction:", error);
         return res.status(500).json({ message: 'Error deleting auction', error: error.message });
+    }
+}
+
+// Endpoint mới để client biết cần join room khi xem auction
+export const joinAuction = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const auction = await Product.findById(id);
+        
+        if (!auction) {
+            return res.status(404).json({ message: "Auction not found" });
+        }
+
+        res.status(200).json({
+            message: "Join auction room via socket",
+            socketEvent: "auction:join",
+            payload: { auctionId: id },
+            auctionInfo: {
+                _id: auction._id,
+                itemName: auction.itemName,
+                currentPrice: auction.currentPrice,
+                itemEndDate: auction.itemEndDate
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error joining auction', error: error.message });
     }
 }

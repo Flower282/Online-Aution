@@ -39,6 +39,7 @@ export default function Legal() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Legal Documents
           </h1>
+          {/*
           <p className="text-lg text-gray-600 mb-8">
             Please review our legal documents to understand your rights and
             responsibilities when using our online auction platform.
@@ -68,6 +69,7 @@ export default function Legal() {
               us using <Link to={"/contact"} className="text-blue-600">contact page</Link>.
             </p>
           </div>
+          */}
         </div>
       </div>
     </div>
