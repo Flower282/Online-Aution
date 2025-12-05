@@ -19,9 +19,9 @@ export const MyAuction = () => {
   // Handle error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
         <main className="max-w-7xl mx-auto px-4 py-10">
-          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-100">
+          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-200">
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,7 +32,7 @@ export const MyAuction = () => {
               <p className="text-gray-600 mb-6">{error.message || "Failed to load your auctions"}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors font-semibold"
+                className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white px-6 py-3 rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-colors font-semibold"
               >
                 Retry
               </button>
@@ -57,14 +57,14 @@ export const MyAuction = () => {
       : auctions.filter((auction) => auction.itemCategory === filter);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
       <main className="max-w-7xl mx-auto px-4 py-10">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-cyan-500 mb-2">
-            My Auctions
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
+            My Christmas Auctions
           </h1>
-          <p className="text-gray-600">Manage your auction listings</p>
+          <p className="text-gray-700">Manage your auction listings </p>
         </div>
 
         {/* Filters */}
@@ -78,8 +78,8 @@ export const MyAuction = () => {
                 key={category}
                 onClick={() => setFilter(category)}
                 className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${filter === category
-                  ? "bg-gradient-to-r from-sky-500 to-cyan-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-                  : "bg-white text-gray-700 border-2 border-sky-200 hover:bg-sky-50 hover:border-sky-300 shadow-md"
+                  ? "bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                  : "bg-white text-gray-700 border-2 border-red-200 hover:bg-red-50 hover:border-red-300 shadow-md"
                   }`}
               >
                 {category.charAt(0).toUpperCase() + category.slice(1)}
@@ -99,18 +99,18 @@ export const MyAuction = () => {
         </div>
 
         {filteredAuctions.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-sky-100">
+          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-200">
             <div className="flex flex-col items-center">
-              <div className="w-20 h-20 bg-sky-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-10 h-10 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
               </div>
               <p className="text-gray-700 text-xl font-semibold mb-2">
-                {auctions.length === 0 ? "No Auctions Yet" : "No auctions found in this category"}
+                {auctions.length === 0 ? " No Auctions Yet" : "❄️ No auctions found in this category"}
               </p>
               <p className="text-gray-500 text-base">
-                {auctions.length === 0 ? "Create your first auction to get started!" : "Try selecting a different category"}
+                {auctions.length === 0 ? " Create your first Christmas auction to get started!" : "Try selecting a different category"}
               </p>
             </div>
           </div>
