@@ -4,8 +4,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { placeBid, viewAuction, deleteAuction } from "../api/auction.js";
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
-import Toast from "../components/Toast.jsx";
 import socket from "../utils/socket.js";
+import { X, User as UserIcon, Package, Shield, TrendingUp, AlertCircle, Trash2 } from "lucide-react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
+import { Separator } from "../components/ui/separator";
+import { CountdownTimer } from "../components/CountdownTimer";
+import { BidHistory } from "../components/BidHistory";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import Toast from "../components/Toast.jsx";
 
 export const ViewAuction = () => {
   const { id } = useParams();
@@ -13,6 +21,7 @@ export const ViewAuction = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const inputRef = useRef();
+  const isMountedRef = useRef(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState(null);
   const [topBids, setTopBids] = useState([]);
@@ -24,14 +33,27 @@ export const ViewAuction = () => {
     queryFn: () => viewAuction(id),
     staleTime: 30 * 1000,
     placeholderData: () => undefined,
+    retry: 1,
+    retryDelay: 1000,
+    // Don't throw errors that would cause navigation
+    throwOnError: false,
+    // Keep previous data when refetching to avoid showing "not found" state
+    keepPreviousData: true,
   });
+
+  // Initialize currentPrice from data when available
+  useEffect(() => {
+    if (data && data.currentPrice && currentPrice === null) {
+      setCurrentPrice(data.currentPrice);
+    }
+  }, [data, currentPrice]);
 
   // Socket.io integration
   useEffect(() => {
     if (!id) return;
 
     console.log('🔵 Joining auction room:', id);
-    
+
     // Join auction room
     socket.emit('auction:join', { auctionId: id });
 
@@ -63,12 +85,12 @@ export const ViewAuction = () => {
       }
       // Refresh query to update UI
       queryClient.invalidateQueries({ queryKey: ["viewAuctions", id] });
-      
+
       // Show notification if bid is from another user
       if (update.userId !== user?.user?._id) {
-        setToast({ 
-          message: `Có người vừa đặt giá: $${update.amount}`, 
-          type: "info" 
+        setToast({
+          message: `Có người vừa đặt giá: $${update.amount}`,
+          type: "info"
         });
       }
     });
@@ -154,17 +176,17 @@ export const ViewAuction = () => {
   // Handle error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-100 max-w-md">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Auction</h2>
-          <p className="text-gray-600 mb-6">{error.message || "Failed to load auction details"}</p>
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-200 max-w-md">
+          <h2 className="text-2xl font-bold text-red-700 mb-4">Error Loading Auction</h2>
+          <p className="text-gray-700 mb-6">{error.message || "Failed to load auction details"}</p>
           <div className="flex gap-3 justify-center">
-            <Link to="/auction" className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors font-semibold">
+            <Link to="/auction" className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold">
               Back to Auctions
             </Link>
             <button
               onClick={() => window.location.reload()}
-              className="bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors font-semibold"
+              className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold"
             >
               Retry
             </button>
@@ -177,11 +199,11 @@ export const ViewAuction = () => {
   // Handle undefined data
   if (!data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-yellow-100 max-w-md">
-          <h2 className="text-2xl font-bold text-yellow-600 mb-4">Auction Not Found</h2>
-          <p className="text-gray-600 mb-6">This auction may have been removed or doesn't exist.</p>
-          <Link to="/auction" className="inline-block bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors font-semibold">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-red-50 flex items-center justify-center">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-green-200 max-w-md">
+          <h2 className="text-2xl font-bold text-red-700 mb-4">Auction Not Found</h2>
+          <p className="text-gray-700 mb-6">This auction may have been removed or doesn't exist.</p>
+          <Link to="/auction" className="inline-block bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold">
             Back to Auctions
           </Link>
         </div>
@@ -195,7 +217,7 @@ export const ViewAuction = () => {
   const handleBidSubmit = (e) => {
     e.preventDefault();
     const bidAmount = parseFloat(e.target.bidAmount.value.trim());
-    
+
     if (!bidAmount || bidAmount <= 0) {
       setToast({ message: "Vui lòng nhập giá hợp lệ", type: "error" });
       return;
@@ -203,14 +225,14 @@ export const ViewAuction = () => {
 
     // user.user._id vì Redux state có cấu trúc { user: { user: { _id, name, ... } } }
     const userId = user?.user?._id;
-    
+
     if (!userId) {
       setToast({ message: "Vui lòng đăng nhập để đặt giá", type: "error" });
       return;
     }
 
     console.log('🟢 Placing bid via socket:', { auctionId: id, userId, amount: bidAmount });
-    
+
     // Send bid via socket instead of HTTP
     socket.emit('auction:bid', {
       auctionId: id,
@@ -223,14 +245,17 @@ export const ViewAuction = () => {
     Math.max(0, new Date(data.itemEndDate) - new Date()) / (1000 * 60 * 60 * 24)
   );
   const isActive = Math.max(0, new Date(data.itemEndDate) - new Date()) > 0;
+  const topTenBids = [...(data.bids || [])]
+    .sort((a, b) => b.bidAmount - a.bidAmount)
+    .slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-gray-50  mx-auto container">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 mx-auto container">
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image Section */}
           <div className="space-y-4 grid grid-cols-1 place-items-center content-start">
-            <div className="max-w-xl aspect-square bg-white rounded-md shadow-md border border-gray-200 overflow-hidden flex items-center justify-center">
+            <div className="max-w-xl aspect-square bg-white rounded-md shadow-md border border-red-200 overflow-hidden flex items-center justify-center">
               <img
                 src={data.itemPhoto || "https://picsum.photos/601"}
                 alt={data.itemName}
@@ -243,7 +268,7 @@ export const ViewAuction = () => {
           <div className="space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-md text-xs font-medium">
+                <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-xs font-medium">
                   {data.itemCategory}
                 </span>
                 <span
@@ -264,33 +289,33 @@ export const ViewAuction = () => {
             </div>
 
             {/* Pricing Info */}
-            <div className="bg-white p-6 rounded-md shadow-md border border-gray-200">
+            <div className="bg-white p-6 rounded-md shadow-md border border-red-200">
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <p className="text-sm text-gray-500">Starting Price</p>
-                  <p className="text-lg font-semibold text-gray-900">
+                  <p className="text-sm text-amber-700">Starting Price</p>
+                  <p className="text-lg font-semibold text-red-700">
                     ${data.startingPrice}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Current Price</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    ${data.currentPrice}
+                  <p className="text-sm text-emerald-700">Current Price</p>
+                  <p className="text-2xl font-bold text-emerald-700">
+                    ${currentPrice ?? data.currentPrice}
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-500">Total Bids</p>
-                  <p className="text-lg font-semibold text-gray-900">
+                  <p className="text-sm text-amber-700">Total Bids</p>
+                  <p className="text-lg font-semibold text-red-700">
                     {data.bids.length}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Time Left</p>
+                  <p className="text-sm text-emerald-700">Time Left</p>
                   <p
-                    className={`text-lg font-semibold ${isActive ? "text-red-600" : "text-gray-500"
+                    className={`text-lg font-semibold ${isActive ? "text-emerald-700" : "text-gray-500"
                       }`}
                   >
                     {isActive ? `${daysLeft} days` : "Ended"}
@@ -301,16 +326,16 @@ export const ViewAuction = () => {
 
             {/* Warning if auction ended */}
             {!isActive && (
-              <div className="bg-gray-50 border-2 border-gray-300 p-6 rounded-md shadow-md">
+              <div className="bg-red-50 border-2 border-red-200 p-6 rounded-md shadow-md">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0">
-                    <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Đấu giá đã kết thúc</h3>
-                    <p className="text-gray-700 text-sm">
+                    <h3 className="text-lg font-semibold text-red-800 mb-2">Đấu giá đã kết thúc</h3>
+                    <p className="text-red-700 text-sm">
                       Phiên đấu giá này đã kết thúc. Không thể đặt giá thêm.
                     </p>
                   </div>
@@ -339,7 +364,7 @@ export const ViewAuction = () => {
 
             {/* Bid Form */}
             {data.seller._id != user.user._id && isActive && !isSellerInactive && (
-              <div className="bg-white p-6 rounded-md shadow-md border border-gray-200">
+              <div className="bg-white p-6 rounded-md shadow-md border border-green-200">
                 <h3 className="text-lg font-semibold mb-4">Place Your Bid</h3>
                 <form onSubmit={handleBidSubmit} className="space-y-4">
                   <div>
@@ -357,14 +382,14 @@ export const ViewAuction = () => {
                       ref={inputRef}
                       min={data.currentPrice + 1}
                       max={data.currentPrice + 10}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                       placeholder="Enter your bid amount"
                       required
                     />
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                    className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md"
                   >
                     Place Bid
                   </button>
@@ -375,10 +400,10 @@ export const ViewAuction = () => {
             {/* Seller Info */}
             <div className={`p-6 rounded-md shadow-md border ${isSellerInactive
               ? 'bg-red-50 border-red-200'
-              : 'bg-white border-gray-200'
+              : 'bg-gradient-to-r from-emerald-50 to-green-50 border-green-200'
               }`}>
-              <h3 className="text-lg font-semibold mb-3">Seller Information</h3>
-              <p className={`font-medium ${isSellerInactive ? 'text-red-700' : 'text-gray-900'
+              <h3 className="text-lg font-semibold mb-3 text-red-700">Seller Information</h3>
+              <p className={`font-medium ${isSellerInactive ? 'text-red-700' : 'text-emerald-800'
                 }`}>
                 {isSellerInactive ? 'Tài khoản bị vô hiệu hóa' : data.seller.name}
               </p>
@@ -410,30 +435,30 @@ export const ViewAuction = () => {
 
         {/* Bid History */}
         <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Bid History</h2>
-          <div className="bg-white rounded-md shadow-md border border-gray-200 overflow-hidden">
-            {data.bids.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
+          <h2 className="text-2xl font-bold text-red-700 mb-6">Bid History</h2>
+          <div className="bg-white rounded-md shadow-md border border-red-200 overflow-hidden">
+            {topTenBids.length === 0 ? (
+              <div className="p-8 text-center text-amber-700">
                 No bids yet. Be the first to bid!
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
-                {data.bids.map((bid, index) => (
+              <div className="divide-y divide-red-50">
+                {topTenBids.map((bid, index) => (
                   <div
                     key={index}
                     className="p-4 flex justify-between items-center"
                   >
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-emerald-800">
                         {bid.bidder?.name}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-600">
                         {new Date(bid.bidTime).toLocaleDateString()} at{" "}
                         {new Date(bid.bidTime).toLocaleTimeString()}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold text-green-600">
+                      <p className="text-lg font-semibold text-red-700">
                         ${bid.bidAmount}
                       </p>
                     </div>
