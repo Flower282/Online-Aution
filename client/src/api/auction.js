@@ -110,3 +110,17 @@ export const deleteAuction = async (id) => {
         throw new Error(error.response?.data?.message || "Failed to delete auction. Please try again.");
     }
 }
+
+// toggle like/unlike auction
+export const toggleLikeAuction = async (id) => {
+    try {
+        const res = await axios.post(`${VITE_AUCTION_API}/${id}/like`,
+            {},
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error toggling like", error.message);
+        throw new Error(error.response?.data?.message || "Failed to like auction. Please try again.");
+    }
+}

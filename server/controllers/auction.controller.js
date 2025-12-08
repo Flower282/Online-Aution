@@ -48,9 +48,11 @@ export const showAuction = async (req, res) => {
         await connectDB();
         const auction = await Product.find({ itemEndDate: { $gt: new Date() } })
             .populate("seller", "name isActive")
-            .select("itemName itemDescription currentPrice bids itemEndDate itemCategory itemPhoto seller")
-            .sort({ createdAt: -1 })
+            .select("itemName itemDescription currentPrice bids itemEndDate itemCategory itemPhoto seller likes likesCount")
+            .sort({ likesCount: -1, createdAt: -1 })
             .lean();
+
+        const userId = req.user?.id;
 
         const formatted = auction.map(auction => ({
             _id: auction._id,
@@ -65,6 +67,8 @@ export const showAuction = async (req, res) => {
                 : (auction.seller?.name || "Người dùng không tồn tại"),
             sellerActive: auction.seller?.isActive !== false,
             itemPhoto: auction.itemPhoto,
+            likesCount: auction.likesCount || 0,
+            isLikedByUser: userId ? auction.likes?.some(like => like.toString() === userId) : false
         }));
 
         res.status(200).json(formatted);
@@ -318,5 +322,40 @@ export const joinAuction = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({ message: 'Error joining auction', error: error.message });
+    }
+}
+
+export const toggleLike = async (req, res) => {
+    try {
+        await connectDB();
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ message: "Auction not found" });
+        }
+
+        const likeIndex = product.likes.indexOf(userId);
+        
+        if (likeIndex > -1) {
+            // Unlike
+            product.likes.splice(likeIndex, 1);
+            product.likesCount = Math.max(0, product.likesCount - 1);
+        } else {
+            // Like
+            product.likes.push(userId);
+            product.likesCount += 1;
+        }
+
+        await product.save();
+
+        res.status(200).json({ 
+            message: likeIndex > -1 ? "Unliked" : "Liked",
+            isLiked: likeIndex === -1,
+            likesCount: product.likesCount
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error toggling like", error: error.message });
     }
 }
