@@ -53,6 +53,14 @@ const productSchema = new mongoose.Schema({
     isSold: {
         type: Boolean,
         default: false,
+    },
+    likes: [{
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+    }],
+    likesCount: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
 

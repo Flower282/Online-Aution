@@ -1,5 +1,5 @@
 import express from 'express';
-import { createAuction, showAuction, auctionById, placeBid, dashboardData, myAuction, joinAuction, deleteAuction } from '../controllers/auction.controller.js';
+import { createAuction, showAuction, auctionById, placeBid, dashboardData, myAuction, joinAuction, deleteAuction, toggleLike } from '../controllers/auction.controller.js';
 import upload from '../middleware/multer.js';
 import { checkAdmin } from '../middleware/checkAdmin.js';
 
@@ -18,6 +18,7 @@ auctionRouter
 auctionRouter
     .get('/:id', auctionById)
     .post('/:id/join', joinAuction)  // Endpoint để join auction room
+    .post('/:id/like', toggleLike)   // Endpoint để like/unlike
     .post('/:id', placeBid)
     .delete('/:id', checkAdmin, deleteAuction)
 
