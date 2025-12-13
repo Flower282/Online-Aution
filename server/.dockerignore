@@ -1,0 +1,33 @@
+# Ignore node_modules
+node_modules
+npm-debug.log
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore Git
+.git
+.gitignore
+
+# Ignore IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Ignore test files
+*.test.js
+coverage
+
+# Ignore documentation
+README.md
+docs
+
+# Ignore logs
+logs
+*.log
+
+# Ignore temporary files
+*.tmp
+.DS_Store

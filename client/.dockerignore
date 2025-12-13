@@ -1,0 +1,32 @@
+# Ignore node_modules
+node_modules
+npm-debug.log
+
+# Ignore Git
+.git
+.gitignore
+
+# Ignore IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Ignore test files
+*.test.js
+*.test.jsx
+coverage
+
+# Ignore documentation
+README.md
+docs
+
+# Ignore logs
+*.log
+
+# Ignore temporary files
+*.tmp
+.DS_Store
+
+# DO NOT ignore dist - we need it!
+# dist

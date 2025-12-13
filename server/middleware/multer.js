@@ -1,8 +1,8 @@
 import multer from 'multer';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import multerCloudinary from 'multer-storage-cloudinary';
 import { v2 as cloudinary } from 'cloudinary';
 
-const storage = new CloudinaryStorage({
+const storage = new multerCloudinary({
     cloudinary: cloudinary,
     params: {
         folder: 'auctions',
