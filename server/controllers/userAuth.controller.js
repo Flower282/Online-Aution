@@ -9,11 +9,29 @@ dotenv.config();
 
 
 export const handleUserLogin = async (req, res) => {
+    // Ensure req.body exists (for cases where Content-Type is wrong)
+    if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({ error: "All Fields are required" });
+    }
+    
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: "All Fields are required" });
+    
+    // Type validation - reject non-strings (NoSQL injection prevention)
+    if (typeof email !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({ error: "All Fields are required" });
+    }
+    
+    // Trim and validate - reject empty or whitespace-only
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    
+    if (!trimmedEmail || !trimmedPassword) {
+        return res.status(400).json({ error: "All Fields are required" });
+    }
+    
     try {
         await connectDB();
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: trimmedEmail });
         //  Checking user exists
         if (!user) {
             return res.status(400).json({ error: "User not found" });
@@ -25,7 +43,7 @@ export const handleUserLogin = async (req, res) => {
         }
 
         // Password Validate
-        const psswordValidate = await bcrypt.compare(password, user.password);
+        const psswordValidate = await bcrypt.compare(trimmedPassword, user.password);
         if (!psswordValidate) {
             return res.status(401).json({ error: "Invalid Credentials" });
         }
@@ -78,22 +96,38 @@ export const handleUserLogin = async (req, res) => {
         return res.status(200).json({ message: "Login Successful" });
 
     } catch (error) {
-        console.error("Login Error:", error);
         return res.status(500).json({ error: "Server error from handle login" });
     }
 }
 
 export const handleUserSignup = async (req, res) => {
-    await connectDB();
+    // Ensure req.body exists (for cases where Content-Type is wrong)
+    if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+    
     const { name, email, password } = req.body;
 
-    // Checking input fields
+    // Basic presence check
     if (!name || !email || !password) {
         return res.status(400).json({ error: "All fields are required" });
     }
+
+    // Only validate strings (for whitespace), non-strings will be handled by MongoDB
+    const trimmedName = typeof name === 'string' ? name.trim() : name;
+    const trimmedEmail = typeof email === 'string' ? email.trim() : email;
+    const trimmedPassword = typeof password === 'string' ? password.trim() : password;
+    
+    // Check if strings are empty after trimming
+    if ((typeof name === 'string' && !trimmedName) || 
+        (typeof email === 'string' && !trimmedEmail) || 
+        (typeof password === 'string' && !trimmedPassword)) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+    
     try {
         await connectDB();
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email: trimmedEmail });
 
         // Checking existing of user
         if (existingUser)
@@ -105,12 +139,12 @@ export const handleUserSignup = async (req, res) => {
         const location = await getLocationFromIp(ip);
 
         // Hashing user password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(trimmedPassword, 10);
 
         // Saving user to database
         const newUser = new User({
-            name,
-            email,
+            name: trimmedName,
+            email: trimmedEmail,
             password: hashedPassword,
             avatar: "https://avatar.iran.liara.run/public/7",
             ipAddress: ip,
@@ -154,7 +188,6 @@ export const handleUserSignup = async (req, res) => {
 
         return res.status(201).json({ message: "User registered successfully" });
     } catch (err) {
-        console.log(err);
         return res.status(500).json({ error: "Server error" });
     }
 }
