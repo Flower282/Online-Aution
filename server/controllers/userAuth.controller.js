@@ -3,7 +3,7 @@ import User from "../models/user.js"
 import Login from "../models/Login.js"
 import bcrypt from "bcrypt";
 import dotenv from "dotenv"
-import { generateToken } from "../utils/jwt.js";
+import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 import { getClientIp, getLocationFromIp } from "../utils/geoDetails.js";
 dotenv.config();
 
@@ -30,15 +30,26 @@ export const handleUserLogin = async (req, res) => {
             return res.status(401).json({ error: "Invalid Credentials" });
         }
 
-        // generating jwt token
-        const token = generateToken(user._id, user.role);
+        // generating jwt tokens
+        const accessToken = generateToken(user._id, user.role);
+        const refreshToken = generateRefreshToken(user._id);
 
-        // Set HTTP-only cookie
-        res.cookie("auth_token", token, {
+        // Save refresh token to database
+        await User.findByIdAndUpdate(user._id, { refreshToken });
+
+        // Set HTTP-only cookies
+        res.cookie("auth_token", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
 
         // Getting user gro location
@@ -119,15 +130,26 @@ export const handleUserSignup = async (req, res) => {
         })
         await login.save();
 
-        // Generating jwt token
-        const token = generateToken(newUser._id, newUser.role);
+        // Generating jwt tokens
+        const accessToken = generateToken(newUser._id, newUser.role);
+        const refreshToken = generateRefreshToken(newUser._id);
 
-        // Set HTTP-only cookie
-        res.cookie("auth_token", token, {
+        // Save refresh token to database
+        await User.findByIdAndUpdate(newUser._id, { refreshToken });
+
+        // Set HTTP-only cookies
+        res.cookie("auth_token", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
 
         return res.status(201).json({ message: "User registered successfully" });
@@ -138,10 +160,79 @@ export const handleUserSignup = async (req, res) => {
 }
 
 export const handleUserLogout = async (req, res) => {
-    res.clearCookie("auth_token", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-    });
-    return res.status(200).json({ message: "Logged out successfully" });
+    try {
+        // Clear refresh token from database if user is authenticated
+        if (req.user && req.user.id) {
+            await User.findByIdAndUpdate(req.user.id, { refreshToken: null });
+        }
+
+        // Clear both cookies
+        res.clearCookie("auth_token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+        });
+
+        res.clearCookie("refresh_token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+        });
+
+        return res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.error("Logout error:", error);
+        return res.status(500).json({ error: "Logout failed" });
+    }
+}
+
+export const handleRefreshToken = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refresh_token;
+
+        if (!refreshToken) {
+            return res.status(401).json({ error: "Refresh token not found" });
+        }
+
+        // Verify refresh token
+        const decoded = verifyRefreshToken(refreshToken);
+
+        // Check if refresh token exists in database
+        await connectDB();
+        const user = await User.findById(decoded.id);
+
+        if (!user || user.refreshToken !== refreshToken) {
+            return res.status(403).json({ error: "Invalid refresh token" });
+        }
+
+        // Check if user is active
+        if (!user.isActive) {
+            return res.status(403).json({ error: "Account is inactive" });
+        }
+
+        // Generate new access token
+        const newAccessToken = generateToken(user._id, user.role);
+
+        // Set new access token cookie
+        res.cookie("auth_token", newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+
+        return res.status(200).json({
+            message: "Token refreshed successfully",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+
+    } catch (error) {
+        console.error("Refresh token error:", error);
+        return res.status(403).json({ error: "Invalid or expired refresh token" });
+    }
 }

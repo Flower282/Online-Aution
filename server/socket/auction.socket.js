@@ -8,18 +8,21 @@
  * @param {Object} socket - Socket.io socket instance
  * @param {Object} io - Socket.io server instance
  * @param {Object} dependencies - External dependencies
- * @param {Object} dependencies.redisClient - Redis client instance
+ * @param {Object} dependencies.redisClient - Redis client instance (optional)
  * @param {Object} dependencies.mongoLogger - MongoDB logger instance
  */
 export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) => {
-    
+
+    // Check if Redis is available
+    const isRedisAvailable = redisClient !== null && redisClient !== undefined;
+
     /**
      * Join auction room
      */
     socket.on('auction:join', async (data) => {
         try {
             const { auctionId } = data;
-            
+
             // Validate input
             if (!auctionId) {
                 socket.emit('auction:error', {
@@ -32,10 +35,11 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
             // Join room
             const roomName = `auction:${auctionId}`;
             await socket.join(roomName);
-            
+
             socket.emit('auction:joined', {
                 auctionId,
-                message: `Joined auction ${auctionId}`
+                message: `Joined auction ${auctionId}`,
+                realTimeEnabled: isRedisAvailable
             });
         } catch (error) {
             console.error('Error joining auction:', error);
@@ -51,6 +55,15 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
      */
     socket.on('auction:bid', async (data) => {
         try {
+            // Check if Redis is available
+            if (!isRedisAvailable) {
+                socket.emit('auction:bid:error', {
+                    code: 'REDIS_UNAVAILABLE',
+                    message: 'Real-time bidding is not available. Please use the standard bidding form.'
+                });
+                return;
+            }
+
             const { auctionId, userId, amount } = data;
 
             // 1. Validate input
@@ -139,13 +152,13 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
 
             // 7. Emit event cho tất cả clients trong room
             const roomName = `auction:${auctionId}`;
-            
+
             const updateData = {
                 ...bidData,
                 topBids: formattedBids,
                 totalBids: await redisClient.zCard(redisKey)
             };
-            
+
             io.to(roomName).emit('auction:bid:updated', updateData);
 
             // 8. Confirm thành công cho client đã bid
@@ -168,6 +181,14 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
      */
     socket.on('auction:get-state', async (data) => {
         try {
+            if (!isRedisAvailable) {
+                socket.emit('auction:error', {
+                    code: 'REDIS_UNAVAILABLE',
+                    message: 'Real-time state is not available.'
+                });
+                return;
+            }
+
             const { auctionId } = data;
 
             if (!auctionId) {
@@ -219,7 +240,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
     socket.on('auction:leave', async (data) => {
         try {
             const { auctionId } = data;
-            
+
             if (!auctionId) {
                 return;
             }
