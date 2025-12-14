@@ -14,6 +14,7 @@ import userRouter from './routes/user.js';
 import contactRouter from "./routes/contact.js";
 import adminRouter from './routes/admin.js';
 import handleAuctionSocket from './socket/auction.socket.js';
+import { socketAuthMiddleware } from './middleware/socketAuth.js';
 
 const port = process.env.PORT || 4000;
 
@@ -31,14 +32,23 @@ const io = new Server(httpServer, {
         credentials: true
     }
 });
+
+// Apply authentication middleware to all socket connections
+io.use(socketAuthMiddleware);
+
+// Handle authentication errors
+io.engine.on("connection_error", (err) => {
+    if (process.env.NODE_ENV !== 'production') {
+        console.error("Socket connection error:", err.code, err.message, err.context);
+    }
+});
 // ==================== END SOCKET.IO ====================
 
 // ==================== REDIS ====================
 // Cấu hình Redis Client (Optional - for real-time bidding)
 let redisClient = null;
-let redisEnabled = false;
 
-if (process.env.REDIS_URL && process.env.REDIS_ENABLED === 'true') {
+if (process.env.REDIS_URL) {
     redisClient = createClient({
         url: process.env.REDIS_URL,
         socket: {
@@ -48,10 +58,7 @@ if (process.env.REDIS_URL && process.env.REDIS_ENABLED === 'true') {
 
     redisClient.on('error', (err) => console.error('❌ Redis Client Error:', err));
     redisClient.on('connect', () => console.log('✅ Redis Client Connected'));
-    redisClient.on('ready', () => {
-        console.log('✅ Redis Client Ready');
-        redisEnabled = true;
-    });
+    redisClient.on('ready', () => console.log('✅ Redis Client Ready'));
 
     try {
         await redisClient.connect();
@@ -61,7 +68,7 @@ if (process.env.REDIS_URL && process.env.REDIS_ENABLED === 'true') {
         redisClient = null;
     }
 } else {
-    console.log('ℹ️  Redis disabled - Set REDIS_ENABLED=true and REDIS_URL in .env to enable real-time bidding');
+    console.log('ℹ️  Redis disabled - Set REDIS_URL in .env to enable real-time bidding');
 }
 // ==================== END REDIS ====================
 
@@ -98,8 +105,20 @@ const mongoLogger = {
 
 // Socket.io connection handler
 io.on('connection', (socket) => {
-    console.log(`✅ User connected: ${socket.id}`);
+    // User is already authenticated by socketAuthMiddleware
+    // socket.user contains { id, role }
+    if (process.env.NODE_ENV !== 'production') {
+        console.log(`✅ User connected: ${socket.id} (User: ${socket.user.id})`);
+    }
+    
     handleAuctionSocket(socket, io, { redisClient, mongoLogger });
+    
+    // Handle disconnection
+    socket.on('disconnect', (reason) => {
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`❌ User disconnected: ${socket.id} (Reason: ${reason})`);
+        }
+    });
 });
 
 // Export io để sử dụng trong controllers
@@ -173,7 +192,7 @@ app.use((err, req, res, next) => {
 httpServer.listen(port, () => {
     console.log(`✅ Server is running on port ${port}`);
     console.log(`✅ Socket.io enabled`);
-    if (redisEnabled) {
+    if (redisClient) {
         console.log(`✅ Redis enabled - Real-time bidding available`);
     } else {
         console.log(`ℹ️  Redis disabled - Standard bidding only`);
