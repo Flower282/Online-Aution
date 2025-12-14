@@ -92,7 +92,31 @@ io.on('connection', (socket) => {
 export { io };
 
 app.use(cookieParser());
+
+// Content-Type validation middleware - must be before express.json()
+app.use((req, res, next) => {
+    // Only validate POST, PUT, PATCH requests with body
+    if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+        const contentType = req.get('Content-Type');
+        // Allow requests without Content-Type (supertest sets it automatically)
+        // But reject explicitly wrong Content-Types
+        if (contentType && !contentType.includes('application/json')) {
+            return res.status(400).json({ error: 'Content-Type must be application/json' });
+        }
+    }
+    next();
+});
+
 app.use(express.json());
+
+// Handle JSON parsing errors
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return res.status(400).json({ error: 'Invalid JSON' });
+    }
+    next(err);
+});
+
 app.use(cors({
     origin: process.env.ORIGIN,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
@@ -113,6 +137,21 @@ app.use('/user', secureRoute, userRouter)
 app.use('/auction', secureRoute, auctionRouter);
 app.use('/contact', contactRouter);
 app.use('/admin', secureRoute, adminRouter)
+
+// Global Error Handler - must be after all routes
+app.use((err, req, res, next) => {
+    // Respect error.status if provided, default to 500
+    const status = err.status || err.statusCode || 500;
+    
+    // Use error.message if available, otherwise generic message
+    const message = err.message || 'Internal server error';
+    
+    // Send consistent JSON error format
+    res.status(status).json({
+        error: message,
+        ...(err.details && { details: err.details })
+    });
+});
 
 httpServer.listen(port, () => {
     console.log(`Server is running on port ${port}`);
