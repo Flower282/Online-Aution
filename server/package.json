@@ -6,11 +6,11 @@
   "private": true,
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles --forceExit",
+    "test:watch": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --watch --runInBand",
+    "test:coverage": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --coverage --runInBand --detectOpenHandles --forceExit",
     "dev": "nodemon index.js"
   },
-  "author": "Avnish Kumar",
-  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.0.0",
@@ -32,5 +32,10 @@
     "redis": "^4.7.1",
     "resend": "^4.5.1",
     "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
   }
 }

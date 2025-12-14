@@ -118,7 +118,6 @@ export const getAllUsers = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error fetching users:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching users',
@@ -166,7 +165,6 @@ export const deleteUserById = async (req, res) => {
             message: 'User deactivated successfully. Their auctions are now marked as inactive.'
         });
     } catch (error) {
-        console.error('Error deactivating user:', error);
         res.status(500).json({
             success: false,
             message: 'Error deactivating user',
@@ -207,7 +205,6 @@ export const reactivateUser = async (req, res) => {
             message: 'User reactivated successfully'
         });
     } catch (error) {
-        console.error('Error reactivating user:', error);
         res.status(500).json({
             success: false,
             message: 'Error reactivating user',
@@ -246,7 +243,6 @@ export const migrateUsersIsActive = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error running migration:', error);
         res.status(500).json({
             success: false,
             message: 'Error running migration',

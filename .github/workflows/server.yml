@@ -37,8 +37,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Copy test environment file
+        run: cp .env.test .env
+
+      - name: Run ESM tests (no database required)
         run: npm test
+        continue-on-error: false
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+        continue-on-error: false
+
+      - name: Upload coverage reports
+        if: always()
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./server/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
 
   build:
     name: Build Docker Image
@@ -53,29 +69,42 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Convert username to lowercase
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Build Docker image (dry-run)
         uses: docker/build-push-action@v5
         with:
           context: ./server
           file: ./server/Dockerfile
           push: false
           tags: |
-            ghcr.io/${{ github.repository_owner }}/auction-backend:latest
-            ghcr.io/${{ github.repository_owner }}/auction-backend:${{ github.sha }}
+            ghcr.io/${{ env.OWNER_LC }}/auction-backend:latest
+            ghcr.io/${{ env.OWNER_LC }}/auction-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          load: true
+
+      - name: Test Docker image
+        run: |
+          docker images
+          docker run --rm ghcr.io/${{ env.OWNER_LC }}/auction-backend:latest node --version
 
   deploy:
     name: Deploy to GHCR
-    needs: build
+    needs: [test, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Convert username to lowercase
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -87,17 +116,31 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image to GHCR
         uses: docker/build-push-action@v5
         with:
           context: ./server
           file: ./server/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/auction-backend:latest
-            ghcr.io/${{ github.repository_owner }}/auction-backend:${{ github.sha }}
+            ghcr.io/${{ env.OWNER_LC }}/auction-backend:latest
+            ghcr.io/${{ env.OWNER_LC }}/auction-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
 
       - name: Image digest
-        run: echo "Image pushed successfully with SHA ${{ github.sha }}"
+        run: echo "✅ Image pushed successfully with SHA ${{ github.sha }}"
+
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** ghcr.io/${{ env.OWNER_LC }}/auction-backend:latest" >> $GITHUB_STEP_SUMMARY
+          echo "- **SHA:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Pull with: \`docker pull ghcr.io/${{ env.OWNER_LC }}/auction-backend:latest\`" >> $GITHUB_STEP_SUMMARY
