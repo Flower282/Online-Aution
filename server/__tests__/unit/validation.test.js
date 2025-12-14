@@ -26,16 +26,21 @@ await jest.unstable_mockModule('../../connection.js', () => ({
 // Mock User model
 const mockUserFindOne = jest.fn();
 const mockUserSave = jest.fn();
+const mockUserFindByIdAndUpdate = jest.fn();
 await jest.unstable_mockModule('../../models/user.js', () => ({
   default: class User {
     constructor(data) {
       Object.assign(this, data);
+      this._id = 'user123'; // Add default ID for new users
     }
     save() {
       return mockUserSave(this);
     }
     static findOne(query) {
       return mockUserFindOne(query);
+    }
+    static findByIdAndUpdate(id, update) {
+      return mockUserFindByIdAndUpdate(id, update);
     }
   }
 }));
@@ -187,6 +192,7 @@ describe('ESM Validation Tests - No Database', () => {
 
         mockUserFindOne.mockResolvedValue(null);
         mockUserSave.mockResolvedValue(savedUser);
+        mockUserFindByIdAndUpdate.mockResolvedValue(savedUser); // Mock refresh token update
 
         const payload = signupPayloadFactory({ name: maliciousName });
 
@@ -205,6 +211,7 @@ describe('ESM Validation Tests - No Database', () => {
 
         mockUserFindOne.mockResolvedValue(null);
         mockUserSave.mockResolvedValue(savedUser);
+        mockUserFindByIdAndUpdate.mockResolvedValue(savedUser);
 
         const payload = signupPayloadFactory({ email: maliciousEmail });
 
@@ -221,6 +228,7 @@ describe('ESM Validation Tests - No Database', () => {
 
         mockUserFindOne.mockResolvedValue(null);
         mockUserSave.mockResolvedValue(savedUser);
+        mockUserFindByIdAndUpdate.mockResolvedValue(savedUser);
 
         const response = await request(app)
           .post('/api/auth/signup')
@@ -243,6 +251,7 @@ describe('ESM Validation Tests - No Database', () => {
 
         mockUserFindOne.mockResolvedValue(null);
         mockUserSave.mockResolvedValue(savedUser);
+        mockUserFindByIdAndUpdate.mockResolvedValue(savedUser);
 
         const payload = signupPayloadFactory({ name: longName });
 
@@ -260,6 +269,7 @@ describe('ESM Validation Tests - No Database', () => {
 
         mockUserFindOne.mockResolvedValue(null);
         mockUserSave.mockResolvedValue(savedUser);
+        mockUserFindByIdAndUpdate.mockResolvedValue(savedUser);
 
         const payload = signupPayloadFactory({ email: longEmail });
 
@@ -528,8 +538,7 @@ describe('ESM Validation Tests - No Database', () => {
       const savedUser = userFactory();
 
       mockUserFindOne.mockResolvedValue(null);
-      mockUserSave.mockResolvedValue(savedUser);
-
+      mockUserSave.mockResolvedValue(savedUser);      mockUserFindByIdAndUpdate.mockResolvedValue(savedUser);
       const payload = signupPayloadFactory({
         role: 'admin', // Should be ignored
         isActive: false, // Should be ignored

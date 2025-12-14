@@ -22,6 +22,7 @@ connectDB();
 const app = express();
 const httpServer = createServer(app);
 
+// ==================== SOCKET.IO ====================
 // Cấu hình Socket.io
 const io = new Server(httpServer, {
     cors: {
@@ -30,28 +31,41 @@ const io = new Server(httpServer, {
         credentials: true
     }
 });
+// ==================== END SOCKET.IO ====================
 
-// Cấu hình Redis Client
-if (!process.env.REDIS_URL) {
-    console.warn('⚠️  REDIS_URL not found in .env, using default: redis://localhost:6379');
+// ==================== REDIS ====================
+// Cấu hình Redis Client (Optional - for real-time bidding)
+let redisClient = null;
+let redisEnabled = false;
+
+if (process.env.REDIS_URL && process.env.REDIS_ENABLED === 'true') {
+    redisClient = createClient({
+        url: process.env.REDIS_URL,
+        socket: {
+            reconnectStrategy: false // Disable auto-reconnect
+        }
+    });
+
+    redisClient.on('error', (err) => console.error('❌ Redis Client Error:', err));
+    redisClient.on('connect', () => console.log('✅ Redis Client Connected'));
+    redisClient.on('ready', () => {
+        console.log('✅ Redis Client Ready');
+        redisEnabled = true;
+    });
+
+    try {
+        await redisClient.connect();
+    } catch (error) {
+        console.error('❌ Failed to connect to Redis:', error.message);
+        console.log('⚠️  Redis disabled - Server will work without real-time features');
+        redisClient = null;
+    }
+} else {
+    console.log('ℹ️  Redis disabled - Set REDIS_ENABLED=true and REDIS_URL in .env to enable real-time bidding');
 }
+// ==================== END REDIS ====================
 
-const redisClient = createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-
-redisClient.on('error', (err) => console.error('❌ Redis Client Error:', err));
-redisClient.on('connect', () => console.log('✅ Redis Client Connected'));
-redisClient.on('reconnecting', () => console.log('🔄 Redis Client Reconnecting...'));
-redisClient.on('ready', () => console.log('✅ Redis Client Ready'));
-
-try {
-    await redisClient.connect();
-} catch (error) {
-    console.error('❌ Failed to connect to Redis:', error.message);
-    console.log('⚠️  Server will start but auction bidding features will not work');
-}
-
+// ==================== SOCKET & MONGODB LOGGER ====================
 // MongoDB Logger cho bid history
 if (!process.env.MONGO_URL) {
     console.error('❌ MONGO_URL not found in .env file');
@@ -84,12 +98,13 @@ const mongoLogger = {
 
 // Socket.io connection handler
 io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.id}`);
+    console.log(`✅ User connected: ${socket.id}`);
     handleAuctionSocket(socket, io, { redisClient, mongoLogger });
 });
 
 // Export io để sử dụng trong controllers
 export { io };
+// ==================== END SOCKET & MONGODB LOGGER ====================
 
 app.use(cookieParser());
 
@@ -123,11 +138,13 @@ app.use(cors({
     credentials: true,
 }));
 
+// ==================== SOCKET MIDDLEWARE ====================
 // Attach io to req để controllers có thể sử dụng
 app.use((req, res, next) => {
     req.io = io;
     next();
 });
+// ==================== END SOCKET MIDDLEWARE ====================
 
 app.get('/', async (req, res) => {
     res.json({ msg: 'Welcome to Online Auction System API' });
@@ -154,5 +171,11 @@ app.use((err, req, res, next) => {
 });
 
 httpServer.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`✅ Server is running on port ${port}`);
+    console.log(`✅ Socket.io enabled`);
+    if (redisEnabled) {
+        console.log(`✅ Redis enabled - Real-time bidding available`);
+    } else {
+        console.log(`ℹ️  Redis disabled - Standard bidding only`);
+    }
 });
