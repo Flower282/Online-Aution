@@ -1,4 +1,4 @@
-import { FaClock, FaChevronRight } from "react-icons/fa";
+import { FaClock, FaChevronRight, FaChevronLeft } from "react-icons/fa";
 import { Link } from "react-router";
 import { useState, useEffect } from "react";
 // import { AdsComponent } from "../AdsComponent";
@@ -150,19 +150,6 @@ export const Auction = () => {
 
         {/* <AdsComponent dataAdSlot="5537585913" /> */}
       </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-      `}</style>
     </section>
   );
 };

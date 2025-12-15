@@ -72,7 +72,7 @@ export const MyAuction = () => {
   };
 
   // Status badge component
-  const StatusBadge = ({ status, reason }) => {
+  const StatusBadge = ({ status, reason: _reason }) => {
     const configs = {
       pending: {
         icon: Clock,
