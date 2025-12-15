@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { Link } from "react-router";
 import { CTA } from "../components/Landing/CTA";
 import { Features } from "../components/Landing/Features";
 import { Hero } from "../components/Landing/Hero";
@@ -9,14 +10,14 @@ import { Auction } from "../components/Landing/Auction";
 export const Landing = () => {
   const { user, loading } = useSelector((state) => state.auth);
 
-  if(loading) return <LoadingScreen/>
+  if (loading) return <LoadingScreen />;
   
   return (
     <div className="min-h-screen bg-white">
       {!user && (
         <>
           <Hero />
-          <Auction/>
+          <Auction />
           <Features />
           <CTA />
         </>

@@ -3,39 +3,207 @@ import { Link } from "react-router";
 
 export const Hero = () => {
   return (
-    <section className="relative bg-gradient-to-br from-red-50 via-white to-pink-50 pt-16 pb-20 overflow-hidden">
-      {/* Christmas Decorative elements */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-      <div className="absolute top-0 right-0 w-72 h-72 bg-rose-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-0 left-1/2 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+    <section className="relative bg-[#f5f1e8] pt-20 pb-0 overflow-hidden">
+      {/* Christmas Garland at Top */}
+      <div className="absolute top-0 left-0 right-0 w-full h-24 sm:h-28 md:h-32 z-20 overflow-hidden">
+        <div 
+          className="w-full h-full"
+          style={{ 
+            backgroundImage: 'url(/christmas-garland.png)',
+            backgroundRepeat: 'repeat-x',
+            backgroundSize: 'auto 100%',
+            backgroundPosition: 'center top',
+            filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'
+          }}
+        />
+        {/* Ornament decorations on garland */}
+        <div className="absolute top-6 left-[15%] text-2xl animate-swing" style={{ animationDelay: '0s' }}>🎄</div>
+        <div className="absolute top-8 left-[35%] text-xl animate-swing" style={{ animationDelay: '0.5s' }}>⭐</div>
+        <div className="absolute top-6 left-[55%] text-2xl animate-swing" style={{ animationDelay: '1s' }}>🎁</div>
+        <div className="absolute top-8 left-[75%] text-xl animate-swing" style={{ animationDelay: '1.5s' }}>🔔</div>
+        <div className="absolute top-7 left-[90%] text-xl animate-swing" style={{ animationDelay: '2s' }}>❄️</div>
+      </div>
 
-      <div className="max-w-6xl mx-auto px-4 relative z-10">
-        <div className="text-center">
-          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-6 leading-tight">
-            🎅 The Future of
-            <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700">
-              Christmas Auction ❤️
-            </span>
-          </h1>
-          <p className="text-lg md:text-xl text-gray-700 mb-10 max-w-3xl mx-auto leading-relaxed">
-            🎁 Discover unique items, place competitive bids, and sell your
-            treasures to a global audience. Join thousands of buyers and sellers
-            in our trusted Christmas marketplace! ❄️
-          </p>
-          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
-            <Link to="/signup">
-              <button className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white px-10 py-4 rounded-xl hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-all duration-300 font-semibold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transform">
-                🎅 Get Started
-              </button>
-            </Link>
-            <Link to="/login">
-              <button className="bg-white text-red-600 border-2 border-red-500 px-10 py-4 rounded-xl hover:bg-red-50 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105 transform">
-                ❤️ Sign In
-              </button>
-            </Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <div className="bg-white/80 backdrop-blur-sm p-8 sm:p-10 rounded-3xl shadow-xl border-2 border-white/50">
+            <div className="mb-3">
+              <span className="text-orange-600 font-bold text-xs uppercase tracking-wider">TOP RATED</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 mb-4 leading-tight">
+              ONLINE AUCTION<br />
+              PLATFORM &<br />
+              BIDDING SERVICES
+            </h1>
+            <p className="text-gray-700 text-base sm:text-lg mb-8 font-medium">
+              All auction items on one platform
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/signup">
+                <button className="px-7 py-2.5 border-2 border-gray-900 rounded-full text-gray-900 font-semibold hover:bg-gray-900 hover:text-white transition-all duration-300 transform hover:scale-105 text-sm">
+                  Get Started
+                </button>
+              </Link>
+            </div>    
+            {/* Christmas Sock with Gifts - positioned at bottom left */}
+          </div>
+          <div className="absolute bottom-30 left-140 w-64 z-20 animate-bounce-gentle" style={{ animationDelay: '0.5s' }}>
+            <img 
+              src="/christmas-gifts.png" 
+              alt="Christmas Gifts" 
+              className="w-full h-auto drop-shadow-xl"
+            />
+          </div>
+
+          {/* Right Side - Christmas Decorations */}
+          <div className="hidden lg:flex justify-end items-center relative">
+            <div className="relative w-full max-w-xl">
+              {/* Christmas Tree */}
+              <div className="relative z-10 animate-float-slow">
+                <img 
+                  src="/christmas-tree.png" 
+                  alt="Christmas Tree" 
+                  className="w-full h-auto drop-shadow-2xl"
+                />
+              </div>
+
+              {/* Decorative snowflakes */}
+              <div className="absolute top-10 left-5 text-4xl animate-twinkle" style={{ animationDelay: '0s' }}>❄️</div>
+              <div className="absolute top-20 right-10 text-3xl animate-twinkle" style={{ animationDelay: '1s' }}>❄️</div>
+              <div className="absolute bottom-32 left-10 text-3xl animate-twinkle" style={{ animationDelay: '2s' }}>❄️</div>
+              <div className="absolute bottom-20 right-5 text-4xl animate-twinkle" style={{ animationDelay: '1.5s' }}>⭐</div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Snow Wave Bottom Decoration */}
+      <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none">
+        <svg 
+          className="relative block w-full h-64 sm:h-72 md:h-80 lg:h-96" 
+          viewBox="0 0 1440 320" 
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="snowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#e0f2fe', stopOpacity: 1 }} />
+              <stop offset="50%" style={{ stopColor: '#eff6ff', stopOpacity: 1 }} />
+              <stop offset="100%" style={{ stopColor: '#f8fafc', stopOpacity: 1 }} />
+            </linearGradient>
+            <filter id="snow-shadow">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+              <feOffset dx="0" dy="2" result="offsetblur"/>
+              <feComponentTransfer>
+                <feFuncA type="linear" slope="0.2"/>
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <path 
+            fill="url(#snowGradient)" 
+            fillOpacity="1" 
+            d="M0,96L48,112C96,128,192,160,288,165.3C384,171,480,149,576,133.3C672,117,768,107,864,122.7C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+            filter="url(#snow-shadow)"
+            className="animate-wave"
+          />
+          {/* Second layer for depth */}
+          <path 
+            fill="#ffffff" 
+            fillOpacity="0.7" 
+            d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,213.3C960,224,1056,224,1152,213.3C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+            className="animate-wave-slow"
+          />
+        </svg>
+      </div>
+
+      <style jsx>{`
+        @keyframes float-slow {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-15px);
+          }
+        }
+        
+        @keyframes bounce-gentle {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+        
+        @keyframes twinkle {
+          0%, 100% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.3);
+          }
+        }
+
+        @keyframes swing {
+          0%, 100% {
+            transform: translateY(0) rotate(-5deg);
+          }
+          50% {
+            transform: translateY(5px) rotate(5deg);
+          }
+        }
+
+        @keyframes wave {
+          0%, 100% {
+            transform: translateX(0) scale(1, 1);
+          }
+          50% {
+            transform: translateX(-25px) scale(1.02, 0.98);
+          }
+        }
+
+        @keyframes wave-slow {
+          0%, 100% {
+            transform: translateX(0) scale(1, 1);
+          }
+          50% {
+            transform: translateX(25px) scale(0.98, 1.02);
+          }
+        }
+        
+        .animate-float-slow {
+          animation: float-slow 4s ease-in-out infinite;
+        }
+        
+        .animate-bounce-gentle {
+          animation: bounce-gentle 3s ease-in-out infinite;
+        }
+        
+        .animate-twinkle {
+          animation: twinkle 2.5s ease-in-out infinite;
+        }
+
+        .animate-swing {
+          animation: swing 3s ease-in-out infinite;
+        }
+
+        .animate-wave {
+          animation: wave 8s ease-in-out infinite;
+          transform-origin: center;
+        }
+
+        .animate-wave-slow {
+          animation: wave-slow 10s ease-in-out infinite;
+          transform-origin: center;
+        }
+      `}</style>
     </section>
   );
 };

@@ -14,7 +14,7 @@ import ChristmasSnowflakes from "./components/ChristmasSnowflakes.jsx";
 import ChristmasDecorativeShapes from "./components/ChristmasDecorativeShapes.jsx";
 
 const queryClient = new QueryClient();
-const router = createBrowserRouter([...adminRouter, ...protectedRoutes, ...openRoutes]);
+const router = createBrowserRouter([...openRoutes, ...adminRouter, ...protectedRoutes]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
