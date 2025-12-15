@@ -1,11 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { placeBid, viewAuction, deleteAuction } from "../api/auction.js";
+import { placeBid, viewAuction, deleteAuction, toggleLikeAuction } from "../api/auction.js";
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import socket from "../utils/socket.js";
-import { X, User as UserIcon, Package, Shield, TrendingUp, AlertCircle, Trash2 } from "lucide-react";
+import { X, User as UserIcon, Package, Shield, TrendingUp, AlertCircle, Trash2, Heart } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
@@ -27,6 +27,9 @@ export const ViewAuction = () => {
   const [topBids, setTopBids] = useState([]);
   const [currentPrice, setCurrentPrice] = useState(null);
   const [totalBids, setTotalBids] = useState(0);
+  const [likesCount, setLikesCount] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
@@ -41,12 +44,24 @@ export const ViewAuction = () => {
     keepPreviousData: true,
   });
 
-  // Initialize currentPrice from data when available
+  // Initialize currentPrice and likes from data when available
   useEffect(() => {
-    if (data && data.currentPrice && currentPrice === null) {
-      setCurrentPrice(data.currentPrice);
+    if (data) {
+      if (data.currentPrice && currentPrice === null) {
+        setCurrentPrice(data.currentPrice);
+      }
+
+      // Initialize likes
+      if (data.likesCount !== undefined) {
+        setLikesCount(data.likesCount);
+      }
+
+      // Check if current user has liked this auction
+      if (data.likes && user?.user?._id) {
+        setIsLiked(data.likes.includes(user.user._id));
+      }
     }
-  }, [data, currentPrice]);
+  }, [data, currentPrice, user?.user?._id]);
 
   // Socket.io integration
   useEffect(() => {
@@ -98,8 +113,28 @@ export const ViewAuction = () => {
     // Listen for bid success
     socket.on('auction:bid:success', (result) => {
       console.log('✅ Bid success:', result);
-      setToast({ message: "Đặt giá thành công!", type: "success" });
-      if (inputRef.current) inputRef.current.value = "";
+
+      // Clear input field
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+
+      // Update local state with new bid
+      if (result.bid) {
+        setCurrentPrice(result.bid.amount);
+      }
+
+      // Refresh auction data from server
+      queryClient.invalidateQueries({ queryKey: ["viewAuctions", id] });
+
+      // Request updated state from socket
+      socket.emit('auction:get-state', { auctionId: id });
+
+      // Show success toast
+      setToast({
+        message: "Đặt giá thành công! 🎉",
+        type: "success"
+      });
     });
 
     // Listen for bid errors
@@ -109,6 +144,11 @@ export const ViewAuction = () => {
       if (error.code === 'PRICE_EXISTS') {
         errorMessage = `Giá $${error.existingAmount} đã có người đặt. Vui lòng chọn giá khác!`;
       }
+
+      // Refresh data to show latest price
+      queryClient.invalidateQueries({ queryKey: ["viewAuctions", id] });
+      socket.emit('auction:get-state', { auctionId: id });
+
       setToast({ message: errorMessage, type: "error" });
     });
 
@@ -116,6 +156,22 @@ export const ViewAuction = () => {
     socket.on('auction:error', (error) => {
       console.error('❌ Auction error:', error);
       setToast({ message: error.message, type: "error" });
+    });
+
+    // Listen for like/unlike updates
+    socket.on('auction:like:updated', (update) => {
+      console.log('📡 ViewAuction: Like update received:', update);
+
+      // Update likes count
+      setLikesCount(update.likesCount);
+
+      // Update isLiked if it's current user's action
+      if (update.userId === user?.user?._id) {
+        setIsLiked(update.isLiked);
+      }
+
+      // Refresh query data
+      queryClient.invalidateQueries({ queryKey: ["viewAuctions", id] });
     });
 
     // Cleanup on unmount
@@ -128,6 +184,7 @@ export const ViewAuction = () => {
       socket.off('auction:bid:success');
       socket.off('auction:bid:error');
       socket.off('auction:error');
+      socket.off('auction:like:updated');
     };
   }, [id, user?.user?._id, queryClient]);
 
@@ -216,10 +273,31 @@ export const ViewAuction = () => {
 
   const handleBidSubmit = (e) => {
     e.preventDefault();
-    const bidAmount = parseFloat(e.target.bidAmount.value.trim());
+    const bidAmountInput = e.target.bidAmount.value.trim();
+    const bidAmount = parseFloat(bidAmountInput);
 
-    if (!bidAmount || bidAmount <= 0) {
+    console.log('🔍 Bid Submit Debug:', {
+      input: bidAmountInput,
+      parsed: bidAmount,
+      isValid: !isNaN(bidAmount) && bidAmount > 0,
+      currentPrice: currentPrice || data.currentPrice
+    });
+
+    if (!bidAmountInput || isNaN(bidAmount) || bidAmount <= 0) {
       setToast({ message: "Vui lòng nhập giá hợp lệ", type: "error" });
+      return;
+    }
+
+    const minBid = (currentPrice || data.currentPrice) + 1;
+    const maxBid = (currentPrice || data.currentPrice) + 10;
+
+    if (bidAmount < minBid) {
+      setToast({ message: `Giá đặt phải từ $${minBid} trở lên`, type: "error" });
+      return;
+    }
+
+    if (bidAmount > maxBid) {
+      setToast({ message: `Giá đặt không được vượt quá $${maxBid}`, type: "error" });
       return;
     }
 
@@ -241,6 +319,35 @@ export const ViewAuction = () => {
     });
   };
 
+  const handleLike = async () => {
+    if (isLiking) return;
+
+    setIsLiking(true);
+    const previousLiked = isLiked;
+    const previousCount = likesCount;
+
+    // Optimistic update
+    setIsLiked(!isLiked);
+    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+
+    try {
+      const result = await toggleLikeAuction(id);
+      setIsLiked(result.isLiked);
+      setLikesCount(result.likesCount);
+      setToast({
+        message: result.isLiked ? "Đã thêm vào yêu thích ❤️" : "Đã bỏ yêu thích",
+        type: "success"
+      });
+    } catch (error) {
+      // Revert on error
+      setIsLiked(previousLiked);
+      setLikesCount(previousCount);
+      setToast({ message: error.message, type: "error" });
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
   const daysLeft = Math.ceil(
     Math.max(0, new Date(data.itemEndDate) - new Date()) / (1000 * 60 * 60 * 24)
   );
@@ -249,36 +356,66 @@ export const ViewAuction = () => {
     .sort((a, b) => b.bidAmount - a.bidAmount)
     .slice(0, 10);
 
+  // Debug info - after all variables are declared
+  console.log('🔍 Debug Place Bid Visibility:', {
+    userId: user?.user?._id,
+    sellerId: data?.seller?._id,
+    isUserSeller: data?.seller?._id === user?.user?._id,
+    isActive,
+    isSellerInactive,
+    showBidForm: data?.seller?._id !== user?.user?._id && isActive && !isSellerInactive
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 mx-auto container">
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image Section */}
-          <div className="space-y-4 grid grid-cols-1 place-items-center content-start">
-            <div className="max-w-xl aspect-square bg-white rounded-md shadow-md border border-red-200 overflow-hidden flex items-center justify-center">
+          <div className="space-y-4">
+            <div className="w-full aspect-square bg-white rounded-md shadow-lg border-2 border-red-200 overflow-hidden flex items-center justify-center">
               <img
                 src={data.itemPhoto || "https://picsum.photos/601"}
                 alt={data.itemName}
-                className="h-full w-full object-fill"
+                className="h-full w-full object-cover"
               />
             </div>
           </div>
 
           {/* Details Section */}
-          <div className="space-y-6">
+          <div className="space-y-4">
+            {/* Title & Description */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-xs font-medium">
-                  {data.itemCategory}
-                </span>
-                <span
-                  className={`px-2 py-1 rounded-md text-xs font-medium ${isActive
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                    }`}
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-xs font-medium">
+                    {data.itemCategory}
+                  </span>
+                  <span
+                    className={`px-2 py-1 rounded-md text-xs font-medium ${isActive
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                      }`}
+                  >
+                    {isActive ? "Active" : "Ended"}
+                  </span>
+                </div>
+                {/* Like Button */}
+                <button
+                  onClick={handleLike}
+                  disabled={isLiking}
+                  className="flex items-center gap-2 px-4 py-2 rounded-md transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: isLiked ? '#fee2e2' : '#f9fafb',
+                    border: isLiked ? '2px solid #ef4444' : '2px solid #e5e7eb'
+                  }}
                 >
-                  {isActive ? "Active" : "Ended"}
-                </span>
+                  <Heart
+                    className={`h-5 w-5 transition-all ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+                  />
+                  <span className={`font-semibold text-sm ${isLiked ? 'text-red-600' : 'text-gray-700'}`}>
+                    {likesCount}
+                  </span>
+                </button>
               </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-4">
                 {data.itemName}
@@ -288,148 +425,180 @@ export const ViewAuction = () => {
               </p>
             </div>
 
-            {/* Pricing Info */}
-            <div className="bg-white p-6 rounded-md shadow-md border border-red-200">
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="text-sm text-amber-700">Starting Price</p>
-                  <p className="text-lg font-semibold text-red-700">
-                    ${data.startingPrice}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-emerald-700">Current Price</p>
-                  <p className="text-2xl font-bold text-emerald-700">
-                    ${currentPrice ?? data.currentPrice}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-amber-700">Total Bids</p>
-                  <p className="text-lg font-semibold text-red-700">
-                    {data.bids.length}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-emerald-700">Time Left</p>
-                  <p
-                    className={`text-lg font-semibold ${isActive ? "text-emerald-700" : "text-gray-500"
-                      }`}
-                  >
-                    {isActive ? `${daysLeft} days` : "Ended"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Warning if auction ended */}
-            {!isActive && (
-              <div className="bg-red-50 border-2 border-red-200 p-6 rounded-md shadow-md">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+            {/* Grid Layout for Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Pricing Info */}
+              <div className="bg-white p-4 rounded-md shadow-md border border-red-200 md:col-span-2">
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Starting Price */}
+                  <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-3 rounded-lg border border-amber-200">
+                    <p className="text-[10px] text-amber-700 font-medium mb-0.5 flex items-center gap-1">
+                      <TrendingUp className="h-2.5 w-2.5" />
+                      Starting
+                    </p>
+                    <p className="text-lg font-bold text-amber-800">
+                      ${data.startingPrice}
+                    </p>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-red-800 mb-2">Đấu giá đã kết thúc</h3>
-                    <p className="text-red-700 text-sm">
-                      Phiên đấu giá này đã kết thúc. Không thể đặt giá thêm.
+
+                  {/* Current Price */}
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-3 rounded-lg border-2 border-emerald-300">
+                    <p className="text-[10px] text-emerald-700 font-medium mb-0.5 flex items-center gap-1">
+                      <TrendingUp className="h-2.5 w-2.5" />
+                      Current
+                    </p>
+                    <p className="text-xl font-bold text-emerald-800">
+                      ${currentPrice ?? data.currentPrice}
+                    </p>
+                  </div>
+
+                  {/* Total Bids */}
+                  <div className="bg-gradient-to-br from-red-50 to-red-100 p-3 rounded-lg border border-red-200">
+                    <p className="text-[10px] text-red-700 font-medium mb-0.5 flex items-center gap-1">
+                      <Package className="h-2.5 w-2.5" />
+                      Bids
+                    </p>
+                    <p className="text-lg font-bold text-red-800">
+                      {data.bids.length}
+                    </p>
+                  </div>
+
+                  {/* Likes */}
+                  <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-3 rounded-lg border border-rose-200">
+                    <p className="text-[10px] text-rose-700 font-medium mb-0.5 flex items-center gap-1">
+                      <Heart className="h-2.5 w-2.5 fill-rose-500" />
+                      Likes
+                    </p>
+                    <p className="text-lg font-bold text-rose-800">
+                      {likesCount}
                     </p>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* Warning if seller is inactive */}
-            {isSellerInactive && isActive && (
-              <div className="bg-red-50 border-2 border-red-200 p-6 rounded-md shadow-md">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-red-800 mb-2">Không thể đấu giá</h3>
-                    <p className="text-red-700 text-sm">
-                      Tài khoản người bán đã bị vô hiệu hóa. Bạn có thể xem thông tin nhưng không thể đặt giá cho phiên đấu giá này.
-                    </p>
-                  </div>
+                {/* Time Left - Full width bar */}
+                <div className={`mt-3 p-3 rounded-lg border ${isActive
+                  ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-300'
+                  : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300'
+                  }`}>
+                  <p className={`text-[10px] font-medium mb-0.5 ${isActive ? 'text-green-700' : 'text-gray-600'
+                    }`}>
+                    ⏰ Time
+                  </p>
+                  <p className={`text-lg font-bold ${isActive ? 'text-green-800' : 'text-gray-500'
+                    }`}>
+                    {isActive ? `${daysLeft} days left` : "Ended"}
+                  </p>
                 </div>
               </div>
-            )}
 
-            {/* Bid Form */}
-            {data.seller._id != user.user._id && isActive && !isSellerInactive && (
-              <div className="bg-white p-6 rounded-md shadow-md border border-green-200">
-                <h3 className="text-lg font-semibold mb-4">Place Your Bid</h3>
-                <form onSubmit={handleBidSubmit} className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="bidAmount"
-                      className="block text-sm font-medium text-gray-700 mb-1"
+              {/* Warning if auction ended */}
+              {!isActive && (
+                <div className="bg-red-50 border-2 border-red-200 p-6 rounded-md shadow-md md:col-span-2">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-red-800 mb-2">Đấu giá đã kết thúc</h3>
+                      <p className="text-red-700 text-sm">
+                        Phiên đấu giá này đã kết thúc. Không thể đặt giá thêm.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Warning if seller is inactive */}
+              {isSellerInactive && isActive && (
+                <div className="bg-red-50 border-2 border-red-200 p-6 rounded-md shadow-md md:col-span-2">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-red-800 mb-2">Không thể đấu giá</h3>
+                      <p className="text-red-700 text-sm">
+                        Tài khoản người bán đã bị vô hiệu hóa. Bạn có thể xem thông tin nhưng không thể đặt giá cho phiên đấu giá này.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bid Form */}
+              {data.seller._id != user.user._id && isActive && !isSellerInactive && (
+                <div className="bg-white p-6 rounded-md shadow-md border border-green-200 md:col-span-2">
+                  <h3 className="text-lg font-semibold mb-4">Place Your Bid</h3>
+                  <form onSubmit={handleBidSubmit} className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="bidAmount"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Bid Amount (minimum: ${(currentPrice || data.currentPrice) + 1} maximum: $
+                        {(currentPrice || data.currentPrice) + 10})
+                      </label>
+                      <input
+                        type="number"
+                        name="bidAmount"
+                        id="bidAmount"
+                        ref={inputRef}
+                        min={(currentPrice || data.currentPrice) + 1}
+                        max={(currentPrice || data.currentPrice) + 10}
+                        step="0.01"
+                        className="w-full px-3 py-2 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        placeholder="Enter your bid amount"
+                        required
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md"
                     >
-                      Bid Amount (minimum: ${data.currentPrice + 1} maximum: $
-                      {data.currentPrice + 10})
-                    </label>
-                    <input
-                      type="number"
-                      name="bidAmount"
-                      id="bidAmount"
-                      ref={inputRef}
-                      min={data.currentPrice + 1}
-                      max={data.currentPrice + 10}
-                      className="w-full px-3 py-2 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                      placeholder="Enter your bid amount"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md"
-                  >
-                    Place Bid
-                  </button>
-                </form>
-              </div>
-            )}
+                      Place Bid
+                    </button>
+                  </form>
+                </div>
+              )}
 
-            {/* Seller Info */}
-            <div className={`p-6 rounded-md shadow-md border ${isSellerInactive
-              ? 'bg-red-50 border-red-200'
-              : 'bg-gradient-to-r from-emerald-50 to-green-50 border-green-200'
-              }`}>
-              <h3 className="text-lg font-semibold mb-3 text-red-700">Seller Information</h3>
-              <p className={`font-medium ${isSellerInactive ? 'text-red-700' : 'text-emerald-800'
+              {/* Seller Info */}
+              <div className={`p-6 rounded-md shadow-md border md:col-span-2 ${isSellerInactive
+                ? 'bg-red-50 border-red-200'
+                : 'bg-gradient-to-r from-emerald-50 to-green-50 border-green-200'
                 }`}>
-                {isSellerInactive ? 'Tài khoản bị vô hiệu hóa' : data.seller.name}
-              </p>
-              {isSellerInactive && (
-                <p className="text-xs text-red-600 mt-2">
-                  Tài khoản này đã bị vô hiệu hóa bởi quản trị viên
+                <h3 className="text-lg font-semibold mb-3 text-red-700">Seller Information</h3>
+                <p className={`font-medium ${isSellerInactive ? 'text-red-700' : 'text-emerald-800'
+                  }`}>
+                  {isSellerInactive ? 'Tài khoản bị vô hiệu hóa' : data.seller.name}
                 </p>
+                {isSellerInactive && (
+                  <p className="text-xs text-red-600 mt-2">
+                    Tài khoản này đã bị vô hiệu hóa bởi quản trị viên
+                  </p>
+                )}
+              </div>
+
+              {/* Admin Delete Button */}
+              {user?.user?.role === "admin" && (
+                <div className="bg-white p-6 rounded-md shadow-md border border-red-200 md:col-span-2">
+                  <h3 className="text-lg font-semibold mb-3 text-red-600">Admin Actions</h3>
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleteAuctionMutate.isPending}
+                    className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {deleteAuctionMutate.isPending ? "Deleting..." : "Delete Auction"}
+                  </button>
+                  <p className="text-sm text-gray-500 mt-2">
+                    ⚠️ This action cannot be undone. All bids will be permanently deleted.
+                  </p>
+                </div>
               )}
             </div>
-
-            {/* Admin Delete Button */}
-            {user?.user?.role === "admin" && (
-              <div className="bg-white p-6 rounded-md shadow-md border border-red-200">
-                <h3 className="text-lg font-semibold mb-3 text-red-600">Admin Actions</h3>
-                <button
-                  onClick={handleDelete}
-                  disabled={deleteAuctionMutate.isPending}
-                  className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {deleteAuctionMutate.isPending ? "Deleting..." : "Delete Auction"}
-                </button>
-                <p className="text-sm text-gray-500 mt-2">
-                  ⚠️ This action cannot be undone. All bids will be permanently deleted.
-                </p>
-              </div>
-            )}
           </div>
         </div>
 

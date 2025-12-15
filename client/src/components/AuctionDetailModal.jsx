@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, User as UserIcon, Package, Shield, TrendingUp, AlertCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -7,18 +7,122 @@ import { Separator } from "./ui/separator";
 import { CountdownTimer } from "./CountdownTimer";
 import { BidHistory } from "./BidHistory";
 import { Alert, AlertDescription } from "./ui/alert";
+import socket from "../utils/socket";
+import { useSelector } from "react-redux";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid }) {
     const [bidAmount, setBidAmount] = useState("");
     const [error, setError] = useState("");
+    const [currentPrice, setCurrentPrice] = useState(auction.currentPrice || auction.startingPrice);
+    const [topBids, setTopBids] = useState(bids || auction.bids || []);
+    const [totalBids, setTotalBids] = useState(auction.bids?.length || 0);
+    const { user } = useSelector((state) => state.auth);
+    const queryClient = useQueryClient();
 
-    const currentPrice = auction.currentPrice || auction.startingPrice;
-    const minimumBid = currentPrice + 50;
+    // Socket.io integration for real-time updates
+    useEffect(() => {
+        if (!auction._id) return;
+
+        console.log('🔵 Modal: Joining auction room:', auction._id);
+
+        // Join auction room
+        socket.emit('auction:join', { auctionId: auction._id });
+
+        // Get initial state
+        socket.emit('auction:get-state', { auctionId: auction._id });
+
+        // Listen for auction state
+        socket.on('auction:state', (state) => {
+            console.log('📊 Modal: Auction state received:', state);
+            setTopBids(state.topBids || []);
+            setTotalBids(state.totalBids || 0);
+            if (state.highestBid) {
+                setCurrentPrice(state.highestBid.amount);
+            }
+        });
+
+        // Listen for bid updates
+        socket.on('auction:bid:updated', (update) => {
+            console.log('📡 Modal: Bid updated:', update);
+            setTopBids(update.topBids || []);
+            setTotalBids(update.totalBids || 0);
+            if (update.topBids && update.topBids.length > 0) {
+                setCurrentPrice(update.topBids[0].amount);
+            }
+
+            // Refresh queries
+            queryClient.invalidateQueries({ queryKey: ["allAuction"] });
+            queryClient.invalidateQueries({ queryKey: ["favoriteAuctions"] });
+
+            // Show notification if bid is from another user
+            if (update.userId !== user?.user?._id) {
+                toast.info(`Có người vừa đặt giá: $${update.amount}`);
+            }
+        });
+
+        // Listen for bid success
+        socket.on('auction:bid:success', (result) => {
+            console.log('✅ Modal: Bid success:', result);
+
+            // Clear input
+            setBidAmount("");
+            setError("");
+
+            // Update local state
+            if (result.bid) {
+                setCurrentPrice(result.bid.amount);
+            }
+
+            // Refresh data
+            queryClient.invalidateQueries({ queryKey: ["allAuction"] });
+            queryClient.invalidateQueries({ queryKey: ["favoriteAuctions"] });
+            socket.emit('auction:get-state', { auctionId: auction._id });
+
+            toast.success("Đặt giá thành công! 🎉");
+        });
+
+        // Listen for bid errors
+        socket.on('auction:bid:error', (error) => {
+            console.error('❌ Modal: Bid error:', error);
+            let errorMessage = error.message;
+            if (error.code === 'PRICE_EXISTS') {
+                errorMessage = `Giá $${error.existingAmount} đã có người đặt. Vui lòng chọn giá khác!`;
+            }
+
+            // Refresh data
+            queryClient.invalidateQueries({ queryKey: ["allAuction"] });
+            socket.emit('auction:get-state', { auctionId: auction._id });
+
+            setError(errorMessage);
+            toast.error(errorMessage);
+        });
+
+        // Listen for general errors
+        socket.on('auction:error', (error) => {
+            console.error('❌ Modal: Auction error:', error);
+            toast.error(error.message);
+        });
+
+        return () => {
+            console.log('🔴 Modal: Leaving auction room:', auction._id);
+            socket.emit('auction:leave', { auctionId: auction._id });
+            socket.off('auction:state');
+            socket.off('auction:bid:updated');
+            socket.off('auction:bid:success');
+            socket.off('auction:bid:error');
+            socket.off('auction:error');
+        };
+    }, [auction._id, user?.user?._id, queryClient]);
+
+    const minimumBid = currentPrice + 1;
+    const maximumBid = currentPrice + 10;
     const suggestedBids = [
         minimumBid,
-        minimumBid + 100,
-        minimumBid + 250,
-        minimumBid + 500
+        minimumBid + 2,
+        minimumBid + 5,
+        minimumBid + 10
     ];
 
     const timeLeft = auction.timeLeft || 0;
@@ -28,21 +132,47 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid }) {
     const handleBidSubmit = () => {
         const amount = parseFloat(bidAmount);
 
-        if (isNaN(amount)) {
+        console.log('🔍 Modal: Bid Submit Debug:', {
+            input: bidAmount,
+            parsed: amount,
+            isValid: !isNaN(amount) && amount > 0,
+            currentPrice: currentPrice
+        });
+
+        if (!bidAmount || isNaN(amount) || amount <= 0) {
             setError("Vui lòng nhập số tiền hợp lệ");
             return;
         }
 
         if (amount < minimumBid) {
-            setError(`Giá đặt tối thiểu là $${minimumBid.toLocaleString()}`);
+            setError(`Giá đặt phải từ $${minimumBid} trở lên`);
             return;
         }
 
-        if (onPlaceBid) {
-            onPlaceBid(amount);
+        if (amount > maximumBid) {
+            setError(`Giá đặt không được vượt quá $${maximumBid}`);
+            return;
         }
-        setBidAmount("");
-        setError("");
+
+        const userId = user?.user?._id;
+        if (!userId) {
+            setError("Vui lòng đăng nhập để đặt giá");
+            toast.error("Vui lòng đăng nhập để đặt giá");
+            return;
+        }
+
+        console.log('🟢 Modal: Placing bid via socket:', {
+            auctionId: auction._id,
+            userId,
+            amount
+        });
+
+        // Send bid via socket
+        socket.emit('auction:bid', {
+            auctionId: auction._id,
+            userId: userId,
+            amount: amount
+        });
     };
 
     return (
@@ -107,7 +237,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid }) {
                                         <TrendingUp className="h-5 w-5 text-muted-foreground mt-0.5" />
                                         <div>
                                             <p className="text-sm text-muted-foreground">Lượt đấu giá</p>
-                                            <p>{auction.bidsCount || 0}</p>
+                                            <p>{totalBids || auction.bidsCount || 0}</p>
                                         </div>
                                     </div>
                                 </div>

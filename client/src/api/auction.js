@@ -124,3 +124,17 @@ export const toggleLikeAuction = async (id) => {
         throw new Error(error.response?.data?.message || "Failed to like auction. Please try again.");
     }
 }
+
+// get favorite auctions (auctions user has liked)
+export const getFavoriteAuctions = async () => {
+    try {
+        const VITE_USER_API = import.meta.env.VITE_USER_API;
+        const res = await axios.get(`${VITE_USER_API}/favorites`,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error getting favorite auctions", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load favorite auctions. Please try again.");
+    }
+}

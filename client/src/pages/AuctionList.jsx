@@ -4,11 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { getAuctions } from "../api/auction";
 import LoadingScreen from "../components/LoadingScreen";
 import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { AuctionDetailModal } from "../components/AuctionDetailModal";
+import { useNavigate } from "react-router";
 
 export const AuctionList = () => {
   const [filter, setFilter] = useState("all");
-  const [selectedAuction, setSelectedAuction] = useState(null);
+  const navigate = useNavigate();
   const { data, isLoading, error } = useQuery({
     queryKey: ["allAuction"],
     queryFn: getAuctions,
@@ -129,26 +129,12 @@ export const AuctionList = () => {
               <AuctionCard
                 key={auction._id}
                 auction={auction}
-                onClick={() => setSelectedAuction(auction)}
+                onClick={() => navigate(`/auction/${auction._id}`)}
               />
             ))}
           </div>
         )}
       </main>
-
-      {/* Auction detail modal */}
-      {selectedAuction && (
-        <AuctionDetailModal
-          auction={selectedAuction}
-          onClose={() => setSelectedAuction(null)}
-          bids={selectedAuction.bids || []}
-          onPlaceBid={(amount) => {
-            // Handle bid placement
-            console.log('Bid placed:', amount);
-            // You can add toast notification here
-          }}
-        />
-      )}
     </div>
   );
 };
