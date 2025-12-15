@@ -13,7 +13,22 @@ export const createAuction = async (req, res) => {
         if (req.file) {
             try {
                 imageUrl = await uploadImage(req.file);
+
+                // ✅ Tự động xóa file tạm sau khi upload thành công
+                const fs = await import('fs');
+                fs.unlinkSync(req.file.path);
+                console.log('🗑️ Deleted temp file:', req.file.filename);
             } catch (error) {
+                // Xóa file tạm ngay cả khi upload fail
+                try {
+                    const fs = await import('fs');
+                    if (req.file && req.file.path) {
+                        fs.unlinkSync(req.file.path);
+                    }
+                } catch (unlinkError) {
+                    console.error('Failed to delete temp file:', unlinkError.message);
+                }
+
                 return res.status(500).json({ message: 'Error uploading image to Cloudinary', error: error.message });
             }
         }
@@ -78,8 +93,10 @@ export const auctionById = async (req, res) => {
     try {
         await connectDB();
         const { id } = req.params;
-        // Simplified for test compatibility - find by id without chaining
-        const auction = await Product.findById(id);
+        // Populate bidder name and seller info
+        const auction = await Product.findById(id)
+            .populate('bids.bidder', 'name')
+            .populate('seller', 'name isActive');
 
         if (!auction) {
             return res.status(404).json({ message: 'Auction not found' });
@@ -125,7 +142,7 @@ export const placeBid = async (req, res) => {
 
         // Thông báo cho client gửi bid qua socket thay vì xử lý trực tiếp
         // Socket sẽ xử lý validation giá trùng và lưu vào Redis + MongoDB
-        res.status(200).json({ 
+        res.status(200).json({
             message: "Please submit bid via socket connection",
             socketEvent: "auction:bid",
             payload: {
@@ -291,7 +308,7 @@ export const joinAuction = async (req, res) => {
     try {
         const { id } = req.params;
         const auction = await Product.findById(id);
-        
+
         if (!auction) {
             return res.status(404).json({ message: "Auction not found" });
         }
@@ -324,8 +341,9 @@ export const toggleLike = async (req, res) => {
         }
 
         const likeIndex = product.likes.indexOf(userId);
-        
-        if (likeIndex > -1) {
+        const wasLiked = likeIndex > -1;
+
+        if (wasLiked) {
             // Unlike
             product.likes.splice(likeIndex, 1);
             product.likesCount = Math.max(0, product.likesCount - 1);
@@ -337,9 +355,21 @@ export const toggleLike = async (req, res) => {
 
         await product.save();
 
-        res.status(200).json({ 
-            message: likeIndex > -1 ? "Unliked" : "Liked",
-            isLiked: likeIndex === -1,
+        // 🔥 Emit socket event for real-time updates
+        if (req.io) {
+            req.io.emit('auction:like:updated', {
+                auctionId: id,
+                userId: userId,
+                isLiked: !wasLiked,
+                likesCount: product.likesCount,
+                timestamp: new Date()
+            });
+            console.log(`📡 Socket event emitted: auction:like:updated for auction ${id}`);
+        }
+
+        res.status(200).json({
+            message: wasLiked ? "Unliked" : "Liked",
+            isLiked: !wasLiked,
             likesCount: product.likesCount
         });
     } catch (error) {
