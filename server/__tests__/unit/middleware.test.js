@@ -97,7 +97,10 @@ describe('ESM Authentication Middleware - No Database', () => {
         secureRoute(mockReq, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(401);
-        expect(mockRes.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
+        expect(mockRes.json).toHaveBeenCalledWith({ 
+          code: 'TOKEN_MISSING',
+          error: 'Unauthorized' 
+        });
         expect(mockNext).not.toHaveBeenCalled();
         expect(mockReq.user).toBeUndefined();
       });
@@ -108,7 +111,10 @@ describe('ESM Authentication Middleware - No Database', () => {
         secureRoute(mockReq, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(401);
-        expect(mockRes.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
+        expect(mockRes.json).toHaveBeenCalledWith({ 
+          code: 'TOKEN_MISSING',
+          error: 'Unauthorized' 
+        });
         expect(mockNext).not.toHaveBeenCalled();
       });
 
@@ -118,7 +124,10 @@ describe('ESM Authentication Middleware - No Database', () => {
         secureRoute(mockReq, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(401);
-        expect(mockRes.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
+        expect(mockRes.json).toHaveBeenCalledWith({ 
+          code: 'TOKEN_MISSING',
+          error: 'Unauthorized' 
+        });
         expect(mockNext).not.toHaveBeenCalled();
       });
 
@@ -139,7 +148,10 @@ describe('ESM Authentication Middleware - No Database', () => {
         secureRoute(mockReq, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(401);
-        expect(mockRes.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' });
+        expect(mockRes.json).toHaveBeenCalledWith({ 
+          code: 'TOKEN_INVALID',
+          error: 'Invalid token' 
+        });
         expect(mockNext).not.toHaveBeenCalled();
       });
 
@@ -150,7 +162,10 @@ describe('ESM Authentication Middleware - No Database', () => {
         secureRoute(mockReq, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(401);
-        expect(mockRes.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' });
+        expect(mockRes.json).toHaveBeenCalledWith({ 
+          code: 'TOKEN_INVALID',
+          error: 'Invalid token' 
+        });
         expect(mockNext).not.toHaveBeenCalled();
       });
 
@@ -191,7 +206,10 @@ describe('ESM Authentication Middleware - No Database', () => {
         secureRoute(mockReq, mockRes, mockNext);
 
         expect(mockRes.status).toHaveBeenCalledWith(401);
-        expect(mockRes.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' });
+        expect(mockRes.json).toHaveBeenCalledWith({ 
+          code: 'TOKEN_EXPIRED',
+          error: 'Access token expired' 
+        });
         expect(mockNext).not.toHaveBeenCalled();
       });
 
@@ -577,7 +595,8 @@ describe('ESM Authentication Middleware - No Database', () => {
       secureRoute(mockReq, mockRes, mockNext);
 
       const errorResponse = mockRes.json.mock.calls[0][0];
-      expect(errorResponse.error).toBe('Invalid or expired token');
+      expect(errorResponse.code).toBe('TOKEN_INVALID');
+      expect(errorResponse.error).toBe('Invalid token');
       expect(JSON.stringify(errorResponse)).not.toContain('jwt');
       expect(JSON.stringify(errorResponse)).not.toContain('verify');
     });
