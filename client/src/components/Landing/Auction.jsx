@@ -1,4 +1,4 @@
-import { FaClock, FaArrowRight, FaChevronRight } from "react-icons/fa";
+import { FaClock, FaChevronRight } from "react-icons/fa";
 import { Link } from "react-router";
 // import { AdsComponent } from "../AdsComponent";
 

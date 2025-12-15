@@ -5,14 +5,7 @@ import { placeBid, viewAuction, deleteAuction, toggleLikeAuction } from "../api/
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import socket from "../utils/socket.js";
-import { X, User as UserIcon, Package, Shield, TrendingUp, AlertCircle, Trash2, Heart } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Badge } from "../components/ui/badge";
-import { Separator } from "../components/ui/separator";
-import { CountdownTimer } from "../components/CountdownTimer";
-import { BidHistory } from "../components/BidHistory";
-import { Alert, AlertDescription } from "../components/ui/alert";
+import { TrendingUp, Package, Heart } from "lucide-react";
 import Toast from "../components/Toast.jsx";
 
 export const ViewAuction = () => {
@@ -21,12 +14,12 @@ export const ViewAuction = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const inputRef = useRef();
-  const isMountedRef = useRef(true);
+  const _isMountedRef = useRef(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState(null);
-  const [topBids, setTopBids] = useState([]);
+  const [_topBids, setTopBids] = useState([]);
   const [currentPrice, setCurrentPrice] = useState(null);
-  const [totalBids, setTotalBids] = useState(0);
+  const [_totalBids, setTotalBids] = useState(0);
   const [likesCount, setLikesCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
@@ -220,7 +213,7 @@ export const ViewAuction = () => {
     };
   }, [id, user?.user?._id, queryClient]);
 
-  const placeBidMutate = useMutation({
+  const _placeBidMutate = useMutation({
     mutationFn: ({ bidAmount, id }) => placeBid({ bidAmount, id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["viewAuctions"] });
@@ -397,7 +390,7 @@ export const ViewAuction = () => {
     }
   };
 
-  const daysLeft = Math.ceil(
+  const _daysLeft = Math.ceil(
     Math.max(0, new Date(data.itemEndDate) - new Date()) / (1000 * 60 * 60 * 24)
   );
   const isActive = Math.max(0, new Date(data.itemEndDate) - new Date()) > 0;
