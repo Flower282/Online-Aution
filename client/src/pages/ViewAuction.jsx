@@ -30,6 +30,7 @@ export const ViewAuction = () => {
   const [likesCount, setLikesCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
@@ -62,6 +63,37 @@ export const ViewAuction = () => {
       }
     }
   }, [data, currentPrice, user?.user?._id]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (!data?.itemEndDate) return;
+
+    const calculateTimeRemaining = () => {
+      const now = new Date().getTime();
+      const endTime = new Date(data.itemEndDate).getTime();
+      const distance = endTime - now;
+
+      if (distance < 0) {
+        setTimeRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0, ended: true });
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      setTimeRemaining({ days, hours, minutes, seconds, ended: false });
+    };
+
+    // Calculate immediately
+    calculateTimeRemaining();
+
+    // Update every second
+    const interval = setInterval(calculateTimeRemaining, 1000);
+
+    return () => clearInterval(interval);
+  }, [data?.itemEndDate]);
 
   // Socket.io integration
   useEffect(() => {
@@ -280,7 +312,9 @@ export const ViewAuction = () => {
       input: bidAmountInput,
       parsed: bidAmount,
       isValid: !isNaN(bidAmount) && bidAmount > 0,
-      currentPrice: currentPrice || data.currentPrice
+      currentPrice: currentPrice || data.currentPrice,
+      socketConnected: socket.connected,
+      socketId: socket.id
     });
 
     if (!bidAmountInput || isNaN(bidAmount) || bidAmount <= 0) {
@@ -309,7 +343,20 @@ export const ViewAuction = () => {
       return;
     }
 
-    console.log('🟢 Placing bid via socket:', { auctionId: id, userId, amount: bidAmount });
+    // Check socket connection
+    if (!socket.connected) {
+      console.error('❌ Socket not connected!');
+      setToast({ message: "Kết nối thất bại. Vui lòng tải lại trang.", type: "error" });
+      return;
+    }
+
+    console.log('🟢 Placing bid via socket:', {
+      auctionId: id,
+      userId,
+      amount: bidAmount,
+      socketId: socket.id,
+      connected: socket.connected
+    });
 
     // Send bid via socket instead of HTTP
     socket.emit('auction:bid', {
@@ -317,6 +364,8 @@ export const ViewAuction = () => {
       userId: userId,
       amount: bidAmount
     });
+
+    console.log('📤 Bid emitted to socket');
   };
 
   const handleLike = async () => {
@@ -475,19 +524,45 @@ export const ViewAuction = () => {
                   </div>
                 </div>
 
-                {/* Time Left - Full width bar */}
+                {/* Time Left - Full width bar with countdown */}
                 <div className={`mt-3 p-3 rounded-lg border ${isActive
                   ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-300'
                   : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300'
                   }`}>
-                  <p className={`text-[10px] font-medium mb-0.5 ${isActive ? 'text-green-700' : 'text-gray-600'
+                  <p className={`text-[10px] font-medium mb-1 ${isActive ? 'text-green-700' : 'text-gray-600'
                     }`}>
-                    ⏰ Time
+                    ⏰ Time Remaining
                   </p>
-                  <p className={`text-lg font-bold ${isActive ? 'text-green-800' : 'text-gray-500'
-                    }`}>
-                    {isActive ? `${daysLeft} days left` : "Ended"}
-                  </p>
+                  {timeRemaining ? (
+                    timeRemaining.ended ? (
+                      <p className="text-lg font-bold text-gray-500">Ended</p>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        {timeRemaining.days > 0 && (
+                          <div className="flex flex-col items-center bg-green-100 px-2 py-1 rounded">
+                            <span className="text-xl font-bold text-green-800">{timeRemaining.days}</span>
+                            <span className="text-[8px] text-green-600">days</span>
+                          </div>
+                        )}
+                        <div className="flex flex-col items-center bg-green-100 px-2 py-1 rounded">
+                          <span className="text-xl font-bold text-green-800">{String(timeRemaining.hours).padStart(2, '0')}</span>
+                          <span className="text-[8px] text-green-600">hrs</span>
+                        </div>
+                        <span className="text-green-800 font-bold">:</span>
+                        <div className="flex flex-col items-center bg-green-100 px-2 py-1 rounded">
+                          <span className="text-xl font-bold text-green-800">{String(timeRemaining.minutes).padStart(2, '0')}</span>
+                          <span className="text-[8px] text-green-600">min</span>
+                        </div>
+                        <span className="text-green-800 font-bold">:</span>
+                        <div className="flex flex-col items-center bg-green-100 px-2 py-1 rounded">
+                          <span className="text-xl font-bold text-green-800">{String(timeRemaining.seconds).padStart(2, '0')}</span>
+                          <span className="text-[8px] text-green-600">sec</span>
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    <p className="text-lg font-bold text-green-800">Loading...</p>
+                  )}
                 </div>
               </div>
 
