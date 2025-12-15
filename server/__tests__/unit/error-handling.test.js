@@ -280,6 +280,7 @@ describe('ESM HTTP Error Handling - No Database', () => {
           .expect(401);
 
         expect(response.body).toHaveProperty('error', 'Unauthorized');
+        expect(response.body).toHaveProperty('code', 'TOKEN_MISSING');
       });
 
       it('should return 401 for auction list without authentication', async () => {
@@ -288,6 +289,7 @@ describe('ESM HTTP Error Handling - No Database', () => {
           .expect(401);
 
         expect(response.body.error).toBe('Unauthorized');
+        expect(response.body.code).toBe('TOKEN_MISSING');
       });
 
       it('should return 401 for creating auction without auth', async () => {
@@ -297,6 +299,7 @@ describe('ESM HTTP Error Handling - No Database', () => {
           .expect(401);
 
         expect(response.body.error).toBe('Unauthorized');
+        expect(response.body.code).toBe('TOKEN_MISSING');
       });
     });
 
@@ -309,7 +312,8 @@ describe('ESM HTTP Error Handling - No Database', () => {
           .set('Cookie', `auth_token=${invalidToken}`)
           .expect(401);
 
-        expect(response.body.error).toBe('Invalid or expired token');
+        expect(response.body.error).toBe('Invalid token');
+        expect(response.body.code).toBe('TOKEN_INVALID');
       });
 
       it('should return 401 for expired JWT token', async () => {
@@ -320,7 +324,8 @@ describe('ESM HTTP Error Handling - No Database', () => {
           .set('Cookie', `auth_token=${expiredToken}`)
           .expect(401);
 
-        expect(response.body.error).toBe('Invalid or expired token');
+        expect(response.body.error).toBe('Access token expired');
+        expect(response.body.code).toBe('TOKEN_EXPIRED');
       });
 
       it('should return 401 for tampered JWT token', async () => {
@@ -331,7 +336,8 @@ describe('ESM HTTP Error Handling - No Database', () => {
           .set('Cookie', `auth_token=${tamperedToken}`)
           .expect(401);
 
-        expect(response.body.error).toBe('Invalid or expired token');
+        expect(response.body.error).toBe('Invalid token');
+        expect(response.body.code).toBe('TOKEN_INVALID');
       });
 
       it('should return 401 for token with wrong signature', async () => {
@@ -342,7 +348,8 @@ describe('ESM HTTP Error Handling - No Database', () => {
           .set('Cookie', `auth_token=${wrongToken}`)
           .expect(401);
 
-        expect(response.body.error).toBe('Invalid or expired token');
+        expect(response.body.error).toBe('Invalid token');
+        expect(response.body.code).toBe('TOKEN_INVALID');
       });
     });
 
@@ -578,7 +585,9 @@ describe('ESM HTTP Error Handling - No Database', () => {
         .expect(401);
 
       expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('code');
       expect(response.body.error).toBe('Unauthorized');
+      expect(response.body.code).toBe('TOKEN_MISSING');
     });
 
     it('should return consistent error format for 403', async () => {
