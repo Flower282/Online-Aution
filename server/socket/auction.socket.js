@@ -54,13 +54,21 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
      * Handle bid placement
      */
     socket.on('auction:bid', async (data) => {
+        console.log('📥 Received auction:bid event:', {
+            data,
+            socketId: socket.id,
+            redisAvailable: isRedisAvailable
+        });
+
         try {
             // ✅ FALLBACK: Nếu Redis không có, lưu trực tiếp vào MongoDB
             if (!isRedisAvailable) {
+                console.log('⚠️ Redis not available, using MongoDB fallback');
                 const { auctionId, userId, amount } = data;
 
                 // Validate input
                 if (!auctionId || !userId || !amount) {
+                    console.error('❌ Invalid input:', { auctionId, userId, amount });
                     socket.emit('auction:bid:error', {
                         code: 'INVALID_INPUT',
                         message: 'auctionId, userId, and amount are required'
@@ -79,14 +87,17 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
 
                 // Lưu trực tiếp vào MongoDB
                 const timestamp = new Date();
+                console.log('💾 Logging bid to MongoDB:', { auctionId, userId, amount });
                 await mongoLogger.logBid({
                     auctionId,
                     userId,
                     amount,
                     timestamp
                 });
+                console.log('✅ Bid logged to MongoDB successfully');
 
                 // Emit success
+                console.log('📤 Emitting auction:bid:success to socket:', socket.id);
                 socket.emit('auction:bid:success', {
                     message: 'Bid placed successfully',
                     bid: {
@@ -99,6 +110,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
 
                 // Emit update to room
                 const roomName = `auction:${auctionId}`;
+                console.log('📢 Broadcasting bid update to room:', roomName);
                 io.to(roomName).emit('auction:bid:updated', {
                     auctionId,
                     userId,
@@ -109,10 +121,12 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 return;
             }
 
+            console.log('✅ Using Redis path');
             const { auctionId, userId, amount } = data;
 
             // 1. Validate input
             if (!auctionId || !userId || !amount) {
+                console.error('❌ Invalid input (Redis path):', { auctionId, userId, amount });
                 socket.emit('auction:bid:error', {
                     code: 'INVALID_INPUT',
                     message: 'auctionId, userId, and amount are required'
@@ -207,10 +221,12 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
             io.to(roomName).emit('auction:bid:updated', updateData);
 
             // 8. Confirm thành công cho client đã bid
+            console.log('📤 Emitting auction:bid:success to socket (Redis):', socket.id);
             socket.emit('auction:bid:success', {
                 message: 'Bid placed successfully',
                 bid: bidData
             });
+            console.log('✅ Bid process completed successfully');
 
         } catch (error) {
             console.error('Error handling bid:', error);

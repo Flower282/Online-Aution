@@ -219,34 +219,106 @@ export const handleUserLogout = async (req, res) => {
     }
 }
 
+/**
+ * Refresh Token Handler with Token Rotation
+ * 
+ * Security Features:
+ * - Token rotation: Issues new refresh token on each refresh
+ * - Prevents refresh token reuse
+ * - Validates token against database
+ * - Checks user active status
+ * 
+ * @route POST /auth/refresh-token
+ * @access Public (requires valid refresh token)
+ */
 export const handleRefreshToken = async (req, res) => {
     try {
-        const refreshToken = req.cookies.refresh_token;
+        // Accept refresh token from HTTP-only cookie (preferred) or body (fallback)
+        // Cookie is preferred for security (XSS protection)
+        const refreshToken = req.cookies.refresh_token || req.body.refreshToken;
 
+        // Case 1: No refresh token provided
         if (!refreshToken) {
-            return res.status(401).json({ error: "Refresh token not found" });
+            return res.status(401).json({ 
+                code: "REFRESH_TOKEN_MISSING",
+                message: "Refresh token not provided" 
+            });
         }
 
-        // Verify refresh token
-        const decoded = verifyRefreshToken(refreshToken);
+        // Case 2: Verify refresh token signature and expiration
+        let decoded;
+        try {
+            decoded = verifyRefreshToken(refreshToken);
+        } catch (error) {
+            // Handle specific JWT errors
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ 
+                    code: "REFRESH_TOKEN_EXPIRED",
+                    message: "Refresh token expired. Please login again." 
+                });
+            }
+            
+            if (error.name === 'JsonWebTokenError') {
+                return res.status(401).json({ 
+                    code: "REFRESH_TOKEN_INVALID",
+                    message: "Invalid refresh token" 
+                });
+            }
+            
+            // Generic error
+            return res.status(401).json({ 
+                code: "REFRESH_TOKEN_ERROR",
+                message: "Failed to verify refresh token" 
+            });
+        }
 
-        // Check if refresh token exists in database
+        // Case 3: Check if refresh token exists in database and matches
         await connectDB();
         const user = await User.findById(decoded.id);
 
-        if (!user || user.refreshToken !== refreshToken) {
-            return res.status(403).json({ error: "Invalid refresh token" });
+        if (!user) {
+            return res.status(401).json({ 
+                code: "USER_NOT_FOUND",
+                message: "User not found" 
+            });
         }
 
-        // Check if user is active
+        // Case 4: Validate refresh token matches database (prevents token reuse)
+        if (user.refreshToken !== refreshToken) {
+            // This could indicate:
+            // - Token has been rotated (old token being reused)
+            // - Token has been revoked
+            // - Possible security breach
+            
+            // Optional: Revoke all tokens for this user
+            await User.findByIdAndUpdate(user._id, { refreshToken: null });
+            
+            return res.status(401).json({ 
+                code: "REFRESH_TOKEN_REUSED",
+                message: "Refresh token has been revoked or already used" 
+            });
+        }
+
+        // Case 5: Check if user account is active
         if (!user.isActive) {
-            return res.status(403).json({ error: "Account is inactive" });
+            return res.status(403).json({ 
+                code: "USER_INACTIVE",
+                message: "Account is inactive. Please contact support." 
+            });
         }
 
-        // Generate new access token
+        // ==================== TOKEN ROTATION ====================
+        // Generate new access token AND new refresh token
         const newAccessToken = generateToken(user._id, user.role);
+        const newRefreshToken = generateRefreshToken(user._id);
 
-        // Set new access token cookie
+        // Update refresh token in database (invalidates old refresh token)
+        await User.findByIdAndUpdate(user._id, { 
+            refreshToken: newRefreshToken,
+            lastTokenRefresh: new Date() // Optional: track refresh activity
+        });
+
+        // Set new tokens as HTTP-only cookies
         res.cookie("auth_token", newAccessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -254,8 +326,17 @@ export const handleRefreshToken = async (req, res) => {
             maxAge: 15 * 60 * 1000, // 15 minutes
         });
 
+        res.cookie("refresh_token", newRefreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        // Return success response with user info
         return res.status(200).json({
-            message: "Token refreshed successfully",
+            code: "TOKEN_REFRESHED",
+            message: "Tokens refreshed successfully",
             user: {
                 id: user._id,
                 name: user.name,
@@ -265,7 +346,44 @@ export const handleRefreshToken = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Refresh token error:", error);
-        return res.status(403).json({ error: "Invalid or expired refresh token" });
+        // Log error only in development
+        if (process.env.NODE_ENV !== 'production') {
+            console.error("Refresh token error:", error);
+        }
+        
+        return res.status(500).json({ 
+            code: "SERVER_ERROR",
+            message: "Failed to refresh token" 
+        });
+    }
+}
+
+/**
+ * Get Current Access Token
+ * Helper endpoint for client to retrieve access token for Socket.IO
+ * 
+ * @route GET /auth/token
+ * @access Private (requires valid access token cookie)
+ */
+export const handleGetToken = async (req, res) => {
+    try {
+        const accessToken = req.cookies.auth_token;
+
+        if (!accessToken) {
+            return res.status(401).json({ 
+                code: "TOKEN_MISSING",
+                message: "Access token not found" 
+            });
+        }
+
+        // Return token for Socket.IO connection
+        return res.status(200).json({
+            token: accessToken
+        });
+    } catch (error) {
+        return res.status(500).json({ 
+            code: "SERVER_ERROR",
+            message: "Failed to retrieve token" 
+        });
     }
 }

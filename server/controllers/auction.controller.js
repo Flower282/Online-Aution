@@ -93,6 +93,12 @@ export const auctionById = async (req, res) => {
     try {
         await connectDB();
         const { id } = req.params;
+        
+        // Validate MongoDB ObjectId format
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).json({ message: 'Auction not found' });
+        }
+        
         // Populate bidder name and seller info
         const auction = await Product.findById(id)
             .populate('bids.bidder', 'name')

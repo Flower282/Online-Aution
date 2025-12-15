@@ -1,86 +1,107 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv"
-import { verifyToken, verifyRefreshToken, generateToken } from "../utils/jwt.js";
+import { verifyToken, verifyRefreshToken, generateToken, generateRefreshToken } from "../utils/jwt.js";
 import User from "../models/user.js";
 import { connectDB } from "../connection.js";
 dotenv.config();
 
-// Simple authentication for test environment
-// Full refresh token logic for production
+/**
+ * Production-ready authentication middleware with refresh token support
+ * Handles token expiration, invalid tokens, and missing tokens with proper error codes
+ */
 export const secureRoute = async (req, res, next) => {
-    const token = req.cookies.auth_token;
+    const accessToken = req.cookies.auth_token;
+    const refreshToken = req.cookies.refresh_token;
     
     // Test environment: Simple JWT verification only (no database, no refresh token)
     if (process.env.NODE_ENV === 'test') {
-        if (!token) {
-            return res.status(401).json({ error: "Unauthorized" });
+        if (!accessToken) {
+            return res.status(401).json({ 
+                code: "TOKEN_MISSING",
+                error: "Unauthorized" 
+            });
         }
         
         try {
             const JWT_SECRET = process.env.JWT_SECRET;
-            const decoded = jwt.verify(token, JWT_SECRET);
+            const decoded = jwt.verify(accessToken, JWT_SECRET);
             req.user = decoded;
-            next();
+            return next();
         } catch (error) {
-            return res.status(401).json({ error: "Invalid or expired token" });
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ 
+                    code: "TOKEN_EXPIRED",
+                    error: "Access token expired" 
+                });
+            }
+            return res.status(401).json({ 
+                code: "TOKEN_INVALID",
+                error: "Invalid token" 
+            });
         }
-        return;
     }
     
-    // Production environment: Full refresh token support
-    const accessToken = token;
-    const refreshToken = req.cookies.refresh_token;
-
-    // No access token
+    // ==================== PRODUCTION ENVIRONMENT ====================
+    
+    // Case 1: No access token provided
     if (!accessToken) {
-        // Try to refresh if refresh token exists
-        if (refreshToken) {
-            try {
-                const decoded = verifyRefreshToken(refreshToken);
-                await connectDB();
-                const user = await User.findById(decoded.id);
-
-                if (user && user.refreshToken === refreshToken && user.isActive) {
-                    // Generate new access token
-                    const newAccessToken = generateToken(user._id, user.role);
-
-                    // Set new access token cookie
-                    res.cookie("auth_token", newAccessToken, {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: "lax",
-                        maxAge: 15 * 60 * 1000, // 15 minutes
-                    });
-
-                    req.user = { id: user._id, role: user.role };
-                    return next();
-                }
-            } catch (error) {
-                console.error("Refresh token error in middleware:", error);
-            }
-        }
-
-        return res.status(401).json({ error: "Unauthorized" });
+        return res.status(401).json({ 
+            code: "TOKEN_MISSING",
+            message: "Access token not provided" 
+        });
     }
 
-    // Verify access token
+    // Case 2: Verify access token
     try {
         const decoded = verifyToken(accessToken);
+        
+        // Token is valid, attach user to request
         req.user = decoded;
-        next();
+        return next();
+        
     } catch (error) {
-        // Access token expired, try refresh token
-        if (error.name === 'TokenExpiredError' && refreshToken) {
-            try {
-                const decoded = verifyRefreshToken(refreshToken);
-                await connectDB();
-                const user = await User.findById(decoded.id);
+        // Handle TokenExpiredError specifically
+        if (error.name === 'TokenExpiredError') {
+            // Access token expired - try to refresh automatically if refresh token exists
+            if (refreshToken) {
+                try {
+                    // Verify refresh token
+                    const refreshDecoded = verifyRefreshToken(refreshToken);
+                    
+                    // Connect to database and validate refresh token
+                    await connectDB();
+                    const user = await User.findById(refreshDecoded.id);
 
-                if (user && user.refreshToken === refreshToken && user.isActive) {
-                    // Generate new access token
+                    // Validate user exists, is active, and refresh token matches
+                    if (!user) {
+                        return res.status(401).json({ 
+                            code: "USER_NOT_FOUND",
+                            message: "User not found" 
+                        });
+                    }
+
+                    if (!user.isActive) {
+                        return res.status(403).json({ 
+                            code: "USER_INACTIVE",
+                            message: "Account is inactive" 
+                        });
+                    }
+
+                    if (user.refreshToken !== refreshToken) {
+                        return res.status(401).json({ 
+                            code: "REFRESH_TOKEN_INVALID",
+                            message: "Refresh token has been revoked" 
+                        });
+                    }
+
+                    // Generate new tokens (token rotation)
                     const newAccessToken = generateToken(user._id, user.role);
+                    const newRefreshToken = generateRefreshToken(user._id);
 
-                    // Set new access token cookie
+                    // Update refresh token in database
+                    await User.findByIdAndUpdate(user._id, { refreshToken: newRefreshToken });
+
+                    // Set new tokens as HTTP-only cookies
                     res.cookie("auth_token", newAccessToken, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
@@ -88,18 +109,69 @@ export const secureRoute = async (req, res, next) => {
                         maxAge: 15 * 60 * 1000, // 15 minutes
                     });
 
+                    res.cookie("refresh_token", newRefreshToken, {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === "production",
+                        sameSite: "lax",
+                        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                    });
+
+                    // Attach user to request and continue
                     req.user = { id: user._id, role: user.role };
                     return next();
+                    
+                } catch (refreshError) {
+                    // Log refresh error only in development
+                    if (process.env.NODE_ENV !== 'production') {
+                        console.error("Refresh token error:", refreshError.message);
+                    }
+                    
+                    // Refresh token also expired or invalid
+                    if (refreshError.name === 'TokenExpiredError') {
+                        return res.status(401).json({ 
+                            code: "REFRESH_TOKEN_EXPIRED",
+                            message: "Refresh token expired. Please login again." 
+                        });
+                    }
+                    
+                    return res.status(401).json({ 
+                        code: "REFRESH_TOKEN_INVALID",
+                        message: "Invalid refresh token" 
+                    });
                 }
-            } catch (refreshError) {
-                console.error("Refresh token error:", refreshError);
-                return res.status(401).json({ error: "Invalid or expired token" });
             }
+            
+            // Access token expired but no refresh token
+            return res.status(401).json({ 
+                code: "TOKEN_EXPIRED",
+                message: "Access token expired. Please login again." 
+            });
         }
-
-        console.error("Token verification error:", error);
         
-        // Return 401 for any JWT errors
-        return res.status(401).json({ error: "Invalid or expired token" });
+        // Handle other JWT errors (invalid signature, malformed, etc.)
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ 
+                code: "TOKEN_INVALID",
+                message: "Invalid access token" 
+            });
+        }
+        
+        if (error.name === 'NotBeforeError') {
+            return res.status(401).json({ 
+                code: "TOKEN_NOT_ACTIVE",
+                message: "Token not yet active" 
+            });
+        }
+        
+        // Log unexpected errors only in development
+        if (process.env.NODE_ENV !== 'production') {
+            console.error("Unexpected token verification error:", error);
+        }
+        
+        // Generic error response
+        return res.status(401).json({ 
+            code: "AUTHENTICATION_FAILED",
+            message: "Authentication failed" 
+        });
     }
 }
