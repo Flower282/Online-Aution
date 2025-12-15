@@ -6,17 +6,23 @@ export const getAdminDashboard = async (req, res) => {
     try {
         await connectDB();
 
-        // Get statistics - only count active users
+        // Get statistics - only count active users and approved auctions
         const totalAuctions = await Product.countDocuments();
-        const activeAuctions = await Product.countDocuments({ itemEndDate: { $gt: new Date() } });
+        const activeAuctions = await Product.countDocuments({
+            itemEndDate: { $gt: new Date() },
+            status: 'approved'
+        });
         const totalUsers = await User.countDocuments({ isActive: { $ne: false } }); // Only active users
         const recentUsers = await User.countDocuments({
             isActive: { $ne: false }, // Only active users
             createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
         });
 
-        // Get recent active auctions for display - exclude auctions from inactive sellers
-        const recentActiveAuctions = await Product.find({ itemEndDate: { $gt: new Date() } })
+        // Get recent active auctions for display - only approved auctions from active sellers
+        const recentActiveAuctions = await Product.find({
+            itemEndDate: { $gt: new Date() },
+            status: 'approved'
+        })
             .populate('seller', 'name email isActive')
             .sort({ createdAt: -1 })
             .limit(20) // Get more to account for filtering
@@ -37,6 +43,7 @@ export const getAdminDashboard = async (req, res) => {
                 sellerName: auction.seller?.name || "Unknown",
                 sellerActive: auction.seller?.isActive !== false,
                 itemPhoto: auction.itemPhoto,
+                status: auction.status,
             }))
             .slice(0, 10);
 
@@ -46,14 +53,18 @@ export const getAdminDashboard = async (req, res) => {
             .sort({ createdAt: -1 })
             .limit(10);
 
+        // Get pending auctions count
+        const pendingAuctions = await Product.countDocuments({ status: 'pending' });
+
         res.status(200).json({
             stats: {
                 activeAuctions,
                 totalAuctions,
                 totalUsers,
-                recentUsers
+                recentUsers,
+                pendingAuctions
             },
-            recentAuctions: filteredAuctions, // Only auctions from active sellers
+            recentAuctions: filteredAuctions, // Only approved auctions from active sellers
             recentUsersList: recentUsersList
         });
     } catch (error) {
@@ -246,6 +257,265 @@ export const migrateUsersIsActive = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error running migration',
+            error: error.message
+        });
+    }
+};
+
+// ==================== AUCTION APPROVAL SYSTEM ====================
+
+// Get pending auctions for admin approval
+export const getPendingAuctions = async (req, res) => {
+    try {
+        await connectDB();
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        // Get pending auctions with seller info
+        const pendingAuctions = await Product.find({ status: 'pending' })
+            .populate('seller', 'name email avatar')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        const totalPending = await Product.countDocuments({ status: 'pending' });
+        const totalPages = Math.ceil(totalPending / limit);
+
+        // Format auctions
+        const formattedAuctions = pendingAuctions.map(auction => ({
+            _id: auction._id,
+            itemName: auction.itemName,
+            itemDescription: auction.itemDescription,
+            itemCategory: auction.itemCategory,
+            itemPhoto: auction.itemPhoto,
+            startingPrice: auction.startingPrice,
+            currentPrice: auction.currentPrice,
+            itemStartDate: auction.itemStartDate,
+            itemEndDate: auction.itemEndDate,
+            seller: {
+                _id: auction.seller._id,
+                name: auction.seller.name,
+                email: auction.seller.email,
+                avatar: auction.seller.avatar
+            },
+            status: auction.status,
+            createdAt: auction.createdAt
+        }));
+
+        res.status(200).json({
+            success: true,
+            data: {
+                auctions: formattedAuctions,
+                pagination: {
+                    currentPage: page,
+                    totalPages,
+                    totalPending,
+                    limit,
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1
+                }
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching pending auctions',
+            error: error.message
+        });
+    }
+};
+
+// Approve auction
+export const approveAuction = async (req, res) => {
+    try {
+        await connectDB();
+
+        const { auctionId } = req.params;
+        const adminId = req.user.id;
+
+        // Find auction
+        const auction = await Product.findById(auctionId);
+        if (!auction) {
+            return res.status(404).json({
+                success: false,
+                message: 'Auction not found'
+            });
+        }
+
+        // Check if already approved
+        if (auction.status === 'approved') {
+            return res.status(400).json({
+                success: false,
+                message: 'Auction is already approved'
+            });
+        }
+
+        // Calculate original auction duration
+        const originalStart = new Date(auction.itemStartDate);
+        const originalEnd = new Date(auction.itemEndDate);
+        const durationMs = originalEnd - originalStart;
+
+        // Update auction status and timing
+        const now = new Date();
+        auction.status = 'approved';
+        auction.approvedBy = adminId;
+        auction.approvedAt = now;
+
+        // Reset start time to now and calculate new end time
+        auction.itemStartDate = now;
+        auction.itemEndDate = new Date(now.getTime() + durationMs);
+
+        await auction.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Auction approved successfully. Countdown timer has started!',
+            data: {
+                auctionId: auction._id,
+                itemName: auction.itemName,
+                status: auction.status,
+                approvedAt: auction.approvedAt,
+                itemStartDate: auction.itemStartDate,
+                itemEndDate: auction.itemEndDate,
+                durationHours: Math.round(durationMs / (1000 * 60 * 60))
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error approving auction',
+            error: error.message
+        });
+    }
+};
+
+// Reject auction
+export const rejectAuction = async (req, res) => {
+    try {
+        await connectDB();
+
+        const { auctionId } = req.params;
+        const { reason } = req.body;
+        const adminId = req.user.id;
+
+        // Validate rejection reason
+        if (!reason || reason.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Rejection reason is required'
+            });
+        }
+
+        // Find auction
+        const auction = await Product.findById(auctionId);
+        if (!auction) {
+            return res.status(404).json({
+                success: false,
+                message: 'Auction not found'
+            });
+        }
+
+        // Check if already rejected
+        if (auction.status === 'rejected') {
+            return res.status(400).json({
+                success: false,
+                message: 'Auction is already rejected'
+            });
+        }
+
+        // Update auction status
+        auction.status = 'rejected';
+        auction.rejectionReason = reason;
+        auction.approvedBy = adminId;
+        auction.approvedAt = new Date();
+        await auction.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Auction rejected successfully',
+            data: {
+                auctionId: auction._id,
+                itemName: auction.itemName,
+                status: auction.status,
+                rejectionReason: auction.rejectionReason
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error rejecting auction',
+            error: error.message
+        });
+    }
+};
+
+// Get all auctions (for admin - includes all statuses)
+export const getAllAuctions = async (req, res) => {
+    try {
+        await connectDB();
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const status = req.query.status || 'all'; // all, pending, approved, rejected
+        const search = req.query.search || '';
+        const skip = (page - 1) * limit;
+
+        // Build query
+        let query = {};
+        if (status !== 'all') {
+            query.status = status;
+        }
+        if (search) {
+            query.$or = [
+                { itemName: { $regex: search, $options: 'i' } },
+                { itemDescription: { $regex: search, $options: 'i' } },
+                { itemCategory: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // Get auctions
+        const auctions = await Product.find(query)
+            .populate('seller', 'name email avatar isActive')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        const totalAuctions = await Product.countDocuments(query);
+        const totalPages = Math.ceil(totalAuctions / limit);
+
+        // Get counts for different statuses
+        const pendingCount = await Product.countDocuments({ status: 'pending' });
+        const approvedCount = await Product.countDocuments({ status: 'approved' });
+        const rejectedCount = await Product.countDocuments({ status: 'rejected' });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                auctions,
+                pagination: {
+                    currentPage: page,
+                    totalPages,
+                    totalAuctions,
+                    limit,
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1
+                },
+                stats: {
+                    pending: pendingCount,
+                    approved: approvedCount,
+                    rejected: rejectedCount,
+                    total: pendingCount + approvedCount + rejectedCount
+                }
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching auctions',
             error: error.message
         });
     }

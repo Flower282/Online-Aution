@@ -82,3 +82,61 @@ export const toggleUserStatus = async (userId, status) => {
         throw new Error(error?.response?.data?.error || "Failed to update user status. Please try again.");
     }
 };
+
+// ==================== AUCTION APPROVAL SYSTEM ====================
+
+// Get pending auctions
+export const getPendingAuctions = async (page = 1, limit = 20) => {
+    try {
+        const res = await axios.get(`${VITE_API}/admin/auctions/pending`, {
+            params: { page, limit },
+            withCredentials: true
+        });
+        return res.data;
+    } catch (error) {
+        console.error(error?.response?.data?.error || "Can't load pending auctions");
+        throw new Error(error?.response?.data?.message || "Failed to load pending auctions. Please try again.");
+    }
+};
+
+// Get all auctions with filters
+export const getAllAuctions = async (page = 1, limit = 20, status = 'all', search = '') => {
+    try {
+        const res = await axios.get(`${VITE_API}/admin/auctions`, {
+            params: { page, limit, status, search },
+            withCredentials: true
+        });
+        return res.data;
+    } catch (error) {
+        console.error(error?.response?.data?.error || "Can't load auctions");
+        throw new Error(error?.response?.data?.message || "Failed to load auctions. Please try again.");
+    }
+};
+
+// Approve auction
+export const approveAuction = async (auctionId) => {
+    try {
+        const res = await axios.patch(`${VITE_API}/admin/auctions/${auctionId}/approve`,
+            {},
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error(error?.response?.data?.error || "Can't approve auction");
+        throw new Error(error?.response?.data?.message || "Failed to approve auction. Please try again.");
+    }
+};
+
+// Reject auction
+export const rejectAuction = async (auctionId, reason) => {
+    try {
+        const res = await axios.patch(`${VITE_API}/admin/auctions/${auctionId}/reject`,
+            { reason },
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error(error?.response?.data?.error || "Can't reject auction");
+        throw new Error(error?.response?.data?.message || "Failed to reject auction. Please try again.");
+    }
+};

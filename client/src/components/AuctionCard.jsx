@@ -17,6 +17,10 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
   const startingPrice = auction.startingPrice;
   const bidIncrease = startingPrice > 0 ? ((currentPrice - startingPrice) / startingPrice) * 100 : 0;
 
+  // Check auction status
+  const isPending = auction.status === 'pending';
+  const isRejected = auction.status === 'rejected';
+
   const [isLiked, setIsLiked] = useState(auction.isLikedByUser || false);
   const [likesCount, setLikesCount] = useState(auction.likesCount || 0);
   const [isLiking, setIsLiking] = useState(false);
@@ -75,17 +79,16 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
         <Button
           variant="ghost"
           size="icon"
-          className={`absolute top-2 right-2 backdrop-blur transition-all duration-300 ${
-            isLiked 
-              ? 'bg-red-500 hover:bg-red-600 text-white scale-110' 
-              : 'bg-white/90 hover:bg-red-100 text-red-500'
-          } shadow-lg hover:shadow-xl`}
+          className={`absolute top-2 right-2 backdrop-blur transition-all duration-300 ${isLiked
+            ? 'bg-red-500 hover:bg-red-600 text-white scale-110'
+            : 'bg-white/90 hover:bg-red-100 text-red-500'
+            } shadow-lg hover:shadow-xl`}
           onClick={handleLike}
           disabled={isLiking}
         >
           <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
         </Button>
-        
+
         {likesCount > 0 && (
           <Badge className="absolute top-12 right-2 bg-white/95 text-red-600 border border-red-200 shadow-md">
             ❤️ {likesCount}
@@ -95,13 +98,25 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
         <Badge className="absolute top-2 left-2 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white hover:from-red-600 hover:via-red-700 hover:to-red-800 shadow-lg">
           🎅 {auction.itemCategory}
         </Badge>
+
+        {/* Status badges */}
+        {isPending && !isEnded && (
+          <Badge className="absolute bottom-2 left-2 bg-yellow-500 text-white shadow-lg">
+            ⏳ Chờ phê duyệt
+          </Badge>
+        )}
+        {isRejected && !isEnded && (
+          <Badge className="absolute bottom-2 left-2 bg-red-600 text-white shadow-lg">
+            ❌ Đã từ chối
+          </Badge>
+        )}
         {isEnded && (
-          <Badge className="absolute bottom-2 left-2 bg-gray-600 text-white">
+          <Badge className="absolute bottom-2 left-2 bg-gray-600 text-white shadow-lg">
             ❄️ Đã kết thúc
           </Badge>
         )}
-        {!isEnded && isSellerInactive && (
-          <Badge className="absolute bottom-2 left-2 bg-destructive text-white">
+        {!isEnded && !isPending && !isRejected && isSellerInactive && (
+          <Badge className="absolute bottom-2 left-2 bg-destructive text-white shadow-lg">
             ⚠️ Không khả dụng
           </Badge>
         )}
@@ -148,13 +163,29 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
 
         <Link to={`/auction/${auction._id}`}>
           <Button
-            className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] py-6 text-base"
+            className={`w-full font-bold shadow-lg transition-all duration-300 py-6 text-base ${isPending || isRejected
+              ? 'bg-gray-400 hover:bg-gray-400 text-gray-700 cursor-not-allowed'
+              : 'bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]'
+              }`}
             onClick={(e) => {
-              e.stopPropagation();
+              if (isPending || isRejected) {
+                e.preventDefault();
+                e.stopPropagation();
+              } else {
+                e.stopPropagation();
+              }
             }}
-            disabled={isSellerInactive && !isEnded}
+            disabled={isSellerInactive || isPending || isRejected}
           >
-            {isEnded ? '🎁 Xem kết quả' : isSellerInactive ? '⚠️ Không khả dụng' : '🎅 Đấu giá ngay'}
+            {isEnded
+              ? '🎁 Xem kết quả'
+              : isPending
+                ? '⏳ Pending'
+                : isRejected
+                  ? '❌ Rejected'
+                  : isSellerInactive
+                    ? '⚠️ Không khả dụng'
+                    : '🎅 Đấu giá ngay'}
           </Button>
         </Link>
       </CardContent>

@@ -3,9 +3,12 @@ import AuctionCard from "../components/AuctionCard";
 import { useQuery } from "@tanstack/react-query";
 import { getMyAuctions } from "../api/auction";
 import LoadingScreen from "../components/LoadingScreen";
+import { Clock, CheckCircle, XCircle } from "lucide-react";
 
 export const MyAuction = () => {
   const [filter, setFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all"); // New: status filter
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["myauctions"],
     queryFn: getMyAuctions,
@@ -51,10 +54,53 @@ export const MyAuction = () => {
     ...new Set(auctions.map((auction) => auction.itemCategory)),
   ];
 
-  const filteredAuctions =
-    filter === "all"
-      ? auctions
-      : auctions.filter((auction) => auction.itemCategory === filter);
+  // Apply category and status filters
+  let filteredAuctions = filter === "all"
+    ? auctions
+    : auctions.filter((auction) => auction.itemCategory === filter);
+
+  if (statusFilter !== "all") {
+    filteredAuctions = filteredAuctions.filter((auction) => auction.status === statusFilter);
+  }
+
+  // Count auctions by status
+  const statusCounts = {
+    all: auctions.length,
+    pending: auctions.filter(a => a.status === 'pending').length,
+    approved: auctions.filter(a => a.status === 'approved').length,
+    rejected: auctions.filter(a => a.status === 'rejected').length,
+  };
+
+  // Status badge component
+  const StatusBadge = ({ status, reason }) => {
+    const configs = {
+      pending: {
+        icon: Clock,
+        label: 'Pending',
+        className: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+      },
+      approved: {
+        icon: CheckCircle,
+        label: 'Approved',
+        className: 'bg-green-100 text-green-700 border-green-300',
+      },
+      rejected: {
+        icon: XCircle,
+        label: 'Rejected',
+        className: 'bg-red-100 text-red-700 border-red-300',
+      },
+    };
+
+    const config = configs[status] || configs.pending;
+    const Icon = config.icon;
+
+    return (
+      <div className={`px-3 py-1 rounded-full text-sm font-semibold border-2 ${config.className} flex items-center gap-1`}>
+        <Icon className="w-4 h-4" />
+        {config.label}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
@@ -68,23 +114,74 @@ export const MyAuction = () => {
         </div>
 
         {/* Filters */}
-        <div className="mb-10">
-          <h2 className="text-xl font-bold mb-4 text-gray-900">
-            Filter by Category
-          </h2>
-          <div className="flex flex-wrap gap-3">
-            {categories.map((category) => (
+        <div className="mb-10 space-y-6">
+          {/* Category Filter */}
+          <div>
+            <h2 className="text-xl font-bold mb-4 text-gray-900">
+              Filter by Category
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setFilter(category)}
+                  className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${filter === category
+                    ? "bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                    : "bg-white text-gray-700 border-2 border-red-200 hover:bg-red-50 hover:border-red-300 shadow-md"
+                    }`}
+                >
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Status Filter */}
+          <div>
+            <h2 className="text-xl font-bold mb-4 text-gray-900">
+              Filter by Status
+            </h2>
+            <div className="flex flex-wrap gap-3">
               <button
-                key={category}
-                onClick={() => setFilter(category)}
-                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${filter === category
-                  ? "bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-                  : "bg-white text-gray-700 border-2 border-red-200 hover:bg-red-50 hover:border-red-300 shadow-md"
+                onClick={() => setStatusFilter("all")}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${statusFilter === "all"
+                  ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg"
+                  : "bg-white text-gray-700 border-2 border-blue-200 hover:bg-blue-50 shadow-md"
                   }`}
               >
-                {category.charAt(0).toUpperCase() + category.slice(1)}
+                All ({statusCounts.all})
               </button>
-            ))}
+              <button
+                onClick={() => setStatusFilter("pending")}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "pending"
+                  ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg"
+                  : "bg-white text-gray-700 border-2 border-yellow-200 hover:bg-yellow-50 shadow-md"
+                  }`}
+              >
+                <Clock className="w-4 h-4" />
+                Pending ({statusCounts.pending})
+              </button>
+              <button
+                onClick={() => setStatusFilter("approved")}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "approved"
+                  ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg"
+                  : "bg-white text-gray-700 border-2 border-green-200 hover:bg-green-50 shadow-md"
+                  }`}
+              >
+                <CheckCircle className="w-4 h-4" />
+                Approved ({statusCounts.approved})
+              </button>
+              <button
+                onClick={() => setStatusFilter("rejected")}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "rejected"
+                  ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg"
+                  : "bg-white text-gray-700 border-2 border-red-200 hover:bg-red-50 shadow-md"
+                  }`}
+              >
+                <XCircle className="w-4 h-4" />
+                Rejected ({statusCounts.rejected})
+              </button>
+            </div>
           </div>
         </div>
 
@@ -117,7 +214,32 @@ export const MyAuction = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 place-items-center gap-8">
             {filteredAuctions.map((auction) => (
-              <AuctionCard key={auction._id} auction={auction} />
+              <div key={auction._id} className="relative w-full">
+                {/* Status Badge Overlay */}
+                <div className="absolute top-4 right-4 z-10">
+                  <StatusBadge status={auction.status} />
+                </div>
+
+                {/* Auction Card */}
+                <AuctionCard auction={auction} />
+
+                {/* Rejection Reason (if rejected) */}
+                {auction.status === 'rejected' && auction.rejectionReason && (
+                  <div className="mt-3 bg-red-50 border-2 border-red-200 rounded-lg p-3">
+                    <p className="text-sm font-semibold text-red-700 mb-1">Rejection Reason:</p>
+                    <p className="text-sm text-red-600">{auction.rejectionReason}</p>
+                  </div>
+                )}
+
+                {/* Pending Message */}
+                {auction.status === 'pending' && (
+                  <div className="mt-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3">
+                    <p className="text-sm text-yellow-700">
+                      ⏳ This auction is waiting for admin approval
+                    </p>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}

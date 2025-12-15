@@ -135,6 +135,9 @@ export const AdminDashboard = () => {
                   <p className="text-2xl font-bold text-gray-900 mt-2">
                     {dashboardData.stats.activeAuctions || 0}
                   </p>
+                  <p className="text-xs text-green-600 mt-1">
+                    ✅ Approved only
+                  </p>
                 </div>
                 <div className="bg-green-100 p-3 rounded-full">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,23 +183,28 @@ export const AdminDashboard = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6">
+            <Link to="/admin/auctions/pending" className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow block">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Recent Signups
+                    Pending Auctions
                   </h3>
                   <p className="text-2xl font-bold text-gray-900 mt-2">
-                    {dashboardData.stats.recentUsers || 0}
+                    {dashboardData.stats.pendingAuctions || 0}
                   </p>
+                  {dashboardData.stats.pendingAuctions > 0 && (
+                    <p className="text-xs text-yellow-600 mt-1 font-medium">
+                      ⚠️ Needs approval
+                    </p>
+                  )}
                 </div>
-                <div className="bg-orange-100 p-3 rounded-full">
-                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                <div className="bg-yellow-100 p-3 rounded-full">
+                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         )}
 
@@ -204,7 +212,10 @@ export const AdminDashboard = () => {
         {dashboardData && (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Recent Active Auctions</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Recent Active Auctions</h2>
+                <p className="text-sm text-gray-500 mt-1">✅ Showing only approved auctions</p>
+              </div>
               <Link
                 to="/auction"
                 className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline"
@@ -215,7 +226,12 @@ export const AdminDashboard = () => {
 
             {!dashboardData.recentAuctions || dashboardData.recentAuctions.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-sm shadow-sm border border-gray-200">
-                <p className="text-gray-500 text-lg">No active auctions at the moment.</p>
+                <p className="text-gray-500 text-lg">No approved active auctions at the moment.</p>
+                {dashboardData.stats.pendingAuctions > 0 && (
+                  <p className="text-yellow-600 text-sm mt-2">
+                    You have {dashboardData.stats.pendingAuctions} pending auction{dashboardData.stats.pendingAuctions !== 1 ? 's' : ''} waiting for approval.
+                  </p>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center gap-4">
