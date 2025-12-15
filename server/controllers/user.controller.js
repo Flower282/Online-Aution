@@ -1,5 +1,6 @@
 import Login from "../models/Login.js";
 import User from "../models/user.js";
+import Product from "../models/product.js";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import { connectDB } from '../connection.js'
@@ -10,12 +11,12 @@ export const handleGetUser = async (req, res) => {
         await connectDB();
         // findById returns the user directly (compatible with test mocks)
         const user = await User.findById(req.user.id);
-        
+
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        // Select only needed fields for response
-        const { name, email, avatar, role } = user;
-        res.json({ user: { name, email, avatar, role } });
+        // Select only needed fields for response (include _id for frontend)
+        const { _id, name, email, avatar, role } = user;
+        res.json({ user: { _id, name, email, avatar, role } });
     } catch (error) {
         res.status(500).json({ message: "Server error" });
     }
@@ -24,24 +25,24 @@ export const handleGetUser = async (req, res) => {
 export const handleChangePassword = async (req, res) => {
     try {
         await connectDB();
-        
+
         // Ensure req.body exists
         if (!req.body || typeof req.body !== 'object') {
             return res.status(400).json({ error: "Please enter all fields" });
         }
-        
+
         const { currentPassword, newPassword, confirmPassword } = req.body;
-        
+
         // Type validation - reject non-strings
         if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || typeof confirmPassword !== 'string') {
             return res.status(400).json({ error: "Please enter all fields" });
         }
-        
+
         // Trim and validate - reject empty or whitespace-only
         const trimmedCurrent = currentPassword.trim();
         const trimmedNew = newPassword.trim();
         const trimmedConfirm = confirmPassword.trim();
-        
+
         if (!trimmedCurrent || !trimmedNew || !trimmedConfirm) {
             return res.status(400).json({ error: "Please enter all fields" });
         }
@@ -138,3 +139,53 @@ function getDeviceType(userAgent = "") {
     if (/tablet|ipad|android(?!.*mobile)/.test(userAgent)) return "Tablet";
     return "Desktop";
 }
+
+// Get favorite auctions (auctions user has liked)
+export const getFavoriteAuctions = async (req, res) => {
+    try {
+        await connectDB();
+        const userId = req.user.id;
+
+        // Tìm tất cả auctions mà user đã like
+        const favoriteAuctions = await Product.find({
+            likes: userId
+        })
+            .populate('seller', 'name isActive')
+            .sort({ createdAt: -1 }); // Mới nhất trước
+
+        // Format dữ liệu giống như AuctionList
+        const formattedAuctions = favoriteAuctions.map(auction => {
+            const timeLeft = Math.max(0, new Date(auction.itemEndDate) - new Date());
+            return {
+                _id: auction._id,
+                itemName: auction.itemName,
+                itemDescription: auction.itemDescription,
+                itemCategory: auction.itemCategory,
+                itemPhoto: auction.itemPhoto,
+                startingPrice: auction.startingPrice,
+                currentPrice: auction.currentPrice,
+                itemStartDate: auction.itemStartDate,
+                itemEndDate: auction.itemEndDate,
+                timeLeft: timeLeft,
+                bids: auction.bids,
+                likesCount: auction.likesCount,
+                isLikedByUser: true, // User đã like nên luôn true
+                sellerName: auction.seller?.name || 'Unknown',
+                sellerActive: auction.seller?.isActive !== false
+            };
+        });
+
+        res.status(200).json({
+            success: true,
+            count: formattedAuctions.length,
+            auctions: formattedAuctions
+        });
+
+    } catch (error) {
+        console.error('Error fetching favorite auctions:', error);
+        res.status(500).json({
+            success: false,
+            message: "Could not fetch favorite auctions"
+        });
+    }
+};
