@@ -398,6 +398,11 @@ export const ViewAuction = () => {
     .sort((a, b) => b.bidAmount - a.bidAmount)
     .slice(0, 10);
 
+  // Check auction status
+  const isApproved = data?.status === 'approved';
+  const isPending = data?.status === 'pending';
+  const isRejected = data?.status === 'rejected';
+
   // Debug info - after all variables are declared
   console.log('🔍 Debug Place Bid Visibility:', {
     userId: user?.user?._id,
@@ -405,7 +410,9 @@ export const ViewAuction = () => {
     isUserSeller: data?.seller?._id === user?.user?._id,
     isActive,
     isSellerInactive,
-    showBidForm: data?.seller?._id !== user?.user?._id && isActive && !isSellerInactive
+    status: data?.status,
+    isApproved,
+    showBidForm: data?.seller?._id !== user?.user?._id && isActive && !isSellerInactive && isApproved
   });
 
   return (
@@ -597,8 +604,52 @@ export const ViewAuction = () => {
                 </div>
               )}
 
-              {/* Bid Form */}
-              {data.seller._id != user.user._id && isActive && !isSellerInactive && (
+              {/* Warning if auction is pending approval */}
+              {isActive && isPending && !isSellerInactive && (
+                <div className="bg-yellow-50 border-2 border-yellow-300 p-6 rounded-md shadow-md md:col-span-2">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-yellow-800 mb-2">⏳ Đang chờ phê duyệt</h3>
+                      <p className="text-yellow-700 text-sm">
+                        Đấu giá này đang chờ admin phê duyệt. Bạn có thể xem thông tin nhưng chưa thể đặt giá cho đến khi được phê duyệt.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Warning if auction is rejected */}
+              {isActive && isRejected && !isSellerInactive && (
+                <div className="bg-red-50 border-2 border-red-200 p-6 rounded-md shadow-md md:col-span-2">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-red-800 mb-2">❌ Đấu giá bị từ chối</h3>
+                      <p className="text-red-700 text-sm mb-2">
+                        Đấu giá này đã bị admin từ chối và không thể nhận đặt giá.
+                      </p>
+                      {data.rejectionReason && (
+                        <div className="mt-2 bg-red-100 p-3 rounded">
+                          <p className="text-xs font-semibold text-red-800">Lý do:</p>
+                          <p className="text-sm text-red-700">{data.rejectionReason}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bid Form - Only show if approved */}
+              {data.seller._id != user.user._id && isActive && !isSellerInactive && isApproved && (
                 <div className="bg-white p-6 rounded-md shadow-md border border-green-200 md:col-span-2">
                   <h3 className="text-lg font-semibold mb-4">Place Your Bid</h3>
                   <form onSubmit={handleBidSubmit} className="space-y-4">

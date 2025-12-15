@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
 import { logout } from "../store/auth/authSlice";
 import { Gavel, Search, User, Heart, Menu, X, Gift, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
@@ -8,12 +9,23 @@ import { Input } from "./ui/input";
 import {
   IoLogOutOutline,
 } from "react-icons/io5";
+import { getPendingAuctions } from "../api/admin";
 
 export const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useSelector((state) => state.auth);
+
+  // Fetch pending auctions count for admin
+  const { data: pendingData } = useQuery({
+    queryKey: ["pendingAuctionsCount"],
+    queryFn: () => getPendingAuctions(1, 1),
+    enabled: user?.user?.role === 'admin',
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  const pendingCount = pendingData?.data?.pagination?.totalPending || 0;
 
   // User logout
   const handleLogout = () => {
@@ -60,11 +72,16 @@ export const Navbar = () => {
                   key={item.link}
                   className={({ isActive }) =>
                     isActive
-                      ? "text-base text-primary font-medium transition-colors"
-                      : "text-base hover:text-primary transition-colors"
+                      ? "text-base text-primary font-medium transition-colors flex items-center gap-1"
+                      : "text-base hover:text-primary transition-colors flex items-center gap-1"
                   }
                 >
                   {item.name}
+                  {item.name === "Pending Auctions" && pendingCount > 0 && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {pendingCount}
+                    </span>
+                  )}
                 </NavLink>
               ))}
             </nav>
@@ -189,12 +206,17 @@ export const Navbar = () => {
                   to={item.link}
                   className={({ isActive }) =>
                     isActive
-                      ? "flex items-center py-3 px-3 text-primary font-semibold bg-primary/10 rounded-lg transition-all"
-                      : "flex items-center py-3 px-3 hover:text-primary hover:bg-muted/50 font-medium rounded-lg transition-all"
+                      ? "flex items-center justify-between py-3 px-3 text-primary font-semibold bg-primary/10 rounded-lg transition-all"
+                      : "flex items-center justify-between py-3 px-3 hover:text-primary hover:bg-muted/50 font-medium rounded-lg transition-all"
                   }
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {item.name}
+                  <span>{item.name}</span>
+                  {item.name === "Pending Auctions" && pendingCount > 0 && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {pendingCount}
+                    </span>
+                  )}
                 </NavLink>
               </li>
             ))}
@@ -320,6 +342,10 @@ const adminNavLink = [
   {
     name: "Admin Panel",
     link: "/admin",
+  },
+  {
+    name: "Pending Auctions",
+    link: "/admin/auctions/pending",
   },
   {
     name: "Create Auction",
