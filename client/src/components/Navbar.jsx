@@ -84,9 +84,13 @@ export const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-red-50 text-red-600">
-              <Heart className="h-5 w-5" />
-            </Button>
+            {user && (
+              <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-red-50 text-red-600" asChild>
+                <Link to="/favorites" title="Yêu thích">
+                  <Heart className="h-5 w-5" />
+                </Link>
+              </Button>
+            )}
             <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-green-50 text-green-600">
               <Gift className="h-5 w-5 christmas-sparkle" />
             </Button>
@@ -335,5 +339,5 @@ const getNavLinks = (userRole) => {
   if (userRole === 'admin') {
     return adminNavLink;
   }
-  return protectedNavLink.slice(0, 4);
+  return protectedNavLink.slice(0, 4); // Dashboard, Create, View, My Auction
 };

@@ -55,12 +55,57 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
      */
     socket.on('auction:bid', async (data) => {
         try {
-            // Check if Redis is available
+            // ✅ FALLBACK: Nếu Redis không có, lưu trực tiếp vào MongoDB
             if (!isRedisAvailable) {
-                socket.emit('auction:bid:error', {
-                    code: 'REDIS_UNAVAILABLE',
-                    message: 'Real-time bidding is not available. Please use the standard bidding form.'
+                const { auctionId, userId, amount } = data;
+
+                // Validate input
+                if (!auctionId || !userId || !amount) {
+                    socket.emit('auction:bid:error', {
+                        code: 'INVALID_INPUT',
+                        message: 'auctionId, userId, and amount are required'
+                    });
+                    return;
+                }
+
+                // Validate amount
+                if (typeof amount !== 'number' || amount <= 0) {
+                    socket.emit('auction:bid:error', {
+                        code: 'INVALID_AMOUNT',
+                        message: 'amount must be a positive number'
+                    });
+                    return;
+                }
+
+                // Lưu trực tiếp vào MongoDB
+                const timestamp = new Date();
+                await mongoLogger.logBid({
+                    auctionId,
+                    userId,
+                    amount,
+                    timestamp
                 });
+
+                // Emit success
+                socket.emit('auction:bid:success', {
+                    message: 'Bid placed successfully',
+                    bid: {
+                        auctionId,
+                        userId,
+                        amount,
+                        timestamp: timestamp.toISOString()
+                    }
+                });
+
+                // Emit update to room
+                const roomName = `auction:${auctionId}`;
+                io.to(roomName).emit('auction:bid:updated', {
+                    auctionId,
+                    userId,
+                    amount,
+                    timestamp: timestamp.toISOString()
+                });
+
                 return;
             }
 
@@ -181,14 +226,6 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
      */
     socket.on('auction:get-state', async (data) => {
         try {
-            if (!isRedisAvailable) {
-                socket.emit('auction:error', {
-                    code: 'REDIS_UNAVAILABLE',
-                    message: 'Real-time state is not available.'
-                });
-                return;
-            }
-
             const { auctionId } = data;
 
             if (!auctionId) {
@@ -199,6 +236,50 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 return;
             }
 
+            // ✅ FALLBACK: Nếu Redis không có, lấy từ MongoDB
+            if (!isRedisAvailable) {
+                try {
+                    const Product = (await import('../models/product.js')).default;
+                    const product = await Product.findById(auctionId);
+
+                    if (!product) {
+                        socket.emit('auction:error', {
+                            code: 'AUCTION_NOT_FOUND',
+                            message: 'Auction not found'
+                        });
+                        return;
+                    }
+
+                    // Get top 10 bids from MongoDB
+                    const sortedBids = [...(product.bids || [])]
+                        .sort((a, b) => b.bidAmount - a.bidAmount)
+                        .slice(0, 10);
+
+                    const formattedBids = sortedBids.map(bid => ({
+                        userId: bid.bidder,
+                        amount: bid.bidAmount
+                    }));
+
+                    const highestBid = formattedBids.length > 0 ? formattedBids[0] : null;
+
+                    socket.emit('auction:state', {
+                        auctionId,
+                        topBids: formattedBids,
+                        highestBid,
+                        totalBids: product.bids?.length || 0
+                    });
+                    return;
+                } catch (mongoError) {
+                    console.error('MongoDB fallback error:', mongoError);
+                    socket.emit('auction:error', {
+                        code: 'STATE_FETCH_FAILED',
+                        message: 'Failed to fetch auction state'
+                    });
+                    return;
+                }
+            }
+
+            // Redis is available - use Redis
             const redisKey = `auction:${auctionId}:bids`;
 
             // Lấy top 10 bids

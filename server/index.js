@@ -115,8 +115,11 @@ app.use((req, res, next) => {
         const contentType = req.get('Content-Type');
         // Allow requests without Content-Type (supertest sets it automatically)
         // But reject explicitly wrong Content-Types
-        if (contentType && !contentType.includes('application/json')) {
-            return res.status(400).json({ error: 'Content-Type must be application/json' });
+        // Skip validation for multipart/form-data (file uploads)
+        if (contentType &&
+            !contentType.includes('application/json') &&
+            !contentType.includes('multipart/form-data')) {
+            return res.status(400).json({ error: 'Content-Type must be application/json or multipart/form-data' });
         }
     }
     next();
@@ -159,10 +162,10 @@ app.use('/admin', secureRoute, adminRouter)
 app.use((err, req, res, next) => {
     // Respect error.status if provided, default to 500
     const status = err.status || err.statusCode || 500;
-    
+
     // Use error.message if available, otherwise generic message
     const message = err.message || 'Internal server error';
-    
+
     // Send consistent JSON error format
     res.status(status).json({
         error: message,

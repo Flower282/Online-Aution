@@ -4,6 +4,7 @@ import { MainLayout } from "../layout/MainLayout";
 import { AuctionList } from "../pages/AuctionList";
 import { CreateAuction } from "../pages/CreateAuction";
 import { MyAuction } from "../pages/MyAuction";
+import Favorites from "../pages/Favorites";
 import Profile from "../pages/Profile";
 import Privacy from "../pages/Privacy";
 import Dashboard from "../pages/Dashboard";
@@ -32,6 +33,11 @@ export const protectedRoutes = [
       {
         path: "myauction",
         element: <MyAuction />,
+        errorElement: <Error />,
+      },
+      {
+        path: "favorites",
+        element: <Favorites />,
         errorElement: <Error />,
       },
       {
