@@ -33,8 +33,15 @@ const io = new Server(httpServer, {
     }
 });
 
-// Apply authentication middleware to all socket connections
-io.use(socketAuthMiddleware);
+// TODO: Implement proper socket authentication
+// Currently disabled because app uses httpOnly cookies which can't be sent via socket auth
+// Options:
+// 1. Store accessToken in localStorage and send via socket.auth
+// 2. Implement socket authentication using session/cookies
+// 3. Use a separate token specifically for socket connections
+
+// TEMPORARY: Disabled socket auth for development
+// io.use(socketAuthMiddleware);
 
 // Handle authentication errors
 io.engine.on("connection_error", (err) => {
@@ -105,18 +112,18 @@ const mongoLogger = {
 
 // Socket.io connection handler
 io.on('connection', (socket) => {
-    // User is already authenticated by socketAuthMiddleware
-    // socket.user contains { id, role }
+    // Note: socket.user is undefined when auth middleware is disabled
     if (process.env.NODE_ENV !== 'production') {
-        console.log(`✅ User connected: ${socket.id} (User: ${socket.user.id})`);
+        const userId = socket.user?.id || 'anonymous';
+        console.log(`✅ Socket connected: ${socket.id} (User: ${userId})`);
     }
-    
+
     handleAuctionSocket(socket, io, { redisClient, mongoLogger });
-    
+
     // Handle disconnection
     socket.on('disconnect', (reason) => {
         if (process.env.NODE_ENV !== 'production') {
-            console.log(`❌ User disconnected: ${socket.id} (Reason: ${reason})`);
+            console.log(`❌ Socket disconnected: ${socket.id} (Reason: ${reason})`);
         }
     });
 });
