@@ -85,6 +85,38 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                     return;
                 }
 
+                // Check auction status before allowing bid
+                try {
+                    const Product = (await import('../models/product.js')).default;
+                    const auction = await Product.findById(auctionId);
+
+                    if (!auction) {
+                        socket.emit('auction:bid:error', {
+                            code: 'AUCTION_NOT_FOUND',
+                            message: 'Auction not found'
+                        });
+                        return;
+                    }
+
+                    // Only approved auctions can accept bids
+                    if (auction.status !== 'approved') {
+                        socket.emit('auction:bid:error', {
+                            code: 'AUCTION_NOT_APPROVED',
+                            message: auction.status === 'pending'
+                                ? 'This auction is pending admin approval and cannot accept bids yet'
+                                : 'This auction cannot accept bids'
+                        });
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error checking auction status:', error);
+                    socket.emit('auction:bid:error', {
+                        code: 'SERVER_ERROR',
+                        message: 'Failed to validate auction'
+                    });
+                    return;
+                }
+
                 // Lưu trực tiếp vào MongoDB
                 const timestamp = new Date();
                 console.log('💾 Logging bid to MongoDB:', { auctionId, userId, amount });
@@ -143,9 +175,41 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 return;
             }
 
+            // 2. Check auction status before allowing bid
+            try {
+                const Product = (await import('../models/product.js')).default;
+                const auction = await Product.findById(auctionId);
+
+                if (!auction) {
+                    socket.emit('auction:bid:error', {
+                        code: 'AUCTION_NOT_FOUND',
+                        message: 'Auction not found'
+                    });
+                    return;
+                }
+
+                // Only approved auctions can accept bids
+                if (auction.status !== 'approved') {
+                    socket.emit('auction:bid:error', {
+                        code: 'AUCTION_NOT_APPROVED',
+                        message: auction.status === 'pending'
+                            ? 'This auction is pending admin approval and cannot accept bids yet'
+                            : 'This auction cannot accept bids'
+                    });
+                    return;
+                }
+            } catch (error) {
+                console.error('Error checking auction status:', error);
+                socket.emit('auction:bid:error', {
+                    code: 'SERVER_ERROR',
+                    message: 'Failed to validate auction'
+                });
+                return;
+            }
+
             const redisKey = `auction:${auctionId}:bids`;
 
-            // 2. Kiểm tra xem giá đã tồn tại chưa
+            // 3. Kiểm tra xem giá đã tồn tại chưa
             const existingBidsWithSamePrice = await redisClient.zRangeByScore(
                 redisKey,
                 amount,
@@ -161,7 +225,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 return;
             }
 
-            // 3. Thêm bid vào Redis ZSET
+            // 4. Thêm bid vào Redis ZSET
             const addResult = await redisClient.zAdd(
                 redisKey,
                 { score: amount, value: userId },
@@ -173,7 +237,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 await redisClient.zAdd(redisKey, { score: amount, value: userId });
             }
 
-            // 4. Lấy thông tin bid mới nhất
+            // 5. Lấy thông tin bid mới nhất
             const timestamp = new Date();
             const bidData = {
                 auctionId,
@@ -183,7 +247,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 socketId: socket.id
             };
 
-            // 5. Ghi log vào MongoDB
+            // 6. Ghi log vào MongoDB
             try {
                 await mongoLogger.logBid({
                     auctionId,
@@ -195,7 +259,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 console.error('MongoDB logging failed:', logError);
             }
 
-            // 6. Lấy top bids để gửi về client
+            // 7. Lấy top bids để gửi về client
             const topBids = await redisClient.zRangeWithScores(
                 redisKey,
                 0,
@@ -209,7 +273,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 amount: bid.score
             }));
 
-            // 7. Emit event cho tất cả clients trong room
+            // 8. Emit event cho tất cả clients trong room
             const roomName = `auction:${auctionId}`;
 
             const updateData = {
@@ -220,7 +284,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
 
             io.to(roomName).emit('auction:bid:updated', updateData);
 
-            // 8. Confirm thành công cho client đã bid
+            // 9. Confirm thành công cho client đã bid
             console.log('📤 Emitting auction:bid:success to socket (Redis):', socket.id);
             socket.emit('auction:bid:success', {
                 message: 'Bid placed successfully',

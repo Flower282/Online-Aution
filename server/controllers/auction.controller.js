@@ -61,8 +61,11 @@ export const createAuction = async (req, res) => {
 export const showAuction = async (req, res) => {
     try {
         await connectDB();
-        // Simplified for test compatibility - find without chaining
-        const auction = await Product.find({ itemEndDate: { $gt: new Date() } });
+        // Only show approved auctions to public
+        const auction = await Product.find({
+            itemEndDate: { $gt: new Date() },
+            status: 'approved'
+        });
 
         const userId = req.user?.id;
 
@@ -93,12 +96,12 @@ export const auctionById = async (req, res) => {
     try {
         await connectDB();
         const { id } = req.params;
-        
+
         // Validate MongoDB ObjectId format
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(404).json({ message: 'Auction not found' });
         }
-        
+
         // Populate bidder name and seller info
         const auction = await Product.findById(id)
             .populate('bids.bidder', 'name')
@@ -106,6 +109,19 @@ export const auctionById = async (req, res) => {
 
         if (!auction) {
             return res.status(404).json({ message: 'Auction not found' });
+        }
+
+        // Check if user can view this auction
+        const userId = req.user?.id;
+        const isAdmin = req.user?.role === 'admin';
+        const isOwner = auction.seller._id.toString() === userId;
+
+        // Only approved auctions are public, unless you're admin or owner
+        if (auction.status !== 'approved' && !isAdmin && !isOwner) {
+            return res.status(403).json({
+                message: 'This auction is not available',
+                status: auction.status
+            });
         }
 
         // Sort bids if present
@@ -134,6 +150,18 @@ export const placeBid = async (req, res) => {
         // Check if auction has ended
         if (new Date(product.itemEndDate) < new Date()) {
             return res.status(400).json({ message: "Phiên đấu giá đã kết thúc. Không thể đặt giá thêm." });
+        }
+
+        // Check if auction is approved
+        if (product.status !== 'approved') {
+            const messages = {
+                pending: "Đấu giá này đang chờ phê duyệt và chưa thể nhận đặt giá.",
+                rejected: "Đấu giá này đã bị từ chối và không thể nhận đặt giá."
+            };
+            return res.status(403).json({
+                message: messages[product.status] || "Đấu giá này không thể nhận đặt giá.",
+                status: product.status
+            });
         }
 
         // Check if seller is active
@@ -168,14 +196,20 @@ export const dashboardData = async (req, res) => {
         const userObjectId = new mongoose.Types.ObjectId(req.user.id);
         const dateNow = new Date();
 
-        // Get statistics
+        // Get statistics - only count approved auctions for activeAuctions
         const stats = await Product.aggregate([
             {
                 $facet: {
                     totalAuctions: [{ $count: "count" }],
                     userAuctionCount: [{ $match: { seller: userObjectId } }, { $count: "count" }],
                     activeAuctions: [
-                        { $match: { itemStartDate: { $lte: dateNow }, itemEndDate: { $gte: dateNow } } },
+                        {
+                            $match: {
+                                itemStartDate: { $lte: dateNow },
+                                itemEndDate: { $gte: dateNow },
+                                status: 'approved'  // Only count approved auctions
+                            }
+                        },
                         { $count: "count" }
                     ]
                 }
@@ -186,10 +220,13 @@ export const dashboardData = async (req, res) => {
         const userAuctionCount = stats[0]?.userAuctionCount[0]?.count || 0;
         const activeAuctions = stats[0]?.activeAuctions[0]?.count || 0;
 
-        // Get latest global auctions with error handling
+        // Get latest global auctions with error handling - only approved auctions
         let latestAuctions = [];
         try {
-            const globalAuction = await Product.find({ itemEndDate: { $gt: dateNow } })
+            const globalAuction = await Product.find({
+                itemEndDate: { $gt: dateNow },
+                status: 'approved'  // Only show approved auctions to public
+            })
                 .populate("seller", "name isActive")
                 .sort({ createdAt: -1 })
                 .limit(3)
@@ -207,11 +244,12 @@ export const dashboardData = async (req, res) => {
                 sellerName: auction.seller?.name || "Người dùng không tồn tại",
                 sellerActive: auction.seller?.isActive !== false,
                 itemPhoto: auction.itemPhoto,
+                status: auction.status,
             }));
         } catch (err) {
         }
 
-        // Get user's auctions with error handling
+        // Get user's auctions with error handling - show all statuses
         let latestUserAuctions = [];
         try {
             const userAuction = await Product.find({ seller: userObjectId })
@@ -233,6 +271,8 @@ export const dashboardData = async (req, res) => {
                 sellerName: auction.seller?.name || "Người dùng không tồn tại",
                 sellerActive: auction.seller?.isActive !== false,
                 itemPhoto: auction.itemPhoto,
+                status: auction.status,
+                rejectionReason: auction.rejectionReason,
             }));
         } catch (err) {
         }
@@ -258,7 +298,7 @@ export const myAuction = async (req, res) => {
         await connectDB();
         const auction = await Product.find({ seller: req.user.id })
             .populate("seller", "name isActive")
-            .select("itemName itemDescription currentPrice bids itemEndDate itemCategory itemPhoto seller")
+            .select("itemName itemDescription currentPrice bids itemEndDate itemCategory itemPhoto seller status rejectionReason createdAt")
             .sort({ createdAt: -1 })
             .lean();
 
@@ -270,6 +310,9 @@ export const myAuction = async (req, res) => {
             bidsCount: auction.bids?.length || 0,
             timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
             itemCategory: auction.itemCategory,
+            status: auction.status,
+            rejectionReason: auction.rejectionReason,
+            createdAt: auction.createdAt,
             sellerName: auction.seller?.name || "Người dùng không tồn tại",
             itemPhoto: auction.itemPhoto,
         }));
