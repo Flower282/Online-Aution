@@ -54,6 +54,25 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending',
+        required: true
+    },
+    rejectionReason: {
+        type: String,
+        default: null
+    },
+    approvedBy: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    approvedAt: {
+        type: Date,
+        default: null
+    },
     likes: [{
         type: mongoose.Schema.ObjectId,
         ref: 'User'

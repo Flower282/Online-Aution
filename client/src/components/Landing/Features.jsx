@@ -1,4 +1,3 @@
-import React from 'react'
 import { FaClock, FaGavel, FaShieldAlt } from 'react-icons/fa'
 
 export const Features = () => {

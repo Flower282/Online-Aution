@@ -12,11 +12,11 @@ import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
-export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid }) {
+export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlaceBid }) {
     const [bidAmount, setBidAmount] = useState("");
     const [error, setError] = useState("");
     const [currentPrice, setCurrentPrice] = useState(auction.currentPrice || auction.startingPrice);
-    const [topBids, setTopBids] = useState(bids || auction.bids || []);
+    const [_topBids, setTopBids] = useState(bids || auction.bids || []);
     const [totalBids, setTotalBids] = useState(auction.bids?.length || 0);
     const { user } = useSelector((state) => state.auth);
     const queryClient = useQueryClient();

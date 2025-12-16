@@ -1,5 +1,4 @@
 import { useSelector } from "react-redux";
-import { Link } from "react-router";
 import { CTA } from "../components/Landing/CTA";
 import { Features } from "../components/Landing/Features";
 import { Hero } from "../components/Landing/Hero";
