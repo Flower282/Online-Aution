@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { env } from '../../config/env.js';
 
-const VITE_API = import.meta.env.VITE_API;
+const VITE_API = env.API;
 
 // Return user if loggedin
 export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue }) => {
