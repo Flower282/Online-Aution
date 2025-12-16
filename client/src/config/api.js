@@ -2,10 +2,10 @@
  * API Configuration
  * 
  * Centralized API endpoint configuration.
- * Only requires ONE environment variable: VITE_API_URL
+ * Only requires ONE environment variable: VITE_API
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API || 'http://localhost:8000';
 
 export const API_ENDPOINTS = {
     // Base URL
