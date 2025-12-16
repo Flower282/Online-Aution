@@ -10,7 +10,7 @@ export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWi
             withCredentials: true,
         });
         return response.data;
-    } catch (error) {
+    } catch {
         return rejectWithValue("Not authenticated");
     }
 });
@@ -56,7 +56,7 @@ export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValu
             withCredentials: true,
         });
         return null;
-    } catch (error) {
+    } catch {
         return rejectWithValue("Logout failed");
     }
 });

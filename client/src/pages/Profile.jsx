@@ -3,7 +3,6 @@ import { useMutation } from "@tanstack/react-query";
 import { changePassword } from "../api/user";
 import { CiMail, CiUser, CiLock, CiCamera } from "react-icons/ci";
 import { useSelector } from "react-redux";
-import LoadingScreen from "../components/LoadingScreen";
 
 export default function Profile() {
   const { user } = useSelector((state) => state.auth);
