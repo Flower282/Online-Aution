@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPendingAuctions, approveAuction, rejectAuction } from "../../api/admin";
-import { Clock, CheckCircle, XCircle, AlertCircle, Package, ExternalLink } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, Package, ExternalLink } from "lucide-react";
 import LoadingScreen from "../../components/LoadingScreen";
 import { useNavigate } from "react-router";
 
@@ -83,16 +83,6 @@ const PendingAuctions = () => {
             return;
         }
         rejectMutation.mutate({ auctionId: selectedAuction._id, reason: rejectionReason });
-    };
-
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString("vi-VN", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
     };
 
     const calculateDuration = (startDate, endDate) => {

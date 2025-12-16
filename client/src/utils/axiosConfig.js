@@ -74,23 +74,24 @@ axios.interceptors.response.use(
                 processQueue(refreshError, null);
                 isRefreshing = false;
 
-                const { logout } = require('../store/auth/authSlice');
+                // Dynamically import logout action
+                import('../store/auth/authSlice').then(({ logout }) => {
+                    // Show notification
+                    toast.error('Your session has expired. Please login again.', {
+                        duration: 4000,
+                        position: 'top-center',
+                    });
 
-                // Show notification
-                toast.error('Your session has expired. Please login again.', {
-                    duration: 4000,
-                    position: 'top-center',
+                    // Dispatch logout action
+                    if (store) {
+                        store.dispatch(logout());
+                    }
+
+                    // Redirect to login page after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1000);
                 });
-
-                // Dispatch logout action
-                if (store) {
-                    store.dispatch(logout());
-                }
-
-                // Redirect to login page after a short delay
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 1000);
 
                 return Promise.reject(refreshError);
             }

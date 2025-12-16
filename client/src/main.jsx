@@ -11,7 +11,6 @@ import InitAuth from "./init/InitAuth.jsx";
 import { adminRouter } from "./routers/adminRouter.jsx";
 import { Toaster } from "sonner";
 import ChristmasSnowflakes from "./components/ChristmasSnowflakes.jsx";
-import ChristmasDecorativeShapes from "./components/ChristmasDecorativeShapes.jsx";
 import { injectStore } from "./utils/axiosConfig.js";
 
 // Inject Redux store into axios interceptor
@@ -25,7 +24,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <InitAuth>
-          <ChristmasDecorativeShapes />
           <ChristmasSnowflakes />
           <RouterProvider router={router} />
           <Toaster position="top-right" richColors />
