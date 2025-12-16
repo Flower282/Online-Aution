@@ -65,6 +65,8 @@ jobs:
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/auction-client:latest
             ghcr.io/${{ env.OWNER_LC }}/auction-client:${{ github.sha }}
+          build-args: |
+            VITE_API=${{ secrets.VITE_API }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -99,6 +101,8 @@ jobs:
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/auction-client:latest
             ghcr.io/${{ env.OWNER_LC }}/auction-client:${{ github.sha }}
+          build-args: |
+            VITE_API=${{ secrets.VITE_API }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

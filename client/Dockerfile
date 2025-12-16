@@ -16,20 +16,10 @@ RUN npm ci
 COPY . .
 
 # Build arguments for all environment variables (set by deployment platform)
-ARG VITE_API_URL
-ARG VITE_AUCTION_API
-ARG VITE_USER_API
 ARG VITE_API
-ARG VITE_CONTACT_API
-ARG VITE_ADMIN_API
 
 # Set environment variables for Vite build
-ENV VITE_API_URL=${VITE_API_URL}
-ENV VITE_AUCTION_API=${VITE_AUCTION_API}
-ENV VITE_USER_API=${VITE_USER_API}
 ENV VITE_API=${VITE_API}
-ENV VITE_CONTACT_API=${VITE_CONTACT_API}
-ENV VITE_ADMIN_API=${VITE_ADMIN_API}
 
 # Build the application
 RUN npm run build
