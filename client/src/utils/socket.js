@@ -1,7 +1,5 @@
 import { io } from 'socket.io-client';
-import { env } from '../config/env.js';
-
-const SOCKET_URL = env.API_URL;
+import { SOCKET_URL } from '../config/api.js';
 
 // Create socket connection
 // Note: Socket auth is currently disabled on server for development
