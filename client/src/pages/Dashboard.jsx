@@ -19,7 +19,7 @@ const Dashboard = () => {
   // Handle error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-200 max-w-md">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Dashboard</h2>
           <p className="text-gray-600 mb-6">{error.message || "Failed to load dashboard data"}</p>
@@ -37,7 +37,7 @@ const Dashboard = () => {
   // Handle undefined or null data
   if (!data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-200 max-w-md">
           <h2 className="text-2xl font-bold text-red-600 mb-4">No Data Available</h2>
           <p className="text-gray-600 mb-6">Unable to load dashboard statistics. Please try again.</p>
@@ -53,7 +53,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-7xl mx-auto px-4 py-10">
         {/* Christmas Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
