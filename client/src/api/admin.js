@@ -1,10 +1,10 @@
 import axios from "../utils/axiosConfig.js";
-const VITE_API = import.meta.env.VITE_API;
+import { API_ENDPOINTS } from '../config/api.js';
 
 // Get admin dashboard statistics
 export const getAdminDashboard = async () => {
     try {
-        const res = await axios.get(`${VITE_API}/admin/dashboard`,
+        const res = await axios.get(API_ENDPOINTS.ADMIN_DASHBOARD,
             { withCredentials: true }
         );
         return res.data;
@@ -17,7 +17,7 @@ export const getAdminDashboard = async () => {
 // Get all users with pagination and filtering
 export const getAllUsers = async (page = 1, search = '', role = 'all', limit = 10, sortBy = 'createdAt', sortOrder = 'desc') => {
     try {
-        const res = await axios.get(`${VITE_API}/admin/users`, {
+        const res = await axios.get(API_ENDPOINTS.ADMIN_USERS, {
             params: { page, search, role, limit, sortBy, sortOrder },
             withCredentials: true
         });
@@ -31,7 +31,7 @@ export const getAllUsers = async (page = 1, search = '', role = 'all', limit = 1
 // Update user role (future functionality)
 export const updateUserRole = async (userId, newRole) => {
     try {
-        const res = await axios.patch(`${VITE_API}/admin/users/${userId}/role`,
+        const res = await axios.patch(`${API_ENDPOINTS.ADMIN_USERS}/${userId}/role`,
             { role: newRole },
             { withCredentials: true }
         );
@@ -45,7 +45,7 @@ export const updateUserRole = async (userId, newRole) => {
 // Deactivate user (was delete)
 export const deleteUser = async (userId) => {
     try {
-        const res = await axios.delete(`${VITE_API}/admin/users/${userId}`,
+        const res = await axios.delete(`${API_ENDPOINTS.ADMIN_USERS}/${userId}`,
             { withCredentials: true }
         );
         return res.data;
@@ -58,7 +58,7 @@ export const deleteUser = async (userId) => {
 // Reactivate user
 export const reactivateUser = async (userId) => {
     try {
-        const res = await axios.patch(`${VITE_API}/admin/users/${userId}/reactivate`,
+        const res = await axios.patch(`${API_ENDPOINTS.ADMIN_USERS}/${userId}/reactivate`,
             {},
             { withCredentials: true }
         );
@@ -72,7 +72,7 @@ export const reactivateUser = async (userId) => {
 // Block/Unblock user (future functionality)
 export const toggleUserStatus = async (userId, status) => {
     try {
-        const res = await axios.patch(`${VITE_API}/admin/users/${userId}/status`,
+        const res = await axios.patch(`${API_ENDPOINTS.ADMIN_USERS}/${userId}/status`,
             { status },
             { withCredentials: true }
         );
@@ -88,7 +88,7 @@ export const toggleUserStatus = async (userId, status) => {
 // Get pending auctions
 export const getPendingAuctions = async (page = 1, limit = 20) => {
     try {
-        const res = await axios.get(`${VITE_API}/admin/auctions/pending`, {
+        const res = await axios.get(API_ENDPOINTS.ADMIN_AUCTIONS_PENDING, {
             params: { page, limit },
             withCredentials: true
         });
@@ -102,7 +102,7 @@ export const getPendingAuctions = async (page = 1, limit = 20) => {
 // Get all auctions with filters
 export const getAllAuctions = async (page = 1, limit = 20, status = 'all', search = '') => {
     try {
-        const res = await axios.get(`${VITE_API}/admin/auctions`, {
+        const res = await axios.get(API_ENDPOINTS.ADMIN_AUCTIONS, {
             params: { page, limit, status, search },
             withCredentials: true
         });
@@ -116,7 +116,7 @@ export const getAllAuctions = async (page = 1, limit = 20, status = 'all', searc
 // Approve auction
 export const approveAuction = async (auctionId) => {
     try {
-        const res = await axios.patch(`${VITE_API}/admin/auctions/${auctionId}/approve`,
+        const res = await axios.patch(`${API_ENDPOINTS.ADMIN_AUCTIONS}/${auctionId}/approve`,
             {},
             { withCredentials: true }
         );
@@ -130,7 +130,7 @@ export const approveAuction = async (auctionId) => {
 // Reject auction
 export const rejectAuction = async (auctionId, reason) => {
     try {
-        const res = await axios.patch(`${VITE_API}/admin/auctions/${auctionId}/reject`,
+        const res = await axios.patch(`${API_ENDPOINTS.ADMIN_AUCTIONS}/${auctionId}/reject`,
             { reason },
             { withCredentials: true }
         );

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-const VITE_API = import.meta.env.VITE_API;
+import { API_ENDPOINTS } from '../../config/api.js';
 
 
 const initialState = {
@@ -21,7 +21,7 @@ export const fetchAuctions = createAsyncThunk(
             if (token) {
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             }
-            const response = await axios.get(`${VITE_API}/api/auction/show`);
+            const response = await axios.get(`${API_ENDPOINTS.BASE}/api/auction/show`);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -37,7 +37,7 @@ export const fetchUserAndProducts = createAsyncThunk(
             if (token) {
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             }
-            const response = await axios.get(`${VITE_API}/api/${userId}`);
+            const response = await axios.get(`${API_ENDPOINTS.BASE}/api/${userId}`);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data || "An unexpected error occurred.");
@@ -53,7 +53,7 @@ export const fetchAuctionById = createAsyncThunk(
             if (token) {
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             }
-            const response = await axios.get(`${VITE_API}/api/auction/${productId}`);
+            const response = await axios.get(`${API_ENDPOINTS.BASE}/api/auction/${productId}`);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data || "An unexpected error occurred.");

@@ -1,9 +1,9 @@
 import axios from "../utils/axiosConfig.js";
-const VITE_API = import.meta.env.VITE_API;
+import { API_ENDPOINTS } from '../config/api.js';
 
 export const changePassword = async (formData) => {
     try {
-        const res = await axios.patch(`${VITE_API}/user`,
+        const res = await axios.patch(API_ENDPOINTS.USER,
             formData,
             { withCredentials: true }
         );
@@ -17,7 +17,7 @@ export const changePassword = async (formData) => {
 
 export const loginHistory = async () => {
     try {
-        const res = await axios.get(`${VITE_API}/user/logins`,
+        const res = await axios.get(API_ENDPOINTS.USER_LOGINS,
             { withCredentials: true }
         );
         return res.data;

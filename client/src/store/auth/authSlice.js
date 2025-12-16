@@ -1,12 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../utils/axiosConfig.js';
-
-const VITE_API = import.meta.env.VITE_API;
+import { API_ENDPOINTS } from '../../config/api.js';
 
 // Return user if loggedin
 export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWithValue }) => {
     try {
-        const response = await axios.get(`${VITE_API}/user`, {
+        const response = await axios.get(API_ENDPOINTS.USER, {
             withCredentials: true,
         });
         return response.data;
@@ -18,11 +17,11 @@ export const checkAuth = createAsyncThunk('auth/checkAuth', async (_, { rejectWi
 // login 
 export const login = createAsyncThunk('auth/login', async ({ email, password }, { rejectWithValue }) => {
     try {
-        await axios.post(`${VITE_API}/auth/login`, { email, password }, {
+        await axios.post(API_ENDPOINTS.AUTH.LOGIN, { email, password }, {
             withCredentials: true,
         });
 
-        const response = await axios.get(`${VITE_API}/user`, {
+        const response = await axios.get(API_ENDPOINTS.USER, {
             withCredentials: true,
         });
 
@@ -35,11 +34,11 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
 // signup
 export const signup = createAsyncThunk('auth/signup', async ({ name, email, password }, { rejectWithValue }) => {
     try {
-        await axios.post(`${VITE_API}/auth/signup`, { name, email, password }, {
+        await axios.post(API_ENDPOINTS.AUTH.SIGNUP, { name, email, password }, {
             withCredentials: true,
         });
 
-        const response = await axios.get(`${VITE_API}/user`, {
+        const response = await axios.get(API_ENDPOINTS.USER, {
             withCredentials: true,
         });
 
@@ -52,7 +51,7 @@ export const signup = createAsyncThunk('auth/signup', async ({ name, email, pass
 // logout
 export const logout = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
     try {
-        await axios.post(`${VITE_API}/auth/logout`, {}, {
+        await axios.post(API_ENDPOINTS.AUTH.LOGOUT, {}, {
             withCredentials: true,
         });
         return null;

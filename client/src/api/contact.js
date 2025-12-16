@@ -1,9 +1,9 @@
 import axios from "../utils/axiosConfig.js";
-const VITE_API = import.meta.env.VITE_API;
+import { API_ENDPOINTS } from '../config/api.js';
 
 export const sendMessage = async (formData) => {
     try {
-        const res = await axios.post(`${VITE_API}/contact`,
+        const res = await axios.post(API_ENDPOINTS.CONTACT,
             formData,
         )
         return res.data;
