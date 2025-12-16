@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
+import { env } from '../config/env.js';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const SOCKET_URL = env.API_URL;
 
 // Create socket connection
 // Note: Socket auth is currently disabled on server for development
