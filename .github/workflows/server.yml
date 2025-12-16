@@ -144,3 +144,13 @@ jobs:
           echo "- **Commit:** ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Pull with: \`docker pull ghcr.io/${{ env.OWNER_LC }}/auction-backend:latest\`" >> $GITHUB_STEP_SUMMARY
+
+      # Trigger Render deployment after successful GHCR push
+      - name: Trigger Render Deploy Hook
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL_SERVER }}" \
+            --fail \
+            --silent \
+            --show-error \
+            || (echo "Failed to trigger Render deployment" && exit 1)
+          echo "Render deployment triggered successfully"
