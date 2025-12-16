@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../utils/axiosConfig.js";
 const VITE_AUCTION_API = import.meta.env.VITE_AUCTION_API;
 
 

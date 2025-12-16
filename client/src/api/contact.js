@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../utils/axiosConfig.js";
 const VITE_API = import.meta.env.VITE_API;
 
 export const sendMessage = async (formData) => {
