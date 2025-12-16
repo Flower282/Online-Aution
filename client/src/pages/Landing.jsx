@@ -13,7 +13,7 @@ export const Landing = () => {
   if (loading) return <LoadingScreen />;
   
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       {!user && (
         <>
           <Hero />
