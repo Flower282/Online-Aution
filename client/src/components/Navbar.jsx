@@ -51,8 +51,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b-2 border-red-300 bg-white/95 backdrop-blur shadow-lg">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-100 via-red-50 to-red-100 opacity-60"></div>
+      <header className="sticky top-0 z-50 w-full border-b-2 border-red-300 bg-white backdrop-blur shadow-lg">
         <div className="container mx-auto flex h-20 items-center justify-between px-4 relative">
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2 group">

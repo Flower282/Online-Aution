@@ -204,3 +204,8 @@
 html {
     font-size: var(--font-size);
 }
+
+body {
+    background-color: #f5f1e8;
+    min-height: 100vh;
+}

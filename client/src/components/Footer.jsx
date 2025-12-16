@@ -7,9 +7,9 @@ export const Footer = () => {
       {/* Decorative elements */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-2 left-10 text-4xl">❄️</div>
-        <div className="absolute top-5 right-20 text-3xl">🎄</div>
-        <div className="absolute bottom-5 left-1/4 text-3xl">⭐</div>
-        <div className="absolute bottom-10 right-1/3 text-4xl">🎅</div>
+        <div className="absolute top-5 right-20 text-3xl"></div>
+        <div className="absolute bottom-5 left-1/4 text-3xl"></div>
+        <div className="absolute bottom-10 right-1/3 text-4xl"></div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 relative z-10">
@@ -17,11 +17,11 @@ export const Footer = () => {
           <div className="mb-6 md:mb-0 text-center md:text-left">
             <h3 className="text-2xl font-bold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
               <Gift className="h-6 w-6 christmas-sparkle" />
-              🎅 Online Auction System
+              Online Auction System
             </h3>
             <p className="text-red-100 text-sm flex items-center justify-center md:justify-start gap-1">
               <Heart className="h-4 w-4 inline" />
-              Your trusted Christmas marketplace since 2025 ❤️
+              Your trusted Christmas marketplace since 2025
             </p>
           </div>
           <div className="flex space-x-8">
@@ -49,7 +49,7 @@ export const Footer = () => {
         <div className="border-t border-red-400/30 mt-8 pt-6 text-center">
           <p className="text-red-50 text-sm flex items-center justify-center gap-2">
             <Sparkles className="h-4 w-4" />
-            © 2025 Online Auction System. All rights reserved. Made with ❤️
+            © 2025 Online Auction System. All rights reserved. Made with
             <Sparkles className="h-4 w-4" />
           </p>
         </div>
