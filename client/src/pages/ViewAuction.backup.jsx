@@ -15,9 +15,9 @@ export const ViewAuction = () => {
   const inputRef = useRef();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState(null);
-  const [topBids, setTopBids] = useState([]);
-  const [currentPrice, setCurrentPrice] = useState(null);
-  const [totalBids, setTotalBids] = useState(0);
+  const [_topBids, setTopBids] = useState([]);
+  const [_currentPrice, setCurrentPrice] = useState(null);
+  const [_totalBids, setTotalBids] = useState(0);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
@@ -109,7 +109,7 @@ export const ViewAuction = () => {
     };
   }, [id, user?.user?._id, queryClient]);
 
-  const placeBidMutate = useMutation({
+  const _placeBidMutate = useMutation({
     mutationFn: ({ bidAmount, id }) => placeBid({ bidAmount, id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["viewAuctions"] });

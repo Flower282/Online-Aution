@@ -3,12 +3,9 @@ import { Link, NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { logout } from "../store/auth/authSlice";
-import { Gavel, Search, User, Heart, Bell, Menu, X, Gift, Sparkles } from "lucide-react";
+import { Gavel, Search, User, Heart, Menu, X, Gift, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import {
-  MdOutlineAccountCircle,
-} from "react-icons/md";
 import {
   IoLogOutOutline,
 } from "react-icons/io5";

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import AuctionCard from "../components/AuctionCard";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getFavoriteAuctions } from "../api/auction";
@@ -27,7 +27,7 @@ export default function Favorites() {
     useEffect(() => {
         console.log('✨ Favorites page mounted - Refreshing data');
         refetch();
-    }, []); // Run only on mount
+    }, [refetch]); // Run only on mount
 
     // 🔥 Real-time updates via Socket.io
     useEffect(() => {

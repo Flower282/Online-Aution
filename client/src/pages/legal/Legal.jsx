@@ -1,37 +1,4 @@
-import { Link } from "react-router";
-
 export default function Legal() {
-  const legalPages = [
-    {
-      title: "Privacy Policy",
-      description:
-        "Learn how we collect, use, and protect your personal information.",
-      to: "/legal/privacy-policy",
-    },
-    {
-      title: "Terms of Service",
-      description:
-        "The terms and conditions governing your use of our platform.",
-      to: "/legal/terms-of-service",
-    },
-    {
-      title: "DMCA Policy",
-      description: "Our policy for handling copyright infringement claims.",
-      to: "/legal/dmca",
-    },
-    {
-      title: "Code of Conduct",
-      description:
-        "Guidelines for respectful and appropriate behavior on our platform.",
-      to: "/legal/code-of-conduct",
-    },
-    {
-      title: "Acceptable Use Policy",
-      description: "Rules about what you can and cannot do on our platform.",
-      to: "/legal/acceptable-use-policy",
-    },
-  ];
-
   return (
     <div className="min-h-screen px-4 sm:px-6 lg:px-6">
       <div className="max-w-7xl mx-auto">

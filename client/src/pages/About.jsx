@@ -1,9 +1,6 @@
-import { Link } from "react-router";
 // import { AdsComponent } from "../components/AdsComponent";
-import { useSelector } from "react-redux";
 
 export const About = () => {
-  const { user } = useSelector((state) => state.auth);
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
       <div className="max-w-5xl mx-auto px-4 py-16">
