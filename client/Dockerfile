@@ -16,12 +16,12 @@ RUN npm ci
 COPY . .
 
 # Build arguments for all environment variables (set by deployment platform)
-ARG VITE_API_URL=http://localhost:8000
-ARG VITE_AUCTION_API=http://localhost:8000/auction
-ARG VITE_USER_API=http://localhost:8000/user
-ARG VITE_API=http://localhost:8000
-ARG VITE_CONTACT_API=http://localhost:8000/contact
-ARG VITE_ADMIN_API=http://localhost:8000/admin
+ARG VITE_API_URL
+ARG VITE_AUCTION_API
+ARG VITE_USER_API
+ARG VITE_API
+ARG VITE_CONTACT_API
+ARG VITE_ADMIN_API
 
 # Set environment variables for Vite build
 ENV VITE_API_URL=${VITE_API_URL}
