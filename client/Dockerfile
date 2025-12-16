@@ -38,16 +38,28 @@ RUN npm run build
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
 
+# Install gettext for envsubst command
+RUN apk add --no-cache gettext
+
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx template (not the final config)
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
 
-# Expose port 5173
+# Copy entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Set default SERVER_NAME environment variable
+ENV SERVER_NAME=_
+
+# Expose port 80
 EXPOSE 80
 
 # Health check
-HEALTHCHECK CMD wget --spider http://localhost || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+# Use custom entrypoint that runs envsubst before nginx
+ENTRYPOINT ["/docker-entrypoint.sh"]
