@@ -12,6 +12,10 @@ import { adminRouter } from "./routers/adminRouter.jsx";
 import { Toaster } from "sonner";
 import ChristmasSnowflakes from "./components/ChristmasSnowflakes.jsx";
 import ChristmasDecorativeShapes from "./components/ChristmasDecorativeShapes.jsx";
+import { injectStore } from "./utils/axiosConfig.js";
+
+// Inject Redux store into axios interceptor
+injectStore(store);
 
 const queryClient = new QueryClient();
 const router = createBrowserRouter([...openRoutes, ...adminRouter, ...protectedRoutes]);

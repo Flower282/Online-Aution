@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { env } from '../../config/env.js';
+import axios from '../../utils/axiosConfig.js';
 
 const VITE_API = env.API;
 

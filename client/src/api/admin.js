@@ -1,7 +1,5 @@
-import axios from "axios";
-import { env } from '../config/env.js';
-
-const VITE_API = env.API;
+import axios from "../utils/axiosConfig.js";
+const VITE_API = import.meta.env.VITE_API;
 
 // Get admin dashboard statistics
 export const getAdminDashboard = async () => {
