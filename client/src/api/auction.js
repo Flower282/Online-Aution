@@ -1,11 +1,11 @@
 import axios from "../utils/axiosConfig.js";
-const VITE_AUCTION_API = import.meta.env.VITE_AUCTION_API;
+import { API_ENDPOINTS } from '../config/api.js';
 
 
 // getting list of all auction
 export const getAuctions = async () => {
     try {
-        const res = await axios.get(`${VITE_AUCTION_API}`,
+        const res = await axios.get(API_ENDPOINTS.AUCTION,
             { withCredentials: true }
         );
         return res.data;
@@ -18,7 +18,7 @@ export const getAuctions = async () => {
 // getting list of user's auctions
 export const getMyAuctions = async () => {
     try {
-        const res = await axios.get(`${VITE_AUCTION_API}/myauction`,
+        const res = await axios.get(`${API_ENDPOINTS.AUCTION}/myauction`,
             { withCredentials: true }
         );
         return res.data;
@@ -32,7 +32,7 @@ export const getMyAuctions = async () => {
 // getting single auction using _id
 export const viewAuction = async (id) => {
     try {
-        const res = await axios.get(`${VITE_AUCTION_API}/${id}`,
+        const res = await axios.get(`${API_ENDPOINTS.AUCTION}/${id}`,
             { withCredentials: true }
         );
         return res.data;
@@ -45,7 +45,7 @@ export const viewAuction = async (id) => {
 // placing bid for auction
 export const placeBid = async ({ bidAmount, id }) => {
     try {
-        const res = await axios.post(`${VITE_AUCTION_API}/${id}`,
+        const res = await axios.post(`${API_ENDPOINTS.AUCTION}/${id}`,
             { bidAmount },
             { withCredentials: true }
         )
@@ -69,7 +69,7 @@ export const createAuction = async (data) => {
         formData.append("itemEndDate", data.itemEndDate);
         formData.append("itemPhoto", data.itemPhoto);
 
-        const res = await axios.post(`${VITE_AUCTION_API}`,
+        const res = await axios.post(API_ENDPOINTS.AUCTION,
             formData,
             {
                 headers: {
@@ -88,7 +88,7 @@ export const createAuction = async (data) => {
 // getting dashboard statistics
 export const dashboardStats = async () => {
     try {
-        const res = await axios.get(`${VITE_AUCTION_API}/stats`,
+        const res = await axios.get(`${API_ENDPOINTS.AUCTION}/stats`,
             { withCredentials: true }
         );
         return res.data;
@@ -101,7 +101,7 @@ export const dashboardStats = async () => {
 // delete auction (Admin only)
 export const deleteAuction = async (id) => {
     try {
-        const res = await axios.delete(`${VITE_AUCTION_API}/${id}`,
+        const res = await axios.delete(`${API_ENDPOINTS.AUCTION}/${id}`,
             { withCredentials: true }
         );
         return res.data;
@@ -114,7 +114,7 @@ export const deleteAuction = async (id) => {
 // toggle like/unlike auction
 export const toggleLikeAuction = async (id) => {
     try {
-        const res = await axios.post(`${VITE_AUCTION_API}/${id}/like`,
+        const res = await axios.post(`${API_ENDPOINTS.AUCTION}/${id}/like`,
             {},
             { withCredentials: true }
         );
@@ -128,8 +128,7 @@ export const toggleLikeAuction = async (id) => {
 // get favorite auctions (auctions user has liked)
 export const getFavoriteAuctions = async () => {
     try {
-        const VITE_USER_API = import.meta.env.VITE_USER_API;
-        const res = await axios.get(`${VITE_USER_API}/favorites`,
+        const res = await axios.get(API_ENDPOINTS.USER_FAVORITES,
             { withCredentials: true }
         );
         return res.data;
