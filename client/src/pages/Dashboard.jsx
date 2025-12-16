@@ -3,6 +3,8 @@ import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { dashboardStats } from "../api/auction.js";
 import LoadingScreen from "../components/LoadingScreen.jsx";
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
 
 const Dashboard = () => {
   const { data, isLoading, error } = useQuery({
@@ -13,6 +15,46 @@ const Dashboard = () => {
     refetchOnWindowFocus: true, // Refresh when user returns to tab
     refetchOnMount: true, // Always refetch when component mounts
   });
+
+  // Slideshow state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Get 3 most recent auctions for slideshow
+  const recentAuctions = data?.latestAuctions?.slice(0, 3) || [];
+
+  // Auto-advance slideshow
+  useEffect(() => {
+    if (!isPlaying || recentAuctions.length === 0) return;
+
+    const interval = setInterval(() => {
+      handleNext();
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [isPlaying, currentSlide, recentAuctions.length]);
+
+  const handleNext = () => {
+    if (isTransitioning || recentAuctions.length === 0) return;
+    setIsTransitioning(true);
+    setCurrentSlide((prev) => (prev + 1) % recentAuctions.length);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const handlePrev = () => {
+    if (isTransitioning || recentAuctions.length === 0) return;
+    setIsTransitioning(true);
+    setCurrentSlide((prev) => (prev - 1 + recentAuctions.length) % recentAuctions.length);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const goToSlide = (index) => {
+    if (isTransitioning || index === currentSlide) return;
+    setIsTransitioning(true);
+    setCurrentSlide(index);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
 
   if (isLoading) return <LoadingScreen />;
 
@@ -80,6 +122,118 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
+
+        {/* New Auctions Slideshow */}
+        {recentAuctions.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-6">New Auctions</h2>
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-red-200">
+              <div className="grid md:grid-cols-2 gap-0">
+                {/* Image Section */}
+                <div className="relative h-[400px] md:h-[500px] overflow-hidden bg-gradient-to-br from-red-50 to-pink-50">
+                  <div
+                    className={`absolute inset-0 transition-opacity duration-300 ${
+                      isTransitioning ? 'opacity-0' : 'opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={recentAuctions[currentSlide]?.itemPhoto || "https://picsum.photos/600"}
+                      alt={recentAuctions[currentSlide]?.itemName}
+                      className="w-full h-full object-contain p-8"
+                    />
+                  </div>
+
+                  {/* Navigation Arrows */}
+                  <button
+                    onClick={handlePrev}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+                    disabled={isTransitioning}
+                  >
+                    <ChevronLeft className="h-6 w-6 text-red-600" />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+                    disabled={isTransitioning}
+                  >
+                    <ChevronRight className="h-6 w-6 text-red-600" />
+                  </button>
+
+                  {/* Play/Pause Button */}
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="absolute bottom-4 right-4 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+                  >
+                    {isPlaying ? (
+                      <Pause className="h-5 w-5 text-red-600" />
+                    ) : (
+                      <Play className="h-5 w-5 text-red-600" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Info Section */}
+                <div
+                  className={`p-8 md:p-12 flex flex-col justify-center bg-gradient-to-br from-red-50 via-pink-50 to-white transition-opacity duration-300 ${
+                    isTransitioning ? 'opacity-0' : 'opacity-100'
+                  }`}
+                >
+                  <div className="mb-4">
+                    <span className="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide">
+                      🎁 New Auction
+                    </span>
+                  </div>
+
+                  <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    {recentAuctions[currentSlide]?.itemName}
+                  </h3>
+
+                  <p className="text-gray-600 mb-6 line-clamp-3">
+                    {recentAuctions[currentSlide]?.itemDescription || "Join the bidding now!"}
+                  </p>
+
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-red-100">
+                      <span className="text-gray-600 font-medium">Current Price:</span>
+                      <span className="text-3xl font-bold text-red-600">
+                        ${(recentAuctions[currentSlide]?.currentPrice || recentAuctions[currentSlide]?.startingPrice)?.toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-red-100">
+                      <span className="text-gray-600 font-medium">🎁 Total Bids:</span>
+                      <span className="text-xl font-bold text-gray-900">
+                        {recentAuctions[currentSlide]?.bidsCount || 0}
+                      </span>
+                    </div>
+                  </div>
+
+                  <Link to={`/auction/${recentAuctions[currentSlide]?._id}`}>
+                    <button className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-4 rounded-xl hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                      🎄 View Auction
+                    </button>
+                  </Link>
+
+                  {/* Slide Indicators */}
+                  <div className="flex justify-center gap-2 mt-8">
+                    {recentAuctions.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => goToSlide(index)}
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          index === currentSlide
+                            ? 'w-8 bg-red-600'
+                            : 'w-2 bg-gray-300 hover:bg-red-300'
+                        }`}
+                        disabled={isTransitioning}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* All Auctions Section */}
         <div className="mb-12">
