@@ -25,7 +25,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <InitAuth>
-          <ChristmasDecorativeShapes />
+          {/*<ChristmasDecorativeShapes />*/}
           <ChristmasSnowflakes />
           <RouterProvider router={router} />
           <Toaster position="top-right" richColors />

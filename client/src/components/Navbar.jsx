@@ -91,7 +91,7 @@ export const Navbar = () => {
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-600" />
               <Input
-                placeholder="🎁 Tìm kiếm đấu giá Christmas..."
+                placeholder=" Tìm kiếm đấu giá Christmas..."
                 className="pl-9 bg-red-50 border-red-200 focus:border-red-400 focus:ring-red-400"
               />
             </div>
@@ -120,7 +120,7 @@ export const Navbar = () => {
                   onClick={handleLogout}
                 >
                   <IoLogOutOutline className="h-5 w-5" />
-                  🎅 Đăng xuất
+                   Đăng xuất
                 </Button>
               </>
             ) : (
@@ -129,7 +129,7 @@ export const Navbar = () => {
                   <Link to="/login">Đăng nhập</Link>
                 </Button>
                 <Button className="hidden sm:flex bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 shadow-lg" asChild>
-                  <Link to="/signup">🎅 Đăng ký</Link>
+                  <Link to="/signup"> Đăng ký</Link>
                 </Button>
               </>
             )}
@@ -160,7 +160,7 @@ export const Navbar = () => {
           <div className="flex items-center space-x-2">
             <Gavel className="h-6 w-6 text-red-600 christmas-sparkle" />
             <span className="text-xl font-bold bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent">
-              🎅 Auction
+               Auction
             </span>
           </div>
           <Button
@@ -189,7 +189,7 @@ export const Navbar = () => {
                 )}
               </div>
               <div>
-                <p className="font-semibold text-red-900">🎅 {user.user.name}</p>
+                <p className="font-semibold text-red-900"> {user.user.name}</p>
                 <p className="text-sm text-red-600 truncate">
                   {user.user.email}
                 </p>
