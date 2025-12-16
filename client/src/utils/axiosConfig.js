@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { toast } from 'sonner';
+import { env } from '../config/env.js';
 
-const VITE_API = import.meta.env.VITE_API;
+const VITE_API = env.API;
 
 let store;
 let isRefreshing = false;

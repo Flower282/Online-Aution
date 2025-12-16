@@ -26,21 +26,21 @@ export const Hero = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="bg-white/80 backdrop-blur-sm p-8 sm:p-10 rounded-3xl shadow-xl border-2 border-white/50">
-            <div className="mb-3">
+          <div className="bg-white/80 backdrop-blur-sm p-6 sm:p-10 rounded-2xl shadow-xl border-2 border-white/50 max-w-md -mt-8 ml-8 lg:ml-16">
+            <div className="mb-2">
               <span className="text-orange-600 font-bold text-xs uppercase tracking-wider">TOP RATED</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 mb-4 leading-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 mb-3 leading-tight">
               ONLINE AUCTION<br />
               PLATFORM &<br />
               BIDDING SERVICES
             </h1>
-            <p className="text-gray-700 text-base sm:text-lg mb-8 font-medium">
+            <p className="text-gray-700 text-sm sm:text-base mb-6 font-medium">
               All auction items on one platform
             </p>
             <div className="flex flex-wrap gap-3">
               <Link to="/signup">
-                <button className="px-7 py-2.5 border-2 border-gray-900 rounded-full text-gray-900 font-semibold hover:bg-gray-900 hover:text-white transition-all duration-300 transform hover:scale-105 text-sm">
+                <button className="px-6 py-2 border-2 border-gray-900 rounded-full text-gray-900 font-semibold hover:bg-gray-900 hover:text-white transition-all duration-300 transform hover:scale-105 text-sm">
                   Get Started
                 </button>
               </Link>

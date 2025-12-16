@@ -1,10 +1,12 @@
-import { FaClock, FaChevronRight, FaChevronLeft } from "react-icons/fa";
+import { FaClock, FaChevronRight, FaChevronLeft, FaPause, FaPlay } from "react-icons/fa";
 import { Link } from "react-router";
 import { useState, useEffect } from "react";
 // import { AdsComponent } from "../AdsComponent";
 
 export const Auction = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const auctions = [
     {
@@ -38,25 +40,45 @@ export const Auction = () => {
 
   // Auto slide every 5 seconds
   useEffect(() => {
+    if (!isPlaying) return;
+    
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % auctions.length);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentSlide((prev) => (prev + 1) % auctions.length);
+        setIsTransitioning(false);
+      }, 300);
     }, 5000);
     return () => clearInterval(timer);
-  }, [auctions.length]);
+  }, [auctions.length, isPlaying]);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % auctions.length);
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlide((prev) => (prev + 1) % auctions.length);
+      setIsTransitioning(false);
+    }, 300);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + auctions.length) % auctions.length);
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentSlide((prev) => (prev - 1 + auctions.length) % auctions.length);
+      setIsTransitioning(false);
+    }, 300);
+  };
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
   };
 
   const currentAuction = auctions[currentSlide];
 
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4">
+    <section className="py-20 bg-transparent">
+      <div className="container mx-auto px-4 bg-transparent">
         <div className="flex justify-between items-center mb-12">
           <h2 className="text-4xl font-extrabold text-gray-900">Live Auctions</h2>
           <Link
@@ -68,19 +90,22 @@ export const Auction = () => {
         </div>
 
         {/* Slideshow Container */}
-        <div className="relative bg-gradient-to-br from-sky-50 to-blue-50 rounded-3xl shadow-2xl overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 lg:p-12">
+        <div className="relative bg-transparent-to-br from-sky-50 to-blue-50 rounded-3xl shadow-2xl overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-8">
             {/* Left Side - Image */}
-            <div className="relative flex items-center justify-center">
-              <div className="relative w-full h-96 bg-white rounded-2xl shadow-xl p-8 flex items-center justify-center overflow-hidden">
-                <img
-                  src={currentAuction.image}
-                  alt={currentAuction.title}
-                  className="w-full h-full object-contain transition-all duration-700 transform hover:scale-110"
-                  style={{ animation: 'fadeIn 0.7s ease-in-out' }}
-                />
+            <div className="relative flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-8 lg:p-12">
+              <div className="relative w-full h-[500px] flex items-center justify-center overflow-hidden">
+                <div className={`w-full h-full flex items-center justify-center transition-all duration-700 ease-out ${
+                  isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                }`}>
+                  <img
+                    src={currentAuction.image}
+                    alt={currentAuction.title}
+                    className="w-full h-full object-contain drop-shadow-2xl"
+                  />
+                </div>
                 {/* Time Badge */}
-                <div className={`absolute top-4 right-4 bg-gradient-to-r ${currentAuction.timeColor} text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg flex items-center gap-2`}>
+                <div className={`absolute top-4 right-4 bg-gradient-to-r ${currentAuction.timeColor} text-white px-5 py-3 rounded-2xl text-sm font-bold shadow-2xl flex items-center gap-2 backdrop-blur-sm`}>
                   <FaClock className="h-4 w-4" />
                   {currentAuction.timeLeft}
                 </div>
@@ -88,7 +113,9 @@ export const Auction = () => {
             </div>
 
             {/* Right Side - Information */}
-            <div className="flex flex-col justify-center space-y-6">
+            <div className={`flex flex-col justify-center space-y-6 p-8 lg:p-12 transition-all duration-700 ease-out ${
+              isTransitioning ? 'opacity-0 translate-x-10' : 'opacity-100 translate-x-0'
+            }`}>
               <div>
                 <span className="text-sky-600 font-semibold text-sm uppercase tracking-wide">Featured Auction</span>
                 <h3 className="text-3xl lg:text-4xl font-black text-gray-900 mt-2 leading-tight">
@@ -108,25 +135,46 @@ export const Auction = () => {
               </div>
 
               <Link to='/signup' className="w-full">
-                <button className="w-full bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white py-4 px-8 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-                  Place Your Bid Now
+                <button className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white py-5 px-8 rounded-xl font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105">
+                  View Items
                 </button>
               </Link>
 
-              {/* Slide Indicators */}
-              <div className="flex items-center justify-center gap-3 mt-4">
-                {auctions.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      index === currentSlide 
-                        ? 'w-8 bg-sky-600' 
-                        : 'w-2 bg-gray-300 hover:bg-gray-400'
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
+              {/* Slide Indicators & Play/Pause */}
+              <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center gap-3">
+                  {auctions.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (!isTransitioning) {
+                          setIsTransitioning(true);
+                          setTimeout(() => {
+                            setCurrentSlide(index);
+                            setIsTransitioning(false);
+                          }, 300);
+                        }
+                      }}
+                      className={`h-2.5 rounded-full transition-all duration-500 ${
+                        index === currentSlide 
+                          ? 'w-12 bg-sky-600' 
+                          : 'w-2.5 bg-gray-300 hover:bg-gray-400'
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={togglePlay}
+                  className="bg-white/80 hover:bg-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+                  aria-label={isPlaying ? "Pause" : "Play"}
+                >
+                  {isPlaying ? (
+                    <FaPause className="h-4 w-4 text-gray-800" />
+                  ) : (
+                    <FaPlay className="h-4 w-4 text-gray-800 ml-0.5" />
+                  )}
+                </button>
               </div>
             </div>
           </div>
@@ -134,17 +182,19 @@ export const Auction = () => {
           {/* Navigation Arrows */}
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 z-10"
+            disabled={isTransitioning}
+            className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed z-10 group"
             aria-label="Previous slide"
           >
-            <FaChevronLeft className="h-5 w-5 text-gray-800" />
+            <FaChevronLeft className="h-6 w-6 text-gray-800 group-hover:text-sky-600 transition-colors" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 z-10"
+            disabled={isTransitioning}
+            className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed z-10 group"
             aria-label="Next slide"
           >
-            <FaChevronRight className="h-5 w-5 text-gray-800" />
+            <FaChevronRight className="h-6 w-6 text-gray-800 group-hover:text-sky-600 transition-colors" />
           </button>
         </div>
 

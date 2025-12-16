@@ -1,5 +1,7 @@
 import axios from "../utils/axiosConfig.js";
-const VITE_AUCTION_API = import.meta.env.VITE_AUCTION_API;
+import { env } from '../config/env.js';
+
+const VITE_AUCTION_API = env.AUCTION_API;
 
 
 // getting list of all auction
@@ -128,8 +130,7 @@ export const toggleLikeAuction = async (id) => {
 // get favorite auctions (auctions user has liked)
 export const getFavoriteAuctions = async () => {
     try {
-        const VITE_USER_API = import.meta.env.VITE_USER_API;
-        const res = await axios.get(`${VITE_USER_API}/favorites`,
+        const res = await axios.get(`${env.USER_API}/favorites`,
             { withCredentials: true }
         );
         return res.data;
