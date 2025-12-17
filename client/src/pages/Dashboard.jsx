@@ -206,16 +206,16 @@ const Dashboard = () => {
 
         {/* Hero Search Section */}
         <div className="min-h-[70vh] flex flex-col items-center justify-center mb-16" ref={searchRef}>
-          <div className="text-center mb-8">
-            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-orange-500 mb-4">
+          <div className="text-center mb-8" data-aos="fade-down">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-orange-500 mb-4" data-aos="zoom-in" data-aos-delay="100">
               🎄 Online Auction
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
               Khám phá hàng ngàn sản phẩm đấu giá hấp dẫn. Tìm kiếm ngay!
             </p>
           </div>
 
-          <div className="w-full max-w-4xl mx-auto">
+          <div className="w-full max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="300">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
                 <Search className="h-8 w-8 text-red-500" />

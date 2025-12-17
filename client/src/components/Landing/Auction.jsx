@@ -79,7 +79,7 @@ export const Auction = () => {
   return (
     <section className="py-20 bg-transparent">
       <div className="container mx-auto px-4 bg-transparent">
-        <div className="flex justify-between items-center mb-12">
+        <div className="flex justify-between items-center mb-12" data-aos="fade-up">
           <h2 className="text-4xl font-extrabold text-gray-900">Live Auctions</h2>
           <Link
             to="/signup"
@@ -90,7 +90,7 @@ export const Auction = () => {
         </div>
 
         {/* Slideshow Container */}
-        <div className="relative bg-transparent-to-br from-sky-50 to-blue-50 rounded-3xl shadow-2xl overflow-hidden">
+        <div className="relative bg-transparent-to-br from-sky-50 to-blue-50 rounded-3xl shadow-2xl overflow-hidden" data-aos="zoom-in" data-aos-delay="100">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-8">
             {/* Left Side - Image */}
             <div className="relative flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-8 lg:p-12">

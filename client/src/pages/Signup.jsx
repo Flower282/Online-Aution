@@ -46,15 +46,15 @@ const Signup = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-red-50 via-white to-pink-50">
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white p-10 rounded-2xl shadow-2xl border-2 border-red-200">
-            <div className="text-center mb-8">
+          <div className="bg-white p-10 rounded-2xl shadow-2xl border-2 border-red-200" data-aos="zoom-in">
+            <div className="text-center mb-8" data-aos="fade-down" data-aos-delay="100">
               <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
                 Join Us Today!
               </h1>
               <p className="text-gray-700">Create your Christmas account to get started</p>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} data-aos="fade-up" data-aos-delay="200">
               <div className="mb-5">
                 <label
                   htmlFor="name"

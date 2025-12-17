@@ -159,13 +159,13 @@ export const CreateAuction = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-6 text-center">
+        <div className="mb-6 text-center" data-aos="fade-down">
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
             Create Christmas Auction
           </h1>
           <p className="text-gray-700">List your item for the Christmas season </p>
         </div>
-        <div className="bg-white rounded-lg shadow-lg border-2 border-red-200">
+        <div className="bg-white rounded-lg shadow-lg border-2 border-red-200" data-aos="fade-up" data-aos-delay="200">
           <div className="p-6 md:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Item Name */}

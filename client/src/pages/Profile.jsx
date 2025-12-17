@@ -77,7 +77,7 @@ export default function Profile() {
       <div className="max-w-4xl mx-auto p-4 md:p-8">
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">
-          <div className="mb-6">
+          <div className="mb-6" data-aos="fade-down">
             <h1 className="text-2xl font-bold text-gray-900">
               Profile Settings
             </h1>
@@ -111,7 +111,7 @@ export default function Profile() {
             </div>
           )}
 
-          <div className="bg-white shadow overflow-hidden border border-gray-200 rounded-md">
+          <div className="bg-white shadow overflow-hidden border border-gray-200 rounded-md" data-aos="fade-up" data-aos-delay="100">
             <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
               <div className="flex flex-col sm:flex-row items-center">
                 <div className="relative mb-4 sm:mb-0">

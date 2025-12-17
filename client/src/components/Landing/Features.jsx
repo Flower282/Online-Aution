@@ -4,11 +4,11 @@ export const Features = () => {
   return (
     <section className="py-20 md:py-24 bg-white">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16" data-aos="fade-up">
           <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
             Why Choose Our Platform?
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
             We provide a secure, user-friendly environment for all your
             auction needs
           </p>
@@ -16,7 +16,7 @@ export const Features = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Feature 1 */}
-          <div className="text-center p-8 bg-gradient-to-br from-sky-50 to-white border-2 border-sky-200 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform">
+          <div className="text-center p-8 bg-gradient-to-br from-sky-50 to-white border-2 border-sky-200 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform" data-aos="zoom-in" data-aos-delay="200">
             <div className="w-20 h-20 bg-gradient-to-br from-sky-400 to-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
               <FaGavel className="text-3xl text-white" />
             </div>
@@ -30,7 +30,7 @@ export const Features = () => {
           </div>
 
           {/* Feature 2 */}
-          <div className="text-center p-8 bg-gradient-to-br from-cyan-50 to-white border-2 border-cyan-200 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform">
+          <div className="text-center p-8 bg-gradient-to-br from-cyan-50 to-white border-2 border-cyan-200 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform" data-aos="zoom-in" data-aos-delay="300">
             <div className="w-20 h-20 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
               <FaShieldAlt className="text-3xl text-white" />
             </div>
@@ -44,7 +44,7 @@ export const Features = () => {
           </div>
 
           {/* Feature 3 */}
-          <div className="text-center p-8 bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform">
+          <div className="text-center p-8 bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 transform" data-aos="zoom-in" data-aos-delay="400">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
               <FaClock className="text-3xl text-white" />
             </div>
