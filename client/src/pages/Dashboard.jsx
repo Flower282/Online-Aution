@@ -178,31 +178,32 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
-      <main className="max-w-7xl mx-auto px-4 py-10">
-        {/* Verification Warning Banner */}
-        {!isVerified && (
-          <div className="mb-8 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-lg">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-start gap-3">
-                <ShieldAlert className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-amber-800">Tài khoản chưa xác minh</h3>
-                  <p className="text-sm text-amber-700">
-                    Xác minh tài khoản để nạp tiền, đặt cọc và tham gia đấu giá
-                  </p>
-                </div>
+    <div className="min-h-screen relative" style={{ backgroundColor: '#f5f1e8' }}>
+      {/* Verification Warning Banner - fixed top-right, offset to avoid navbar/profile */}
+      {!isVerified && (
+        <div className="fixed top-24 sm:top-28 right-4 sm:right-6 z-50 w-[320px] sm:w-[360px]">
+          <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-2xl">
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-amber-800">Tài khoản chưa xác minh</h3>
+                <p className="text-sm text-amber-700">
+                  Xác minh tài khoản để nạp tiền, đặt cọc và tham gia đấu giá
+                </p>
+                <button
+                  onClick={() => setShowVerificationModal(true)}
+                  className="mt-3 px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors flex items-center gap-2 w-full justify-center"
+                >
+                  <ShieldAlert className="h-4 w-4" />
+                  Xác minh ngay
+                </button>
               </div>
-              <button
-                onClick={() => setShowVerificationModal(true)}
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors flex items-center gap-2"
-              >
-                <ShieldAlert className="h-4 w-4" />
-                Xác minh ngay
-              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
+
+      <main className="max-w-7xl mx-auto px-4 py-10">
 
         {/* Hero Search Section */}
         <div className="min-h-[70vh] flex flex-col items-center justify-center mb-16" ref={searchRef}>
@@ -337,6 +338,7 @@ const Dashboard = () => {
               )}
             </div>
           </div>
+
 
           {/* Scroll Down Indicator */}
           <div className="mt-12 animate-bounce">
