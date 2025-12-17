@@ -73,7 +73,7 @@ export default function Favorites() {
     // Handle error state
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50">
+            <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
                 <main className="max-w-7xl mx-auto px-4 py-10">
                     <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-100">
                         <div className="flex flex-col items-center">
@@ -101,7 +101,7 @@ export default function Favorites() {
     const auctions = data?.auctions || [];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 via-red-25 to-pink-50">
+        <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
             <main className="container mx-auto px-4 py-8">
                 {/* Hero section */}
                 <div className="mb-12 text-center space-y-4 relative">

@@ -20,7 +20,7 @@ export default function Privacy() {
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex" style={{ backgroundColor: '#f5f1e8' }}>
       {/* Page content */}
       <main className="p-4 sm:p-6 lg:p-8 mx-auto">
         <div className="mb-6">

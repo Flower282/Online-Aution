@@ -154,7 +154,7 @@ export default function WonAuctions() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50">
+            <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
                 <main className="max-w-7xl mx-auto px-4 py-10">
                     <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-100">
                         <AlertCircle className="h-20 w-20 text-red-500 mx-auto mb-4" />
@@ -171,7 +171,7 @@ export default function WonAuctions() {
     const myAuctions = data?.myAuctions || [];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+        <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
             {toast && (
                 <Toast
                     message={toast.message}
