@@ -4,7 +4,7 @@ export const CTA = () => {
   return (
     <section className="py-20 md:py-24 bg-transparent">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="relative bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-700 rounded-3xl overflow-hidden shadow-2xl">
+        <div className="relative bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-700 rounded-3xl overflow-hidden shadow-2xl" data-aos="zoom-in">
           {/* Christmas Decorative elements */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-300 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-300 rounded-full mix-blend-overlay filter blur-3xl opacity-20"></div>
@@ -18,14 +18,14 @@ export const CTA = () => {
           </div>
 
           <div className="relative z-10 py-16 md:py-20 px-4 text-center">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg" data-aos="fade-up" data-aos-delay="100">
                Ready to Start Your Christmas Auction Journey? 
             </h2>
-            <p className="text-xl text-white/95 mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+            <p className="text-xl text-white/95 mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-md" data-aos="fade-up" data-aos-delay="200">
               Join our community today and discover amazing Christmas deals or turn your items
               into cash. Getting started is quick and easy! ❄️
             </p>
-            <div className="flex flex-col sm:flex-row gap-5 justify-center">
+            <div className="flex flex-col sm:flex-row gap-5 justify-center" data-aos="fade-up" data-aos-delay="300">
               <Link to="/signup">
                 <div className="bg-white cursor-pointer text-teal-700 px-10 py-4 rounded-xl hover:bg-yellow-50 transition-all duration-300 font-bold text-lg shadow-2xl hover:shadow-3xl hover:scale-105 transform">
                    Join Now

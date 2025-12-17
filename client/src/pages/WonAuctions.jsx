@@ -182,11 +182,11 @@ export default function WonAuctions() {
 
             <main className="container mx-auto px-4 py-8">
                 {/* Hero section */}
-                <div className="mb-12 text-center space-y-4">
+                <div className="mb-12 text-center space-y-4" data-aos="fade-down">
                     <div className="flex justify-center mb-4">
                         <Package className="h-16 w-16 text-green-600" />
                     </div>
-                    <h1 className="bg-gradient-to-r from-green-500 via-green-600 to-emerald-700 bg-clip-text text-transparent text-4xl font-bold">
+                    <h1 className="bg-gradient-to-r from-green-500 via-green-600 to-emerald-700 bg-clip-text text-transparent text-4xl font-bold" data-aos="zoom-in" data-aos-delay="100">
                         Lịch Sử Đấu Giá
                     </h1>
                     <p className="text-gray-700 max-w-2xl mx-auto font-medium">
@@ -195,7 +195,7 @@ export default function WonAuctions() {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8" data-aos="fade-up" data-aos-delay="200">
                     <div className="p-6 rounded-lg bg-gradient-to-br from-green-100 to-green-200 border-2 border-green-300">
                         <p className="text-3xl font-bold text-green-700">{wonAuctions.length}</p>
                         <p className="text-sm text-green-800 font-medium">Đã thắng</p>
@@ -223,7 +223,7 @@ export default function WonAuctions() {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex flex-wrap gap-2 mb-6">
+                <div className="flex flex-wrap gap-2 mb-6" data-aos="fade-up" data-aos-delay="300">
                     <button
                         onClick={() => setActiveTab('won')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${activeTab === 'won'

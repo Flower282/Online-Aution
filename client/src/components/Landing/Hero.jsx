@@ -26,19 +26,19 @@ export const Hero = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="bg-white/80 backdrop-blur-sm p-6 sm:p-10 rounded-2xl shadow-xl border-2 border-white/50 max-w-md -mt-8 ml-8 lg:ml-16">
+          <div className="bg-white/80 backdrop-blur-sm p-6 sm:p-10 rounded-2xl shadow-xl border-2 border-white/50 max-w-md -mt-8 ml-8 lg:ml-16" data-aos="fade-right">
             <div className="mb-2">
               <span className="text-orange-600 font-bold text-xs uppercase tracking-wider">TOP RATED</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 mb-3 leading-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 mb-3 leading-tight" data-aos="fade-up" data-aos-delay="100">
               ONLINE AUCTION<br />
               PLATFORM &<br />
               BIDDING SERVICES
             </h1>
-            <p className="text-gray-700 text-sm sm:text-base mb-6 font-medium">
+            <p className="text-gray-700 text-sm sm:text-base mb-6 font-medium" data-aos="fade-up" data-aos-delay="200">
               All auction items on one platform
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3" data-aos="fade-up" data-aos-delay="300">
               <Link to="/signup">
                 <button className="px-6 py-2 border-2 border-gray-900 rounded-full text-gray-900 font-semibold hover:bg-gray-900 hover:text-white transition-all duration-300 transform hover:scale-105 text-sm">
                   Get Started
@@ -57,7 +57,7 @@ export const Hero = () => {
 
           {/* Right Side - Christmas Decorations */}
           <div className="hidden lg:flex justify-end items-center relative">
-            <div className="relative w-full max-w-xl">
+            <div className="relative w-full max-w-xl" data-aos="fade-left" data-aos-delay="200">
               {/* Christmas Tree */}
               <div className="relative z-10 animate-float-slow">
                 <img 

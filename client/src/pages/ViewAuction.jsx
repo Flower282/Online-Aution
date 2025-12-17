@@ -580,7 +580,7 @@ export const ViewAuction = () => {
       <main className="max-w-6xl mx-auto px-3 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Image Section - Left Column, Aligned to Bottom */}
-          <div className="flex flex-col justify-end">
+          <div className="flex flex-col justify-end" data-aos="fade-right">
             <div className={`w-full aspect-square bg-white rounded-md shadow-lg border-2 overflow-hidden flex items-center justify-center relative ${!isActive ? 'border-gray-300' : 'border-red-200'
               }`}>
               <img
@@ -601,7 +601,7 @@ export const ViewAuction = () => {
           </div>
 
           {/* Details Section - Right Column */}
-          <div className={`space-y-3 transition-all duration-300 ${!isActive ? 'opacity-75' : ''}`}>
+          <div className={`space-y-3 transition-all duration-300 ${!isActive ? 'opacity-75' : ''}`} data-aos="fade-left" data-aos-delay="100">
             {/* Title & Description */}
             <div>
               <div className="flex items-center justify-between gap-2 mb-2">
