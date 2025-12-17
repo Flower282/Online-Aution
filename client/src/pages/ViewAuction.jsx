@@ -5,7 +5,7 @@ import { placeBid, viewAuction, deleteAuction, toggleLikeAuction, checkDeposit, 
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import socket, { ensureSocketConnected } from "../utils/socket.js";
-// Icons removed
+import { X } from "lucide-react"; // Keep X icon for modal close button
 import Toast from "../components/Toast.jsx";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import VerificationModal from "../components/VerificationModal.jsx";

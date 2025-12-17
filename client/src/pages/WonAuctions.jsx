@@ -19,7 +19,7 @@ export default function WonAuctions() {
         amount: 0
     });
 
-    const { data, isLoading, error } = useQuery({
+    const { data, isLoading, error: _error } = useQuery({
         queryKey: ["wonAuctions"],
         queryFn: getWonAuctions,
         staleTime: 30 * 1000,

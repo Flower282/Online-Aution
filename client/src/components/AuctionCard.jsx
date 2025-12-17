@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Heart, Star } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useState } from "react";
 import { toggleLikeAuction } from "../api/auction";
 import { toast } from "sonner";

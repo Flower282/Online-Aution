@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router";
@@ -11,7 +11,6 @@ import InitAuth from "./init/InitAuth.jsx";
 import { adminRouter } from "./routers/adminRouter.jsx";
 import { Toaster } from "sonner";
 import ChristmasSnowflakes from "./components/ChristmasSnowflakes.jsx";
-import ChristmasDecorativeShapes from "./components/ChristmasDecorativeShapes.jsx";
 import { injectStore } from "./utils/axiosConfig.js";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
