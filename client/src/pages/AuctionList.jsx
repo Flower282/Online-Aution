@@ -9,6 +9,10 @@ export const AuctionList = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all"); // "all", "active", "ended"
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
+  const [showTimeMenu, setShowTimeMenu] = useState(false);
+  const [showPriceMenu, setShowPriceMenu] = useState(false);
+  const [sortBy, setSortBy] = useState("none"); // "none", "price-low", "price-high", "date-newest", "date-oldest", "ending-soon"
+  const [activeTab, setActiveTab] = useState("all");
   const navigate = useNavigate();
   const { data, isLoading, error } = useQuery({
     queryKey: ["allAuction"],
@@ -68,6 +72,19 @@ export const AuctionList = () => {
     filteredAuctions = filteredAuctions.filter((auction) => auction.isEnded);
   }
 
+  // Apply sorting
+  if (sortBy === "price-low") {
+    filteredAuctions = [...filteredAuctions].sort((a, b) => a.currentBid - b.currentBid);
+  } else if (sortBy === "price-high") {
+    filteredAuctions = [...filteredAuctions].sort((a, b) => b.currentBid - a.currentBid);
+  } else if (sortBy === "date-newest") {
+    filteredAuctions = [...filteredAuctions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } else if (sortBy === "date-oldest") {
+    filteredAuctions = [...filteredAuctions].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  } else if (sortBy === "ending-soon") {
+    filteredAuctions = [...filteredAuctions].sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+  }
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="container mx-auto px-4 py-8">
@@ -114,57 +131,182 @@ export const AuctionList = () => {
         </div>
 
         {/* Filter tabs */}
-        <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-red-200 shadow-lg relative z-40" data-aos="fade-up" data-aos-delay="300">
+        <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-red-200 shadow-lg relative z-20" data-aos="fade-up" data-aos-delay="300">
           <h3 className="text-lg font-bold text-red-700 mb-4 flex items-center gap-2">
-            Lọc sản phẩm
+            🎯 Lọc và Sắp xếp
           </h3>
-
-          <div className="flex flex-wrap gap-3">
+          
+          <div className="flex flex-wrap gap-3 relative">
             {/* Tất cả */}
             <button
               onClick={() => {
+                setActiveTab("all");
                 setCategoryFilter("all");
+                setSortBy("none");
                 setStatusFilter("all");
                 setShowCategoryMenu(false);
+                setShowTimeMenu(false);
+                setShowPriceMenu(false);
               }}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${categoryFilter === "all" && statusFilter === "all"
-                ? "bg-red-600 text-white shadow-lg scale-105"
-                : "bg-red-50 text-red-700 hover:bg-red-100"
-                }`}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+                activeTab === "all" && categoryFilter === "all" && sortBy === "none"
+                  ? "bg-red-600 text-white shadow-lg scale-105"
+                  : "bg-red-50 text-red-700 hover:bg-red-100"
+              }`}
             >
               ⭐ Tất cả
             </button>
 
             {/* Category Dropdown */}
-            <div className="relative z-40">
+            <div className="relative">
               <button
-                onClick={() => setShowCategoryMenu(!showCategoryMenu)}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${categoryFilter !== "all"
-                  ? "bg-red-600 text-white shadow-lg"
-                  : "bg-red-50 text-red-700 hover:bg-red-100"
-                  }`}
+                onClick={() => {
+                  setShowCategoryMenu(!showCategoryMenu);
+                  setShowTimeMenu(false);
+                  setShowPriceMenu(false);
+                }}
+                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                  categoryFilter !== "all"
+                    ? "bg-red-600 text-white shadow-lg"
+                    : "bg-red-50 text-red-700 hover:bg-red-100"
+                }`}
               >
-                Loại: {categoryFilter === "all" ? "Tất cả" : categoryFilter}
+                🎁 Danh mục {categoryFilter !== "all" && `(${categoryFilter})`}
                 <svg className={`w-4 h-4 transition-transform ${showCategoryMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-
+              
               {showCategoryMenu && (
-                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
+                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-2xl z-[100] min-w-[200px] max-h-[300px] overflow-y-auto">
                   {categories.map(category => (
                     <button
                       key={category}
                       onClick={() => {
                         setCategoryFilter(category);
+                        setActiveTab("category");
+                        setSortBy("none");
                         setShowCategoryMenu(false);
                       }}
-                      className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors capitalize ${categoryFilter === category ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                        }`}
+                      className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors capitalize ${
+                        categoryFilter === category ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                      }`}
                     >
-                      {category === "all" ? "Tất cả loại" : category}
+                      {category === "all" ? "Tất cả danh mục" : category}
                     </button>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Time Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowTimeMenu(!showTimeMenu);
+                  setShowCategoryMenu(false);
+                  setShowPriceMenu(false);
+                }}
+                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                  sortBy === "date-newest" || sortBy === "date-oldest" || sortBy === "ending-soon"
+                    ? "bg-red-600 text-white shadow-lg"
+                    : "bg-red-50 text-red-700 hover:bg-red-100"
+                }`}
+              >
+                ⏰ Thời gian
+                <svg className={`w-4 h-4 transition-transform ${showTimeMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {showTimeMenu && (
+                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-2xl z-[100] min-w-[200px]">
+                  <button
+                    onClick={() => {
+                      setSortBy("date-newest");
+                      setActiveTab("time");
+                      setShowTimeMenu(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
+                      sortBy === "date-newest" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                    }`}
+                  >
+                    ✨ Mới nhất
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSortBy("date-oldest");
+                      setActiveTab("time");
+                      setShowTimeMenu(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
+                      sortBy === "date-oldest" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                    }`}
+                  >
+                    📅 Cũ nhất
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSortBy("ending-soon");
+                      setActiveTab("time");
+                      setShowTimeMenu(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
+                      sortBy === "ending-soon" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                    }`}
+                  >
+                    🔥 Sắp kết thúc
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Price Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowPriceMenu(!showPriceMenu);
+                  setShowCategoryMenu(false);
+                  setShowTimeMenu(false);
+                }}
+                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                  sortBy === "price-low" || sortBy === "price-high"
+                    ? "bg-red-600 text-white shadow-lg"
+                    : "bg-red-50 text-red-700 hover:bg-red-100"
+                }`}
+              >
+                💰 Giá
+                <svg className={`w-4 h-4 transition-transform ${showPriceMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {showPriceMenu && (
+                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-2xl z-[100] min-w-[200px]">
+                  <button
+                    onClick={() => {
+                      setSortBy("price-low");
+                      setActiveTab("price");
+                      setShowPriceMenu(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
+                      sortBy === "price-low" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                    }`}
+                  >
+                    📉 Giá thấp đến cao
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSortBy("price-high");
+                      setActiveTab("price");
+                      setShowPriceMenu(false);
+                    }}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
+                      sortBy === "price-high" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                    }`}
+                  >
+                    📈 Giá cao đến thấp
+                  </button>
                 </div>
               )}
             </div>
@@ -172,35 +314,110 @@ export const AuctionList = () => {
             {/* Status Filters */}
             <button
               onClick={() => setStatusFilter("active")}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${statusFilter === "active"
-                ? "bg-green-600 text-white shadow-lg scale-105"
-                : "bg-green-50 text-green-700 hover:bg-green-100"
-                }`}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+                statusFilter === "active"
+                  ? "bg-green-600 text-white shadow-lg scale-105"
+                  : "bg-green-50 text-green-700 hover:bg-green-100"
+              }`}
             >
-              Đang đấu giá
+              ✅ Đang đấu giá
             </button>
 
             <button
               onClick={() => setStatusFilter("ended")}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${statusFilter === "ended"
-                ? "bg-gray-600 text-white shadow-lg scale-105"
-                : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                }`}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+                statusFilter === "ended"
+                  ? "bg-gray-600 text-white shadow-lg scale-105"
+                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+              }`}
             >
-              Đã kết thúc
+              ⏸️ Đã kết thúc
             </button>
           </div>
 
           {/* Active Filter Display */}
-          {(categoryFilter !== "all" || statusFilter !== "all") && (
+          {(categoryFilter !== "all" || sortBy !== "none" || statusFilter !== "all") && (
             <div className="mt-4 pt-4 border-t border-red-100">
               <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-sm text-red-700 font-medium">Đang lọc:</span>
+                <span className="text-sm text-red-700 font-medium">Đang áp dụng:</span>
                 {categoryFilter !== "all" && (
                   <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
-                    Loại: {categoryFilter}
+                    Danh mục: {categoryFilter}
                     <button
-                      onClick={() => setCategoryFilter("all")}
+                      onClick={() => {
+                        setCategoryFilter("all");
+                        if (sortBy === "none" && statusFilter === "all") setActiveTab("all");
+                      }}
+                      className="hover:bg-red-200 rounded-full p-0.5"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                )}
+                {sortBy === "price-low" && (
+                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Giá: Thấp → Cao
+                    <button
+                      onClick={() => {
+                        setSortBy("none");
+                        if (categoryFilter === "all" && statusFilter === "all") setActiveTab("all");
+                      }}
+                      className="hover:bg-red-200 rounded-full p-0.5"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                )}
+                {sortBy === "price-high" && (
+                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Giá: Cao → Thấp
+                    <button
+                      onClick={() => {
+                        setSortBy("none");
+                        if (categoryFilter === "all" && statusFilter === "all") setActiveTab("all");
+                      }}
+                      className="hover:bg-red-200 rounded-full p-0.5"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                )}
+                {sortBy === "date-newest" && (
+                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Thời gian: Mới nhất
+                    <button
+                      onClick={() => {
+                        setSortBy("none");
+                        if (categoryFilter === "all" && statusFilter === "all") setActiveTab("all");
+                      }}
+                      className="hover:bg-red-200 rounded-full p-0.5"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                )}
+                {sortBy === "date-oldest" && (
+                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Thời gian: Cũ nhất
+                    <button
+                      onClick={() => {
+                        setSortBy("none");
+                        if (categoryFilter === "all" && statusFilter === "all") setActiveTab("all");
+                      }}
+                      className="hover:bg-red-200 rounded-full p-0.5"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                )}
+                {sortBy === "ending-soon" && (
+                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Thời gian: Sắp kết thúc
+                    <button
+                      onClick={() => {
+                        setSortBy("none");
+                        if (categoryFilter === "all" && statusFilter === "all") setActiveTab("all");
+                      }}
                       className="hover:bg-red-200 rounded-full p-0.5"
                     >
                       ✕
@@ -211,7 +428,10 @@ export const AuctionList = () => {
                   <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-2">
                     Đang đấu giá
                     <button
-                      onClick={() => setStatusFilter("all")}
+                      onClick={() => {
+                        setStatusFilter("all");
+                        if (categoryFilter === "all" && sortBy === "none") setActiveTab("all");
+                      }}
                       className="hover:bg-green-200 rounded-full p-0.5"
                     >
                       ✕
@@ -222,7 +442,10 @@ export const AuctionList = () => {
                   <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium flex items-center gap-2">
                     Đã kết thúc
                     <button
-                      onClick={() => setStatusFilter("all")}
+                      onClick={() => {
+                        setStatusFilter("all");
+                        if (categoryFilter === "all" && sortBy === "none") setActiveTab("all");
+                      }}
                       className="hover:bg-gray-200 rounded-full p-0.5"
                     >
                       ✕

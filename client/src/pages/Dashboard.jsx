@@ -534,7 +534,7 @@ const Dashboard = () => {
             }`}
         >
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-extrabold text-gray-900">All Auctions</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900" data-aos="fade-right" data-aos-delay="450">All Auctions</h2>
             <Link
               to="/auction"
               className="text-sky-600 hover:text-sky-700 font-bold text-sm hover:underline transition-colors"
@@ -551,8 +551,8 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {data.latestAuctions.map((auction) => (
-                <div key={auction._id} className="scale-95 hover:scale-100 transition-transform">
+              {data.latestAuctions.map((auction, index) => (
+                <div key={auction._id} className="scale-95 hover:scale-100 transition-transform" data-aos="fade-up" data-aos-delay={500 + index * 50}>
                   <AuctionCard auction={auction} />
                 </div>
               ))}
@@ -567,7 +567,7 @@ const Dashboard = () => {
             }`}
         >
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">Your Christmas Auctions</h2>
+            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent" data-aos="fade-right" data-aos-delay="650">Your Christmas Auctions</h2>
             <Link
               to="/myauction"
               className="text-red-600 hover:text-red-700 font-bold text-sm hover:underline transition-colors"
@@ -589,13 +589,15 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {data.latestUserAuctions.map((auction) => {
+              {data.latestUserAuctions.map((auction, index) => {
                 const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
                 const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
                 return (
                   <div
                     key={auction._id}
                     className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
+                    data-aos="fade-up"
+                    data-aos-delay={700 + index * 50}
                   >
                     <AuctionCard auction={auction} />
                   </div>

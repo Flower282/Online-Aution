@@ -82,7 +82,7 @@ export const Contact = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
+              <div data-aos="fade-right" data-aos-delay="250">
                 <label
                   htmlFor="name"
                   className="block text-sm font-semibold text-gray-700 mb-2"
@@ -101,7 +101,7 @@ export const Contact = () => {
                 />
               </div>
 
-              <div>
+              <div data-aos="fade-right" data-aos-delay="300">
                 <label
                   htmlFor="email"
                   className="block text-sm font-semibold text-gray-700 mb-2"
@@ -120,7 +120,7 @@ export const Contact = () => {
                 />
               </div>
 
-              <div>
+              <div data-aos="fade-right" data-aos-delay="350">
                 <label
                   htmlFor="subject"
                   className="block text-sm font-semibold text-gray-700 mb-2"
@@ -139,7 +139,7 @@ export const Contact = () => {
                 />
               </div>
 
-              <div>
+              <div data-aos="fade-right" data-aos-delay="400">
                 <label
                   htmlFor="message"
                   className="block text-sm font-semibold text-gray-700 mb-2"
@@ -159,12 +159,12 @@ export const Contact = () => {
               </div>
               {/* Error Message */}
               {isError && (
-                <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-2.5 rounded-lg text-sm font-medium">
+                <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-2.5 rounded-lg text-sm font-medium" data-aos="fade-in">
                   {isError}
                 </div>
               )}
 
-              <div className="flex justify-end pt-2">
+              <div className="flex justify-end pt-2" data-aos="fade-up" data-aos-delay="450">
                 <button
                   type="submit"
                   disabled={isPending}

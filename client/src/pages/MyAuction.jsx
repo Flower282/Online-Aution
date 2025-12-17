@@ -196,7 +196,7 @@ export const MyAuction = () => {
         </div>
 
         {filteredAuctions.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-200">
+          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-200" data-aos="fade-up" data-aos-delay="300">
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,8 +213,8 @@ export const MyAuction = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 place-items-center gap-8">
-            {filteredAuctions.map((auction) => (
-              <div key={auction._id} className="relative w-full">
+            {filteredAuctions.map((auction, index) => (
+              <div key={auction._id} className="relative w-full" data-aos="fade-up" data-aos-delay={300 + index * 50}>
                 {/* Status Badge Overlay */}
                 <div className="absolute top-4 right-4 z-10">
                   <StatusBadge status={auction.status} />

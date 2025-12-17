@@ -148,7 +148,7 @@ export default function Favorites() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {auctions.map((auction, index) => (
-                            <div key={auction._id} data-aos="fade-up" data-aos-delay={index * 50}>
+                            <div key={auction._id} data-aos="fade-up" data-aos-delay={300 + index * 50}>
                                 <AuctionCard
                                     auction={auction}
                                     onClick={() => navigate(`/auction/${auction._id}`)}

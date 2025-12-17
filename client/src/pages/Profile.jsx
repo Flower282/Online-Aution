@@ -135,12 +135,12 @@ export default function Profile() {
 
             <form onSubmit={handleSubmit} className="divide-y divide-gray-200">
               {/* Personal Information */}
-              <div className="px-4 py-5 sm:p-6">
+              <div className="px-4 py-5 sm:p-6" data-aos="fade-up" data-aos-delay="150">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                   Personal Information
                 </h3>
                 <div className="grid grid-cols-1 gap-6">
-                  <div>
+                  <div data-aos="fade-right" data-aos-delay="200">
                     <label
                       htmlFor="name"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -191,8 +191,8 @@ export default function Profile() {
               </div>
 
               {/* Account Verification */}
-              <div className="px-4 py-5 sm:p-6 border-t border-gray-200">
-                <div className="flex items-center justify-between mb-4">
+              <div className="px-4 py-5 sm:p-6 border-t border-gray-200" data-aos="fade-up" data-aos-delay="300">
+                <div className="flex items-center justify-between mb-4" data-aos="fade-down" data-aos-delay="350">
                   <div className="flex items-center gap-2">
                     <HiOutlineShieldCheck className={`h-6 w-6 ${isVerified ? 'text-green-600' : 'text-amber-500'}`} />
                     <h3 className="text-lg font-medium text-gray-900">
@@ -220,7 +220,7 @@ export default function Profile() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Số điện thoại */}
-                  <div className={`p-4 rounded-lg border-2 ${phoneVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                  <div className={`p-4 rounded-lg border-2 ${phoneVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="400">
                     <div className="flex items-center gap-2 mb-2">
                       <CiPhone className={`h-5 w-5 ${phoneVerified ? 'text-green-600' : 'text-gray-400'}`} />
                       <span className="font-medium text-gray-900">Số điện thoại</span>
@@ -231,7 +231,7 @@ export default function Profile() {
                   </div>
 
                   {/* Email */}
-                  <div className={`p-4 rounded-lg border-2 ${emailVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                  <div className={`p-4 rounded-lg border-2 ${emailVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="450">
                     <div className="flex items-center gap-2 mb-2">
                       <CiMail className={`h-5 w-5 ${emailVerified ? 'text-green-600' : 'text-gray-400'}`} />
                       <span className="font-medium text-gray-900">Email</span>
@@ -246,7 +246,7 @@ export default function Profile() {
                     identityCardStatus === 'pending' ? 'bg-yellow-50 border-yellow-200' :
                       identityCardStatus === 'rejected' ? 'bg-red-50 border-red-200' :
                         'bg-gray-50 border-gray-200'
-                    }`}>
+                    }`} data-aos="zoom-in" data-aos-delay="500">
                     <div className="flex items-center gap-2 mb-2">
                       <HiOutlineIdentification className={`h-5 w-5 ${identityCardStatus === 'approved' ? 'text-green-600' :
                         identityCardStatus === 'pending' ? 'text-yellow-600' :
@@ -283,12 +283,12 @@ export default function Profile() {
               </div>
 
               {/* Password */}
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <div className="px-4 py-5 sm:p-6" data-aos="fade-up" data-aos-delay="550">
+                <h3 className="text-lg font-medium text-gray-900 mb-4" data-aos="fade-right" data-aos-delay="600">
                   Change Password
                 </h3>
                 <div className="grid grid-cols-1 gap-6">
-                  <div>
+                  <div data-aos="fade-up" data-aos-delay="650">
                     <label
                       htmlFor="currentPassword"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -311,7 +311,7 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div>
+                  <div data-aos="fade-up" data-aos-delay="700">
                     <label
                       htmlFor="newPassword"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -338,7 +338,7 @@ export default function Profile() {
                     </p>
                   </div>
 
-                  <div>
+                  <div data-aos="fade-up" data-aos-delay="750">
                     <label
                       htmlFor="confirmPassword"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -378,7 +378,7 @@ export default function Profile() {
               </div>
 
               {/* Submit button */}
-              <div className="px-4 py-5 sm:p-6">
+              <div className="px-4 py-5 sm:p-6" data-aos="fade-up" data-aos-delay="800">
                 <div className="flex justify-end">
                   <button
                     type="button"

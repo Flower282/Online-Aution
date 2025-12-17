@@ -94,11 +94,11 @@ export default function Privacy() {
         </div>
 
         {/* Security settings */}
-        <div>
-          <h2 className="text-lg font-medium text-gray-900 mb-4">
+        <div data-aos="fade-up" data-aos-delay="300">
+          <h2 className="text-lg font-medium text-gray-900 mb-4" data-aos="fade-right" data-aos-delay="350">
             Security Settings
           </h2>
-          <div className="bg-white shadow overflow-hidden border border-gray-200 rounded-md divide-y divide-gray-200">
+          <div className="bg-white shadow overflow-hidden border border-gray-200 rounded-md divide-y divide-gray-200" data-aos="zoom-in" data-aos-delay="400">
             <div className="px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
