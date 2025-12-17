@@ -310,7 +310,7 @@ export const MyDeposits = () => {
                             <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-4 text-white">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <h3 className="text-lg font-bold">💰 Nạp tiền vào ví</h3>
+                                        <h3 className="text-lg font-bold"> Nạp tiền vào ví</h3>
                                     </div>
                                     <button
                                         onClick={() => setShowTopUpModal(false)}
@@ -331,7 +331,7 @@ export const MyDeposits = () => {
 
                                 {/* Quick Amount Selection */}
                                 <div>
-                                    <p className="text-xs font-medium text-gray-700 mb-2">Chọn số tiền nạp (x1,000 VNĐ)</p>
+                                    <p className="text-xs font-medium text-gray-700 mb-2">Chọn số tiền nạp </p>
                                     <div className="grid grid-cols-3 gap-2">
                                         {topUpAmounts.map((amount) => (
                                             <button
