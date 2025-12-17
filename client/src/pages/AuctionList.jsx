@@ -6,12 +6,9 @@ import LoadingScreen from "../components/LoadingScreen";
 import { useNavigate } from "react-router";
 
 export const AuctionList = () => {
-  const [activeTab, setActiveTab] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("none");
+  const [statusFilter, setStatusFilter] = useState("all"); // "all", "active", "ended"
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
-  const [showTimeMenu, setShowTimeMenu] = useState(false);
-  const [showPriceMenu, setShowPriceMenu] = useState(false);
   const navigate = useNavigate();
   const { data, isLoading, error } = useQuery({
     queryKey: ["allAuction"],
@@ -64,36 +61,11 @@ export const AuctionList = () => {
       ? auctions
       : auctions.filter((auction) => auction.itemCategory === categoryFilter);
 
-  // Apply sorting
-  if (sortBy === "price-low") {
-    filteredAuctions = [...filteredAuctions].sort((a, b) => {
-      const priceA = a.currentPrice || a.startingPrice || 0;
-      const priceB = b.currentPrice || b.startingPrice || 0;
-      return priceA - priceB;
-    });
-  } else if (sortBy === "price-high") {
-    filteredAuctions = [...filteredAuctions].sort((a, b) => {
-      const priceA = a.currentPrice || a.startingPrice || 0;
-      const priceB = b.currentPrice || b.startingPrice || 0;
-      return priceB - priceA;
-    });
-  } else if (sortBy === "date-newest") {
-    // Sort by auction ID (newer auctions have higher IDs)
-    filteredAuctions = [...filteredAuctions].sort((a, b) => {
-      return b._id.localeCompare(a._id);
-    });
-  } else if (sortBy === "date-oldest") {
-    // Sort by auction ID (older auctions have lower IDs)
-    filteredAuctions = [...filteredAuctions].sort((a, b) => {
-      return a._id.localeCompare(b._id);
-    });
-  } else if (sortBy === "ending-soon") {
-    // Sort by timeLeft (smallest timeLeft = ending soonest)
-    filteredAuctions = [...filteredAuctions].sort((a, b) => {
-      const timeA = a.timeLeft || 0;
-      const timeB = b.timeLeft || 0;
-      return timeA - timeB;
-    });
+  // Apply status filter
+  if (statusFilter === "active") {
+    filteredAuctions = filteredAuctions.filter((auction) => !auction.isEnded);
+  } else if (statusFilter === "ended") {
+    filteredAuctions = filteredAuctions.filter((auction) => auction.isEnded);
   }
 
   return (
@@ -112,31 +84,50 @@ export const AuctionList = () => {
             Đấu giá mới mỗi ngày với sản phẩm được xác minh!
           </p>
           <div className="flex justify-center gap-4 text-3xl">
-            <span className="animate-pulse">❤️</span>
-            <span className="animate-pulse animation-delay-200">🎁</span>
-            <span className="animate-pulse animation-delay-400">🎅</span>
-            <span className="animate-pulse animation-delay-600">⭐</span>
+            <span className="animate-pulse"></span>
+            <span className="animate-pulse animation-delay-200"></span>
+            <span className="animate-pulse animation-delay-400"></span>
+            <span className="animate-pulse animation-delay-600"></span>
           </div>
         </div>
 
-        {/* Category tabs */}
-        <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-red-200 shadow-lg" data-aos="fade-up" data-aos-delay="300">
+        {/* Christmas Red Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="p-4 rounded-lg bg-gradient-to-br from-red-100 to-red-200 text-center border-2 border-red-300 hover:shadow-xl transition-all hover:scale-105" data-aos="flip-left" data-aos-delay="100">
+            <p className="text-3xl font-bold text-red-700"> {auctions.length}</p>
+            <p className="text-sm text-red-800 font-medium">Đấu giá đang diễn ra</p>
+          </div>
+          <div className="p-4 rounded-lg bg-gradient-to-br from-red-50 to-red-100 text-center border-2 border-red-200 hover:shadow-xl transition-all hover:scale-105" data-aos="flip-left" data-aos-delay="200">
+            <p className="text-3xl font-bold text-red-600">
+              {auctions.reduce((sum, a) => sum + (a.bidsCount || 0), 0)}
+            </p>
+            <p className="text-sm text-red-700 font-medium">Tổng lượt đấu giá</p>
+          </div>
+          <div className="p-4 rounded-lg bg-gradient-to-br from-rose-50 to-rose-100 text-center border-2 border-rose-200 hover:shadow-xl transition-all hover:scale-105" data-aos="flip-left" data-aos-delay="300">
+            <p className="text-3xl font-bold text-rose-600"> 24/7</p>
+            <p className="text-sm text-rose-700 font-medium">Luôn hoạt động</p>
+          </div>
+          <div className="p-4 rounded-lg bg-gradient-to-br from-pink-50 to-pink-100 text-center border-2 border-pink-200 hover:shadow-xl transition-all hover:scale-105" data-aos="flip-left" data-aos-delay="400">
+            <p className="text-3xl font-bold text-pink-600"> 100%</p>
+            <p className="text-sm text-pink-700 font-medium">An toàn</p>
+          </div>
+        </div>
+
+        {/* Filter tabs */}
+        <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-red-200 shadow-lg relative z-40" data-aos="fade-up" data-aos-delay="300">
           <h3 className="text-lg font-bold text-red-700 mb-4 flex items-center gap-2">
-            🎯 Lọc và Sắp xếp
+            Lọc sản phẩm
           </h3>
 
           <div className="flex flex-wrap gap-3">
             {/* Tất cả */}
             <button
               onClick={() => {
-                setActiveTab("all");
                 setCategoryFilter("all");
-                setSortBy("none");
+                setStatusFilter("all");
                 setShowCategoryMenu(false);
-                setShowTimeMenu(false);
-                setShowPriceMenu(false);
               }}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${activeTab === "all" && categoryFilter === "all" && sortBy === "none"
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${categoryFilter === "all" && statusFilter === "all"
                 ? "bg-red-600 text-white shadow-lg scale-105"
                 : "bg-red-50 text-red-700 hover:bg-red-100"
                 }`}
@@ -145,19 +136,15 @@ export const AuctionList = () => {
             </button>
 
             {/* Category Dropdown */}
-            <div className="relative">
+            <div className="relative z-40">
               <button
-                onClick={() => {
-                  setShowCategoryMenu(!showCategoryMenu);
-                  setShowTimeMenu(false);
-                  setShowPriceMenu(false);
-                }}
+                onClick={() => setShowCategoryMenu(!showCategoryMenu)}
                 className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${categoryFilter !== "all"
                   ? "bg-red-600 text-white shadow-lg"
                   : "bg-red-50 text-red-700 hover:bg-red-100"
                   }`}
               >
-                🎁 Danh mục {categoryFilter !== "all" && `(${categoryFilter})`}
+                Loại: {categoryFilter === "all" ? "Tất cả" : categoryFilter}
                 <svg className={`w-4 h-4 transition-transform ${showCategoryMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -170,210 +157,73 @@ export const AuctionList = () => {
                       key={category}
                       onClick={() => {
                         setCategoryFilter(category);
-                        setActiveTab("category");
-                        setSortBy("none");
                         setShowCategoryMenu(false);
                       }}
                       className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors capitalize ${categoryFilter === category ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
                         }`}
                     >
-                      {category === "all" ? "Tất cả danh mục" : category}
+                      {category === "all" ? "Tất cả loại" : category}
                     </button>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Time Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowTimeMenu(!showTimeMenu);
-                  setShowCategoryMenu(false);
-                  setShowPriceMenu(false);
-                }}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${sortBy === "date-newest" || sortBy === "date-oldest" || sortBy === "ending-soon"
-                  ? "bg-red-600 text-white shadow-lg"
-                  : "bg-red-50 text-red-700 hover:bg-red-100"
-                  }`}
-              >
-                ⏰ Thời gian
-                <svg className={`w-4 h-4 transition-transform ${showTimeMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+            {/* Status Filters */}
+            <button
+              onClick={() => setStatusFilter("active")}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${statusFilter === "active"
+                ? "bg-green-600 text-white shadow-lg scale-105"
+                : "bg-green-50 text-green-700 hover:bg-green-100"
+                }`}
+            >
+              Đang đấu giá
+            </button>
 
-              {showTimeMenu && (
-                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-xl z-50 min-w-[200px]">
-                  <button
-                    onClick={() => {
-                      setSortBy("date-newest");
-                      setActiveTab("time");
-                      setShowTimeMenu(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "date-newest" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                      }`}
-                  >
-                    ✨ Mới nhất
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSortBy("date-oldest");
-                      setActiveTab("time");
-                      setShowTimeMenu(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "date-oldest" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                      }`}
-                  >
-                    📅 Cũ nhất
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSortBy("ending-soon");
-                      setActiveTab("time");
-                      setShowTimeMenu(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "ending-soon" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                      }`}
-                  >
-                    🔥 Sắp kết thúc
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Price Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setShowPriceMenu(!showPriceMenu);
-                  setShowCategoryMenu(false);
-                  setShowTimeMenu(false);
-                }}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${sortBy === "price-low" || sortBy === "price-high"
-                  ? "bg-red-600 text-white shadow-lg"
-                  : "bg-red-50 text-red-700 hover:bg-red-100"
-                  }`}
-              >
-                💰 Giá
-                <svg className={`w-4 h-4 transition-transform ${showPriceMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {showPriceMenu && (
-                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-xl z-50 min-w-[200px]">
-                  <button
-                    onClick={() => {
-                      setSortBy("price-low");
-                      setActiveTab("price");
-                      setShowPriceMenu(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "price-low" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                      }`}
-                  >
-                    📉 Giá thấp đến cao
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSortBy("price-high");
-                      setActiveTab("price");
-                      setShowPriceMenu(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "price-high" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                      }`}
-                  >
-                    📈 Giá cao đến thấp
-                  </button>
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => setStatusFilter("ended")}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${statusFilter === "ended"
+                ? "bg-gray-600 text-white shadow-lg scale-105"
+                : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                }`}
+            >
+              Đã kết thúc
+            </button>
           </div>
 
           {/* Active Filter Display */}
-          {(categoryFilter !== "all" || sortBy !== "none") && (
+          {(categoryFilter !== "all" || statusFilter !== "all") && (
             <div className="mt-4 pt-4 border-t border-red-100">
               <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-sm text-red-700 font-medium">Đang áp dụng:</span>
+                <span className="text-sm text-red-700 font-medium">Đang lọc:</span>
                 {categoryFilter !== "all" && (
                   <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
-                    Danh mục: {categoryFilter}
+                    Loại: {categoryFilter}
                     <button
-                      onClick={() => {
-                        setCategoryFilter("all");
-                        if (sortBy === "none") setActiveTab("all");
-                      }}
+                      onClick={() => setCategoryFilter("all")}
                       className="hover:bg-red-200 rounded-full p-0.5"
                     >
                       ✕
                     </button>
                   </span>
                 )}
-                {sortBy === "price-low" && (
-                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
-                    Giá: Thấp → Cao
+                {statusFilter === "active" && (
+                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Đang đấu giá
                     <button
-                      onClick={() => {
-                        setSortBy("none");
-                        if (categoryFilter === "all") setActiveTab("all");
-                      }}
-                      className="hover:bg-red-200 rounded-full p-0.5"
+                      onClick={() => setStatusFilter("all")}
+                      className="hover:bg-green-200 rounded-full p-0.5"
                     >
                       ✕
                     </button>
                   </span>
                 )}
-                {sortBy === "price-high" && (
-                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
-                    Giá: Cao → Thấp
+                {statusFilter === "ended" && (
+                  <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    Đã kết thúc
                     <button
-                      onClick={() => {
-                        setSortBy("none");
-                        if (categoryFilter === "all") setActiveTab("all");
-                      }}
-                      className="hover:bg-red-200 rounded-full p-0.5"
-                    >
-                      ✕
-                    </button>
-                  </span>
-                )}
-                {sortBy === "date-newest" && (
-                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
-                    Thời gian: Mới nhất
-                    <button
-                      onClick={() => {
-                        setSortBy("none");
-                        if (categoryFilter === "all") setActiveTab("all");
-                      }}
-                      className="hover:bg-red-200 rounded-full p-0.5"
-                    >
-                      ✕
-                    </button>
-                  </span>
-                )}
-                {sortBy === "date-oldest" && (
-                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
-                    Thời gian: Cũ nhất
-                    <button
-                      onClick={() => {
-                        setSortBy("none");
-                        if (categoryFilter === "all") setActiveTab("all");
-                      }}
-                      className="hover:bg-red-200 rounded-full p-0.5"
-                    >
-                      ✕
-                    </button>
-                  </span>
-                )}
-                {sortBy === "ending-soon" && (
-                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
-                    Thời gian: Sắp kết thúc
-                    <button
-                      onClick={() => {
-                        setSortBy("none");
-                        if (categoryFilter === "all") setActiveTab("all");
-                      }}
-                      className="hover:bg-red-200 rounded-full p-0.5"
+                      onClick={() => setStatusFilter("all")}
+                      className="hover:bg-gray-200 rounded-full p-0.5"
                     >
                       ✕
                     </button>
@@ -382,28 +232,6 @@ export const AuctionList = () => {
               </div>
             </div>
           )}
-        </div>
-
-        {/* Christmas Red Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="p-4 rounded-lg bg-gradient-to-br from-red-100 to-red-200 text-center border-2 border-red-300 hover:shadow-xl transition-all hover:scale-105" data-aos="flip-left" data-aos-delay="100">
-            <p className="text-3xl font-bold text-red-700"> {auctions.length}</p>
-            <p className="text-sm text-red-800 font-medium">Đấu giá đang diễn ra</p>
-          </div>
-          <div className="p-4 rounded-lg bg-gradient-to-br from-red-50 to-red-100 text-center border-2 border-red-200 hover:shadow-xl transition-all hover:scale-105" data-aos="flip-left" data-aos-delay="200">
-            <p className="text-3xl font-bold text-red-600">
-              ❤️ {auctions.reduce((sum, a) => sum + (a.bidsCount || 0), 0)}
-            </p>
-            <p className="text-sm text-red-700 font-medium">Tổng lượt đấu giá</p>
-          </div>
-          <div className="p-4 rounded-lg bg-gradient-to-br from-rose-50 to-rose-100 text-center border-2 border-rose-200 hover:shadow-xl transition-all hover:scale-105" data-aos="flip-left" data-aos-delay="300">
-            <p className="text-3xl font-bold text-rose-600"> 24/7</p>
-            <p className="text-sm text-rose-700 font-medium">Luôn hoạt động</p>
-          </div>
-          <div className="p-4 rounded-lg bg-gradient-to-br from-pink-50 to-pink-100 text-center border-2 border-pink-200 hover:shadow-xl transition-all hover:scale-105" data-aos="flip-left" data-aos-delay="400">
-            <p className="text-3xl font-bold text-pink-600"> 100%</p>
-            <p className="text-sm text-pink-700 font-medium">An toàn</p>
-          </div>
         </div>
 
         {/* Christmas Auction grid */}

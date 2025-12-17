@@ -34,7 +34,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
 
                 if (cleanedUp) return;
 
-                console.log('🔵 Modal: Joining auction room:', auction._id);
+                console.log(' Modal: Joining auction room:', auction._id);
 
                 // Join auction room
                 socket.emit('auction:join', { auctionId: auction._id });
@@ -51,7 +51,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
 
         // Listen for auction state
         socket.on('auction:state', (state) => {
-            console.log('📊 Modal: Auction state received:', state);
+            console.log(' Modal: Auction state received:', state);
             setTopBids(state.topBids || []);
             setTotalBids(state.totalBids || 0);
             if (state.highestBid) {
@@ -61,7 +61,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
 
         // Listen for bid updates
         socket.on('auction:bid:updated', (update) => {
-            console.log('📡 Modal: Bid updated:', update);
+            console.log(' Modal: Bid updated:', update);
             setTopBids(update.topBids || []);
             setTotalBids(update.totalBids || 0);
             if (update.topBids && update.topBids.length > 0) {
@@ -80,7 +80,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
 
         // Listen for bid success
         socket.on('auction:bid:success', (result) => {
-            console.log('✅ Modal: Bid success:', result);
+            console.log(' Modal: Bid success:', result);
 
             // Clear input
             setBidAmount("");
@@ -96,12 +96,12 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
             queryClient.invalidateQueries({ queryKey: ["favoriteAuctions"] });
             socket.emit('auction:get-state', { auctionId: auction._id });
 
-            toast.success("Đặt giá thành công! 🎉");
+            toast.success("Đặt giá thành công! ");
         });
 
         // Listen for bid errors
         socket.on('auction:bid:error', (error) => {
-            console.error('❌ Modal: Bid error:', error);
+            console.error(' Modal: Bid error:', error);
             let errorMessage = error.message;
             if (error.code === 'PRICE_EXISTS') {
                 errorMessage = `Giá ${formatCurrency(error.existingAmount)} đã có người đặt. Vui lòng chọn giá khác!`;
@@ -117,13 +117,13 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
 
         // Listen for general errors
         socket.on('auction:error', (error) => {
-            console.error('❌ Modal: Auction error:', error);
+            console.error('Modal: Auction error:', error);
             toast.error(error.message);
         });
 
         return () => {
             cleanedUp = true;
-            console.log('🔴 Modal: Leaving auction room:', auction._id);
+            console.log(' Modal: Leaving auction room:', auction._id);
             if (socket.connected) {
                 socket.emit('auction:leave', { auctionId: auction._id });
             }
@@ -151,7 +151,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
     const handleBidSubmit = () => {
         const amount = parseFloat(bidAmount);
 
-        console.log('🔍 Modal: Bid Submit Debug:', {
+        console.log('Modal: Bid Submit Debug:', {
             input: bidAmount,
             parsed: amount,
             isValid: !isNaN(amount) && amount > 0,
@@ -180,7 +180,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
             return;
         }
 
-        console.log('🟢 Modal: Placing bid via socket:', {
+        console.log(' Modal: Placing bid via socket:', {
             auctionId: auction._id,
             userId,
             amount

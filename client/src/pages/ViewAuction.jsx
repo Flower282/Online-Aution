@@ -484,7 +484,7 @@ export const ViewAuction = () => {
       setIsLiked(result.isLiked);
       setLikesCount(result.likesCount);
       setToast({
-        message: result.isLiked ? "Đã thêm vào yêu thích ❤️" : "Đã bỏ yêu thích",
+        message: result.isLiked ? "Đã thêm vào yêu thích " : "Đã bỏ yêu thích",
         type: "success"
       });
     } catch (error) {
@@ -558,13 +558,13 @@ export const ViewAuction = () => {
   };
 
   const paymentMethods = [
-    { id: 'bank_transfer', name: 'Chuyển khoản ngân hàng', emoji: '🏦' },
-    { id: 'credit_card', name: 'Thẻ tín dụng', emoji: '💳' },
-    { id: 'wallet', name: 'Ví điện tử', emoji: '💰' },
+    { id: 'bank_transfer', name: 'Chuyển khoản ngân hàng', emoji: '' },
+    { id: 'credit_card', name: 'Thẻ tín dụng', emoji: '' },
+    { id: 'wallet', name: 'Ví điện tử', emoji: '' },
   ];
 
   // Debug info - after all variables are declared
-  console.log('🔍 Debug Place Bid Visibility:', {
+  console.log(' Debug Place Bid Visibility:', {
     userId: user?.user?._id,
     sellerId: data?.seller?._id,
     isUserSeller: data?.seller?._id === user?.user?._id,
@@ -629,7 +629,7 @@ export const ViewAuction = () => {
                   }}
                 >
                   <span className={`font-semibold text-sm ${isLiked ? 'text-red-600' : 'text-gray-700'}`}>
-                    ❤️ {likesCount}
+                    {likesCount}
                   </span>
                 </button>
               </div>
@@ -643,7 +643,7 @@ export const ViewAuction = () => {
                   : 'bg-emerald-50 border-emerald-200'
                   }`}>
                   <span className={`text-xs font-medium ${isSellerInactive ? 'text-red-700' : 'text-emerald-700'}`}>
-                    👤 {isSellerInactive ? 'Bị vô hiệu hóa' : data.seller.name}
+                    {isSellerInactive ? 'Bị vô hiệu hóa' : data.seller.name}
                   </span>
                 </div>
               </div>
@@ -705,7 +705,7 @@ export const ViewAuction = () => {
                   }`}>
                   <p className={`text-[9px] font-medium mb-1 ${isActive ? 'text-green-700' : 'text-gray-600'
                     }`}>
-                    ⏰ Time Remaining
+                    Time Remaining
                   </p>
                   {timeRemaining ? (
                     timeRemaining.ended ? (
@@ -807,7 +807,7 @@ export const ViewAuction = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-red-800 mb-2">❌ Đấu giá bị từ chối</h3>
+                      <h3 className="text-lg font-semibold text-red-800 mb-2"> Đấu giá bị từ chối</h3>
                       <p className="text-red-700 text-sm mb-2">
                         Đấu giá này đã bị admin từ chối và không thể nhận đặt giá.
                       </p>
@@ -958,7 +958,7 @@ export const ViewAuction = () => {
                       {!isVerified && (
                         <div className="mb-3 p-3 bg-amber-50 border-2 border-amber-200 rounded-lg text-left">
                           <div>
-                            <h4 className="font-semibold text-sm text-amber-800 mb-1">⚠️ Tài khoản chưa xác minh</h4>
+                            <h4 className="font-semibold text-sm text-amber-800 mb-1"> Tài khoản chưa xác minh</h4>
                             <p className="text-xs text-amber-700">
                               Bạn cần xác minh tài khoản (số điện thoại, email, CCCD) trước khi đặt cọc và tham gia đấu giá.
                             </p>
@@ -975,7 +975,7 @@ export const ViewAuction = () => {
                         {isVerified ? 'Đặt cọc ngay' : 'Xác minh & Đặt cọc'}
                       </button>
                       <p className="text-xs text-gray-500 mt-3">
-                        💡 Tiền cọc sẽ được hoàn trả nếu bạn không thắng đấu giá
+                        Tiền cọc sẽ được hoàn trả nếu bạn không thắng đấu giá
                       </p>
                     </div>
                   )}
@@ -1096,7 +1096,7 @@ export const ViewAuction = () => {
               <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-xl font-bold">💰 Đặt cọc tham gia đấu giá</h3>
+                    <h3 className="text-xl font-bold"> Đặt cọc tham gia đấu giá</h3>
                   </div>
                   <button
                     onClick={() => setShowDepositModal(false)}
@@ -1130,7 +1130,7 @@ export const ViewAuction = () => {
                 {/* Info */}
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-800">
-                    💡 <strong>Lưu ý:</strong> Tiền cọc sẽ được hoàn trả đầy đủ nếu bạn không thắng đấu giá.
+                    <strong>Lưu ý:</strong> Tiền cọc sẽ được hoàn trả đầy đủ nếu bạn không thắng đấu giá.
                     Nếu thắng, tiền cọc sẽ được trừ vào giá cuối cùng.
                   </p>
                 </div>
