@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
         SIGNUP: `${API_URL}/auth/signup`,
         LOGOUT: `${API_URL}/auth/logout`,
         REFRESH_TOKEN: `${API_URL}/auth/refresh-token`,
+        REQUEST_REACTIVATION: `${API_URL}/auth/request-reactivation`,
     },
 
     // User endpoints
