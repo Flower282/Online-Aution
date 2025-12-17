@@ -3,12 +3,10 @@ import User from "../models/user.js";
 import Product from "../models/product.js";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-import { connectDB } from '../connection.js'
 
 
 export const handleGetUser = async (req, res) => {
     try {
-        await connectDB();
         // findById returns the user directly (compatible with test mocks)
         const user = await User.findById(req.user.id);
 
@@ -24,8 +22,6 @@ export const handleGetUser = async (req, res) => {
 
 export const handleChangePassword = async (req, res) => {
     try {
-        await connectDB();
-
         // Ensure req.body exists
         if (!req.body || typeof req.body !== 'object') {
             return res.status(400).json({ error: "Please enter all fields" });
@@ -79,7 +75,6 @@ export const handleChangePassword = async (req, res) => {
 
 export const getLoginHistory = async (req, res) => {
     try {
-        await connectDB();
         const userId = req.user.id;
 
         const logins = await Login.aggregate([
@@ -143,7 +138,6 @@ function getDeviceType(userAgent = "") {
 // Get favorite auctions (auctions user has liked)
 export const getFavoriteAuctions = async (req, res) => {
     try {
-        await connectDB();
         const userId = req.user.id;
 
         // Tìm tất cả auctions mà user đã like

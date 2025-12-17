@@ -1,4 +1,3 @@
-import { connectDB } from "../connection.js"
 import User from "../models/user.js"
 import Login from "../models/Login.js"
 import bcrypt from "bcrypt";
@@ -13,24 +12,23 @@ export const handleUserLogin = async (req, res) => {
     if (!req.body || typeof req.body !== 'object') {
         return res.status(400).json({ error: "All Fields are required" });
     }
-    
+
     const { email, password } = req.body;
-    
+
     // Type validation - reject non-strings (NoSQL injection prevention)
     if (typeof email !== 'string' || typeof password !== 'string') {
         return res.status(400).json({ error: "All Fields are required" });
     }
-    
+
     // Trim and validate - reject empty or whitespace-only
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
-    
+
     if (!trimmedEmail || !trimmedPassword) {
         return res.status(400).json({ error: "All Fields are required" });
     }
-    
+
     try {
-        await connectDB();
         const user = await User.findOne({ email: trimmedEmail });
         //  Checking user exists
         if (!user) {
@@ -105,7 +103,7 @@ export const handleUserSignup = async (req, res) => {
     if (!req.body || typeof req.body !== 'object') {
         return res.status(400).json({ error: "All fields are required" });
     }
-    
+
     const { name, email, password } = req.body;
 
     // Basic presence check
@@ -117,16 +115,15 @@ export const handleUserSignup = async (req, res) => {
     const trimmedName = typeof name === 'string' ? name.trim() : name;
     const trimmedEmail = typeof email === 'string' ? email.trim() : email;
     const trimmedPassword = typeof password === 'string' ? password.trim() : password;
-    
+
     // Check if strings are empty after trimming
-    if ((typeof name === 'string' && !trimmedName) || 
-        (typeof email === 'string' && !trimmedEmail) || 
+    if ((typeof name === 'string' && !trimmedName) ||
+        (typeof email === 'string' && !trimmedEmail) ||
         (typeof password === 'string' && !trimmedPassword)) {
         return res.status(400).json({ error: "All fields are required" });
     }
-    
+
     try {
-        await connectDB();
         const existingUser = await User.findOne({ email: trimmedEmail });
 
         // Checking existing of user
@@ -239,9 +236,9 @@ export const handleRefreshToken = async (req, res) => {
 
         // Case 1: No refresh token provided
         if (!refreshToken) {
-            return res.status(401).json({ 
+            return res.status(401).json({
                 code: "REFRESH_TOKEN_MISSING",
-                message: "Refresh token not provided" 
+                message: "Refresh token not provided"
             });
         }
 
@@ -252,34 +249,33 @@ export const handleRefreshToken = async (req, res) => {
         } catch (error) {
             // Handle specific JWT errors
             if (error.name === 'TokenExpiredError') {
-                return res.status(401).json({ 
+                return res.status(401).json({
                     code: "REFRESH_TOKEN_EXPIRED",
-                    message: "Refresh token expired. Please login again." 
+                    message: "Refresh token expired. Please login again."
                 });
             }
-            
+
             if (error.name === 'JsonWebTokenError') {
-                return res.status(401).json({ 
+                return res.status(401).json({
                     code: "REFRESH_TOKEN_INVALID",
-                    message: "Invalid refresh token" 
+                    message: "Invalid refresh token"
                 });
             }
-            
+
             // Generic error
-            return res.status(401).json({ 
+            return res.status(401).json({
                 code: "REFRESH_TOKEN_ERROR",
-                message: "Failed to verify refresh token" 
+                message: "Failed to verify refresh token"
             });
         }
 
         // Case 3: Check if refresh token exists in database and matches
-        await connectDB();
         const user = await User.findById(decoded.id);
 
         if (!user) {
-            return res.status(401).json({ 
+            return res.status(401).json({
                 code: "USER_NOT_FOUND",
-                message: "User not found" 
+                message: "User not found"
             });
         }
 
@@ -289,21 +285,21 @@ export const handleRefreshToken = async (req, res) => {
             // - Token has been rotated (old token being reused)
             // - Token has been revoked
             // - Possible security breach
-            
+
             // Optional: Revoke all tokens for this user
             await User.findByIdAndUpdate(user._id, { refreshToken: null });
-            
-            return res.status(401).json({ 
+
+            return res.status(401).json({
                 code: "REFRESH_TOKEN_REUSED",
-                message: "Refresh token has been revoked or already used" 
+                message: "Refresh token has been revoked or already used"
             });
         }
 
         // Case 5: Check if user account is active
         if (!user.isActive) {
-            return res.status(403).json({ 
+            return res.status(403).json({
                 code: "USER_INACTIVE",
-                message: "Account is inactive. Please contact support." 
+                message: "Account is inactive. Please contact support."
             });
         }
 
@@ -313,7 +309,7 @@ export const handleRefreshToken = async (req, res) => {
         const newRefreshToken = generateRefreshToken(user._id);
 
         // Update refresh token in database (invalidates old refresh token)
-        await User.findByIdAndUpdate(user._id, { 
+        await User.findByIdAndUpdate(user._id, {
             refreshToken: newRefreshToken,
             lastTokenRefresh: new Date() // Optional: track refresh activity
         });
@@ -350,10 +346,10 @@ export const handleRefreshToken = async (req, res) => {
         if (process.env.NODE_ENV !== 'production') {
             console.error("Refresh token error:", error);
         }
-        
-        return res.status(500).json({ 
+
+        return res.status(500).json({
             code: "SERVER_ERROR",
-            message: "Failed to refresh token" 
+            message: "Failed to refresh token"
         });
     }
 }
@@ -370,9 +366,9 @@ export const handleGetToken = async (req, res) => {
         const accessToken = req.cookies.auth_token;
 
         if (!accessToken) {
-            return res.status(401).json({ 
+            return res.status(401).json({
                 code: "TOKEN_MISSING",
-                message: "Access token not found" 
+                message: "Access token not found"
             });
         }
 
@@ -381,9 +377,9 @@ export const handleGetToken = async (req, res) => {
             token: accessToken
         });
     } catch (error) {
-        return res.status(500).json({ 
+        return res.status(500).json({
             code: "SERVER_ERROR",
-            message: "Failed to retrieve token" 
+            message: "Failed to retrieve token"
         });
     }
 }

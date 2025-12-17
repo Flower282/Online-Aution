@@ -1,11 +1,8 @@
 import Product from '../models/product.js';
 import User from '../models/user.js';
-import { connectDB } from '../connection.js';
 
 export const getAdminDashboard = async (req, res) => {
     try {
-        await connectDB();
-
         // Get statistics - only count active users and approved auctions
         const totalAuctions = await Product.countDocuments();
         const activeAuctions = await Product.countDocuments({
@@ -74,8 +71,6 @@ export const getAdminDashboard = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try {
-        await connectDB();
-
         // Get pagination parameters from query string
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -139,8 +134,6 @@ export const getAllUsers = async (req, res) => {
 
 export const deleteUserById = async (req, res) => {
     try {
-        await connectDB();
-
         const { userId } = req.params;
 
         // Check if user exists
@@ -187,8 +180,6 @@ export const deleteUserById = async (req, res) => {
 // Reactivate user
 export const reactivateUser = async (req, res) => {
     try {
-        await connectDB();
-
         const { userId } = req.params;
 
         // Check if user exists
@@ -227,8 +218,6 @@ export const reactivateUser = async (req, res) => {
 // Migration: Add isActive field to all existing users
 export const migrateUsersIsActive = async (req, res) => {
     try {
-        await connectDB();
-
         // Update all users that don't have isActive field
         const result = await User.updateMany(
             { isActive: { $exists: false } },
@@ -267,8 +256,6 @@ export const migrateUsersIsActive = async (req, res) => {
 // Get pending auctions for admin approval
 export const getPendingAuctions = async (req, res) => {
     try {
-        await connectDB();
-
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
@@ -331,8 +318,6 @@ export const getPendingAuctions = async (req, res) => {
 // Approve auction
 export const approveAuction = async (req, res) => {
     try {
-        await connectDB();
-
         const { auctionId } = req.params;
         const adminId = req.user.id;
 
@@ -395,8 +380,6 @@ export const approveAuction = async (req, res) => {
 // Reject auction
 export const rejectAuction = async (req, res) => {
     try {
-        await connectDB();
-
         const { auctionId } = req.params;
         const { reason } = req.body;
         const adminId = req.user.id;
@@ -455,8 +438,6 @@ export const rejectAuction = async (req, res) => {
 // Get all auctions (for admin - includes all statuses)
 export const getAllAuctions = async (req, res) => {
     try {
-        await connectDB();
-
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
         const status = req.query.status || 'all'; // all, pending, approved, rejected

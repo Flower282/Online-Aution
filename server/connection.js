@@ -1,31 +1,57 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import User from "./models/user.js";
 dotenv.config();
 
+// Track connection state to avoid duplicate connections
+let isConnected = false;
+
 export const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGO_URL)
-        console.log('Connected to MongoDB');
-
-        // Auto migration: Add isActive field to existing users
-        // try {
-        //     console.log(' Running migration...');
-        //     const result = await User.updateMany(
-        //         { isActive: { $exists: false } },
-        //         { $set: { isActive: true } }
-        //     );
-        //     console.log(` Migration complete: Updated ${result.modifiedCount} users, Matched ${result.matchedCount} users`);
-
-        //     // Log stats
-        //     const totalUsers = await User.countDocuments({});
-        //     const activeUsers = await User.countDocuments({ isActive: true });
-        //     const inactiveUsers = await User.countDocuments({ isActive: false });
-        //     console.log(`Users: Total=${totalUsers}, Active=${activeUsers}, Inactive=${inactiveUsers}`);
-        // } catch (migrationError) {
-        //     console.log('  Migration warning:', migrationError.message);
-        // }
-    } catch (error) {
-        console.log('Error connecting to MongoDB')
+    // If already connected, skip reconnection
+    if (isConnected && mongoose.connection.readyState === 1) {
+        return;
     }
+
+    // If connection is in progress, wait for it
+    if (mongoose.connection.readyState === 2) {
+        return;
+    }
+
+    try {
+        // Configure mongoose to use connection pooling efficiently
+        await mongoose.connect(process.env.MONGO_URL, {
+            maxPoolSize: 10,        // Maximum number of connections in the pool
+            minPoolSize: 2,         // Minimum number of connections
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+        });
+
+        isConnected = true;
+        console.log('✅ Connected to MongoDB');
+
+        // Handle connection events
+        mongoose.connection.on('disconnected', () => {
+            console.log('❌ MongoDB disconnected');
+            isConnected = false;
+        });
+
+        mongoose.connection.on('error', (err) => {
+            console.error('❌ MongoDB connection error:', err);
+            isConnected = false;
+        });
+
+        mongoose.connection.on('reconnected', () => {
+            console.log('✅ MongoDB reconnected');
+            isConnected = true;
+        });
+
+    } catch (error) {
+        console.error('❌ Error connecting to MongoDB:', error.message);
+        isConnected = false;
+        throw error;
+    }
+}
+
+// Helper to check if DB is connected
+export const isDBConnected = () => {
+    return isConnected && mongoose.connection.readyState === 1;
 }

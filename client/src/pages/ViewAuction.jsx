@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { placeBid, viewAuction, deleteAuction, toggleLikeAuction } from "../api/auction.js";
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
-import socket from "../utils/socket.js";
+import socket, { ensureSocketConnected } from "../utils/socket.js";
 import { TrendingUp, Package, Heart } from "lucide-react";
 import Toast from "../components/Toast.jsx";
 
@@ -92,13 +92,29 @@ export const ViewAuction = () => {
   useEffect(() => {
     if (!id) return;
 
-    console.log('🔵 Joining auction room:', id);
+    let cleanedUp = false;
 
-    // Join auction room
-    socket.emit('auction:join', { auctionId: id });
+    // Connect socket and join auction room
+    const initSocket = async () => {
+      try {
+        await ensureSocketConnected();
 
-    // Get initial state
-    socket.emit('auction:get-state', { auctionId: id });
+        if (cleanedUp) return; // Component unmounted during connection
+
+        console.log('🔵 Joining auction room:', id);
+
+        // Join auction room
+        socket.emit('auction:join', { auctionId: id });
+
+        // Get initial state
+        socket.emit('auction:get-state', { auctionId: id });
+      } catch (error) {
+        console.error('Failed to connect socket:', error);
+        setToast({ message: "Không thể kết nối real-time. Vui lòng tải lại trang.", type: "error" });
+      }
+    };
+
+    initSocket();
 
     // Listen for join confirmation
     socket.on('auction:joined', (data) => {
@@ -201,8 +217,11 @@ export const ViewAuction = () => {
 
     // Cleanup on unmount
     return () => {
+      cleanedUp = true;
       console.log('🔴 Leaving auction room:', id);
-      socket.emit('auction:leave', { auctionId: id });
+      if (socket.connected) {
+        socket.emit('auction:leave', { auctionId: id });
+      }
       socket.off('auction:joined');
       socket.off('auction:state');
       socket.off('auction:bid:updated');
