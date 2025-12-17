@@ -1,12 +1,10 @@
 import uploadImage from '../services/cloudinaryService.js';
 import Product from '../models/product.js';
-import mongoose from "mongoose"
-import { connectDB } from '../connection.js'
+import mongoose from "mongoose";
 
 
 export const createAuction = async (req, res) => {
     try {
-        await connectDB();
         const { itemName, startingPrice, itemDescription, itemCategory, itemStartDate, itemEndDate } = req.body;
         let imageUrl = '';
 
@@ -60,7 +58,6 @@ export const createAuction = async (req, res) => {
 
 export const showAuction = async (req, res) => {
     try {
-        await connectDB();
         // Only show approved auctions to public
         const auction = await Product.find({
             itemEndDate: { $gt: new Date() },
@@ -94,7 +91,6 @@ export const showAuction = async (req, res) => {
 
 export const auctionById = async (req, res) => {
     try {
-        await connectDB();
         const { id } = req.params;
 
         // Validate MongoDB ObjectId format
@@ -137,7 +133,6 @@ export const auctionById = async (req, res) => {
 
 export const placeBid = async (req, res) => {
     try {
-        await connectDB();
         const { bidAmount } = req.body;
         const user = req.user.id;
         const { id } = req.params;
@@ -192,7 +187,6 @@ export const placeBid = async (req, res) => {
 
 export const dashboardData = async (req, res) => {
     try {
-        await connectDB();
         const userObjectId = new mongoose.Types.ObjectId(req.user.id);
         const dateNow = new Date();
 
@@ -295,7 +289,6 @@ export const dashboardData = async (req, res) => {
 
 export const myAuction = async (req, res) => {
     try {
-        await connectDB();
         const auction = await Product.find({ seller: req.user.id })
             .populate("seller", "name isActive")
             .select("itemName itemDescription currentPrice bids itemEndDate itemCategory itemPhoto seller status rejectionReason createdAt")
@@ -326,7 +319,6 @@ export const myAuction = async (req, res) => {
 // Delete auction (Admin only)
 export const deleteAuction = async (req, res) => {
     try {
-        await connectDB();
         const { id } = req.params;
 
         // Find auction
@@ -380,7 +372,6 @@ export const joinAuction = async (req, res) => {
 
 export const toggleLike = async (req, res) => {
     try {
-        await connectDB();
         const { id } = req.params;
         const userId = req.user.id;
 

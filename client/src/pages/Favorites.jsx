@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getFavoriteAuctions } from "../api/auction";
 import LoadingScreen from "../components/LoadingScreen";
 import { Heart } from "lucide-react";
-import socket from "../utils/socket";
+import socket, { ensureSocketConnected } from "../utils/socket";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 
@@ -31,23 +31,38 @@ export default function Favorites() {
 
     // 🔥 Real-time updates via Socket.io
     useEffect(() => {
-        console.log('🔵 Favorites: Listening for like updates');
+        let cleanedUp = false;
 
-        // Listen for like/unlike events
-        socket.on('auction:like:updated', (update) => {
-            console.log('📡 Favorites: Like update received:', update);
+        const initSocket = async () => {
+            try {
+                await ensureSocketConnected();
 
-            // Invalidate favorites query to refresh the list
-            queryClient.invalidateQueries({ queryKey: ["favoriteAuctions"] });
+                if (cleanedUp) return;
 
-            // If current user unliked something, remove it from list immediately
-            if (update.userId === user?.user?._id && !update.isLiked) {
-                console.log('🗑️ Current user unliked, refreshing list');
-                refetch();
+                console.log('🔵 Favorites: Listening for like updates');
+
+                // Listen for like/unlike events
+                socket.on('auction:like:updated', (update) => {
+                    console.log('📡 Favorites: Like update received:', update);
+
+                    // Invalidate favorites query to refresh the list
+                    queryClient.invalidateQueries({ queryKey: ["favoriteAuctions"] });
+
+                    // If current user unliked something, remove it from list immediately
+                    if (update.userId === user?.user?._id && !update.isLiked) {
+                        console.log('🗑️ Current user unliked, refreshing list');
+                        refetch();
+                    }
+                });
+            } catch (error) {
+                console.error('Failed to connect socket:', error);
             }
-        });
+        };
+
+        initSocket();
 
         return () => {
+            cleanedUp = true;
             console.log('🔴 Favorites: Cleanup socket listeners');
             socket.off('auction:like:updated');
         };

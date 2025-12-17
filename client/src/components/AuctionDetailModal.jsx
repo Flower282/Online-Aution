@@ -7,7 +7,7 @@ import { Separator } from "./ui/separator";
 import { CountdownTimer } from "./CountdownTimer";
 import { BidHistory } from "./BidHistory";
 import { Alert, AlertDescription } from "./ui/alert";
-import socket from "../utils/socket";
+import socket, { ensureSocketConnected } from "../utils/socket";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,13 +25,28 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
     useEffect(() => {
         if (!auction._id) return;
 
-        console.log('🔵 Modal: Joining auction room:', auction._id);
+        let cleanedUp = false;
 
-        // Join auction room
-        socket.emit('auction:join', { auctionId: auction._id });
+        const initSocket = async () => {
+            try {
+                await ensureSocketConnected();
 
-        // Get initial state
-        socket.emit('auction:get-state', { auctionId: auction._id });
+                if (cleanedUp) return;
+
+                console.log('🔵 Modal: Joining auction room:', auction._id);
+
+                // Join auction room
+                socket.emit('auction:join', { auctionId: auction._id });
+
+                // Get initial state
+                socket.emit('auction:get-state', { auctionId: auction._id });
+            } catch (error) {
+                console.error('Failed to connect socket:', error);
+                toast.error('Không thể kết nối real-time');
+            }
+        };
+
+        initSocket();
 
         // Listen for auction state
         socket.on('auction:state', (state) => {
@@ -106,8 +121,11 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
         });
 
         return () => {
+            cleanedUp = true;
             console.log('🔴 Modal: Leaving auction room:', auction._id);
-            socket.emit('auction:leave', { auctionId: auction._id });
+            if (socket.connected) {
+                socket.emit('auction:leave', { auctionId: auction._id });
+            }
             socket.off('auction:state');
             socket.off('auction:bid:updated');
             socket.off('auction:bid:success');
