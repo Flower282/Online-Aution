@@ -1,6 +1,10 @@
 import { Link } from "react-router";
+import { useState } from "react";
 
 export const Hero = () => {
+  const [treeHoverKey, setTreeHoverKey] = useState(0);
+  const [giftHoverKey, setGiftHoverKey] = useState(0);
+
   return (
     <section className="relative bg-[#f5f1e8] pt-20 pb-0 overflow-hidden">
       {/* Christmas Garland at Top */}
@@ -47,24 +51,69 @@ export const Hero = () => {
             </div>    
             {/* Christmas Sock with Gifts - positioned at bottom left */}
           </div>
-          <div className="absolute bottom-30 left-140 w-64 z-20 animate-bounce-gentle" style={{ animationDelay: '0.5s' }}>
-            <img 
-              src="/christmas-gifts.png" 
-              alt="Christmas Gifts" 
-              className="w-full h-auto drop-shadow-xl"
-            />
+          <div 
+            className="absolute bottom-30 left-140 w-64 z-20 animate-bounce-gentle cursor-pointer" 
+            style={{ animationDelay: '0.5s' }}
+            onMouseEnter={() => setGiftHoverKey(prev => prev + 1)}
+          >
+            <div className="relative hover:scale-110 transition-transform duration-300 group">
+              <img 
+                src="/christmas-gifts.png" 
+                alt="Christmas Gifts" 
+                className="w-full h-auto drop-shadow-xl group-hover:animate-shake"
+              />
+              {/* Gifts falling effect on hover */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none overflow-visible">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={`${giftHoverKey}-${i}`}
+                    className="absolute text-2xl"
+                    style={{
+                      left: `${Math.random() * 80 + 10}%`,
+                      top: `${Math.random() * 40}px`,
+                      animation: 'fall-gifts 2s ease-in forwards',
+                      animationDelay: `${i * 0.2}s`
+                    }}
+                  >
+                    🎁
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Right Side - Christmas Decorations */}
           <div className="hidden lg:flex justify-end items-center relative">
-            <div className="relative w-full max-w-xl" data-aos="fade-left" data-aos-delay="200">
+            <div 
+              className="relative w-full max-w-xl cursor-pointer" 
+              data-aos="fade-left" 
+              data-aos-delay="200"
+              onMouseEnter={() => setTreeHoverKey(prev => prev + 1)}
+            >
               {/* Christmas Tree */}
-              <div className="relative z-10 animate-float-slow">
+              <div className="relative z-10 animate-float-slow hover:scale-105 transition-transform duration-300 group">
                 <img 
                   src="/christmas-tree.png" 
                   alt="Christmas Tree" 
-                  className="w-full h-auto drop-shadow-2xl"
+                  className="w-full h-auto drop-shadow-2xl group-hover:animate-shake"
                 />
+                {/* Snow falling effect on hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none overflow-visible">
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={`${treeHoverKey}-${i}`}
+                      className="absolute text-xl"
+                      style={{
+                        left: `${Math.random() * 70 + 15}%`,
+                        top: `${Math.random() * 80 + 20}px`,
+                        animation: 'fall-snow 2s ease-in forwards',
+                        animationDelay: `${i * 0.15}s`
+                      }}
+                    >
+                      ❄️
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Decorative snowflakes */}
