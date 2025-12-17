@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router";
@@ -13,9 +13,19 @@ import { Toaster } from "sonner";
 import ChristmasSnowflakes from "./components/ChristmasSnowflakes.jsx";
 import ChristmasDecorativeShapes from "./components/ChristmasDecorativeShapes.jsx";
 import { injectStore } from "./utils/axiosConfig.js";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 // Inject Redux store into axios interceptor
 injectStore(store);
+
+// Initialize AOS
+AOS.init({
+  duration: 800,
+  easing: 'ease-in-out',
+  once: true,
+  offset: 100,
+});
 
 const queryClient = new QueryClient();
 const router = createBrowserRouter([...openRoutes, ...adminRouter, ...protectedRoutes]);

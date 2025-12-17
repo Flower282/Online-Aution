@@ -104,7 +104,7 @@ export const MyDeposits = () => {
         <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-8" data-aos="fade-down">
                     <div className="flex items-center gap-4">
                         <Link
                             to="/auction"
@@ -131,7 +131,7 @@ export const MyDeposits = () => {
                 </div>
 
                 {/* Balance Card */}
-                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl shadow-xl p-6 mb-8 text-white">
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl shadow-xl p-6 mb-8 text-white" data-aos="zoom-in" data-aos-delay="100">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <p className="text-emerald-100 text-sm mb-1 flex items-center gap-2">
@@ -154,7 +154,7 @@ export const MyDeposits = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" data-aos="fade-up" data-aos-delay="200">
                     <div className="bg-white p-4 rounded-xl shadow-md border border-gray-200">
                         <p className="text-sm text-gray-500 mb-1">Tổng cọc</p>
                         <p className="text-2xl font-bold text-gray-800">{stats.total || 0}</p>
@@ -174,7 +174,7 @@ export const MyDeposits = () => {
                 </div>
 
                 {/* Deposits Section Title */}
-                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2" data-aos="fade-up" data-aos-delay="300">
                     <Shield className="h-6 w-6 text-amber-600" />
                     Lịch sử đặt cọc
                 </h2>
