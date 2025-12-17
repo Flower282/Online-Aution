@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import LoadingScreen from '../../components/LoadingScreen';
 import Toast from '../../components/Toast';
-import { getAdminDashboard, deleteUser } from '../../api/admin';
+import { getAdminDashboard, deleteUser, getPendingReactivationRequests } from '../../api/admin';
 import { getPendingVerifications } from '../../api/verification';
-import { ChevronLeft, ChevronRight, Play, Pause, Clock, Users, Tag, Eye, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Pause, Clock, Users, Tag, Eye, ShieldCheck, UserCheck } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 export const AdminDashboard = () => {
@@ -17,6 +17,7 @@ export const AdminDashboard = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [pendingVerifications, setPendingVerifications] = useState(0);
+  const [pendingReactivations, setPendingReactivations] = useState(0);
 
   // Slider state for auctions
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -47,6 +48,15 @@ export const AdminDashboard = () => {
       } catch (e) {
         console.error('Error fetching pending verifications:', e);
         setPendingVerifications(0);
+      }
+
+      // Fetch pending reactivation requests count
+      try {
+        const reactivations = await getPendingReactivationRequests();
+        setPendingReactivations(reactivations.count || 0);
+      } catch (e) {
+        console.error('Error fetching pending reactivations:', e);
+        setPendingReactivations(0);
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -176,110 +186,136 @@ export const AdminDashboard = () => {
           <p className="text-gray-600">Manage auctions, users, and monitor system activity</p>
         </div>
 
-        {/* Statistics Cards */}
+        {/* Statistics Cards - Row 1 */}
         {dashboardData && dashboardData.stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Active Auctions
-                  </h3>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">
-                    {dashboardData.stats.activeAuctions || 0}
-                  </p>
-                  <p className="text-xs text-green-600 mt-1">
-                    ✅ Approved only
-                  </p>
-                </div>
-                <div className="bg-green-100 p-3 rounded-full">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Total Auctions
-                  </h3>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">
-                    {dashboardData.stats.totalAuctions || 0}
-                  </p>
-                </div>
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Total Users
-                  </h3>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">
-                    {dashboardData.stats.totalUsers || 0}
-                  </p>
-                </div>
-                <div className="bg-purple-100 p-3 rounded-full">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <Link to="/admin/auctions/pending" className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow block">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Pending Auctions
-                  </h3>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">
-                    {dashboardData.stats.pendingAuctions || 0}
-                  </p>
-                  {dashboardData.stats.pendingAuctions > 0 && (
-                    <p className="text-xs text-yellow-600 mt-1 font-medium">
-                      ⚠️ Needs approval
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Active Auctions
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900 mt-2">
+                      {dashboardData.stats.activeAuctions || 0}
                     </p>
-                  )}
-                </div>
-                <div className="bg-yellow-100 p-3 rounded-full">
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
-
-            <Link to="/admin/verifications" className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow block">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Pending Verifications
-                  </h3>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">
-                    {pendingVerifications}
-                  </p>
-                  {pendingVerifications > 0 && (
-                    <p className="text-xs text-emerald-600 mt-1 font-medium">
-                      🆔 CCCD cần duyệt
+                    <p className="text-xs text-green-600 mt-1">
+                      ✅ Approved only
                     </p>
-                  )}
-                </div>
-                <div className="bg-emerald-100 p-3 rounded-full">
-                  <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div className="bg-green-100 p-3 rounded-full">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                  </div>
                 </div>
               </div>
-            </Link>
-          </div>
+
+              <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Total Auctions
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900 mt-2">
+                      {dashboardData.stats.totalAuctions || 0}
+                    </p>
+                  </div>
+                  <div className="bg-blue-100 p-3 rounded-full">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-sm shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Total Users
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900 mt-2">
+                      {dashboardData.stats.totalUsers || 0}
+                    </p>
+                  </div>
+                  <div className="bg-purple-100 p-3 rounded-full">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Pending Cards - Row 2 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <Link to="/admin/auctions/pending" className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow block">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Pending Auctions
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900 mt-2">
+                      {dashboardData.stats.pendingAuctions || 0}
+                    </p>
+                    {dashboardData.stats.pendingAuctions > 0 && (
+                      <p className="text-xs text-yellow-600 mt-1 font-medium">
+                        ⚠️ Needs approval
+                      </p>
+                    )}
+                  </div>
+                  <div className="bg-yellow-100 p-3 rounded-full">
+                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+
+              <Link to="/admin/verifications" className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow block">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Pending Verifications
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900 mt-2">
+                      {pendingVerifications}
+                    </p>
+                    {pendingVerifications > 0 && (
+                      <p className="text-xs text-emerald-600 mt-1 font-medium">
+                        🆔 CCCD cần duyệt
+                      </p>
+                    )}
+                  </div>
+                  <div className="bg-emerald-100 p-3 rounded-full">
+                    <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                  </div>
+                </div>
+              </Link>
+
+              <Link to="/admin/reactivation-requests" className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow block">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                      Pending Reactivations
+                    </h3>
+                    <p className="text-2xl font-bold text-gray-900 mt-2">
+                      {pendingReactivations}
+                    </p>
+                    {pendingReactivations > 0 && (
+                      <p className="text-xs text-amber-600 mt-1 font-medium">
+                        🔄 Requests to review
+                      </p>
+                    )}
+                  </div>
+                  <div className="bg-amber-100 p-3 rounded-full">
+                    <UserCheck className="w-6 h-6 text-amber-600" />
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </>
         )}
 
         {/* Recent Active Auctions - Slider */}
@@ -501,7 +537,7 @@ export const AdminDashboard = () => {
                         Last Login
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
+                        Xác minh
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Actions
@@ -541,11 +577,11 @@ export const AdminDashboard = () => {
                           {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-green-100 text-green-800'
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.verification?.isVerified
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-yellow-100 text-yellow-800'
                             }`}>
-                            {user.isActive === false ? 'Inactive' : 'Active'}
+                            {user.verification?.isVerified ? '✓ Đã xác minh' : '⚠ Chưa xác minh'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

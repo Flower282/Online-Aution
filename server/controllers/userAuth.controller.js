@@ -37,7 +37,12 @@ export const handleUserLogin = async (req, res) => {
 
         // Check if user is active
         if (!user.isActive) {
-            return res.status(403).json({ error: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin." });
+            return res.status(403).json({ 
+                error: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin.",
+                isDeactivated: true,
+                email: user.email,
+                hasRequestedReactivation: user.reactivationRequest?.requested || false
+            });
         }
 
         // Password Validate

@@ -21,6 +21,11 @@ export const UsersList = () => {
   const [reactivateLoading, setReactivateLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
+  // Filter states
+  const [accountStatusFilter, setAccountStatusFilter] = useState('all'); // all, active, inactive
+  const [verificationFilter, setVerificationFilter] = useState('all'); // all, verified, not_verified
+  const [dateFilter, setDateFilter] = useState('all'); // all, today, week, month, custom
+
   // Debounce search term - chỉ search sau 400ms ngừng gõ
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -33,10 +38,9 @@ export const UsersList = () => {
   const fetchUsers = useCallback(async (page = 1, search = '', sort = 'createdAt', order = 'desc') => {
     try {
       setError(null);
-      const response = await getAllUsers(page, search, 'all', 20, sort, order);
-      // Filter out inactive users on client side as well
-      const activeUsers = response.data.users.filter(user => user.isActive !== false);
-      setUsers(activeUsers);
+      const response = await getAllUsers(page, search, 'all', 100, sort, order); // Increased limit for client-side filtering
+      // Show both active and inactive so admin can reactivate
+      setUsers(response.data.users || []);
       setPagination(response.data.pagination);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -46,6 +50,30 @@ export const UsersList = () => {
       setInitialLoading(false);
     }
   }, []);
+
+  // Apply filters to users
+  const filteredUsers = users.filter(user => {
+    // Account status filter
+    if (accountStatusFilter === 'active' && user.isActive === false) return false;
+    if (accountStatusFilter === 'inactive' && user.isActive !== false) return false;
+
+    // Verification filter
+    if (verificationFilter === 'verified' && !user.verification?.isVerified) return false;
+    if (verificationFilter === 'not_verified' && user.verification?.isVerified) return false;
+
+    // Date filter
+    if (dateFilter !== 'all' && user.createdAt) {
+      const createdDate = new Date(user.createdAt);
+      const now = new Date();
+      const daysDiff = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
+
+      if (dateFilter === 'today' && daysDiff > 0) return false;
+      if (dateFilter === 'week' && daysDiff > 7) return false;
+      if (dateFilter === 'month' && daysDiff > 30) return false;
+    }
+
+    return true;
+  });
 
   // Fetch users khi debounced search term thay đổi
   useEffect(() => {
@@ -185,8 +213,9 @@ export const UsersList = () => {
 
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="lg:col-span-2">
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
                 Search Users
               </label>
@@ -201,10 +230,85 @@ export const UsersList = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            <div className="flex items-end">
-              <div className="text-sm text-gray-600">
-                {pagination.totalUsers ? `${pagination.totalUsers} total users` : ''}
-              </div>
+
+            {/* Account Status Filter */}
+            <div>
+              <label htmlFor="accountStatus" className="block text-sm font-medium text-gray-700 mb-2">
+                Account Status
+              </label>
+              <select
+                id="accountStatus"
+                value={accountStatusFilter}
+                onChange={(e) => setAccountStatusFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
+            {/* Verification Filter */}
+            <div>
+              <label htmlFor="verification" className="block text-sm font-medium text-gray-700 mb-2">
+                Verification
+              </label>
+              <select
+                id="verification"
+                value={verificationFilter}
+                onChange={(e) => setVerificationFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">All Users</option>
+                <option value="verified">Verified</option>
+                <option value="not_verified">Not Verified</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Date Range Filter */}
+          <div className="mt-4 flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700">Created Date:</label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setDateFilter('all')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+              >
+                All Time
+              </button>
+              <button
+                onClick={() => setDateFilter('today')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'today'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+              >
+                Today
+              </button>
+              <button
+                onClick={() => setDateFilter('week')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'week'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+              >
+                Last 7 Days
+              </button>
+              <button
+                onClick={() => setDateFilter('month')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'month'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+              >
+                Last 30 Days
+              </button>
+            </div>
+            <div className="ml-auto text-sm text-gray-600">
+              Showing {filteredUsers.length} of {users.length} users
             </div>
           </div>
         </div>
@@ -272,14 +376,14 @@ export const UsersList = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.length === 0 ? (
+                {filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
                       No users found matching your criteria.
                     </td>
                   </tr>
                 ) : (
-                  users.map((user) => (
+                  filteredUsers.map((user) => (
                     <tr key={user._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -339,12 +443,22 @@ export const UsersList = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-green-100 text-green-800'
-                          }`}>
-                          {user.isActive === false ? 'Inactive' : 'Active'}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-green-100 text-green-800'
+                            }`}>
+                            {user.isActive === false ? 'Inactive' : 'Active'}
+                          </span>
+                          {user.reactivationRequest?.requested && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 animate-pulse">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                              </svg>
+                              Pending Request
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
