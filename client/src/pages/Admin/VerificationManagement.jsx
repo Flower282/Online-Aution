@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPendingVerifications, getVerificationDetail, reviewIdentityCard } from '../../api/verification';
+import { getPendingVerifications, reviewIdentityCard } from '../../api/verification';
 import LoadingScreen from '../../components/LoadingScreen';
 import Toast from '../../components/Toast';
 import {
@@ -10,10 +10,7 @@ import {
     HiOutlineCheck,
     HiOutlineX,
     HiOutlineEye,
-    HiOutlineUser,
-    HiOutlineMail,
-    HiOutlineCalendar,
-    HiOutlineLocationMarker
+    HiOutlineUser
 } from 'react-icons/hi';
 import { IoClose } from 'react-icons/io5';
 

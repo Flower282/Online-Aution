@@ -204,7 +204,7 @@ export const MyAuction = () => {
                 </svg>
               </div>
               <p className="text-gray-700 text-xl font-semibold mb-2">
-                {auctions.length === 0 ? " No Auctions Yet" : "❄️ No auctions found in this category"}
+                {auctions.length === 0 ? " No Auctions Yet" : "No auctions found in this category"}
               </p>
               <p className="text-gray-500 text-base">
                 {auctions.length === 0 ? " Create your first Christmas auction to get started!" : "Try selecting a different category"}
@@ -235,7 +235,7 @@ export const MyAuction = () => {
                 {auction.status === 'pending' && (
                   <div className="mt-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3">
                     <p className="text-sm text-yellow-700">
-                      ⏳ This auction is waiting for admin approval
+                      This auction is waiting for admin approval.
                     </p>
                   </div>
                 )}

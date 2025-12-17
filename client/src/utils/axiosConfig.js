@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { toast } from 'sonner';
 import { API_ENDPOINTS } from '../config/api.js';
 import { env } from '../config/env.js';
 
@@ -101,13 +100,6 @@ axios.interceptors.response.use(
                         if (store) {
                             store.dispatch(logout());
                         }
-
-                        // Show notification only once
-                        toast.error('Your session has expired. Please login again.', {
-                            duration: 3000,
-                            position: 'top-center',
-                            id: 'session-expired', // Prevent duplicate toasts
-                        });
 
                         // Let React Router handle navigation through MainLayout
                         // No manual redirect needed - MainLayout will detect !user and navigate

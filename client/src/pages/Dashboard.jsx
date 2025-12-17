@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { dashboardStats, getAuctions } from "../api/auction.js";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import { useState, useEffect, useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Play, Pause, ShieldAlert, Search, Package } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause, Search } from "lucide-react"; // Keep navigation/control icons only
 import { formatCurrency } from "../utils/formatCurrency";
 import { useSelector } from "react-redux";
 import VerificationModal from "../components/VerificationModal";
@@ -13,12 +13,21 @@ const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showVerificationBanner, setShowVerificationBanner] = useState(true);
 
   // Search states
   const [searchTerm, setSearchTerm] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchRef = useRef(null);
+
+  // Lazy loading refs and states
+  const newAuctionsRef = useRef(null);
+  const allAuctionsRef = useRef(null);
+  const yourAuctionsRef = useRef(null);
+  const [newAuctionsVisible, setNewAuctionsVisible] = useState(false);
+  const [allAuctionsVisible, setAllAuctionsVisible] = useState(false);
+  const [yourAuctionsVisible, setYourAuctionsVisible] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["stats"],
@@ -139,6 +148,39 @@ const Dashboard = () => {
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
+  // Lazy loading with IntersectionObserver (re-trigger on enter/exit)
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach(entry => {
+        if (entry.target === newAuctionsRef.current) {
+          setNewAuctionsVisible(entry.isIntersecting);
+        } else if (entry.target === allAuctionsRef.current) {
+          setAllAuctionsVisible(entry.isIntersecting);
+        } else if (entry.target === yourAuctionsRef.current) {
+          setYourAuctionsVisible(entry.isIntersecting);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    if (newAuctionsRef.current) observer.observe(newAuctionsRef.current);
+    if (allAuctionsRef.current) observer.observe(allAuctionsRef.current);
+    if (yourAuctionsRef.current) observer.observe(yourAuctionsRef.current);
+
+    return () => {
+      if (newAuctionsRef.current) observer.unobserve(newAuctionsRef.current);
+      if (allAuctionsRef.current) observer.unobserve(allAuctionsRef.current);
+      if (yourAuctionsRef.current) observer.unobserve(yourAuctionsRef.current);
+    };
+  }, [recentAuctions.length, data]);
+
   if (isLoading) return <LoadingScreen />;
 
   // Handle error state
@@ -178,31 +220,41 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
-      <main className="max-w-7xl mx-auto px-4 py-10">
-        {/* Verification Warning Banner */}
-        {!isVerified && (
-          <div className="mb-8 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-lg" data-aos="fade-down" data-aos-delay="100">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-start gap-3">
-                <ShieldAlert className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-amber-800">Tài khoản chưa xác minh</h3>
-                  <p className="text-sm text-amber-700">
-                    Xác minh tài khoản để nạp tiền, đặt cọc và tham gia đấu giá
-                  </p>
-                </div>
+    <div className="min-h-screen relative" style={{ backgroundColor: '#f5f1e8' }}>
+      {/* Verification Warning Banner - fixed top-right, offset to avoid navbar/profile */}
+      {!isVerified && showVerificationBanner && (
+        <div className="fixed top-24 sm:top-28 right-4 sm:right-6 z-40 w-[280px] sm:w-[320px]">
+          <div className="p-3 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-xl relative">
+            {/* Close button */}
+            <button
+              onClick={() => setShowVerificationBanner(false)}
+              className="absolute top-2 right-2 text-amber-600 hover:text-amber-800 transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="flex items-start gap-2 pr-4">
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm text-amber-800">⚠️ Chưa xác minh</h3>
+                <p className="text-xs text-amber-700 mt-1">
+                  Xác minh để nạp tiền & đấu giá
+                </p>
+                <button
+                  onClick={() => setShowVerificationModal(true)}
+                  className="mt-2 px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-medium hover:bg-amber-700 transition-colors flex items-center gap-1.5 w-full justify-center"
+                >
+                  Xác minh ngay
+                </button>
               </div>
-              <button
-                onClick={() => setShowVerificationModal(true)}
-                className="px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors flex items-center gap-2"
-              >
-                <ShieldAlert className="h-4 w-4" />
-                Xác minh ngay
-              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
+
+      <main className="max-w-7xl mx-auto px-4 py-10">
 
         {/* Hero Search Section */}
         <div className="min-h-[70vh] flex flex-col items-center justify-center mb-16" ref={searchRef}>
@@ -215,31 +267,40 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <div className="w-full max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="300">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                <Search className="h-8 w-8 text-red-500" />
+          <div className="w-full max-w-4xl mx-auto" ref={searchRef} data-aos="fade-up" data-aos-delay="300">
+            <div className="relative flex gap-3">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                  <Search className="h-8 w-8 text-red-500" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Nhập tên sản phẩm, danh mục..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onFocus={() => {
+                    if (searchQuery.trim()) setShowSearchResults(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setShowSearchResults(false);
+                    }
+                  }}
+                  autoComplete="off"
+                  className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-red-300 rounded-2xl shadow-2xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all placeholder:text-gray-400"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Nhập tên sản phẩm, danh mục... rồi bấm Enter"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={() => {
-                  if (searchQuery.trim()) setShowSearchResults(true);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleSearchSubmit();
-                  }
-                  if (e.key === 'Escape') {
-                    setShowSearchResults(false);
-                  }
-                }}
-                autoComplete="off"
-                className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-red-300 rounded-2xl shadow-2xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all placeholder:text-gray-400"
-              />
+
+              <button
+                onClick={handleSearchSubmit}
+                className="px-8 py-6 bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white font-bold text-xl rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
+              >
+                <Search className="h-6 w-6" />
+                Tìm kiếm
+              </button>
+            </div>
+
+            <div className="relative">
 
               {/* Search Results Dropdown */}
               {showSearchResults && searchQuery.trim() && (
@@ -298,11 +359,12 @@ const Dashboard = () => {
                                     <img
                                       src={auction.itemPhoto}
                                       alt={auction.itemName}
+                                      loading="lazy"
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <Package className="h-8 w-8 text-gray-400" />
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                                      <span className="text-4xl">📦</span>
                                     </div>
                                   )}
                                 </div>
@@ -338,6 +400,7 @@ const Dashboard = () => {
             </div>
           </div>
 
+
           {/* Scroll Down Indicator */}
           <div className="mt-12 animate-bounce">
             <div className="flex flex-col items-center text-gray-400">
@@ -351,9 +414,13 @@ const Dashboard = () => {
 
         {/* New Auctions Slideshow */}
         {recentAuctions.length > 0 && (
-          <div className="mb-12" data-aos="fade-up" data-aos-delay="200">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-6" data-aos="fade-right" data-aos-delay="250">New Auctions</h2>
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-red-200" data-aos="zoom-in" data-aos-delay="300">
+          <div
+            ref={newAuctionsRef}
+            className={`mt-28 mb-16 transition-all duration-1000 ease-out ${newAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+          >
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-6">New Auctions</h2>
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-red-200">
               <div className="grid md:grid-cols-2 gap-0">
                 {/* Image Section */}
                 <div className="relative h-[400px] md:h-[500px] overflow-hidden bg-gradient-to-br from-red-50 to-pink-50">
@@ -364,6 +431,7 @@ const Dashboard = () => {
                     <img
                       src={recentAuctions[currentSlide]?.itemPhoto || "https://picsum.photos/600"}
                       alt={recentAuctions[currentSlide]?.itemName}
+                      loading="lazy"
                       className="w-full h-full object-contain p-8"
                     />
                   </div>
@@ -432,11 +500,12 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  <Link to={`/auction/${recentAuctions[currentSlide]?._id}`}>
-                    <button className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-4 rounded-xl hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
-                      🎄 View Auction
-                    </button>
-                  </Link>
+                  <button
+                    onClick={() => navigate(`/auction/${recentAuctions[currentSlide]?._id}`)}
+                    className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-4 rounded-xl hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    🎄 Xem đấu giá
+                  </button>
 
                   {/* Slide Indicators */}
                   <div className="flex justify-center gap-2 mt-8">
@@ -459,7 +528,11 @@ const Dashboard = () => {
         )}
 
         {/* All Auctions Section */}
-        <div className="mb-12" data-aos="fade-up" data-aos-delay="400">
+        <div
+          ref={allAuctionsRef}
+          className={`mb-12 transition-all duration-1000 ease-out ${allAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+        >
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-extrabold text-gray-900" data-aos="fade-right" data-aos-delay="450">All Auctions</h2>
             <Link
@@ -488,7 +561,11 @@ const Dashboard = () => {
         </div>
 
         {/* Your Auctions Section */}
-        <div data-aos="fade-up" data-aos-delay="600">
+        <div
+          ref={yourAuctionsRef}
+          className={`transition-all duration-1000 ease-out ${yourAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+        >
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-extrabold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent" data-aos="fade-right" data-aos-delay="650">Your Christmas Auctions</h2>
             <Link

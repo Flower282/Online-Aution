@@ -47,7 +47,7 @@ export default function WonAuctions() {
                 amount: depositInfo.auction.depositAmount
             });
             setShowDepositModal(true);
-        } catch (error) {
+        } catch (_error) {
             setToast({ message: "Không thể tải thông tin đặt cọc", type: "error" });
         }
     };
