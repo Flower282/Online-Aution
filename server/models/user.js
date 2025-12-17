@@ -44,6 +44,15 @@ const userSchema = new mongoose.Schema({
         city: { type: String },
         isp: { type: String }
     },
+    // Contact info
+    phone: {
+        type: String,
+        default: null
+    },
+    address: {
+        type: String,
+        default: null
+    },
     signupAt: {
         type: Date,
         default: Date.now

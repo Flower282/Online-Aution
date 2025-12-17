@@ -9,6 +9,7 @@ import { X } from "lucide-react"; // Keep X icon for modal close button
 import Toast from "../components/Toast.jsx";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import VerificationModal from "../components/VerificationModal.jsx";
+import ProfileCompletionModal from "../components/ProfileCompletionModal.jsx";
 
 export const ViewAuction = () => {
   const { id } = useParams();
@@ -37,6 +38,10 @@ export const ViewAuction = () => {
   // Verification states
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const isVerified = user?.user?.verification?.isVerified;
+
+  // Profile completion states
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [missingFields, setMissingFields] = useState({});
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
@@ -238,6 +243,15 @@ export const ViewAuction = () => {
 
       if (error.code === 'PRICE_EXISTS') {
         errorMessage = `Giá ${formatCurrency(error.existingAmount)} đã có người đặt. Vui lòng chọn giá khác!`;
+      } else if (error.code === 'VERIFICATION_REQUIRED') {
+        // Show verification modal
+        setShowVerificationModal(true);
+        return; // Don't show error toast
+      } else if (error.code === 'PROFILE_INCOMPLETE') {
+        // Show profile completion modal
+        setMissingFields(error.missingFields || {});
+        setShowProfileModal(true);
+        return; // Don't show error toast
       } else if (error.code === 'DEPOSIT_REQUIRED') {
         // Show deposit modal instead of error toast
         setDepositStatus({
@@ -548,12 +562,35 @@ export const ViewAuction = () => {
     }
   };
 
-  // Handle clicking deposit button - kiểm tra verification trước
+  // Check if user profile is complete
+  const checkProfileCompleteness = () => {
+    const userData = user?.user;
+    const missing = {
+      phone: !userData?.phone,
+      address: !userData?.address,
+      city: !userData?.location?.city,
+      region: !userData?.location?.region
+    };
+
+    const isComplete = !missing.phone && !missing.address && !missing.city && !missing.region;
+    return { isComplete, missingFields: missing };
+  };
+
+  // Handle clicking deposit button - kiểm tra verification và profile trước
   const handleDepositClick = () => {
     if (!isVerified) {
       setShowVerificationModal(true);
       return;
     }
+
+    // Check profile completeness
+    const { isComplete, missingFields: missing } = checkProfileCompleteness();
+    if (!isComplete) {
+      setMissingFields(missing);
+      setShowProfileModal(true);
+      return;
+    }
+
     setShowDepositModal(true);
   };
 
@@ -1203,6 +1240,13 @@ export const ViewAuction = () => {
           setShowVerificationModal(false);
           setToast({ message: "Tài khoản đã được xác minh! Bạn có thể đặt cọc ngay.", type: "success" });
         }}
+      />
+
+      {/* Profile Completion Modal */}
+      <ProfileCompletionModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        missingFields={missingFields}
       />
     </div >
   );
