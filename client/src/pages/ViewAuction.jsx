@@ -5,7 +5,7 @@ import { placeBid, viewAuction, deleteAuction, toggleLikeAuction, checkDeposit, 
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import socket, { ensureSocketConnected } from "../utils/socket.js";
-import { TrendingUp, Package, Heart, Shield, CreditCard, Wallet, Building2, X, ShieldAlert } from "lucide-react";
+// Icons removed
 import Toast from "../components/Toast.jsx";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import VerificationModal from "../components/VerificationModal.jsx";
@@ -19,6 +19,7 @@ export const ViewAuction = () => {
   const _isMountedRef = useRef(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [toast, setToast] = useState(null);
+  const [bidInputValue, setBidInputValue] = useState('');
   const [_topBids, setTopBids] = useState([]);
   const [currentPrice, setCurrentPrice] = useState(null);
   const [_totalBids, setTotalBids] = useState(0);
@@ -210,6 +211,7 @@ export const ViewAuction = () => {
       if (inputRef.current) {
         inputRef.current.value = "";
       }
+      setBidInputValue('');
 
       // Update local state with new bid
       if (result.bid) {
@@ -380,33 +382,56 @@ export const ViewAuction = () => {
 
   const handleBidSubmit = (e) => {
     e.preventDefault();
-    const bidAmountInput = e.target.bidAmount.value.trim();
-    const bidAmount = parseFloat(bidAmountInput);
+    const bidAmountInThousands = parseFloat(bidInputValue);
 
-    console.log('🔍 Bid Submit Debug:', {
-      input: bidAmountInput,
-      parsed: bidAmount,
-      isValid: !isNaN(bidAmount) && bidAmount > 0,
-      currentPrice: currentPrice || data.currentPrice,
-      socketConnected: socket.connected,
-      socketId: socket.id
-    });
-
-    if (!bidAmountInput || isNaN(bidAmount) || bidAmount <= 0) {
+    if (!bidInputValue || isNaN(bidAmountInThousands) || bidAmountInThousands <= 0) {
       setToast({ message: "Vui lòng nhập giá hợp lệ", type: "error" });
       return;
     }
 
-    const minBid = (currentPrice || data.currentPrice) + 1;
-    const maxBid = (currentPrice || data.currentPrice) + 10;
+    // Multiply by 1000 to get actual VND amount
+    const bidAmount = bidAmountInThousands * 1000;
+    const basePrice = currentPrice || data.currentPrice;
+
+    // Dynamic bid limits based on current price
+    let minBid, maxBid;
+    if (basePrice < 100000) {
+      // Giá dưới 100k: tối thiểu tăng 10k, range 50k
+      minBid = basePrice + 10000;
+      maxBid = minBid + 50000;
+    } else if (basePrice < 1000000) {
+      // Giá từ 100k đến 1tr: tối thiểu tăng 100k, range 500k
+      minBid = basePrice + 100000;
+      maxBid = minBid + 500000;
+    } else if (basePrice < 10000000) {
+      // Giá từ 1tr đến 10tr: tối thiểu tăng 200k, range 1tr
+      minBid = basePrice + 200000;
+      maxBid = minBid + 1000000;
+    } else {
+      // Giá từ 10tr trở lên: tối thiểu tăng 1tr, range 10tr
+      minBid = basePrice + 1000000;
+      maxBid = minBid + 10000000;
+    }
+
+    console.log('🔍 Bid Submit Debug:', {
+      input: bidInputValue,
+      parsedInThousands: bidAmountInThousands,
+      actualAmount: bidAmount,
+      isValid: !isNaN(bidAmount) && bidAmount > 0,
+      currentPrice: currentPrice || data.currentPrice,
+      minBid,
+      maxBid,
+      socketConnected: socket.connected,
+      socketId: socket.id
+    });
 
     if (bidAmount < minBid) {
-      setToast({ message: `Giá đặt phải từ ${formatCurrency(minBid)} trở lên`, type: "error" });
+      setToast({ message: `Giá đặt phải từ ${minBid.toLocaleString('vi-VN')} VNĐ trở lên`, type: "error" });
       return;
     }
 
     if (bidAmount > maxBid) {
-      setToast({ message: `Giá đặt không được vượt quá ${formatCurrency(maxBid)}`, type: "error" });
+      setToast({ message: `Giá đặt không được vượt quá ${maxBid.toLocaleString('vi-VN')} VNĐ`, type: "error" });
       return;
     }
 
@@ -533,9 +558,9 @@ export const ViewAuction = () => {
   };
 
   const paymentMethods = [
-    { id: 'bank_transfer', name: 'Chuyển khoản ngân hàng', icon: Building2 },
-    { id: 'credit_card', name: 'Thẻ tín dụng', icon: CreditCard },
-    { id: 'wallet', name: 'Ví điện tử', icon: Wallet },
+    { id: 'bank_transfer', name: 'Chuyển khoản ngân hàng', emoji: '🏦' },
+    { id: 'credit_card', name: 'Thẻ tín dụng', emoji: '💳' },
+    { id: 'wallet', name: 'Ví điện tử', emoji: '💰' },
   ];
 
   // Debug info - after all variables are declared
@@ -552,10 +577,10 @@ export const ViewAuction = () => {
 
   return (
     <div className="min-h-screen mx-auto container" style={{ backgroundColor: '#f5f1e8' }}>
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Image Section */}
-          <div className="space-y-4">
+      <main className="max-w-6xl mx-auto px-3 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Image Section - Left Column, Aligned to Bottom */}
+          <div className="flex flex-col justify-end">
             <div className={`w-full aspect-square bg-white rounded-md shadow-lg border-2 overflow-hidden flex items-center justify-center relative ${!isActive ? 'border-gray-300' : 'border-red-200'
               }`}>
               <img
@@ -575,8 +600,8 @@ export const ViewAuction = () => {
             </div>
           </div>
 
-          {/* Details Section */}
-          <div className={`space-y-4 transition-all duration-300 ${!isActive ? 'opacity-75' : ''}`}>
+          {/* Details Section - Right Column */}
+          <div className={`space-y-3 transition-all duration-300 ${!isActive ? 'opacity-75' : ''}`}>
             {/* Title & Description */}
             <div>
               <div className="flex items-center justify-between gap-2 mb-2">
@@ -603,110 +628,114 @@ export const ViewAuction = () => {
                     border: isLiked ? '2px solid #ef4444' : '2px solid #e5e7eb'
                   }}
                 >
-                  <Heart
-                    className={`h-5 w-5 transition-all ${isLiked ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
-                  />
                   <span className={`font-semibold text-sm ${isLiked ? 'text-red-600' : 'text-gray-700'}`}>
-                    {likesCount}
+                    ❤️ {likesCount}
                   </span>
                 </button>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                {data.itemName}
-              </h1>
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <h1 className="text-2xl font-bold text-gray-900 flex-1">
+                  {data.itemName}
+                </h1>
+                {/* Seller Info - Compact */}
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${isSellerInactive
+                  ? 'bg-red-50 border-red-200'
+                  : 'bg-emerald-50 border-emerald-200'
+                  }`}>
+                  <span className={`text-xs font-medium ${isSellerInactive ? 'text-red-700' : 'text-emerald-700'}`}>
+                    👤 {isSellerInactive ? 'Bị vô hiệu hóa' : data.seller.name}
+                  </span>
+                </div>
+              </div>
               <p className="text-gray-600 leading-relaxed">
                 {data.itemDescription}
               </p>
             </div>
 
             {/* Grid Layout for Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Pricing Info */}
-              <div className="bg-white p-4 rounded-md shadow-md border border-red-200 md:col-span-2">
-                <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white p-3 rounded-md shadow-md border border-red-200 md:col-span-2">
+                <div className="grid grid-cols-2 gap-2">
                   {/* Starting Price */}
-                  <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-3 rounded-lg border border-amber-200">
-                    <p className="text-[10px] text-amber-700 font-medium mb-0.5 flex items-center gap-1">
-                      <TrendingUp className="h-2.5 w-2.5" />
+                  <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-2 rounded-lg border border-amber-200">
+                    <p className="text-[9px] text-amber-700 font-medium mb-0.5">
                       Starting
                     </p>
-                    <p className="text-lg font-bold text-amber-800">
+                    <p className="text-base font-bold text-amber-800">
                       {formatCurrency(data.startingPrice)}
                     </p>
                   </div>
 
                   {/* Current Price */}
-                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-3 rounded-lg border-2 border-emerald-300">
-                    <p className="text-[10px] text-emerald-700 font-medium mb-0.5 flex items-center gap-1">
-                      <TrendingUp className="h-2.5 w-2.5" />
+                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-2 rounded-lg border-2 border-emerald-300">
+                    <p className="text-[9px] text-emerald-700 font-medium mb-0.5">
                       Current
                     </p>
-                    <p className="text-xl font-bold text-emerald-800">
+                    <p className="text-lg font-bold text-emerald-800">
                       {formatCurrency(currentPrice ?? data.currentPrice)}
                     </p>
                   </div>
 
                   {/* Total Bids */}
-                  <div className="bg-gradient-to-br from-red-50 to-red-100 p-3 rounded-lg border border-red-200">
-                    <p className="text-[10px] text-red-700 font-medium mb-0.5 flex items-center gap-1">
-                      <Package className="h-2.5 w-2.5" />
+                  <div className="bg-gradient-to-br from-red-50 to-red-100 p-2 rounded-lg border border-red-200">
+                    <p className="text-[9px] text-red-700 font-medium mb-0.5">
                       Bids
                     </p>
-                    <p className="text-lg font-bold text-red-800">
+                    <p className="text-base font-bold text-red-800">
                       {data.bids.length}
                     </p>
                   </div>
 
                   {/* Likes */}
-                  <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-3 rounded-lg border border-rose-200">
-                    <p className="text-[10px] text-rose-700 font-medium mb-0.5 flex items-center gap-1">
-                      <Heart className="h-2.5 w-2.5 fill-rose-500" />
+                  <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-2 rounded-lg border border-rose-200">
+                    <p className="text-[9px] text-rose-700 font-medium mb-0.5">
                       Likes
                     </p>
-                    <p className="text-lg font-bold text-rose-800">
+                    <p className="text-base font-bold text-rose-800">
                       {likesCount}
                     </p>
                   </div>
                 </div>
 
                 {/* Time Left - Full width bar with countdown */}
-                <div className={`mt-3 p-3 rounded-lg border ${isActive
+                <div className={`mt-2 p-2 rounded-lg border ${isActive
                   ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-300'
                   : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300'
                   }`}>
-                  <p className={`text-[10px] font-medium mb-1 ${isActive ? 'text-green-700' : 'text-gray-600'
+                  <p className={`text-[9px] font-medium mb-1 ${isActive ? 'text-green-700' : 'text-gray-600'
                     }`}>
                     ⏰ Time Remaining
                   </p>
                   {timeRemaining ? (
                     timeRemaining.ended ? (
-                      <p className="text-lg font-bold text-gray-500">Ended</p>
+                      <p className="text-base font-bold text-gray-500">Ended</p>
                     ) : (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         {timeRemaining.days > 0 && (
-                          <div className="flex flex-col items-center bg-green-100 px-2 py-1 rounded">
-                            <span className="text-xl font-bold text-green-800">{timeRemaining.days}</span>
-                            <span className="text-[8px] text-green-600">days</span>
+                          <div className="flex flex-col items-center bg-green-100 px-1.5 py-0.5 rounded">
+                            <span className="text-lg font-bold text-green-800">{timeRemaining.days}</span>
+                            <span className="text-[7px] text-green-600">days</span>
                           </div>
                         )}
-                        <div className="flex flex-col items-center bg-green-100 px-2 py-1 rounded">
-                          <span className="text-xl font-bold text-green-800">{String(timeRemaining.hours).padStart(2, '0')}</span>
-                          <span className="text-[8px] text-green-600">hrs</span>
+                        <div className="flex flex-col items-center bg-green-100 px-1.5 py-0.5 rounded">
+                          <span className="text-lg font-bold text-green-800">{String(timeRemaining.hours).padStart(2, '0')}</span>
+                          <span className="text-[7px] text-green-600">hrs</span>
                         </div>
-                        <span className="text-green-800 font-bold">:</span>
-                        <div className="flex flex-col items-center bg-green-100 px-2 py-1 rounded">
-                          <span className="text-xl font-bold text-green-800">{String(timeRemaining.minutes).padStart(2, '0')}</span>
-                          <span className="text-[8px] text-green-600">min</span>
+                        <span className="text-green-800 font-bold text-sm">:</span>
+                        <div className="flex flex-col items-center bg-green-100 px-1.5 py-0.5 rounded">
+                          <span className="text-lg font-bold text-green-800">{String(timeRemaining.minutes).padStart(2, '0')}</span>
+                          <span className="text-[7px] text-green-600">min</span>
                         </div>
-                        <span className="text-green-800 font-bold">:</span>
-                        <div className="flex flex-col items-center bg-green-100 px-2 py-1 rounded">
-                          <span className="text-xl font-bold text-green-800">{String(timeRemaining.seconds).padStart(2, '0')}</span>
-                          <span className="text-[8px] text-green-600">sec</span>
+                        <span className="text-green-800 font-bold text-sm">:</span>
+                        <div className="flex flex-col items-center bg-green-100 px-1.5 py-0.5 rounded">
+                          <span className="text-lg font-bold text-green-800">{String(timeRemaining.seconds).padStart(2, '0')}</span>
+                          <span className="text-[7px] text-green-600">sec</span>
                         </div>
                       </div>
                     )
                   ) : (
-                    <p className="text-lg font-bold text-green-800">Loading...</p>
+                    <p className="text-base font-bold text-green-800">Loading...</p>
                   )}
                 </div>
               </div>
@@ -800,7 +829,6 @@ export const ViewAuction = () => {
                   {!depositStatus && (
                     <div className="mb-4 p-4 rounded-lg border-2 bg-gray-50 border-gray-200 animate-pulse">
                       <div className="flex items-center gap-3">
-                        <Shield className="h-6 w-6 text-gray-400" />
                         <div className="flex-1">
                           <div className="h-4 bg-gray-200 rounded w-48 mb-2"></div>
                           <div className="h-3 bg-gray-200 rounded w-32"></div>
@@ -811,14 +839,13 @@ export const ViewAuction = () => {
 
                   {/* Deposit Status - Loaded */}
                   {depositStatus && (
-                    <div className={`mb-4 p-4 rounded-lg border-2 ${depositStatus.hasDeposit
+                    <div className={`mb-3 p-3 rounded-lg border-2 ${depositStatus.hasDeposit
                       ? 'bg-green-50 border-green-300'
                       : 'bg-amber-50 border-amber-300'
                       }`}>
-                      <div className="flex items-center gap-3">
-                        <Shield className={`h-6 w-6 ${depositStatus.hasDeposit ? 'text-green-600' : 'text-amber-600'}`} />
+                      <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <h4 className={`font-semibold ${depositStatus.hasDeposit ? 'text-green-800' : 'text-amber-800'}`}>
+                          <h4 className={`font-semibold text-sm ${depositStatus.hasDeposit ? 'text-green-800' : 'text-amber-800'}`}>
                             {depositStatus.hasDeposit ? '✓ Đã đặt cọc' : 'Cần đặt cọc trước khi đấu giá'}
                           </h4>
 
@@ -836,49 +863,105 @@ export const ViewAuction = () => {
                   {/* Show bid form only if deposited */}
                   {depositStatus?.hasDeposit ? (
                     <>
-                      <h3 className="text-lg font-semibold mb-4">Place Your Bid</h3>
-                      <form onSubmit={handleBidSubmit} className="space-y-4">
+                      <h3 className="text-base font-semibold mb-3">Place Your Bid</h3>
+                      <form onSubmit={handleBidSubmit} className="space-y-3">
+                        {/* Bid Range Info */}
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3">
+                          <div className="flex items-center justify-between text-xs">
+                            <div>
+                              <span className="text-gray-600">Tối thiểu: </span>
+                              <span className="font-bold text-blue-600">
+                                {(() => {
+                                  const basePrice = currentPrice || data.currentPrice;
+                                  if (basePrice < 100000) return (basePrice + 10000).toLocaleString('vi-VN');
+                                  if (basePrice < 1000000) return (basePrice + 100000).toLocaleString('vi-VN');
+                                  if (basePrice < 10000000) return (basePrice + 200000).toLocaleString('vi-VN');
+                                  return (basePrice + 1000000).toLocaleString('vi-VN');
+                                })()} VNĐ
+                              </span>
+                            </div>
+                            <div className="w-px h-4 bg-blue-300"></div>
+                            <div>
+                              <span className="text-gray-600">Tối đa: </span>
+                              <span className="font-bold text-blue-600">
+                                {(() => {
+                                  const basePrice = currentPrice || data.currentPrice;
+                                  if (basePrice < 100000) return (basePrice + 60000).toLocaleString('vi-VN');
+                                  if (basePrice < 1000000) return (basePrice + 600000).toLocaleString('vi-VN');
+                                  if (basePrice < 10000000) return (basePrice + 1200000).toLocaleString('vi-VN');
+                                  return (basePrice + 11000000).toLocaleString('vi-VN');
+                                })()} VNĐ
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
                         <div>
                           <label
                             htmlFor="bidAmount"
                             className="block text-sm font-medium text-gray-700 mb-1"
                           >
-                            Bid Amount (minimum: {formatCurrency((currentPrice || data.currentPrice) + 1)} maximum: {formatCurrency((currentPrice || data.currentPrice) + 10)})
+                            Số tiền đặt giá
                           </label>
-                          <input
-                            type="number"
-                            name="bidAmount"
-                            id="bidAmount"
-                            ref={inputRef}
-                            min={(currentPrice || data.currentPrice) + 1}
-                            max={(currentPrice || data.currentPrice) + 10}
-                            step="0.01"
-                            className="w-full px-3 py-2 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                            placeholder="Enter your bid amount"
-                            required
-                          />
+                          <div className="space-y-2">
+                            <div className="relative">
+                              <input
+                                type="number"
+                                name="bidAmount"
+                                id="bidAmount"
+                                ref={inputRef}
+                                value={bidInputValue}
+                                onChange={(e) => setBidInputValue(e.target.value)}
+                                min={(() => {
+                                  const basePrice = currentPrice || data.currentPrice;
+                                  if (basePrice < 100000) return Math.ceil((basePrice + 10000) / 1000);
+                                  if (basePrice < 1000000) return Math.ceil((basePrice + 100000) / 1000);
+                                  if (basePrice < 10000000) return Math.ceil((basePrice + 200000) / 1000);
+                                  return Math.ceil((basePrice + 1000000) / 1000);
+                                })()}
+                                max={(() => {
+                                  const basePrice = currentPrice || data.currentPrice;
+                                  if (basePrice < 100000) return Math.ceil((basePrice + 60000) / 1000);
+                                  if (basePrice < 1000000) return Math.ceil((basePrice + 600000) / 1000);
+                                  if (basePrice < 10000000) return Math.ceil((basePrice + 1200000) / 1000);
+                                  return Math.ceil((basePrice + 11000000) / 1000);
+                                })()}
+                                step="1"
+                                className="w-full px-3 py-2 pr-24 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                placeholder="VD: 50"
+                                required
+                              />
+
+                            </div>
+                            {bidInputValue && parseFloat(bidInputValue) > 0 && (
+                              <div className="bg-green-50 border border-green-200 rounded-md px-3 py-2">
+                                <p className="text-sm text-green-700">
+                                  = <span className="font-bold text-lg text-green-800">
+                                    {(parseFloat(bidInputValue) * 1000).toLocaleString('vi-VN')} VNĐ
+                                  </span>
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <button
                           type="submit"
-                          className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md"
+                          className="w-full bg-green-600 text-white py-2.5 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md text-sm"
                         >
-                          Place Bid
+                          Đặt giá
                         </button>
                       </form>
                     </>
                   ) : (
-                    <div className="text-center py-4">
+                    <div className="text-center py-3">
                       {/* Cảnh báo cần xác minh tài khoản */}
                       {!isVerified && (
-                        <div className="mb-4 p-4 bg-amber-50 border-2 border-amber-200 rounded-lg text-left">
-                          <div className="flex items-start gap-3">
-                            <ShieldAlert className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                              <h4 className="font-semibold text-amber-800 mb-1">Tài khoản chưa xác minh</h4>
-                              <p className="text-sm text-amber-700">
-                                Bạn cần xác minh tài khoản (số điện thoại, email, CCCD) trước khi đặt cọc và tham gia đấu giá.
-                              </p>
-                            </div>
+                        <div className="mb-3 p-3 bg-amber-50 border-2 border-amber-200 rounded-lg text-left">
+                          <div>
+                            <h4 className="font-semibold text-sm text-amber-800 mb-1">⚠️ Tài khoản chưa xác minh</h4>
+                            <p className="text-xs text-amber-700">
+                              Bạn cần xác minh tài khoản (số điện thoại, email, CCCD) trước khi đặt cọc và tham gia đấu giá.
+                            </p>
                           </div>
                         </div>
                       )}
@@ -889,7 +972,6 @@ export const ViewAuction = () => {
                         onClick={handleDepositClick}
                         className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
                       >
-                        <Shield className="h-5 w-5" />
                         {isVerified ? 'Đặt cọc ngay' : 'Xác minh & Đặt cọc'}
                       </button>
                       <p className="text-xs text-gray-500 mt-3">
@@ -899,23 +981,6 @@ export const ViewAuction = () => {
                   )}
                 </div>
               )}
-
-              {/* Seller Info */}
-              <div className={`p-6 rounded-md shadow-md border md:col-span-2 ${isSellerInactive
-                ? 'bg-red-50 border-red-200'
-                : 'bg-gradient-to-r from-emerald-50 to-green-50 border-green-200'
-                }`}>
-                <h3 className="text-lg font-semibold mb-3 text-red-700">Seller Information</h3>
-                <p className={`font-medium ${isSellerInactive ? 'text-red-700' : 'text-emerald-800'
-                  }`}>
-                  {isSellerInactive ? 'Tài khoản bị vô hiệu hóa' : data.seller.name}
-                </p>
-                {isSellerInactive && (
-                  <p className="text-xs text-red-600 mt-2">
-                    Tài khoản này đã bị vô hiệu hóa bởi quản trị viên
-                  </p>
-                )}
-              </div>
 
               {/* Admin Delete Button */}
               {user?.user?.role === "admin" && (
@@ -929,7 +994,7 @@ export const ViewAuction = () => {
                     {deleteAuctionMutate.isPending ? "Deleting..." : "Delete Auction"}
                   </button>
                   <p className="text-sm text-gray-500 mt-2">
-                    ⚠️ This action cannot be undone. All bids will be permanently deleted.
+                    This action cannot be undone. All bids will be permanently deleted.
                   </p>
                 </div>
               )}
@@ -945,7 +1010,6 @@ export const ViewAuction = () => {
             {data.seller._id !== user?.user?._id && isActive && isApproved && !depositStatus?.hasDeposit && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm rounded-md">
                 <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-amber-200 text-center max-w-sm mx-4">
-                  <Shield className="h-12 w-12 text-amber-500 mx-auto mb-3" />
                   <h3 className="text-lg font-bold text-gray-800 mb-2">
                     Lịch sử đấu giá bị ẩn
                   </h3>
@@ -992,141 +1056,144 @@ export const ViewAuction = () => {
               )}
             </div>
           </div>
-        </div>
-      </main>
+        </div >
+      </main >
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this auction? This action cannot be undone and all bids will be permanently deleted.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Deposit Modal */}
-      {showDepositModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Shield className="h-8 w-8" />
-                  <h3 className="text-xl font-bold">Đặt cọc tham gia đấu giá</h3>
-                </div>
+      {
+        showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete this auction? This action cannot be undone and all bids will be permanently deleted.
+              </p>
+              <div className="flex gap-3">
                 <button
-                  onClick={() => setShowDepositModal(false)}
-                  className="text-white/80 hover:text-white transition-colors"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                 >
-                  <X className="h-6 w-6" />
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  Delete
                 </button>
               </div>
             </div>
+          </div>
+        )
+      }
 
-            {/* Content */}
-            <div className="p-6 space-y-6">
-              {/* Deposit Amount */}
-              {(() => {
-                const percentage = depositStatus?.depositPercentage || 10;
-                const startPrice = data?.startingPrice || 0;
-                const depositAmt = depositStatus?.depositAmount || Math.round(startPrice * percentage / 100);
-                return (
-                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border-2 border-amber-200">
-                    <p className="text-sm text-amber-700 mb-1">Số tiền cọc</p>
-                    <p className="text-3xl font-bold text-amber-800">
-                      {formatCurrency(depositAmt)}
-                    </p>
-                    <p className="text-xs text-amber-600 mt-1">
-                      = {percentage}% của giá khởi điểm ({formatCurrency(startPrice)})
-                    </p>
+      {/* Deposit Modal */}
+      {
+        showDepositModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-xl font-bold">💰 Đặt cọc tham gia đấu giá</h3>
                   </div>
-                );
-              })()}
-
-              {/* Info */}
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800">
-                  💡 <strong>Lưu ý:</strong> Tiền cọc sẽ được hoàn trả đầy đủ nếu bạn không thắng đấu giá.
-                  Nếu thắng, tiền cọc sẽ được trừ vào giá cuối cùng.
-                </p>
-              </div>
-
-              {/* Payment Methods */}
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-3">Phương thức thanh toán</p>
-                <div className="space-y-2">
-                  {paymentMethods.map((method) => (
-                    <button
-                      key={method.id}
-                      onClick={() => setSelectedPaymentMethod(method.id)}
-                      className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${selectedPaymentMethod === method.id
-                        ? 'border-amber-500 bg-amber-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                    >
-                      <method.icon className={`h-5 w-5 ${selectedPaymentMethod === method.id ? 'text-amber-600' : 'text-gray-500'
-                        }`} />
-                      <span className={`font-medium ${selectedPaymentMethod === method.id ? 'text-amber-800' : 'text-gray-700'
-                        }`}>
-                        {method.name}
-                      </span>
-                      {selectedPaymentMethod === method.id && (
-                        <span className="ml-auto text-amber-600">✓</span>
-                      )}
-                    </button>
-                  ))}
+                  <button
+                    onClick={() => setShowDepositModal(false)}
+                    className="text-white/80 hover:text-white transition-colors"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <button
-                onClick={handleDepositSubmit}
-                disabled={isSubmittingDeposit}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isSubmittingDeposit ? (
-                  <>
-                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                    Đang xử lý...
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="h-5 w-5" />
-                    Xác nhận đặt cọc {formatCurrency(depositStatus?.depositAmount || Math.round((data?.startingPrice || 0) * (depositStatus?.depositPercentage || 10) / 100))}
-                  </>
-                )}
-              </button>
+              {/* Content */}
+              <div className="p-6 space-y-6">
+                {/* Deposit Amount */}
+                {(() => {
+                  const percentage = depositStatus?.depositPercentage || 10;
+                  const startPrice = data?.startingPrice || 0;
+                  const depositAmt = depositStatus?.depositAmount || Math.round(startPrice * percentage / 100);
+                  return (
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border-2 border-amber-200">
+                      <p className="text-sm text-amber-700 mb-1">Số tiền cọc</p>
+                      <p className="text-3xl font-bold text-amber-800">
+                        {formatCurrency(depositAmt)}
+                      </p>
+                      <p className="text-xs text-amber-600 mt-1">
+                        = {percentage}% của giá khởi điểm ({formatCurrency(startPrice)})
+                      </p>
+                    </div>
+                  );
+                })()}
+
+                {/* Info */}
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-800">
+                    💡 <strong>Lưu ý:</strong> Tiền cọc sẽ được hoàn trả đầy đủ nếu bạn không thắng đấu giá.
+                    Nếu thắng, tiền cọc sẽ được trừ vào giá cuối cùng.
+                  </p>
+                </div>
+
+                {/* Payment Methods */}
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-3">Phương thức thanh toán</p>
+                  <div className="space-y-2">
+                    {paymentMethods.map((method) => (
+                      <button
+                        key={method.id}
+                        onClick={() => setSelectedPaymentMethod(method.id)}
+                        className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${selectedPaymentMethod === method.id
+                          ? 'border-amber-500 bg-amber-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                      >
+                        <span className="text-2xl">{method.emoji}</span>
+                        <span className={`font-medium ${selectedPaymentMethod === method.id ? 'text-amber-800' : 'text-gray-700'
+                          }`}>
+                          {method.name}
+                        </span>
+                        {selectedPaymentMethod === method.id && (
+                          <span className="ml-auto text-amber-600">✓</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  onClick={handleDepositSubmit}
+                  disabled={isSubmittingDeposit}
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isSubmittingDeposit ? (
+                    <>
+                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                      Đang xử lý...
+                    </>
+                  ) : (
+                    <>
+                      Xác nhận đặt cọc {formatCurrency(depositStatus?.depositAmount || Math.round((data?.startingPrice || 0) * (depositStatus?.depositPercentage || 10) / 100))}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Toast Notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+      {
+        toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )
+      }
 
       {/* Verification Modal */}
       <VerificationModal
@@ -1137,6 +1204,6 @@ export const ViewAuction = () => {
           setToast({ message: "Tài khoản đã được xác minh! Bạn có thể đặt cọc ngay.", type: "success" });
         }}
       />
-    </div>
+    </div >
   );
 };
