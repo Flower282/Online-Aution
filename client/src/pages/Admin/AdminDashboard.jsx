@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import AuctionCard from '../../components/AuctionCard';
 import LoadingScreen from '../../components/LoadingScreen';
 import Toast from '../../components/Toast';
 import { getAdminDashboard, deleteUser } from '../../api/admin';

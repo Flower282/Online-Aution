@@ -3,7 +3,6 @@ import AuctionCard from "../components/AuctionCard";
 import { useQuery } from "@tanstack/react-query";
 import { getAuctions } from "../api/auction";
 import LoadingScreen from "../components/LoadingScreen";
-import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useNavigate } from "react-router";
 
 export const AuctionList = () => {
@@ -125,7 +124,7 @@ export const AuctionList = () => {
           <h3 className="text-lg font-bold text-red-700 mb-4 flex items-center gap-2">
             🎯 Lọc và Sắp xếp
           </h3>
-          
+
           <div className="flex flex-wrap gap-3">
             {/* Tất cả */}
             <button
@@ -137,11 +136,10 @@ export const AuctionList = () => {
                 setShowTimeMenu(false);
                 setShowPriceMenu(false);
               }}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-                activeTab === "all" && categoryFilter === "all" && sortBy === "none"
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${activeTab === "all" && categoryFilter === "all" && sortBy === "none"
                   ? "bg-red-600 text-white shadow-lg scale-105"
                   : "bg-red-50 text-red-700 hover:bg-red-100"
-              }`}
+                }`}
             >
               ⭐ Tất cả
             </button>
@@ -154,18 +152,17 @@ export const AuctionList = () => {
                   setShowTimeMenu(false);
                   setShowPriceMenu(false);
                 }}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                  categoryFilter !== "all"
+                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${categoryFilter !== "all"
                     ? "bg-red-600 text-white shadow-lg"
                     : "bg-red-50 text-red-700 hover:bg-red-100"
-                }`}
+                  }`}
               >
                 🎁 Danh mục {categoryFilter !== "all" && `(${categoryFilter})`}
                 <svg className={`w-4 h-4 transition-transform ${showCategoryMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
+
               {showCategoryMenu && (
                 <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
                   {categories.map(category => (
@@ -177,9 +174,8 @@ export const AuctionList = () => {
                         setSortBy("none");
                         setShowCategoryMenu(false);
                       }}
-                      className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors capitalize ${
-                        categoryFilter === category ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                      }`}
+                      className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors capitalize ${categoryFilter === category ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                        }`}
                     >
                       {category === "all" ? "Tất cả danh mục" : category}
                     </button>
@@ -196,18 +192,17 @@ export const AuctionList = () => {
                   setShowCategoryMenu(false);
                   setShowPriceMenu(false);
                 }}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                  sortBy === "date-newest" || sortBy === "date-oldest" || sortBy === "ending-soon"
+                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${sortBy === "date-newest" || sortBy === "date-oldest" || sortBy === "ending-soon"
                     ? "bg-red-600 text-white shadow-lg"
                     : "bg-red-50 text-red-700 hover:bg-red-100"
-                }`}
+                  }`}
               >
                 ⏰ Thời gian
                 <svg className={`w-4 h-4 transition-transform ${showTimeMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
+
               {showTimeMenu && (
                 <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-xl z-50 min-w-[200px]">
                   <button
@@ -216,9 +211,8 @@ export const AuctionList = () => {
                       setActiveTab("time");
                       setShowTimeMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
-                      sortBy === "date-newest" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "date-newest" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     ✨ Mới nhất
                   </button>
@@ -228,9 +222,8 @@ export const AuctionList = () => {
                       setActiveTab("time");
                       setShowTimeMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
-                      sortBy === "date-oldest" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "date-oldest" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     📅 Cũ nhất
                   </button>
@@ -240,9 +233,8 @@ export const AuctionList = () => {
                       setActiveTab("time");
                       setShowTimeMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
-                      sortBy === "ending-soon" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "ending-soon" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     🔥 Sắp kết thúc
                   </button>
@@ -258,18 +250,17 @@ export const AuctionList = () => {
                   setShowCategoryMenu(false);
                   setShowTimeMenu(false);
                 }}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                  sortBy === "price-low" || sortBy === "price-high"
+                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${sortBy === "price-low" || sortBy === "price-high"
                     ? "bg-red-600 text-white shadow-lg"
                     : "bg-red-50 text-red-700 hover:bg-red-100"
-                }`}
+                  }`}
               >
                 💰 Giá
                 <svg className={`w-4 h-4 transition-transform ${showPriceMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
+
               {showPriceMenu && (
                 <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-xl z-50 min-w-[200px]">
                   <button
@@ -278,9 +269,8 @@ export const AuctionList = () => {
                       setActiveTab("price");
                       setShowPriceMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
-                      sortBy === "price-low" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "price-low" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     📉 Giá thấp đến cao
                   </button>
@@ -290,9 +280,8 @@ export const AuctionList = () => {
                       setActiveTab("price");
                       setShowPriceMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${
-                      sortBy === "price-high" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${sortBy === "price-high" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     📈 Giá cao đến thấp
                   </button>
