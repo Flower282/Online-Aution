@@ -13,8 +13,19 @@ export const handleGetUser = async (req, res) => {
         if (!user) return res.status(404).json({ message: "User not found" });
 
         // Select only needed fields for response (include _id for frontend)
-        const { _id, name, email, avatar, role } = user;
-        res.json({ user: { _id, name, email, avatar, role } });
+        const { _id, name, email, avatar, role, verification } = user;
+
+        // Trả về trạng thái xác minh
+        const verificationStatus = {
+            isVerified: verification?.isVerified || false,
+            phone: verification?.phone?.isVerified || false,
+            email: verification?.email?.isVerified || false,
+            identityCard: verification?.identityCard?.status || 'not_submitted'
+        };
+
+        res.json({
+            user: { _id, name, email, avatar, role, verification: verificationStatus }
+        });
     } catch (error) {
         res.status(500).json({ message: "Server error" });
     }

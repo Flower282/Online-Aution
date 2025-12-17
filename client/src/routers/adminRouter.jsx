@@ -2,6 +2,7 @@ import { AdminLayout } from "../layout/AdminLayout";
 import { AdminDashboard } from "../pages/Admin/AdminDashboard";
 import { UsersList } from "../pages/Admin/UsersList";
 import PendingAuctions from "../pages/Admin/PendingAuctions";
+import VerificationManagement from "../pages/Admin/VerificationManagement";
 
 export const adminRouter = [
   {
@@ -19,6 +20,10 @@ export const adminRouter = [
       {
         path: "auctions/pending",
         element: <PendingAuctions />,
+      },
+      {
+        path: "verifications",
+        element: <VerificationManagement />,
       },
     ],
   },

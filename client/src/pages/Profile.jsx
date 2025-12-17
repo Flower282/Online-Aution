@@ -1,18 +1,28 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { changePassword } from "../api/user";
-import { CiMail, CiUser, CiLock, CiCamera } from "react-icons/ci";
+import { CiMail, CiUser, CiLock, CiCamera, CiPhone } from "react-icons/ci";
 import { useSelector } from "react-redux";
+import { HiOutlineShieldCheck, HiOutlineIdentification } from "react-icons/hi";
+import VerificationModal from "../components/VerificationModal";
 
 export default function Profile() {
   const { user } = useSelector((state) => state.auth);
   const [isError, setIsError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  // Lấy trạng thái xác minh
+  const verification = user?.user?.verification;
+  const isVerified = verification?.isVerified;
+  const phoneVerified = verification?.phone;
+  const emailVerified = verification?.email;
+  const identityCardStatus = verification?.identityCard;
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => changePassword(formData),
@@ -180,6 +190,98 @@ export default function Profile() {
                 </div>
               </div>
 
+              {/* Account Verification */}
+              <div className="px-4 py-5 sm:p-6 border-t border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <HiOutlineShieldCheck className={`h-6 w-6 ${isVerified ? 'text-green-600' : 'text-amber-500'}`} />
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Xác minh tài khoản
+                    </h3>
+                  </div>
+                  {isVerified ? (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                      ✓ Đã xác minh
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                      ○ Chưa xác minh
+                    </span>
+                  )}
+                </div>
+
+                {!isVerified && (
+                  <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-700">
+                      <strong>⚠️ Lưu ý:</strong> Bạn cần xác minh tài khoản để nạp tiền, đặt cọc và tham gia đấu giá.
+                    </p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Số điện thoại */}
+                  <div className={`p-4 rounded-lg border-2 ${phoneVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <CiPhone className={`h-5 w-5 ${phoneVerified ? 'text-green-600' : 'text-gray-400'}`} />
+                      <span className="font-medium text-gray-900">Số điện thoại</span>
+                    </div>
+                    <p className={`text-sm ${phoneVerified ? 'text-green-700' : 'text-gray-500'}`}>
+                      {phoneVerified ? '✓ Đã xác minh' : '○ Chưa xác minh'}
+                    </p>
+                  </div>
+
+                  {/* Email */}
+                  <div className={`p-4 rounded-lg border-2 ${emailVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <CiMail className={`h-5 w-5 ${emailVerified ? 'text-green-600' : 'text-gray-400'}`} />
+                      <span className="font-medium text-gray-900">Email</span>
+                    </div>
+                    <p className={`text-sm ${emailVerified ? 'text-green-700' : 'text-gray-500'}`}>
+                      {emailVerified ? '✓ Đã xác minh' : '○ Chưa xác minh'}
+                    </p>
+                  </div>
+
+                  {/* CCCD */}
+                  <div className={`p-4 rounded-lg border-2 ${identityCardStatus === 'approved' ? 'bg-green-50 border-green-200' :
+                    identityCardStatus === 'pending' ? 'bg-yellow-50 border-yellow-200' :
+                      identityCardStatus === 'rejected' ? 'bg-red-50 border-red-200' :
+                        'bg-gray-50 border-gray-200'
+                    }`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <HiOutlineIdentification className={`h-5 w-5 ${identityCardStatus === 'approved' ? 'text-green-600' :
+                        identityCardStatus === 'pending' ? 'text-yellow-600' :
+                          identityCardStatus === 'rejected' ? 'text-red-600' :
+                            'text-gray-400'
+                        }`} />
+                      <span className="font-medium text-gray-900">CCCD</span>
+                    </div>
+                    <p className={`text-sm ${identityCardStatus === 'approved' ? 'text-green-700' :
+                      identityCardStatus === 'pending' ? 'text-yellow-700' :
+                        identityCardStatus === 'rejected' ? 'text-red-700' :
+                          'text-gray-500'
+                      }`}>
+                      {identityCardStatus === 'approved' ? '✓ Đã xác minh' :
+                        identityCardStatus === 'pending' ? '⏳ Đang chờ duyệt' :
+                          identityCardStatus === 'rejected' ? '✗ Bị từ chối' :
+                            '○ Chưa xác minh'}
+                    </p>
+                  </div>
+                </div>
+
+                {!isVerified && (
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowVerificationModal(true)}
+                      className="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <HiOutlineShieldCheck className="h-5 w-5" />
+                      Xác minh tài khoản ngay
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {/* Password */}
               <div className="px-4 py-5 sm:p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -298,6 +400,17 @@ export default function Profile() {
           </div>
         </main>
       </div>
+
+      {/* Verification Modal */}
+      <VerificationModal
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+        onVerified={() => {
+          setShowVerificationModal(false);
+          setSuccessMessage("Tài khoản đã được xác minh thành công!");
+          setTimeout(() => setSuccessMessage(""), 10000);
+        }}
+      />
     </div>
   );
 }

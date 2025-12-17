@@ -1,5 +1,6 @@
 import Deposit from '../models/deposit.js';
 import Product from '../models/product.js';
+import User from '../models/user.js';
 import mongoose from 'mongoose';
 
 /**
@@ -67,6 +68,7 @@ export const checkDeposit = async (req, res) => {
 /**
  * Create/Submit deposit for an auction
  * User must deposit before they can bid
+ * Yêu cầu: Tài khoản phải được xác minh
  */
 export const createDeposit = async (req, res) => {
     try {
@@ -76,6 +78,15 @@ export const createDeposit = async (req, res) => {
 
         if (!mongoose.Types.ObjectId.isValid(productId)) {
             return res.status(400).json({ error: 'Invalid product ID' });
+        }
+
+        // Kiểm tra xác minh tài khoản
+        const user = await User.findById(userId).select('verification.isVerified');
+        if (!user?.verification?.isVerified) {
+            return res.status(403).json({
+                error: 'Bạn cần xác minh tài khoản trước khi đặt cọc',
+                code: 'VERIFICATION_REQUIRED'
+            });
         }
 
         // Validate payment method
