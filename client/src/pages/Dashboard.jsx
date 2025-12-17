@@ -182,7 +182,7 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 py-10">
         {/* Verification Warning Banner */}
         {!isVerified && (
-          <div className="mb-8 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-lg">
+          <div className="mb-8 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-lg" data-aos="fade-down" data-aos-delay="100">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-start gap-3">
                 <ShieldAlert className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -351,9 +351,9 @@ const Dashboard = () => {
 
         {/* New Auctions Slideshow */}
         {recentAuctions.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-6">New Auctions</h2>
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-red-200">
+          <div className="mb-12" data-aos="fade-up" data-aos-delay="200">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-6" data-aos="fade-right" data-aos-delay="250">New Auctions</h2>
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-red-200" data-aos="zoom-in" data-aos-delay="300">
               <div className="grid md:grid-cols-2 gap-0">
                 {/* Image Section */}
                 <div className="relative h-[400px] md:h-[500px] overflow-hidden bg-gradient-to-br from-red-50 to-pink-50">
@@ -459,9 +459,9 @@ const Dashboard = () => {
         )}
 
         {/* All Auctions Section */}
-        <div className="mb-12">
+        <div className="mb-12" data-aos="fade-up" data-aos-delay="400">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-extrabold text-gray-900">All Auctions</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900" data-aos="fade-right" data-aos-delay="450">All Auctions</h2>
             <Link
               to="/auction"
               className="text-sky-600 hover:text-sky-700 font-bold text-sm hover:underline transition-colors"
@@ -478,8 +478,8 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {data.latestAuctions.map((auction) => (
-                <div key={auction._id} className="scale-95 hover:scale-100 transition-transform">
+              {data.latestAuctions.map((auction, index) => (
+                <div key={auction._id} className="scale-95 hover:scale-100 transition-transform" data-aos="fade-up" data-aos-delay={500 + index * 50}>
                   <AuctionCard auction={auction} />
                 </div>
               ))}
@@ -488,9 +488,9 @@ const Dashboard = () => {
         </div>
 
         {/* Your Auctions Section */}
-        <div>
+        <div data-aos="fade-up" data-aos-delay="600">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">Your Christmas Auctions</h2>
+            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent" data-aos="fade-right" data-aos-delay="650">Your Christmas Auctions</h2>
             <Link
               to="/myauction"
               className="text-red-600 hover:text-red-700 font-bold text-sm hover:underline transition-colors"
@@ -512,13 +512,15 @@ const Dashboard = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {data.latestUserAuctions.map((auction) => {
+              {data.latestUserAuctions.map((auction, index) => {
                 const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
                 const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
                 return (
                   <div
                     key={auction._id}
                     className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
+                    data-aos="fade-up"
+                    data-aos-delay={700 + index * 50}
                   >
                     <AuctionCard auction={auction} />
                   </div>

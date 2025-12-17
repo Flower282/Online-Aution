@@ -275,10 +275,12 @@ export default function WonAuctions() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {wonAuctions.map((auction) => (
+                                {wonAuctions.map((auction, index) => (
                                     <div
                                         key={auction._id}
                                         className="bg-white rounded-xl shadow-lg border-2 border-green-100 hover:shadow-xl transition-all overflow-hidden"
+                                        data-aos="fade-up"
+                                        data-aos-delay={400 + index * 50}
                                     >
                                         <div className="grid md:grid-cols-4 gap-4 p-6">
                                             {/* Image */}
@@ -378,10 +380,12 @@ export default function WonAuctions() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {participatedAuctions.map((auction) => (
+                                {participatedAuctions.map((auction, index) => (
                                     <div
                                         key={auction._id}
                                         className="bg-white rounded-xl shadow-lg border-2 border-blue-100 hover:shadow-xl transition-all overflow-hidden"
+                                        data-aos="fade-up"
+                                        data-aos-delay={400 + index * 50}
                                     >
                                         <div className="grid md:grid-cols-4 gap-4 p-6">
                                             {/* Image */}
@@ -473,10 +477,12 @@ export default function WonAuctions() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {myAuctions.map((auction) => (
+                                {myAuctions.map((auction, index) => (
                                     <div
                                         key={auction._id}
                                         className="bg-white rounded-xl shadow-lg border-2 border-purple-100 hover:shadow-xl transition-all overflow-hidden"
+                                        data-aos="fade-up"
+                                        data-aos-delay={400 + index * 50}
                                     >
                                         <div className="grid md:grid-cols-4 gap-4 p-6">
                                             {/* Image */}

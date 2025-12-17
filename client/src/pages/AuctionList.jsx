@@ -121,12 +121,12 @@ export const AuctionList = () => {
         </div>
 
         {/* Category tabs */}
-        <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-red-200 shadow-lg" data-aos="fade-up" data-aos-delay="300">
+        <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-red-200 shadow-lg relative z-20" data-aos="fade-up" data-aos-delay="300">
           <h3 className="text-lg font-bold text-red-700 mb-4 flex items-center gap-2">
             🎯 Lọc và Sắp xếp
           </h3>
           
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 relative">
             {/* Tất cả */}
             <button
               onClick={() => {
@@ -167,7 +167,7 @@ export const AuctionList = () => {
               </button>
               
               {showCategoryMenu && (
-                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto">
+                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-2xl z-[100] min-w-[200px] max-h-[300px] overflow-y-auto">
                   {categories.map(category => (
                     <button
                       key={category}
@@ -209,7 +209,7 @@ export const AuctionList = () => {
               </button>
               
               {showTimeMenu && (
-                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-xl z-50 min-w-[200px]">
+                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-2xl z-[100] min-w-[200px]">
                   <button
                     onClick={() => {
                       setSortBy("date-newest");
@@ -271,7 +271,7 @@ export const AuctionList = () => {
               </button>
               
               {showPriceMenu && (
-                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-xl z-50 min-w-[200px]">
+                <div className="absolute top-full left-0 mt-2 bg-white border-2 border-red-200 rounded-lg shadow-2xl z-[100] min-w-[200px]">
                   <button
                     onClick={() => {
                       setSortBy("price-low");
