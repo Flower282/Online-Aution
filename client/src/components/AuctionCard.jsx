@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Heart, Star } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useState } from "react";
 import { toggleLikeAuction } from "../api/auction";
 import { toast } from "sonner";
@@ -95,12 +95,12 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           {/* Status Badges */}
           {isPending && !isEnded && (
             <div className="absolute bottom-2 left-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-              ⏳ Pending
+              Pending
             </div>
           )}
           {isRejected && !isEnded && (
             <div className="absolute bottom-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
-              ❌ Rejected
+              Rejected
             </div>
           )}
           {isEnded && (
@@ -115,7 +115,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           )}
           {!isEnded && !isPending && !isRejected && isSellerInactive && (
             <div className="absolute bottom-2 left-2 bg-orange-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
-              ⚠️ Inactive
+              Inactive
             </div>
           )}
         </div>
@@ -130,7 +130,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           {/* Price Section with Pink Background */}
           <div className="bg-red-50 rounded-lg p-3 mb-3">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs text-gray-600">🎯 Giá hiện tại</span>
+              <span className="text-xs text-gray-600"> Giá hiện tại</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-2xl font-bold text-red-600">
@@ -146,14 +146,13 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
 
           {/* Bid Count */}
           <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
-            <span>🎁</span>
+
             <span className="font-medium">{auction.bidsCount || 0} lượt đấu giá</span>
           </div>
 
           {/* Time Remaining */}
           {!isEnded && timeLeft > 0 && (
             <div className="flex items-center gap-2 text-sm text-gray-700 mb-4">
-              <span>⏰</span>
               <span className="font-medium">{formatTimeLeft(timeLeft)}</span>
             </div>
           )}
@@ -163,11 +162,14 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
             <button
               className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-auto"
               onClick={(e) => {
-                e.preventDefault();
-                handleClick();
+                if (onClick) {
+                  e.preventDefault();
+                  handleClick();
+                }
+                // Nếu không có onClick prop, để Link xử lý navigation
               }}
             >
-              🎄 Đấu giá ngay
+              Đấu giá ngay
             </button>
           )}
         </div>

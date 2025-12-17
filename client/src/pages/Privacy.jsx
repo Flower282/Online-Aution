@@ -23,7 +23,7 @@ export default function Privacy() {
     <div className="min-h-screen flex" style={{ backgroundColor: '#f5f1e8' }}>
       {/* Page content */}
       <main className="p-4 sm:p-6 lg:p-8 mx-auto">
-        <div className="mb-6">
+        <div className="mb-6" data-aos="fade-down">
           <h1 className="text-2xl font-bold text-gray-900">
             Privacy & Security
           </h1>
@@ -32,11 +32,13 @@ export default function Privacy() {
           </p>
 
           {data && (
-            <div className="flex flex-col gap-4">
-              {data.map((entry) => (
+            <div className="flex flex-col gap-4" data-aos="fade-up" data-aos-delay="100">
+              {data.map((entry, index) => (
                 <div
                   key={entry.id}
                   className="rounded-sm border border-gray-200 bg-white p-4 shadow-sm"
+                  data-aos="fade-up"
+                  data-aos-delay={100 + index * 50}
                 >
                   <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-2 sm:gap-x-4 lg:grid-cols-3">
                     <div className="flex items-center">
@@ -92,11 +94,11 @@ export default function Privacy() {
         </div>
 
         {/* Security settings */}
-        <div>
-          <h2 className="text-lg font-medium text-gray-900 mb-4">
+        <div data-aos="fade-up" data-aos-delay="300">
+          <h2 className="text-lg font-medium text-gray-900 mb-4" data-aos="fade-right" data-aos-delay="350">
             Security Settings
           </h2>
-          <div className="bg-white shadow overflow-hidden border border-gray-200 rounded-md divide-y divide-gray-200">
+          <div className="bg-white shadow overflow-hidden border border-gray-200 rounded-md divide-y divide-gray-200" data-aos="zoom-in" data-aos-delay="400">
             <div className="px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>

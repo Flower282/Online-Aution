@@ -97,6 +97,13 @@ export const CreateAuction = () => {
       return;
     }
 
+    // Validate starting price minimum
+    const priceValue = parseFloat(formData.startingPrice);
+    if (!priceValue || priceValue < 1) {
+      setError("Giá khởi điểm phải từ 1 (1,000 VNĐ) trở lên.");
+      return;
+    }
+
     const start = new Date(formData.itemStartDate);
     const end = new Date(formData.itemEndDate);
     const now = new Date();
@@ -120,7 +127,13 @@ export const CreateAuction = () => {
       return;
     }
 
-    mutate(formData);
+    // Multiply starting price by 1000 before submitting
+    const dataToSubmit = {
+      ...formData,
+      startingPrice: priceValue * 1000
+    };
+
+    mutate(dataToSubmit);
   };
 
   //   today datetime (for datetime-local input)
@@ -159,17 +172,17 @@ export const CreateAuction = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-6 text-center">
+        <div className="mb-6 text-center" data-aos="fade-down">
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
             Create Christmas Auction
           </h1>
           <p className="text-gray-700">List your item for the Christmas season </p>
         </div>
-        <div className="bg-white rounded-lg shadow-lg border-2 border-red-200">
+        <div className="bg-white rounded-lg shadow-lg border-2 border-red-200" data-aos="fade-up" data-aos-delay="200">
           <div className="p-6 md:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Item Name */}
-              <div>
+              <div data-aos="fade-up" data-aos-delay="300">
                 <label
                   htmlFor="itemName"
                   className="block text-sm font-medium text-gray-700 mb-2"
@@ -189,7 +202,7 @@ export const CreateAuction = () => {
               </div>
 
               {/* Item Description */}
-              <div>
+              <div data-aos="fade-up" data-aos-delay="350">
                 <label
                   htmlFor="itemDescription"
                   className="block text-sm font-medium text-gray-700 mb-2"
@@ -209,7 +222,7 @@ export const CreateAuction = () => {
               </div>
 
               {/* Category and Starting Price Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-aos="fade-up" data-aos-delay="400">
                 {/* Item Category */}
                 <div>
                   <label
@@ -241,25 +254,41 @@ export const CreateAuction = () => {
                     htmlFor="startingPrice"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Starting Price ($) <span className="text-red-600">*</span>
+                    Giá khởi điểm <span className="text-red-600">*</span>
                   </label>
-                  <input
-                    type="number"
-                    id="startingPrice"
-                    name="startingPrice"
-                    value={formData.startingPrice}
-                    onChange={handleInputChange}
-                    min="1"
-                    step="1"
-                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                    placeholder="0.0"
-                    required
-                  />
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        id="startingPrice"
+                        name="startingPrice"
+                        value={formData.startingPrice}
+                        onChange={handleInputChange}
+                        min="1"
+                        step="1"
+                        className="w-full px-3 py-2 pr-20 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        placeholder="50"
+                        required
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                        x1,000 VNĐ
+                      </span>
+                    </div>
+                    {formData.startingPrice && parseFloat(formData.startingPrice) > 0 && (
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2">
+                        <p className="text-sm text-emerald-700">
+                          = <span className="font-bold text-lg text-emerald-800">
+                            {(parseFloat(formData.startingPrice) * 1000).toLocaleString('vi-VN')} VNĐ
+                          </span>
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Start and End Date Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-aos="fade-up" data-aos-delay="450">
                 {/* Start Date & Time */}
                 <div>
                   <label
@@ -313,7 +342,7 @@ export const CreateAuction = () => {
               </div>
 
               {/* Item Photo */}
-              <div>
+              <div data-aos="fade-up" data-aos-delay="500">
                 <label
                   htmlFor="itemPhoto"
                   className="block text-sm font-medium text-gray-700 mb-2"
@@ -331,7 +360,7 @@ export const CreateAuction = () => {
                     className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
                   />
                   {formData.itemPhoto && (
-                    <div className="mt-3">
+                    <div className="mt-3" data-aos="zoom-in">
                       <p className="text-sm text-gray-600 mb-2">Preview:</p>
                       <img
                         src={URL.createObjectURL(formData.itemPhoto)}
@@ -361,7 +390,7 @@ export const CreateAuction = () => {
               )}
 
               {/* Form Actions */}
-              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-red-200">
+              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-red-200" data-aos="fade-up" data-aos-delay="550">
                 <button
                   type="submit"
                   disabled={isPending}
@@ -383,32 +412,32 @@ export const CreateAuction = () => {
 
 export const HelpSection = () => {
   return (
-    <div className="mt-8 bg-red-50 border-2 border-red-200 rounded-lg p-6">
-      <h3 className="text-lg font-semibold text-red-900 mb-3">
+    <div className="mt-8 bg-red-50 border-2 border-red-200 rounded-lg p-6" data-aos="fade-up" data-aos-delay="600">
+      <h3 className="text-lg font-semibold text-red-900 mb-3" data-aos="fade-right" data-aos-delay="650">
         💡 Tips for Creating a Successful Christmas Auction
       </h3>
       <ul className="space-y-2 text-red-800 text-sm">
-        <li className="flex items-start">
+        <li className="flex items-start" data-aos="fade-left" data-aos-delay="700">
           <span className="text-red-600 mr-2">📷</span>
           Use clear, high-quality photos that show your item from multiple angles
         </li>
-        <li className="flex items-start">
+        <li className="flex items-start" data-aos="fade-left" data-aos-delay="750">
           <span className="text-red-600 mr-2">📝</span>
           Write detailed descriptions including condition, dimensions, and any flaws
         </li>
-        <li className="flex items-start">
+        <li className="flex items-start" data-aos="fade-left" data-aos-delay="800">
           <span className="text-red-600 mr-2">💰</span>
           Set a reasonable starting price to attract bidders
         </li>
-        <li className="flex items-start">
+        <li className="flex items-start" data-aos="fade-left" data-aos-delay="850">
           <span className="text-red-600 mr-2">⏰</span>
           Choose appropriate auction duration (tối thiểu 1 giờ, khuyến nghị 3-7 ngày)
         </li>
-        <li className="flex items-start">
+        <li className="flex items-start" data-aos="fade-left" data-aos-delay="900">
           <span className="text-red-600 mr-2">🕐</span>
           Bạn có thể chọn chính xác giờ và phút cho thời gian bắt đầu/kết thúc
         </li>
-        <li className="flex items-start">
+        <li className="flex items-start" data-aos="fade-left" data-aos-delay="950">
           <span className="text-red-600 mr-2">🏷️</span>
           Select the most accurate category to help buyers find your item
         </li>

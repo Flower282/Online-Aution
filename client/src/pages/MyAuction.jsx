@@ -106,7 +106,7 @@ export const MyAuction = () => {
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-7xl mx-auto px-4 py-10">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8" data-aos="fade-down">
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
             My Christmas Auctions
           </h1>
@@ -114,7 +114,7 @@ export const MyAuction = () => {
         </div>
 
         {/* Filters */}
-        <div className="mb-10 space-y-6">
+        <div className="mb-10 space-y-6" data-aos="fade-up" data-aos-delay="100">
           {/* Category Filter */}
           <div>
             <h2 className="text-xl font-bold mb-4 text-gray-900">
@@ -196,7 +196,7 @@ export const MyAuction = () => {
         </div>
 
         {filteredAuctions.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-200">
+          <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-200" data-aos="fade-up" data-aos-delay="300">
             <div className="flex flex-col items-center">
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -204,7 +204,7 @@ export const MyAuction = () => {
                 </svg>
               </div>
               <p className="text-gray-700 text-xl font-semibold mb-2">
-                {auctions.length === 0 ? " No Auctions Yet" : "❄️ No auctions found in this category"}
+                {auctions.length === 0 ? " No Auctions Yet" : "No auctions found in this category"}
               </p>
               <p className="text-gray-500 text-base">
                 {auctions.length === 0 ? " Create your first Christmas auction to get started!" : "Try selecting a different category"}
@@ -213,8 +213,8 @@ export const MyAuction = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 place-items-center gap-8">
-            {filteredAuctions.map((auction) => (
-              <div key={auction._id} className="relative w-full">
+            {filteredAuctions.map((auction, index) => (
+              <div key={auction._id} className="relative w-full" data-aos="fade-up" data-aos-delay={300 + index * 50}>
                 {/* Status Badge Overlay */}
                 <div className="absolute top-4 right-4 z-10">
                   <StatusBadge status={auction.status} />
@@ -235,7 +235,7 @@ export const MyAuction = () => {
                 {auction.status === 'pending' && (
                   <div className="mt-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg p-3">
                     <p className="text-sm text-yellow-700">
-                      ⏳ This auction is waiting for admin approval
+                      This auction is waiting for admin approval.
                     </p>
                   </div>
                 )}

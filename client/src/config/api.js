@@ -2,11 +2,10 @@
  * API Configuration
  * 
  * Centralized API endpoint configuration.
- * Uses VITE_API_URL from environment variables.
+ * Only requires ONE environment variable: VITE_API
  */
-import { env } from './env.js';
 
-const API_URL = env.API_URL;
+const API_URL = import.meta.env.VITE_API || 'http://localhost:8000';
 
 export const API_ENDPOINTS = {
     // Base URL
@@ -37,6 +36,15 @@ export const API_ENDPOINTS = {
 
     // Contact endpoint
     CONTACT: `${API_URL}/contact`,
+
+    // Verification endpoints
+    VERIFICATION: {
+        STATUS: `${API_URL}/verification/status`,
+        PHONE: `${API_URL}/verification/phone`,
+        EMAIL: `${API_URL}/verification/email`,
+        IDENTITY_CARD: `${API_URL}/verification/identity-card`,
+        ADMIN_PENDING: `${API_URL}/verification/admin/pending`,
+    },
 };
 
 // Export base URL for socket connection

@@ -15,6 +15,7 @@ import userAuthRouter from './routes/userAuth.js';
 import userRouter from './routes/user.js';
 import contactRouter from "./routes/contact.js";
 import adminRouter from './routes/admin.js';
+import verificationRouter from './routes/verification.js';
 import handleAuctionSocket from './socket/auction.socket.js';
 import { socketAuthMiddleware } from './middleware/socketAuth.js';
 
@@ -164,10 +165,9 @@ app.use((err, req, res, next) => {
 });
 
 app.use(cors({
-    origin: process.env.ORIGIN || "http://localhost:5173",
+    origin: process.env.ORIGIN,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
 // ==================== SOCKET MIDDLEWARE ====================
@@ -187,7 +187,8 @@ app.use('/auction', secureRoute, auctionRouter);
 app.use('/deposit', secureRoute, depositRouter);
 app.use('/wallet', secureRoute, walletRouter);
 app.use('/contact', contactRouter);
-app.use('/admin', secureRoute, adminRouter)
+app.use('/admin', secureRoute, adminRouter);
+app.use('/verification', verificationRouter);
 
 // Global Error Handler - must be after all routes
 app.use((err, req, res, next) => {

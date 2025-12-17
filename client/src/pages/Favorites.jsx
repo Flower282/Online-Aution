@@ -104,11 +104,11 @@ export default function Favorites() {
         <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
             <main className="container mx-auto px-4 py-8">
                 {/* Hero section */}
-                <div className="mb-12 text-center space-y-4 relative">
+                <div className="mb-12 text-center space-y-4 relative" data-aos="fade-down">
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-6xl animate-bounce">
                         <Heart className="h-16 w-16 text-red-500 fill-red-500" />
                     </div>
-                    <h1 className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent text-4xl font-bold mt-20">
+                    <h1 className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent text-4xl font-bold mt-20" data-aos="zoom-in" data-aos-delay="100">
                         Đấu Giá Yêu Thích
                     </h1>
                     <p className="text-red-900 max-w-2xl mx-auto font-medium">
@@ -123,7 +123,7 @@ export default function Favorites() {
                 </div>
 
                 {/* Stats */}
-                <div className="max-w-md mx-auto mb-8">
+                <div className="max-w-md mx-auto mb-8" data-aos="fade-up" data-aos-delay="200">
                     <div className="p-6 rounded-lg bg-gradient-to-br from-red-100 to-red-200 text-center border-2 border-red-300 hover:shadow-xl transition-all">
                         <p className="text-4xl font-bold text-red-700">{auctions.length}</p>
                         <p className="text-sm text-red-800 font-medium">Đấu giá yêu thích</p>
@@ -147,13 +147,14 @@ export default function Favorites() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {auctions.map((auction) => (
-                            <AuctionCard
-                                key={auction._id}
-                                auction={auction}
-                                onClick={() => navigate(`/auction/${auction._id}`)}
-                                onLikeUpdate={refetch}
-                            />
+                        {auctions.map((auction, index) => (
+                            <div key={auction._id} data-aos="fade-up" data-aos-delay={300 + index * 50}>
+                                <AuctionCard
+                                    auction={auction}
+                                    onClick={() => navigate(`/auction/${auction._id}`)}
+                                    onLikeUpdate={refetch}
+                                />
+                            </div>
                         ))}
                     </div>
                 )}
