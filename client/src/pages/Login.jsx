@@ -75,10 +75,31 @@ const Login = () => {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-red-50 via-white to-pink-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-red-50 via-white to-pink-50 page-transition">
       <main className="flex-grow flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="bg-white p-10 rounded-2xl shadow-2xl border-2 border-red-200" data-aos="zoom-in">
+        <div className="w-full max-w-5xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 bg-white rounded-2xl shadow-2xl overflow-hidden">
+            {/* Left Side - Fireplace Image */}
+            <div className="hidden lg:block relative bg-gradient-to-br from-red-900 via-red-800 to-orange-900" data-aos="fade-up" data-aos-duration="1000" data-aos-easing="ease-out">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="relative h-full flex items-center justify-center p-8">
+                <div className="text-center">
+                  <img 
+                    src="https://images.unsplash.com/photo-1512389098783-66b81f86e199?w=600&h=800&fit=crop" 
+                    alt="Christmas Fireplace" 
+                    className="w-full h-full object-cover rounded-xl shadow-2xl"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-xl"></div>
+                  <div className="absolute bottom-8 left-8 right-8 text-white">
+                    <h2 className="text-3xl font-bold mb-2">Welcome to Christmas Season!</h2>
+                    <p className="text-lg opacity-90">Cozy up and join our festive auction community</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side - Login Form */}
+            <div className="bg-white p-10 border-l-2 border-red-200" data-aos="zoom-in">
             <div className="text-center mb-8" data-aos="fade-down" data-aos-delay="100">
               <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2"> Welcome Back!</h1>
               <p className="text-gray-700">Sign in to your Christmas account </p>
@@ -178,6 +199,7 @@ const Login = () => {
               >
                 Sign up now
               </Link>
+            </div>
             </div>
           </div>
         </div>
