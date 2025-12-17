@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv"
 import { verifyToken, verifyRefreshToken, generateToken, generateRefreshToken } from "../utils/jwt.js";
 import User from "../models/user.js";
-import { connectDB } from "../connection.js";
 dotenv.config();
 
 /**
@@ -68,8 +67,7 @@ export const secureRoute = async (req, res, next) => {
                     // Verify refresh token
                     const refreshDecoded = verifyRefreshToken(refreshToken);
                     
-                    // Connect to database and validate refresh token
-                    await connectDB();
+                    // Validate refresh token against database
                     const user = await User.findById(refreshDecoded.id);
 
                     // Validate user exists, is active, and refresh token matches

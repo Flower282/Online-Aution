@@ -1,5 +1,4 @@
 import { verifyToken } from "../utils/jwt.js";
-import { connectDB } from "../connection.js";
 import User from "../models/user.js";
 
 /**
@@ -80,7 +79,6 @@ export const socketAuthMiddleware = async (socket, next) => {
         }
 
         // Case 3: Validate user exists and is active (optional but recommended)
-        await connectDB();
         const user = await User.findById(decoded.id).select('_id role isActive');
 
         if (!user) {

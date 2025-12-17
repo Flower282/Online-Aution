@@ -22,7 +22,7 @@ export const MyAuction = () => {
   // Handle error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
+      <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
         <main className="max-w-7xl mx-auto px-4 py-10">
           <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-200">
             <div className="flex flex-col items-center">
@@ -103,7 +103,7 @@ export const MyAuction = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-7xl mx-auto px-4 py-10">
         {/* Header */}
         <div className="mb-8">

@@ -7,10 +7,11 @@ import { Separator } from "./ui/separator";
 import { CountdownTimer } from "./CountdownTimer";
 import { BidHistory } from "./BidHistory";
 import { Alert, AlertDescription } from "./ui/alert";
-import socket from "../utils/socket";
+import socket, { ensureSocketConnected } from "../utils/socket";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatCurrency } from "../utils/formatCurrency";
 
 export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlaceBid }) {
     const [bidAmount, setBidAmount] = useState("");
@@ -25,13 +26,28 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
     useEffect(() => {
         if (!auction._id) return;
 
-        console.log('🔵 Modal: Joining auction room:', auction._id);
+        let cleanedUp = false;
 
-        // Join auction room
-        socket.emit('auction:join', { auctionId: auction._id });
+        const initSocket = async () => {
+            try {
+                await ensureSocketConnected();
 
-        // Get initial state
-        socket.emit('auction:get-state', { auctionId: auction._id });
+                if (cleanedUp) return;
+
+                console.log('🔵 Modal: Joining auction room:', auction._id);
+
+                // Join auction room
+                socket.emit('auction:join', { auctionId: auction._id });
+
+                // Get initial state
+                socket.emit('auction:get-state', { auctionId: auction._id });
+            } catch (error) {
+                console.error('Failed to connect socket:', error);
+                toast.error('Không thể kết nối real-time');
+            }
+        };
+
+        initSocket();
 
         // Listen for auction state
         socket.on('auction:state', (state) => {
@@ -58,7 +74,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
 
             // Show notification if bid is from another user
             if (update.userId !== user?.user?._id) {
-                toast.info(`Có người vừa đặt giá: $${update.amount}`);
+                toast.info(`Có người vừa đặt giá: ${formatCurrency(update.amount)}`);
             }
         });
 
@@ -88,7 +104,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
             console.error('❌ Modal: Bid error:', error);
             let errorMessage = error.message;
             if (error.code === 'PRICE_EXISTS') {
-                errorMessage = `Giá $${error.existingAmount} đã có người đặt. Vui lòng chọn giá khác!`;
+                errorMessage = `Giá ${formatCurrency(error.existingAmount)} đã có người đặt. Vui lòng chọn giá khác!`;
             }
 
             // Refresh data
@@ -106,8 +122,11 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
         });
 
         return () => {
+            cleanedUp = true;
             console.log('🔴 Modal: Leaving auction room:', auction._id);
-            socket.emit('auction:leave', { auctionId: auction._id });
+            if (socket.connected) {
+                socket.emit('auction:leave', { auctionId: auction._id });
+            }
             socket.off('auction:state');
             socket.off('auction:bid:updated');
             socket.off('auction:bid:success');
@@ -145,12 +164,12 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
         }
 
         if (amount < minimumBid) {
-            setError(`Giá đặt phải từ $${minimumBid} trở lên`);
+            setError(`Giá đặt phải từ ${formatCurrency(minimumBid)} trở lên`);
             return;
         }
 
         if (amount > maximumBid) {
-            setError(`Giá đặt không được vượt quá $${maximumBid}`);
+            setError(`Giá đặt không được vượt quá ${formatCurrency(maximumBid)}`);
             return;
         }
 
@@ -255,7 +274,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
                                 <div className="flex items-baseline justify-between">
                                     <span className="text-muted-foreground">Giá hiện tại</span>
                                     <span className="text-3xl font-medium text-primary">
-                                        ${currentPrice?.toLocaleString()}
+                                        {formatCurrency(currentPrice)}
                                     </span>
                                 </div>
 
@@ -264,7 +283,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
                                         {auction.bidsCount || 0} lượt đấu giá
                                     </span>
                                     <span className="text-muted-foreground">
-                                        Giá khởi điểm: ${auction.startingPrice?.toLocaleString()}
+                                        Giá khởi điểm: {formatCurrency(auction.startingPrice)}
                                     </span>
                                 </div>
 
@@ -284,7 +303,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
                                 <div className="space-y-4">
                                     <div>
                                         <label className="text-sm text-muted-foreground">
-                                            Giá đặt của bạn (tối thiểu ${minimumBid.toLocaleString()})
+                                            Giá đặt của bạn (tối thiểu {formatCurrency(minimumBid)})
                                         </label>
                                         <div className="flex gap-2 mt-2">
                                             <div className="relative flex-1">
@@ -331,7 +350,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
                                                         setError("");
                                                     }}
                                                 >
-                                                    ${amount.toLocaleString()}
+                                                    {formatCurrency(amount)}
                                                 </Button>
                                             ))}
                                         </div>

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { signup } from "../store/auth/authSlice";
 import { Link } from "react-router";
 import LoadingScreen from "../components/LoadingScreen";
+import { resetAuthFlags } from "../utils/axiosConfig";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       await dispatch(signup(formData)).unwrap();
+      resetAuthFlags(); // Reset auth flags after successful signup
       navigate("/");
     } catch (error) {
       console.log("Signup Failed", error);

@@ -1,14 +1,27 @@
 import axios from 'axios';
 import { toast } from 'sonner';
 import { API_ENDPOINTS } from '../config/api.js';
+import { env } from '../config/env.js';
+
+// Configure Axios defaults for production authentication
+axios.defaults.baseURL = env.API_URL;
+axios.defaults.withCredentials = true; // Always send cookies with requests
 
 let store;
 let isRefreshing = false;
 let failedQueue = [];
+let isLoggingOut = false; // Prevent multiple logout attempts
 
 // Function to set store reference (will be called from main.jsx)
 export const injectStore = (_store) => {
     store = _store;
+};
+
+// Reset auth state flags (useful after successful login)
+export const resetAuthFlags = () => {
+    isRefreshing = false;
+    isLoggingOut = false;
+    failedQueue = [];
 };
 
 // Process queued requests after token refresh
@@ -38,6 +51,11 @@ axios.interceptors.response.use(
             if (originalRequest.url?.includes('/auth/login') ||
                 originalRequest.url?.includes('/auth/signup') ||
                 originalRequest.url?.includes('/auth/refresh-token')) {
+                return Promise.reject(error);
+            }
+
+            // If already logging out, just reject without retrying
+            if (isLoggingOut) {
                 return Promise.reject(error);
             }
 
@@ -73,24 +91,33 @@ axios.interceptors.response.use(
                 processQueue(refreshError, null);
                 isRefreshing = false;
 
-                // Dynamically import logout action
-                import('../store/auth/authSlice').then(({ logout }) => {
-                    // Show notification
-                    toast.error('Your session has expired. Please login again.', {
-                        duration: 4000,
-                        position: 'top-center',
+                // Only logout once, even if multiple requests fail
+                if (!isLoggingOut) {
+                    isLoggingOut = true;
+
+                    // Dynamically import logout action
+                    import('../store/auth/authSlice').then(({ logout }) => {
+                        // Dispatch logout action first
+                        if (store) {
+                            store.dispatch(logout());
+                        }
+
+                        // Show notification only once
+                        toast.error('Your session has expired. Please login again.', {
+                            duration: 3000,
+                            position: 'top-center',
+                            id: 'session-expired', // Prevent duplicate toasts
+                        });
+
+                        // Let React Router handle navigation through MainLayout
+                        // No manual redirect needed - MainLayout will detect !user and navigate
+
+                        // Reset the flag after 3 seconds to allow future logouts
+                        setTimeout(() => {
+                            isLoggingOut = false;
+                        }, 3000);
                     });
-
-                    // Dispatch logout action
-                    if (store) {
-                        store.dispatch(logout());
-                    }
-
-                    // Redirect to login page after a short delay
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 1000);
-                });
+                }
 
                 return Promise.reject(refreshError);
             }

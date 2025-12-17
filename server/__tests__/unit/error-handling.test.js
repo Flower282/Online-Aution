@@ -50,10 +50,21 @@ await jest.unstable_mockModule('../../models/user.js', () => ({
   }
 }));
 
-// Mock Product model
+// Mock Product model with chaining support
 const mockProductFind = jest.fn();
 const mockProductFindById = jest.fn();
 const mockProductSave = jest.fn();
+
+// Create chainable mock for query methods
+const createProductQuery = () => {
+  const query = {
+    sort: jest.fn().mockReturnThis(),
+    populate: jest.fn().mockReturnThis(),
+    exec: jest.fn(),
+  };
+  return query;
+};
+
 await jest.unstable_mockModule('../../models/product.js', () => ({
   default: class Product {
     constructor(data) {
@@ -111,11 +122,11 @@ const createApp = () => {
   const app = express();
   app.use(express.json());
   app.use(cookieParser());
-  
+
   app.use('/api/auth', userAuthRouter);
   app.use('/api/user', secureRoute, userRouter);
   app.use('/api/auction', secureRoute, auctionRouter);
-  
+
   return app;
 };
 
@@ -543,7 +554,12 @@ describe('ESM HTTP Error Handling - No Database', () => {
 
     it('should return 500 when auction fetch fails', async () => {
       const token = tokenFactory();
-      mockProductFind.mockRejectedValue(new Error('Query failed'));
+      
+      // Mock the query chain to reject
+      const mockQuery = {
+        sort: jest.fn().mockRejectedValue(new Error('Query failed')),
+      };
+      mockProductFind.mockReturnValue(mockQuery);
 
       const response = await request(app)
         .get('/api/auction')
@@ -551,6 +567,7 @@ describe('ESM HTTP Error Handling - No Database', () => {
         .expect(500);
 
       expect(response.body.message).toContain('Error');
+      expect(mockProductFind).toHaveBeenCalledWith({ status: 'approved' });
     });
 
     it('should handle unexpected errors gracefully', async () => {

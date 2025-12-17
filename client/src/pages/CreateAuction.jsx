@@ -99,33 +99,65 @@ export const CreateAuction = () => {
 
     const start = new Date(formData.itemStartDate);
     const end = new Date(formData.itemEndDate);
+    const now = new Date();
 
+    // Validate start time
+    if (start < now) {
+      setError("Start time cannot be in the past.");
+      return;
+    }
+
+    // Validate end time is after start time
     if (end <= start) {
-      setError("End date must be after start date.");
+      setError("End time must be after start time.");
+      return;
+    }
+
+    // Validate minimum duration (at least 2 minutes for testing)
+    const durationMinutes = (end - start) / (1000 * 60);
+    if (durationMinutes < 2) {
+      setError("Auction must run for at least 2 minutes.");
       return;
     }
 
     mutate(formData);
   };
 
-  //   today date
-  const today = new Date().toISOString().split("T")[0];
+  //   today datetime (for datetime-local input)
+  const now = new Date();
+  const today = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
 
   //   today+15 days
   const maxStart = new Date();
   maxStart.setDate(maxStart.getDate() + 15);
-  const maxStartDate = maxStart.toISOString().split("T")[0];
+  const maxStartDate = new Date(maxStart.getTime() - maxStart.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
 
-  //   max end date
+  //   max end date (start date + 15 days)
   let maxEndDate = "";
+  let minEndDate = "";
   if (formData.itemStartDate) {
-    const end = new Date(formData.itemStartDate);
-    end.setDate(end.getDate() + 15);
-    maxEndDate = end.toISOString().split("T")[0];
+    const startDate = new Date(formData.itemStartDate);
+
+    // Min end date = start date + 2 minutes (for testing)
+    const minEnd = new Date(startDate.getTime() + 2 * 60 * 1000);
+    minEndDate = new Date(minEnd.getTime() - minEnd.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+
+    // Max end date = start date + 15 days
+    const maxEnd = new Date(startDate);
+    maxEnd.setDate(maxEnd.getDate() + 15);
+    maxEndDate = new Date(maxEnd.getTime() - maxEnd.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6 text-center">
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
@@ -228,16 +260,16 @@ export const CreateAuction = () => {
 
               {/* Start and End Date Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Start Date */}
+                {/* Start Date & Time */}
                 <div>
                   <label
                     htmlFor="itemStartDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Auction Start Date <span className="text-red-600">*</span>
+                    🕐 Auction Start (Date & Time) <span className="text-red-600">*</span>
                   </label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     id="itemStartDate"
                     name="itemStartDate"
                     min={today}
@@ -247,27 +279,36 @@ export const CreateAuction = () => {
                     className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     required
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Chọn ngày và giờ bắt đầu đấu giá
+                  </p>
                 </div>
 
-                {/* End Date */}
+                {/* End Date & Time */}
                 <div>
                   <label
                     htmlFor="itemEndDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Auction End Date <span className="text-red-600">*</span>
+                    🕐 Auction End (Date & Time) <span className="text-red-600">*</span>
                   </label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     id="itemEndDate"
                     name="itemEndDate"
                     value={formData.itemEndDate}
                     onChange={handleInputChange}
-                    min={formData.itemStartDate}
+                    min={minEndDate || formData.itemStartDate}
                     max={maxEndDate}
                     className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     required
+                    disabled={!formData.itemStartDate}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.itemStartDate
+                      ? "Chọn ngày và giờ kết thúc (tối thiểu sau 2 phút)"
+                      : "Vui lòng chọn thời gian bắt đầu trước"}
+                  </p>
                 </div>
               </div>
 
@@ -344,29 +385,31 @@ export const HelpSection = () => {
   return (
     <div className="mt-8 bg-red-50 border-2 border-red-200 rounded-lg p-6">
       <h3 className="text-lg font-semibold text-red-900 mb-3">
-        Tips for Creating a Successful Christmas Auction
+        💡 Tips for Creating a Successful Christmas Auction
       </h3>
       <ul className="space-y-2 text-red-800 text-sm">
         <li className="flex items-start">
-          <span className="text-red-600 mr-2"></span>
-          Use clear, high-quality photos that show your item from multiple
-          angles
+          <span className="text-red-600 mr-2">📷</span>
+          Use clear, high-quality photos that show your item from multiple angles
         </li>
         <li className="flex items-start">
-          <span className="text-red-600 mr-2"></span>
-          Write detailed descriptions including condition, dimensions, and any
-          flaws
+          <span className="text-red-600 mr-2">📝</span>
+          Write detailed descriptions including condition, dimensions, and any flaws
         </li>
         <li className="flex items-start">
-          <span className="text-red-600 mr-2"></span>
+          <span className="text-red-600 mr-2">💰</span>
           Set a reasonable starting price to attract bidders
         </li>
         <li className="flex items-start">
-          <span className="text-red-600 mr-2"></span>
-          Choose appropriate auction duration (3-7 days typically work best)
+          <span className="text-red-600 mr-2">⏰</span>
+          Choose appropriate auction duration (tối thiểu 1 giờ, khuyến nghị 3-7 ngày)
         </li>
         <li className="flex items-start">
-          <span className="text-red-600 mr-2"></span>
+          <span className="text-red-600 mr-2">🕐</span>
+          Bạn có thể chọn chính xác giờ và phút cho thời gian bắt đầu/kết thúc
+        </li>
+        <li className="flex items-start">
+          <span className="text-red-600 mr-2">🏷️</span>
           Select the most accurate category to help buyers find your item
         </li>
       </ul>

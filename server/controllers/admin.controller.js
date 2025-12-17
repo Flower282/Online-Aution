@@ -1,11 +1,8 @@
 import Product from '../models/product.js';
 import User from '../models/user.js';
-import { connectDB } from '../connection.js';
 
 export const getAdminDashboard = async (req, res) => {
     try {
-        await connectDB();
-
         // Get statistics - only count active users and approved auctions
         const totalAuctions = await Product.countDocuments();
         const activeAuctions = await Product.countDocuments({
@@ -18,18 +15,17 @@ export const getAdminDashboard = async (req, res) => {
             createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
         });
 
-        // Get recent active auctions for display - only approved auctions from active sellers
-        const recentActiveAuctions = await Product.find({
-            itemEndDate: { $gt: new Date() },
+        // Get recent auctions for display - including ended ones (they will be dimmed on frontend)
+        const recentAuctions = await Product.find({
             status: 'approved'
         })
             .populate('seller', 'name email isActive')
-            .sort({ createdAt: -1 })
+            .sort({ itemEndDate: -1 })
             .limit(20) // Get more to account for filtering
             .lean();
 
         // Filter out auctions from inactive sellers and format with timeLeft
-        const filteredAuctions = recentActiveAuctions
+        const filteredAuctions = recentAuctions
             .filter(auction => auction.seller && auction.seller.isActive !== false)
             .map(auction => ({
                 _id: auction._id,
@@ -44,7 +40,14 @@ export const getAdminDashboard = async (req, res) => {
                 sellerActive: auction.seller?.isActive !== false,
                 itemPhoto: auction.itemPhoto,
                 status: auction.status,
+                isEnded: new Date(auction.itemEndDate) < new Date() // Flag for frontend
             }))
+            // Sort: active auctions first, then ended auctions
+            .sort((a, b) => {
+                if (a.isEnded && !b.isEnded) return 1;
+                if (!a.isEnded && b.isEnded) return -1;
+                return b.timeLeft - a.timeLeft;
+            })
             .slice(0, 10);
 
         // Get recent active users for display - only show active users
@@ -74,8 +77,6 @@ export const getAdminDashboard = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try {
-        await connectDB();
-
         // Get pagination parameters from query string
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -139,8 +140,6 @@ export const getAllUsers = async (req, res) => {
 
 export const deleteUserById = async (req, res) => {
     try {
-        await connectDB();
-
         const { userId } = req.params;
 
         // Check if user exists
@@ -187,8 +186,6 @@ export const deleteUserById = async (req, res) => {
 // Reactivate user
 export const reactivateUser = async (req, res) => {
     try {
-        await connectDB();
-
         const { userId } = req.params;
 
         // Check if user exists
@@ -227,8 +224,6 @@ export const reactivateUser = async (req, res) => {
 // Migration: Add isActive field to all existing users
 export const migrateUsersIsActive = async (req, res) => {
     try {
-        await connectDB();
-
         // Update all users that don't have isActive field
         const result = await User.updateMany(
             { isActive: { $exists: false } },
@@ -267,8 +262,6 @@ export const migrateUsersIsActive = async (req, res) => {
 // Get pending auctions for admin approval
 export const getPendingAuctions = async (req, res) => {
     try {
-        await connectDB();
-
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
@@ -331,8 +324,6 @@ export const getPendingAuctions = async (req, res) => {
 // Approve auction
 export const approveAuction = async (req, res) => {
     try {
-        await connectDB();
-
         const { auctionId } = req.params;
         const adminId = req.user.id;
 
@@ -395,8 +386,6 @@ export const approveAuction = async (req, res) => {
 // Reject auction
 export const rejectAuction = async (req, res) => {
     try {
-        await connectDB();
-
         const { auctionId } = req.params;
         const { reason } = req.body;
         const adminId = req.user.id;
@@ -455,8 +444,6 @@ export const rejectAuction = async (req, res) => {
 // Get all auctions (for admin - includes all statuses)
 export const getAllAuctions = async (req, res) => {
     try {
-        await connectDB();
-
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
         const status = req.query.status || 'all'; // all, pending, approved, rejected

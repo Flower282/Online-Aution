@@ -4,6 +4,7 @@ import { getPendingAuctions, approveAuction, rejectAuction } from "../../api/adm
 import { Clock, CheckCircle, XCircle, AlertCircle, Package, ExternalLink } from "lucide-react";
 import LoadingScreen from "../../components/LoadingScreen";
 import { useNavigate } from "react-router";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 const PendingAuctions = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -27,6 +28,7 @@ const PendingAuctions = () => {
             queryClient.invalidateQueries({ queryKey: ["pendingAuctions"] });
             queryClient.invalidateQueries({ queryKey: ["adminDashboard"] });
             queryClient.invalidateQueries({ queryKey: ["allAuction"] });
+            queryClient.invalidateQueries({ queryKey: ["adminAllAuctions"] }); // ✅ Added for admin test page
 
             const message = data?.data?.durationHours
                 ? `Auction approved! Countdown timer started (${data.data.durationHours}h) ⏰✅`
@@ -48,6 +50,7 @@ const PendingAuctions = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["pendingAuctions"] });
             queryClient.invalidateQueries({ queryKey: ["adminDashboard"] });
+            queryClient.invalidateQueries({ queryKey: ["adminAllAuctions"] }); // ✅ Added for admin test page
             setShowRejectModal(false);
             setSelectedAuction(null);
             setRejectionReason("");
@@ -113,7 +116,7 @@ const PendingAuctions = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 p-6">
+            <div className="min-h-screen p-6" style={{ backgroundColor: '#f5f1e8' }}>
                 <div className="max-w-7xl mx-auto">
                     <div className="bg-red-50 border-2 border-red-200 p-6 rounded-lg">
                         <p className="text-red-700 font-semibold">❌ {error.message}</p>
@@ -127,7 +130,7 @@ const PendingAuctions = () => {
     const pagination = data?.data?.pagination || {};
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 p-6">
+        <div className="min-h-screen p-6" style={{ backgroundColor: '#f5f1e8' }}>
             <div className="max-w-7xl mx-auto">
                 {/* Toast Notification Popup */}
                 {toast && (
@@ -306,7 +309,7 @@ const PendingAuctions = () => {
                                                 className="px-6 py-4 cursor-pointer"
                                                 onClick={() => navigate(`/auction/${auction._id}`)}
                                             >
-                                                <p className="font-semibold text-green-600">${auction.startingPrice}</p>
+                                                <p className="font-semibold text-green-600">{formatCurrency(auction.startingPrice)}</p>
                                             </td>
                                             <td
                                                 className="px-6 py-4 cursor-pointer"

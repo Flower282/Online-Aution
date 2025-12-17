@@ -50,6 +50,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    // Số dư tài khoản
+    balance: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);

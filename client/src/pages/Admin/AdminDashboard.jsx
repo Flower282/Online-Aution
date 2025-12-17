@@ -4,6 +4,8 @@ import AuctionCard from '../../components/AuctionCard';
 import LoadingScreen from '../../components/LoadingScreen';
 import Toast from '../../components/Toast';
 import { getAdminDashboard, deleteUser } from '../../api/admin';
+import { ChevronLeft, ChevronRight, Play, Pause, Clock, Users, Tag, Eye } from 'lucide-react';
+import { formatCurrency } from '../../utils/formatCurrency';
 
 export const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -14,6 +16,11 @@ export const AdminDashboard = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [toast, setToast] = useState(null);
+
+  // Slider state for auctions
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Fetch dashboard statistics
   const fetchDashboardData = async () => {
@@ -57,6 +64,42 @@ export const AdminDashboard = () => {
     loadData();
   }, []); // No dependencies since we're not filtering or paginating
 
+  // Auto-advance auction slider
+  const auctionsCount = dashboardData?.recentAuctions?.length || 0;
+
+  useEffect(() => {
+    if (!isPlaying || auctionsCount === 0) return;
+
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setCurrentSlide((prev) => (prev + 1) % auctionsCount);
+      setTimeout(() => setIsTransitioning(false), 300);
+    }, 4000); // Change slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [isPlaying, auctionsCount, currentSlide]);
+
+  const handlePrevSlide = () => {
+    if (isTransitioning || auctionsCount === 0) return;
+    setIsTransitioning(true);
+    setCurrentSlide((prev) => (prev - 1 + auctionsCount) % auctionsCount);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const handleNextSlide = () => {
+    if (isTransitioning || auctionsCount === 0) return;
+    setIsTransitioning(true);
+    setCurrentSlide((prev) => (prev + 1) % auctionsCount);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const goToSlide = (index) => {
+    if (isTransitioning || index === currentSlide) return;
+    setIsTransitioning(true);
+    setCurrentSlide(index);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
   const handleDeleteClick = (user) => {
     setUserToDelete(user);
     setDeleteDialogOpen(true);
@@ -90,7 +133,7 @@ export const AdminDashboard = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-cyan-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="container mx-auto px-4 py-8 max-w-2xl">
           <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-8 shadow-lg">
             <div className="flex flex-col items-center text-center">
@@ -115,7 +158,7 @@ export const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -208,7 +251,7 @@ export const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Recent Active Auctions */}
+        {/* Recent Active Auctions - Slider */}
         {dashboardData && (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-6">
@@ -227,18 +270,162 @@ export const AdminDashboard = () => {
             {!dashboardData.recentAuctions || dashboardData.recentAuctions.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-sm shadow-sm border border-gray-200">
                 <p className="text-gray-500 text-lg">No approved active auctions at the moment.</p>
-                {dashboardData.stats.pendingAuctions > 0 && (
+                {dashboardData.stats?.pendingAuctions > 0 && (
                   <p className="text-yellow-600 text-sm mt-2">
                     You have {dashboardData.stats.pendingAuctions} pending auction{dashboardData.stats.pendingAuctions !== 1 ? 's' : ''} waiting for approval.
                   </p>
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center gap-4">
-                {dashboardData.recentAuctions.map((auction) => (
-                  <AuctionCard key={auction._id} auction={auction} />
-                ))}
-              </div>
+              (() => {
+                const currentAuction = dashboardData.recentAuctions[currentSlide];
+                const isEnded = currentAuction?.itemEndDate ? new Date(currentAuction.itemEndDate) <= new Date() : false;
+
+                return (
+                  <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="grid md:grid-cols-2">
+                      {/* Image Section */}
+                      <div className={`relative h-[280px] md:h-[380px] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 ${isEnded ? 'opacity-60 grayscale' : ''}`}>
+                        <div
+                          className={`absolute inset-0 transition-all duration-300 ${isTransitioning ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
+                            }`}
+                        >
+                          <img
+                            src={currentAuction?.itemPhoto || "https://picsum.photos/600"}
+                            alt={currentAuction?.itemName}
+                            className="w-full h-full object-contain p-6"
+                          />
+                        </div>
+
+                        {/* Ended Overlay */}
+                        {isEnded && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <span className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-sm">
+                              ĐÃ KẾT THÚC
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Navigation Arrows */}
+                        <button
+                          onClick={handlePrevSlide}
+                          disabled={isTransitioning}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm disabled:opacity-50 z-10"
+                        >
+                          <ChevronLeft className="h-5 w-5 text-gray-700" />
+                        </button>
+                        <button
+                          onClick={handleNextSlide}
+                          disabled={isTransitioning}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm disabled:opacity-50 z-10"
+                        >
+                          <ChevronRight className="h-5 w-5 text-gray-700" />
+                        </button>
+
+                        {/* Play/Pause Button */}
+                        <button
+                          onClick={() => setIsPlaying(!isPlaying)}
+                          className="absolute bottom-3 right-3 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm z-10"
+                        >
+                          {isPlaying ? (
+                            <Pause className="h-4 w-4 text-gray-700" />
+                          ) : (
+                            <Play className="h-4 w-4 text-gray-700" />
+                          )}
+                        </button>
+
+                      </div>
+
+                      {/* Info Section */}
+                      <div
+                        className={`p-6 md:p-8 flex flex-col justify-center bg-gradient-to-br from-blue-50 via-white to-gray-50 transition-all duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
+                          }`}
+                      >
+                        {/* Category Badge */}
+                        <div className="mb-3">
+                          <span className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
+                            <Tag className="h-3 w-3" />
+                            {currentAuction?.itemCategory || 'Uncategorized'}
+                          </span>
+                          {isEnded && (
+                            <span className="ml-2 inline-flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                              Đã kết thúc
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 line-clamp-2">
+                          {currentAuction?.itemName}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-gray-600 mb-5 line-clamp-2 text-sm">
+                          {currentAuction?.itemDescription || "Không có mô tả"}
+                        </p>
+
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-2 gap-3 mb-5">
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
+                            <p className="text-xs text-gray-500 mb-1">Giá hiện tại</p>
+                            <p className="text-xl font-bold text-green-600">
+                              {formatCurrency(currentAuction?.currentPrice || currentAuction?.startingPrice || 0)}
+                            </p>
+                          </div>
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
+                            <p className="text-xs text-gray-500 mb-1">Giá khởi điểm</p>
+                            <p className="text-xl font-bold text-gray-700">
+                              {formatCurrency(currentAuction?.startingPrice || 0)}
+                            </p>
+                          </div>
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm flex items-center gap-2">
+                            <Users className="h-4 w-4 text-blue-500" />
+                            <div>
+                              <p className="text-xs text-gray-500">Lượt bid</p>
+                              <p className="text-lg font-bold text-gray-800">{currentAuction?.bidsCount || 0}</p>
+                            </div>
+                          </div>
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-orange-500" />
+                            <div>
+                              <p className="text-xs text-gray-500">Kết thúc</p>
+                              <p className="text-sm font-semibold text-gray-800">
+                                {currentAuction?.itemEndDate
+                                  ? new Date(currentAuction.itemEndDate).toLocaleDateString('vi-VN')
+                                  : 'N/A'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* View Button */}
+                        <Link
+                          to={`/auction/${currentAuction?._id}`}
+                          className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-6 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg"
+                        >
+                          <Eye className="h-5 w-5" />
+                          Xem chi tiết
+                        </Link>
+
+                        {/* Slide Indicators */}
+                        <div className="flex justify-center gap-2 mt-5">
+                          {dashboardData.recentAuctions.map((_, index) => (
+                            <button
+                              key={index}
+                              onClick={() => goToSlide(index)}
+                              disabled={isTransitioning}
+                              className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide
+                                ? 'w-6 bg-blue-600'
+                                : 'w-2 bg-gray-300 hover:bg-blue-300'
+                                }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()
             )}
           </div>
         )}
