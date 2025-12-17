@@ -5,6 +5,8 @@ import { AuctionList } from "../pages/AuctionList";
 import { CreateAuction } from "../pages/CreateAuction";
 import { MyAuction } from "../pages/MyAuction";
 import Favorites from "../pages/Favorites";
+import WonAuctions from "../pages/WonAuctions";
+import MyDeposits from "../pages/MyDeposits";
 import Profile from "../pages/Profile";
 import Privacy from "../pages/Privacy";
 import Dashboard from "../pages/Dashboard";
@@ -38,6 +40,16 @@ export const protectedRoutes = [
       {
         path: "favorites",
         element: <Favorites />,
+        errorElement: <Error />,
+      },
+      {
+        path: "won",
+        element: <WonAuctions />,
+        errorElement: <Error />,
+      },
+      {
+        path: "deposits",
+        element: <MyDeposits />,
         errorElement: <Error />,
       },
       {

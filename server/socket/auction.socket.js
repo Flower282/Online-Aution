@@ -4,6 +4,8 @@
  * Tránh N+1 connection bằng cách nhận dependencies từ bên ngoài
  */
 
+import { canUserBid } from '../controllers/deposit.controller.js';
+
 /**
  * @param {Object} socket - Socket.io socket instance
  * @param {Object} io - Socket.io server instance
@@ -108,6 +110,37 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                         });
                         return;
                     }
+
+                    // Check if auction has ended
+                    if (new Date(auction.itemEndDate) < new Date()) {
+                        socket.emit('auction:bid:error', {
+                            code: 'AUCTION_ENDED',
+                            message: 'Phiên đấu giá đã kết thúc. Không thể đặt giá thêm.'
+                        });
+                        return;
+                    }
+
+                    // Check if user is the seller
+                    if (auction.seller.toString() === userId) {
+                        socket.emit('auction:bid:error', {
+                            code: 'CANNOT_BID_OWN_AUCTION',
+                            message: 'Bạn không thể đấu giá sản phẩm của chính mình'
+                        });
+                        return;
+                    }
+
+                    // 🔥 CHECK DEPOSIT: User phải đặt cọc trước khi bid
+                    const depositCheck = await canUserBid(userId, auctionId);
+                    if (!depositCheck.canBid) {
+                        socket.emit('auction:bid:error', {
+                            code: 'DEPOSIT_REQUIRED',
+                            message: depositCheck.reason,
+                            depositRequired: depositCheck.depositRequired,
+                            depositAmount: depositCheck.depositAmount,
+                            depositPercentage: depositCheck.depositPercentage
+                        });
+                        return;
+                    }
                 } catch (error) {
                     console.error('Error checking auction status:', error);
                     socket.emit('auction:bid:error', {
@@ -195,6 +228,37 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                         message: auction.status === 'pending'
                             ? 'This auction is pending admin approval and cannot accept bids yet'
                             : 'This auction cannot accept bids'
+                    });
+                    return;
+                }
+
+                // Check if auction has ended
+                if (new Date(auction.itemEndDate) < new Date()) {
+                    socket.emit('auction:bid:error', {
+                        code: 'AUCTION_ENDED',
+                        message: 'Phiên đấu giá đã kết thúc. Không thể đặt giá thêm.'
+                    });
+                    return;
+                }
+
+                // Check if user is the seller
+                if (auction.seller.toString() === userId) {
+                    socket.emit('auction:bid:error', {
+                        code: 'CANNOT_BID_OWN_AUCTION',
+                        message: 'Bạn không thể đấu giá sản phẩm của chính mình'
+                    });
+                    return;
+                }
+
+                // 🔥 CHECK DEPOSIT: User phải đặt cọc trước khi bid
+                const depositCheck = await canUserBid(userId, auctionId);
+                if (!depositCheck.canBid) {
+                    socket.emit('auction:bid:error', {
+                        code: 'DEPOSIT_REQUIRED',
+                        message: depositCheck.reason,
+                        depositRequired: depositCheck.depositRequired,
+                        depositAmount: depositCheck.depositAmount,
+                        depositPercentage: depositCheck.depositPercentage
                     });
                     return;
                 }

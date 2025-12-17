@@ -137,3 +137,116 @@ export const getFavoriteAuctions = async () => {
         throw new Error(error.response?.data?.message || "Failed to load favorite auctions. Please try again.");
     }
 }
+
+// ==================== ADMIN FUNCTIONS ====================
+
+// get all auctions for admin (including ended ones)
+export const getAllAuctionsAdmin = async () => {
+    try {
+        const res = await axios.get(`${API_ENDPOINTS.AUCTION}/admin/all`,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error getting all auctions for admin", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load auctions. Please try again.");
+    }
+}
+
+// ==================== DEPOSIT FUNCTIONS ====================
+
+// get won auctions (auctions user has won)
+export const getWonAuctions = async () => {
+    try {
+        const res = await axios.get(`${API_ENDPOINTS.AUCTION}/won`,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error getting won auctions", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load won auctions. Please try again.");
+    }
+}
+
+// get deposit information for an auction
+export const getDepositInfo = async (id) => {
+    try {
+        const res = await axios.get(`${API_ENDPOINTS.AUCTION}/${id}/deposit`,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error getting deposit info", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load deposit information. Please try again.");
+    }
+}
+
+// submit deposit payment
+export const submitDeposit = async (id, depositData) => {
+    try {
+        const res = await axios.post(`${API_ENDPOINTS.AUCTION}/${id}/deposit`,
+            depositData,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error submitting deposit", error.message);
+        throw new Error(error.response?.data?.message || "Failed to submit deposit. Please try again.");
+    }
+}
+
+// finalize auction (set winner and deposit requirements)
+export const finalizeAuction = async (id) => {
+    try {
+        const res = await axios.post(`${API_ENDPOINTS.AUCTION}/${id}/finalize`,
+            {},
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error finalizing auction", error.message);
+        throw new Error(error.response?.data?.error || error.response?.data?.message || "Failed to finalize auction. Please try again.");
+    }
+}
+
+// ==================== PRE-BID DEPOSIT FUNCTIONS ====================
+
+// Check deposit status for an auction (required before bidding)
+export const checkDeposit = async (productId) => {
+    try {
+        const res = await axios.get(`/deposit/${productId}/check`,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error checking deposit", error.message);
+        throw new Error(error.response?.data?.message || "Failed to check deposit status.");
+    }
+}
+
+// Create/submit deposit before bidding
+export const createDeposit = async (productId, depositData) => {
+    try {
+        const res = await axios.post(`/deposit/${productId}`,
+            depositData,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error creating deposit", error.message);
+        throw new Error(error.response?.data?.error || error.response?.data?.message || "Failed to submit deposit.");
+    }
+}
+
+// Get all deposits for current user
+export const getMyDeposits = async () => {
+    try {
+        const res = await axios.get('/deposit/my-deposits',
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error getting my deposits", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load deposits.");
+    }
+}

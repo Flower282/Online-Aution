@@ -1,12 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { placeBid, viewAuction, deleteAuction, toggleLikeAuction } from "../api/auction.js";
+import { placeBid, viewAuction, deleteAuction, toggleLikeAuction, checkDeposit, createDeposit } from "../api/auction.js";
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import socket, { ensureSocketConnected } from "../utils/socket.js";
-import { TrendingUp, Package, Heart } from "lucide-react";
+import { TrendingUp, Package, Heart, Shield, CreditCard, Wallet, Building2, X } from "lucide-react";
 import Toast from "../components/Toast.jsx";
+import { formatCurrency } from "../utils/formatCurrency.js";
 
 export const ViewAuction = () => {
   const { id } = useParams();
@@ -24,6 +25,12 @@ export const ViewAuction = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(null);
+
+  // Deposit states
+  const [depositStatus, setDepositStatus] = useState(null);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [isSubmittingDeposit, setIsSubmittingDeposit] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('bank_transfer');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
@@ -56,6 +63,45 @@ export const ViewAuction = () => {
       }
     }
   }, [data, currentPrice, user?.user?._id]);
+
+  // Check deposit status when page loads
+  useEffect(() => {
+    const fetchDepositStatus = async () => {
+      if (!id || !user?.user?._id) return;
+
+      // Wait for data to load
+      if (!data?.seller?._id) return;
+
+      // Don't check deposit for own auctions
+      if (data.seller._id === user.user._id) return;
+
+      // Don't check if auction ended
+      const isAuctionActive = new Date(data.itemEndDate) > new Date();
+      if (!isAuctionActive) return;
+
+      try {
+        console.log('💰 Checking deposit for auction:', id);
+        const status = await checkDeposit(id);
+        setDepositStatus(status);
+        console.log('💰 Deposit status:', status);
+      } catch (error) {
+        console.error('Error checking deposit:', error);
+        // Set default deposit status so UI still shows
+        if (data?.startingPrice) {
+          const defaultPercentage = 10;
+          setDepositStatus({
+            hasDeposit: false,
+            depositRequired: true,
+            depositPercentage: defaultPercentage,
+            depositAmount: Math.round(data.startingPrice * defaultPercentage / 100),
+            startingPrice: data.startingPrice
+          });
+        }
+      }
+    };
+
+    fetchDepositStatus();
+  }, [id, user?.user?._id, data]);
 
   // Countdown timer effect
   useEffect(() => {
@@ -145,7 +191,7 @@ export const ViewAuction = () => {
       // Show notification if bid is from another user
       if (update.userId !== user?.user?._id) {
         setToast({
-          message: `Có người vừa đặt giá: $${update.amount}`,
+          message: `Có người vừa đặt giá: ${formatCurrency(update.amount)}`,
           type: "info"
         });
       }
@@ -182,8 +228,19 @@ export const ViewAuction = () => {
     socket.on('auction:bid:error', (error) => {
       console.error('❌ Bid error:', error);
       let errorMessage = error.message;
+
       if (error.code === 'PRICE_EXISTS') {
-        errorMessage = `Giá $${error.existingAmount} đã có người đặt. Vui lòng chọn giá khác!`;
+        errorMessage = `Giá ${formatCurrency(error.existingAmount)} đã có người đặt. Vui lòng chọn giá khác!`;
+      } else if (error.code === 'DEPOSIT_REQUIRED') {
+        // Show deposit modal instead of error toast
+        setDepositStatus({
+          hasDeposit: false,
+          depositRequired: true,
+          depositAmount: error.depositAmount,
+          depositPercentage: error.depositPercentage
+        });
+        setShowDepositModal(true);
+        return; // Don't show error toast
       }
 
       // Refresh data to show latest price
@@ -249,6 +306,7 @@ export const ViewAuction = () => {
     onSuccess: () => {
       // Invalidate all auction-related queries to refresh data everywhere
       queryClient.invalidateQueries({ queryKey: ["allAuction"] });
+      queryClient.invalidateQueries({ queryKey: ["adminAllAuctions"] }); // ✅ Added for admin test page
       queryClient.invalidateQueries({ queryKey: ["stats"] });
       queryClient.invalidateQueries({ queryKey: ["myauctions"] });
       queryClient.invalidateQueries({ queryKey: ["viewAuctions"] });
@@ -338,12 +396,12 @@ export const ViewAuction = () => {
     const maxBid = (currentPrice || data.currentPrice) + 10;
 
     if (bidAmount < minBid) {
-      setToast({ message: `Giá đặt phải từ $${minBid} trở lên`, type: "error" });
+      setToast({ message: `Giá đặt phải từ ${formatCurrency(minBid)} trở lên`, type: "error" });
       return;
     }
 
     if (bidAmount > maxBid) {
-      setToast({ message: `Giá đặt không được vượt quá $${maxBid}`, type: "error" });
+      setToast({ message: `Giá đặt không được vượt quá ${formatCurrency(maxBid)}`, type: "error" });
       return;
     }
 
@@ -422,6 +480,37 @@ export const ViewAuction = () => {
   const isPending = data?.status === 'pending';
   const isRejected = data?.status === 'rejected';
 
+  // Handle deposit submission
+  const handleDepositSubmit = async () => {
+    if (isSubmittingDeposit) return;
+
+    setIsSubmittingDeposit(true);
+    try {
+      const result = await createDeposit(id, {
+        paymentMethod: selectedPaymentMethod,
+        transactionId: `TXN_${Date.now()}` // Generate a mock transaction ID
+      });
+
+      setDepositStatus({
+        ...depositStatus,
+        hasDeposit: true,
+        deposit: result.deposit
+      });
+      setShowDepositModal(false);
+      setToast({ message: result.message || "Đặt cọc thành công! Bạn có thể đấu giá ngay.", type: "success" });
+    } catch (error) {
+      setToast({ message: error.message || "Không thể đặt cọc. Vui lòng thử lại.", type: "error" });
+    } finally {
+      setIsSubmittingDeposit(false);
+    }
+  };
+
+  const paymentMethods = [
+    { id: 'bank_transfer', name: 'Chuyển khoản ngân hàng', icon: Building2 },
+    { id: 'credit_card', name: 'Thẻ tín dụng', icon: CreditCard },
+    { id: 'wallet', name: 'Ví điện tử', icon: Wallet },
+  ];
+
   // Debug info - after all variables are declared
   console.log('🔍 Debug Place Bid Visibility:', {
     userId: user?.user?._id,
@@ -440,17 +529,27 @@ export const ViewAuction = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image Section */}
           <div className="space-y-4">
-            <div className="w-full aspect-square bg-white rounded-md shadow-lg border-2 border-red-200 overflow-hidden flex items-center justify-center">
+            <div className={`w-full aspect-square bg-white rounded-md shadow-lg border-2 overflow-hidden flex items-center justify-center relative ${!isActive ? 'border-gray-300' : 'border-red-200'
+              }`}>
               <img
                 src={data.itemPhoto || "https://picsum.photos/601"}
                 alt={data.itemName}
-                className="h-full w-full object-cover"
+                className={`h-full w-full object-cover transition-all duration-300 ${!isActive ? 'opacity-60 grayscale' : ''
+                  }`}
               />
+              {/* Overlay for ended auctions */}
+              {!isActive && (
+                <div className="absolute inset-0 bg-gray-900/20 flex items-center justify-center">
+                  <span className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-lg shadow-lg">
+                    ĐÃ KẾT THÚC
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Details Section */}
-          <div className="space-y-4">
+          <div className={`space-y-4 transition-all duration-300 ${!isActive ? 'opacity-75' : ''}`}>
             {/* Title & Description */}
             <div>
               <div className="flex items-center justify-between gap-2 mb-2">
@@ -505,7 +604,7 @@ export const ViewAuction = () => {
                       Starting
                     </p>
                     <p className="text-lg font-bold text-amber-800">
-                      ${data.startingPrice}
+                      {formatCurrency(data.startingPrice)}
                     </p>
                   </div>
 
@@ -516,7 +615,7 @@ export const ViewAuction = () => {
                       Current
                     </p>
                     <p className="text-xl font-bold text-emerald-800">
-                      ${currentPrice ?? data.currentPrice}
+                      {formatCurrency(currentPrice ?? data.currentPrice)}
                     </p>
                   </div>
 
@@ -667,39 +766,96 @@ export const ViewAuction = () => {
                 </div>
               )}
 
-              {/* Bid Form - Only show if approved */}
+              {/* Deposit Status & Bid Form - Only show if approved */}
               {data.seller._id != user.user._id && isActive && !isSellerInactive && isApproved && (
                 <div className="bg-white p-6 rounded-md shadow-md border border-green-200 md:col-span-2">
-                  <h3 className="text-lg font-semibold mb-4">Place Your Bid</h3>
-                  <form onSubmit={handleBidSubmit} className="space-y-4">
-                    <div>
-                      <label
-                        htmlFor="bidAmount"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Bid Amount (minimum: ${(currentPrice || data.currentPrice) + 1} maximum: $
-                        {(currentPrice || data.currentPrice) + 10})
-                      </label>
-                      <input
-                        type="number"
-                        name="bidAmount"
-                        id="bidAmount"
-                        ref={inputRef}
-                        min={(currentPrice || data.currentPrice) + 1}
-                        max={(currentPrice || data.currentPrice) + 10}
-                        step="0.01"
-                        className="w-full px-3 py-2 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                        placeholder="Enter your bid amount"
-                        required
-                      />
+                  {/* Deposit Status - Loading */}
+                  {!depositStatus && (
+                    <div className="mb-4 p-4 rounded-lg border-2 bg-gray-50 border-gray-200 animate-pulse">
+                      <div className="flex items-center gap-3">
+                        <Shield className="h-6 w-6 text-gray-400" />
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-200 rounded w-48 mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded w-32"></div>
+                        </div>
+                      </div>
                     </div>
-                    <button
-                      type="submit"
-                      className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md"
-                    >
-                      Place Bid
-                    </button>
-                  </form>
+                  )}
+
+                  {/* Deposit Status - Loaded */}
+                  {depositStatus && (
+                    <div className={`mb-4 p-4 rounded-lg border-2 ${depositStatus.hasDeposit
+                      ? 'bg-green-50 border-green-300'
+                      : 'bg-amber-50 border-amber-300'
+                      }`}>
+                      <div className="flex items-center gap-3">
+                        <Shield className={`h-6 w-6 ${depositStatus.hasDeposit ? 'text-green-600' : 'text-amber-600'}`} />
+                        <div className="flex-1">
+                          <h4 className={`font-semibold ${depositStatus.hasDeposit ? 'text-green-800' : 'text-amber-800'}`}>
+                            {depositStatus.hasDeposit ? '✓ Đã đặt cọc' : 'Cần đặt cọc trước khi đấu giá'}
+                          </h4>
+
+                        </div>
+
+                      </div>
+                      {depositStatus.hasDeposit && depositStatus.deposit && (
+                        <p className="text-xs text-green-600 mt-2">
+                          Đã cọc lúc: {new Date(depositStatus.deposit.paidAt).toLocaleString('vi-VN')}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Show bid form only if deposited */}
+                  {depositStatus?.hasDeposit ? (
+                    <>
+                      <h3 className="text-lg font-semibold mb-4">Place Your Bid</h3>
+                      <form onSubmit={handleBidSubmit} className="space-y-4">
+                        <div>
+                          <label
+                            htmlFor="bidAmount"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Bid Amount (minimum: {formatCurrency((currentPrice || data.currentPrice) + 1)} maximum: {formatCurrency((currentPrice || data.currentPrice) + 10)})
+                          </label>
+                          <input
+                            type="number"
+                            name="bidAmount"
+                            id="bidAmount"
+                            ref={inputRef}
+                            min={(currentPrice || data.currentPrice) + 1}
+                            max={(currentPrice || data.currentPrice) + 10}
+                            step="0.01"
+                            className="w-full px-3 py-2 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            placeholder="Enter your bid amount"
+                            required
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md"
+                        >
+                          Place Bid
+                        </button>
+                      </form>
+                    </>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-gray-600 mb-4">
+                        Bạn cần đặt cọc <span className="font-bold text-amber-600">{formatCurrency(depositStatus?.depositAmount || Math.round((data?.startingPrice || 0) * (depositStatus?.depositPercentage || 10) / 100))}</span> để tham gia đấu giá
+                      </p>
+                      <button
+                        onClick={() => setShowDepositModal(true)}
+                        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
+                      >
+                        <Shield className="h-5 w-5" />
+                        Đặt cọc ngay
+                      </button>
+                      <p className="text-xs text-gray-500 mt-3">
+                        💡 Tiền cọc sẽ được hoàn trả nếu bạn không thắng đấu giá
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -766,7 +922,7 @@ export const ViewAuction = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-semibold text-red-700">
-                        ${bid.bidAmount}
+                        {formatCurrency(bid.bidAmount)}
                       </p>
                     </div>
                   </div>
@@ -797,6 +953,104 @@ export const ViewAuction = () => {
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deposit Modal */}
+      {showDepositModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Shield className="h-8 w-8" />
+                  <h3 className="text-xl font-bold">Đặt cọc tham gia đấu giá</h3>
+                </div>
+                <button
+                  onClick={() => setShowDepositModal(false)}
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Deposit Amount */}
+              {(() => {
+                const percentage = depositStatus?.depositPercentage || 10;
+                const startPrice = data?.startingPrice || 0;
+                const depositAmt = depositStatus?.depositAmount || Math.round(startPrice * percentage / 100);
+                return (
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-xl border-2 border-amber-200">
+                    <p className="text-sm text-amber-700 mb-1">Số tiền cọc</p>
+                    <p className="text-3xl font-bold text-amber-800">
+                      {formatCurrency(depositAmt)}
+                    </p>
+                    <p className="text-xs text-amber-600 mt-1">
+                      = {percentage}% của giá khởi điểm ({formatCurrency(startPrice)})
+                    </p>
+                  </div>
+                );
+              })()}
+
+              {/* Info */}
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  💡 <strong>Lưu ý:</strong> Tiền cọc sẽ được hoàn trả đầy đủ nếu bạn không thắng đấu giá.
+                  Nếu thắng, tiền cọc sẽ được trừ vào giá cuối cùng.
+                </p>
+              </div>
+
+              {/* Payment Methods */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-3">Phương thức thanh toán</p>
+                <div className="space-y-2">
+                  {paymentMethods.map((method) => (
+                    <button
+                      key={method.id}
+                      onClick={() => setSelectedPaymentMethod(method.id)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${selectedPaymentMethod === method.id
+                        ? 'border-amber-500 bg-amber-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                    >
+                      <method.icon className={`h-5 w-5 ${selectedPaymentMethod === method.id ? 'text-amber-600' : 'text-gray-500'
+                        }`} />
+                      <span className={`font-medium ${selectedPaymentMethod === method.id ? 'text-amber-800' : 'text-gray-700'
+                        }`}>
+                        {method.name}
+                      </span>
+                      {selectedPaymentMethod === method.id && (
+                        <span className="ml-auto text-amber-600">✓</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                onClick={handleDepositSubmit}
+                disabled={isSubmittingDeposit}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isSubmittingDeposit ? (
+                  <>
+                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="h-5 w-5" />
+                    Xác nhận đặt cọc {formatCurrency(depositStatus?.depositAmount || Math.round((data?.startingPrice || 0) * (depositStatus?.depositPercentage || 10) / 100))}
+                  </>
+                )}
               </button>
             </div>
           </div>

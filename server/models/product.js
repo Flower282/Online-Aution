@@ -54,6 +54,26 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    // Deposit (Đặt cọc) fields
+    // depositRequired: user phải đặt cọc trước khi bid
+    // depositPercentage: % của giá khởi điểm
+    // depositAmount: số tiền cọc = startingPrice * depositPercentage / 100
+    depositRequired: {
+        type: Boolean,
+        default: true,
+    },
+    depositPercentage: {
+        type: Number,
+        default: 10, // 10% của giá khởi điểm
+        min: 0,
+        max: 100
+    },
+    // Auction completion status
+    auctionStatus: {
+        type: String,
+        enum: ['active', 'ended', 'completed', 'cancelled', 'expired'],
+        default: 'active'
+    },
     status: {
         type: String,
         enum: ['pending', 'approved', 'rejected'],

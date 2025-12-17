@@ -5,6 +5,7 @@ import { dashboardStats } from "../api/auction.js";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
+import { formatCurrency } from "../utils/formatCurrency";
 
 const Dashboard = () => {
   const { data, isLoading, error } = useQuery({
@@ -132,9 +133,8 @@ const Dashboard = () => {
                 {/* Image Section */}
                 <div className="relative h-[400px] md:h-[500px] overflow-hidden bg-gradient-to-br from-red-50 to-pink-50">
                   <div
-                    className={`absolute inset-0 transition-opacity duration-300 ${
-                      isTransitioning ? 'opacity-0' : 'opacity-100'
-                    }`}
+                    className={`absolute inset-0 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
+                      }`}
                   >
                     <img
                       src={recentAuctions[currentSlide]?.itemPhoto || "https://picsum.photos/600"}
@@ -174,9 +174,8 @@ const Dashboard = () => {
 
                 {/* Info Section */}
                 <div
-                  className={`p-8 md:p-12 flex flex-col justify-center bg-gradient-to-br from-red-50 via-pink-50 to-white transition-opacity duration-300 ${
-                    isTransitioning ? 'opacity-0' : 'opacity-100'
-                  }`}
+                  className={`p-8 md:p-12 flex flex-col justify-center bg-gradient-to-br from-red-50 via-pink-50 to-white transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
+                    }`}
                 >
                   <div className="mb-4">
                     <span className="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide">
@@ -196,7 +195,7 @@ const Dashboard = () => {
                     <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-red-100">
                       <span className="text-gray-600 font-medium">Current Price:</span>
                       <span className="text-3xl font-bold text-red-600">
-                        ${(recentAuctions[currentSlide]?.currentPrice || recentAuctions[currentSlide]?.startingPrice)?.toLocaleString()}
+                        {formatCurrency(recentAuctions[currentSlide]?.currentPrice || recentAuctions[currentSlide]?.startingPrice)}
                       </span>
                     </div>
 
@@ -220,11 +219,10 @@ const Dashboard = () => {
                       <button
                         key={index}
                         onClick={() => goToSlide(index)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          index === currentSlide
-                            ? 'w-8 bg-red-600'
-                            : 'w-2 bg-gray-300 hover:bg-red-300'
-                        }`}
+                        className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide
+                          ? 'w-8 bg-red-600'
+                          : 'w-2 bg-gray-300 hover:bg-red-300'
+                          }`}
                         disabled={isTransitioning}
                       />
                     ))}
