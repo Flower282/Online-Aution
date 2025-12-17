@@ -111,6 +111,57 @@
     }
 }
 
+/* Christmas Hover Effects */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0) rotate(0deg);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px) rotate(-2deg);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px) rotate(2deg);
+    }
+}
+
+@keyframes fall-snow {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(300px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes fall-gifts {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(150px) rotate(180deg) scale(0.8);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateY(250px) rotate(360deg) scale(0.5);
+        opacity: 0;
+    }
+}
+
+.animate-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.animate-fall-snow {
+    animation: fall-snow 2s ease-in forwards;
+}
+
+.animate-fall-gifts {
+    animation: fall-gifts 2.5s ease-in forwards;
+}
+
 @keyframes twinkle {
 
     0%,
