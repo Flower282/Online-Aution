@@ -37,6 +37,15 @@ export const API_ENDPOINTS = {
 
     // Contact endpoint
     CONTACT: `${API_URL}/contact`,
+
+    // Verification endpoints
+    VERIFICATION: {
+        STATUS: `${API_URL}/verification/status`,
+        PHONE: `${API_URL}/verification/phone`,
+        EMAIL: `${API_URL}/verification/email`,
+        IDENTITY_CARD: `${API_URL}/verification/identity-card`,
+        ADMIN_PENDING: `${API_URL}/verification/admin/pending`,
+    },
 };
 
 // Export base URL for socket connection

@@ -1,16 +1,30 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { logout } from "../store/auth/authSlice";
-import { Gavel, Search, User, Heart, Menu, X, Gift, Sparkles, Trophy, ChevronDown, Wallet, Package, Settings, LogOut, ShieldCheck, LayoutDashboard, Plus, Eye } from "lucide-react";
+import { Gavel, Search, User, Heart, Menu, X, Gift, Sparkles, Trophy, ChevronDown, Wallet, Package, Settings, LogOut, ShieldCheck, LayoutDashboard, Plus, Eye, FileText, Home, Info, Phone, UserCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import {
   IoLogOutOutline,
 } from "react-icons/io5";
 import { getPendingAuctions } from "../api/admin";
-import { getWonAuctions } from "../api/auction";
+import { getWonAuctions, getAuctions } from "../api/auction";
+
+// Static pages for search
+const staticPages = [
+  { name: "Trang chủ", link: "/", icon: Home, keywords: ["home", "trang chu", "dashboard"] },
+  { name: "Đấu giá", link: "/auction", icon: Gavel, keywords: ["auction", "dau gia", "san pham"] },
+  { name: "Tạo đấu giá", link: "/create", icon: Plus, keywords: ["create", "tao", "dang ban", "moi"] },
+  { name: "Đấu giá của tôi", link: "/myauction", icon: Package, keywords: ["my auction", "cua toi", "san pham cua toi"] },
+  { name: "Đấu giá đã thắng", link: "/won", icon: Trophy, keywords: ["won", "thang", "chien thang"] },
+  { name: "Tiền cọc", link: "/deposits", icon: Wallet, keywords: ["deposit", "tien coc", "dat coc"] },
+  { name: "Yêu thích", link: "/favorites", icon: Heart, keywords: ["favorite", "yeu thich", "like"] },
+  { name: "Hồ sơ", link: "/profile", icon: UserCircle, keywords: ["profile", "ho so", "tai khoan", "account"] },
+  { name: "Giới thiệu", link: "/about", icon: Info, keywords: ["about", "gioi thieu", "ve chung toi"] },
+  { name: "Liên hệ", link: "/contact", icon: Phone, keywords: ["contact", "lien he", "ho tro"] },
+];
 
 export const Navbar = () => {
   const dispatch = useDispatch();
@@ -18,7 +32,13 @@ export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const searchRef = useRef(null);
   const { user } = useSelector((state) => state.auth);
+
+  // Search states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // Query được gửi khi Enter
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   // Fetch pending auctions count for admin
   const { data: pendingData } = useQuery({
@@ -29,6 +49,67 @@ export const Navbar = () => {
   });
 
   const pendingCount = pendingData?.data?.pagination?.totalPending || 0;
+
+  // Fetch auctions for search
+  const { data: auctionsData } = useQuery({
+    queryKey: ["allAuctionsForSearch"],
+    queryFn: getAuctions,
+    staleTime: 60 * 1000,
+  });
+
+  // Search results computation - chỉ tìm khi đã bấm Enter
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      return { auctions: [], pages: [] };
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    const auctions = auctionsData || [];
+
+    // Filter auctions by name, description, category (all returned auctions are approved)
+    const filteredAuctions = auctions
+      .filter(auction =>
+        auction.itemName?.toLowerCase().includes(query) ||
+        auction.itemDescription?.toLowerCase().includes(query) ||
+        auction.itemCategory?.toLowerCase().includes(query)
+      )
+      .slice(0, 5); // Limit to 5 results
+
+    // Filter static pages
+    const filteredPages = staticPages.filter(page =>
+      page.name.toLowerCase().includes(query) ||
+      page.keywords.some(kw => kw.includes(query))
+    ).slice(0, 4);
+
+    return { auctions: filteredAuctions, pages: filteredPages };
+  }, [searchQuery, auctionsData]);
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle search result click
+  const handleSearchResultClick = (link) => {
+    setSearchTerm("");
+    setSearchQuery("");
+    setShowSearchResults(false);
+    navigate(link);
+  };
+
+  // Handle search submit (Enter key)
+  const handleSearchSubmit = () => {
+    if (searchTerm.trim().length >= 2) {
+      setSearchQuery(searchTerm);
+      setShowSearchResults(true);
+    }
+  };
 
   // Fetch won auctions count for regular users
   const { data: wonData } = useQuery({
@@ -142,13 +223,140 @@ export const Navbar = () => {
             </nav>
           </div>
 
-          <div className="hidden lg:flex flex-1 max-w-md mx-6">
+          <div className="hidden lg:flex flex-1 max-w-md mx-6" ref={searchRef}>
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-600" />
               <Input
-                placeholder=" Tìm kiếm đấu giá Christmas..."
+                placeholder="Tìm kiếm đấu giá, trang... (Enter để tìm)"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => {
+                  if (searchQuery.trim()) setShowSearchResults(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearchSubmit();
+                  }
+                  if (e.key === 'Escape') {
+                    setShowSearchResults(false);
+                  }
+                }}
+                autoComplete="off"
                 className="pl-9 bg-red-50 border-red-200 focus:border-red-400 focus:ring-red-400"
               />
+
+              {/* Search Results Dropdown */}
+              {showSearchResults && searchQuery.trim() && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-[400px] overflow-y-auto">
+                  {searchResults.auctions.length === 0 && searchResults.pages.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">
+                      <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                      <p>Không tìm thấy kết quả cho "{searchQuery}"</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Auctions Results */}
+                      {searchResults.auctions.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 bg-gradient-to-r from-red-50 to-orange-50 border-b border-gray-100">
+                            <span className="text-xs font-semibold text-red-700 uppercase tracking-wider flex items-center gap-1">
+                              <Gavel className="h-3 w-3" />
+                              Đấu giá ({searchResults.auctions.length})
+                            </span>
+                          </div>
+                          {searchResults.auctions.map((auction) => {
+                            // Use timeLeft from API response
+                            const timeRemaining = auction.timeLeft || 0;
+                            const isEnded = auction.isEnded || timeRemaining <= 0;
+                            const daysLeft = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                            const hoursLeft = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutesLeft = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+
+                            return (
+                              <button
+                                key={auction._id}
+                                onClick={() => handleSearchResultClick(`/auction/${auction._id}`)}
+                                className="w-full px-4 py-3 flex items-start gap-3 hover:bg-red-50 transition-colors text-left border-b border-gray-50 last:border-b-0"
+                              >
+                                <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 shadow-sm">
+                                  {auction.itemPhoto ? (
+                                    <img
+                                      src={auction.itemPhoto}
+                                      alt={auction.itemName}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <Package className="h-8 w-8 text-gray-400" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-semibold text-gray-900 truncate">{auction.itemName}</p>
+                                  <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">
+                                    {auction.itemDescription?.slice(0, 60) || 'Không có mô tả'}
+                                    {auction.itemDescription?.length > 60 ? '...' : ''}
+                                  </p>
+                                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                      {auction.itemCategory}
+                                    </span>
+                                    {auction.bidsCount > 0 && (
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                                        {auction.bidsCount} lượt đấu giá
+                                      </span>
+                                    )}
+                                    {!isEnded ? (
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                        {daysLeft > 0 ? `${daysLeft}d ${hoursLeft}h` : hoursLeft > 0 ? `${hoursLeft}h ${minutesLeft}m` : `${minutesLeft}m còn lại`}
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                        Đã kết thúc
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-1.5">
+                                    <span className="text-xs text-gray-500">Giá hiện tại:</span>
+                                    <span className="text-sm font-bold text-red-600">
+                                      {new Intl.NumberFormat('vi-VN').format(auction.currentPrice)}đ
+                                    </span>
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Pages Results */}
+                      {searchResults.pages.length > 0 && (
+                        <div>
+                          <div className="px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-t border-gray-100">
+                            <span className="text-xs font-semibold text-blue-700 uppercase tracking-wider flex items-center gap-1">
+                              <FileText className="h-3 w-3" />
+                              Trang ({searchResults.pages.length})
+                            </span>
+                          </div>
+                          {searchResults.pages.map((page) => (
+                            <button
+                              key={page.link}
+                              onClick={() => handleSearchResultClick(page.link)}
+                              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left"
+                            >
+                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
+                                <page.icon className="h-5 w-5 text-blue-600" />
+                              </div>
+                              <span className="font-medium text-gray-900">{page.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -448,7 +656,7 @@ const navMenu = [
 // Main navigation links for logged-in users (shown directly in navbar)
 const mainNavLinks = [
   { name: "Dashboard", link: "/", icon: LayoutDashboard },
-  { name: "Đấu giá", link: "/auction", icon: Eye },
+  { name: "Auction", link: "/auction", icon: Eye },
   { name: "Tạo mới", link: "/create", icon: Plus },
 ];
 
@@ -464,7 +672,7 @@ const dropdownMenuItems = [
 const adminNavLink = [
   { name: "Admin Panel", link: "/admin", icon: ShieldCheck },
   { name: "Pending Auctions", link: "/admin/auctions/pending", icon: Package },
-  { name: "Đấu giá", link: "/auction", icon: Eye },
+  { name: "Auction", link: "/auction", icon: Eye },
   { name: "Tạo mới", link: "/create", icon: Plus },
 ];
 
