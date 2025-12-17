@@ -129,6 +129,33 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                         return;
                     }
 
+                    // 🔥 CHECK PROFILE & VERIFICATION: User phải cập nhật thông tin và xác minh tài khoản
+                    const User = (await import('../models/user.js')).default;
+                    const user = await User.findById(userId).select('verification.isVerified phone address location.city location.region');
+                    
+                    if (!user?.verification?.isVerified) {
+                        socket.emit('auction:bid:error', {
+                            code: 'VERIFICATION_REQUIRED',
+                            message: 'Bạn cần xác minh tài khoản trước khi đặt giá'
+                        });
+                        return;
+                    }
+
+                    const isProfileComplete = user.phone && user.address && user.location?.city && user.location?.region;
+                    if (!isProfileComplete) {
+                        socket.emit('auction:bid:error', {
+                            code: 'PROFILE_INCOMPLETE',
+                            message: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, quận/huyện) trước khi đặt giá',
+                            missingFields: {
+                                phone: !user.phone,
+                                address: !user.address,
+                                city: !user.location?.city,
+                                region: !user.location?.region
+                            }
+                        });
+                        return;
+                    }
+
                     // 🔥 CHECK DEPOSIT: User phải đặt cọc trước khi bid
                     const depositCheck = await canUserBid(userId, auctionId);
                     if (!depositCheck.canBid) {
@@ -246,6 +273,33 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                     socket.emit('auction:bid:error', {
                         code: 'CANNOT_BID_OWN_AUCTION',
                         message: 'Bạn không thể đấu giá sản phẩm của chính mình'
+                    });
+                    return;
+                }
+
+                // 🔥 CHECK PROFILE & VERIFICATION: User phải cập nhật thông tin và xác minh tài khoản
+                const User = (await import('../models/user.js')).default;
+                const user = await User.findById(userId).select('verification.isVerified phone address location.city location.region');
+                
+                if (!user?.verification?.isVerified) {
+                    socket.emit('auction:bid:error', {
+                        code: 'VERIFICATION_REQUIRED',
+                        message: 'Bạn cần xác minh tài khoản trước khi đặt giá'
+                    });
+                    return;
+                }
+
+                const isProfileComplete = user.phone && user.address && user.location?.city && user.location?.region;
+                if (!isProfileComplete) {
+                    socket.emit('auction:bid:error', {
+                        code: 'PROFILE_INCOMPLETE',
+                        message: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, quận/huyện) trước khi đặt giá',
+                        missingFields: {
+                            phone: !user.phone,
+                            address: !user.address,
+                            city: !user.location?.city,
+                            region: !user.location?.region
+                        }
                     });
                     return;
                 }

@@ -52,7 +52,7 @@ export const getAdminDashboard = async (req, res) => {
 
         // Get recent active users for display - only show active users
         const recentUsersList = await User.find({ isActive: { $ne: false } })
-            .select('name email role createdAt lastLogin location avatar isActive')
+            .select('name email role createdAt lastLogin location avatar isActive verification')
             .sort({ createdAt: -1 })
             .limit(10);
 
@@ -87,10 +87,8 @@ export const getAllUsers = async (req, res) => {
         // Calculate skip value for pagination
         const skip = (page - 1) * limit;
 
-        // Build search query - only show active users (isActive = true or doesn't exist)
-        let searchQuery = {
-            isActive: { $ne: false } // Exclude users with isActive === false
-        };
+        // Build search query - include inactive so admin can reactivate
+        let searchQuery = {};
 
         if (search) {
             searchQuery.$or = [
@@ -104,7 +102,7 @@ export const getAllUsers = async (req, res) => {
 
         // Get users with pagination, search, and sorting
         const users = await User.find(searchQuery)
-            .select('name email role createdAt signupAt lastLogin location avatar isActive verification')
+            .select('name email role createdAt signupAt lastLogin location avatar isActive verification reactivationRequest')
             .sort({ [sortBy]: sortOrder })
             .skip(skip)
             .limit(limit)
@@ -183,6 +181,32 @@ export const deleteUserById = async (req, res) => {
     }
 };
 
+// Get pending reactivation requests
+export const getPendingReactivationRequests = async (req, res) => {
+    try {
+        // Find all inactive users who have requested reactivation
+        const requests = await User.find({
+            isActive: false,
+            'reactivationRequest.requested': true
+        })
+            .select('name email avatar reactivationRequest createdAt')
+            .sort({ 'reactivationRequest.requestedAt': -1 }) // Most recent first
+            .lean();
+
+        res.status(200).json({
+            success: true,
+            count: requests.length,
+            requests
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching pending reactivation requests',
+            error: error.message
+        });
+    }
+};
+
 // Reactivate user
 export const reactivateUser = async (req, res) => {
     try {
@@ -205,8 +229,13 @@ export const reactivateUser = async (req, res) => {
             });
         }
 
-        // Reactivate the user
-        await User.findByIdAndUpdate(userId, { isActive: true });
+        // Reactivate the user and clear reactivation request
+        await User.findByIdAndUpdate(userId, {
+            isActive: true,
+            'reactivationRequest.requested': false,
+            'reactivationRequest.requestedAt': null,
+            'reactivationRequest.message': null
+        });
 
         res.status(200).json({
             success: true,

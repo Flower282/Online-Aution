@@ -26,3 +26,16 @@ export const loginHistory = async () => {
         throw new Error(error?.response?.data?.error || "Failed to load login history. Please try again.");
     }
 }
+
+export const updateProfile = async (profileData) => {
+    try {
+        const res = await axios.put(`${API_ENDPOINTS.USER}/profile`,
+            profileData,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error(error?.response?.data?.message || "Can't update profile")
+        throw new Error(error?.response?.data?.message || "Failed to update profile. Please try again.");
+    }
+}

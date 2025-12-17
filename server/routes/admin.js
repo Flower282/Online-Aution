@@ -5,6 +5,7 @@ import {
     getAllUsers,
     deleteUserById,
     reactivateUser,
+    getPendingReactivationRequests,
     migrateUsersIsActive,
     getPendingAuctions,
     approveAuction,
@@ -18,6 +19,7 @@ adminRouter.get('/dashboard', checkAdmin, getAdminDashboard);
 adminRouter.get('/users', checkAdmin, getAllUsers);
 adminRouter.delete('/users/:userId', checkAdmin, deleteUserById); // Deactivate user
 adminRouter.patch('/users/:userId/reactivate', checkAdmin, reactivateUser); // Reactivate user
+adminRouter.get('/users/reactivation-requests', checkAdmin, getPendingReactivationRequests); // Get pending reactivation requests
 adminRouter.post('/migrate-users-isactive', checkAdmin, migrateUsersIsActive); // Migration: Add isActive to all users
 
 // Auction Management

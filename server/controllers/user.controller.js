@@ -13,7 +13,7 @@ export const handleGetUser = async (req, res) => {
         if (!user) return res.status(404).json({ message: "User not found" });
 
         // Select only needed fields for response (include _id for frontend)
-        const { _id, name, email, avatar, role, verification } = user;
+        const { _id, name, email, avatar, role, verification, phone, address, location } = user;
 
         // Trả về trạng thái xác minh
         const verificationStatus = {
@@ -24,7 +24,17 @@ export const handleGetUser = async (req, res) => {
         };
 
         res.json({
-            user: { _id, name, email, avatar, role, verification: verificationStatus }
+            user: {
+                _id,
+                name,
+                email,
+                avatar,
+                role,
+                verification: verificationStatus,
+                phone,
+                address,
+                location
+            }
         });
     } catch (error) {
         res.status(500).json({ message: "Server error" });
@@ -191,6 +201,125 @@ export const getFavoriteAuctions = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Could not fetch favorite auctions"
+        });
+    }
+};
+
+// Request account reactivation (for deactivated users)
+export const requestReactivation = async (req, res) => {
+    try {
+        const { email, message } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email is required'
+            });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        if (user.isActive) {
+            return res.status(400).json({
+                success: false,
+                message: 'Your account is already active'
+            });
+        }
+
+        if (user.reactivationRequest?.requested) {
+            return res.status(400).json({
+                success: false,
+                message: 'You have already submitted a reactivation request. Please wait for admin approval.'
+            });
+        }
+
+        // Save reactivation request
+        user.reactivationRequest = {
+            requested: true,
+            requestedAt: new Date(),
+            message: message || 'User requested account reactivation'
+        };
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Reactivation request submitted successfully. An admin will review your request.'
+        });
+
+    } catch (error) {
+        console.error('Error requesting reactivation:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to submit reactivation request'
+        });
+    }
+};
+
+export const updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { name, address, city, region, country } = req.body;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update fields if provided
+        if (name && name.trim()) {
+            user.name = name.trim();
+        }
+
+        if (address !== undefined) {
+            user.address = address;
+        }
+
+        // Update location
+        if (city !== undefined || region !== undefined || country !== undefined) {
+            user.location = {
+                city: city || user.location?.city || '',
+                region: region || user.location?.region || '',
+                country: country || user.location?.country || ''
+            };
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Profile updated successfully',
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                address: user.address,
+                location: user.location,
+                avatar: user.avatar,
+                role: user.role,
+                verification: {
+                    isVerified: user.verification?.isVerified || false,
+                    phone: user.verification?.phone?.isVerified || false,
+                    email: user.verification?.email?.isVerified || false,
+                    identityCard: user.verification?.identityCard?.status || 'not_submitted'
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update profile'
         });
     }
 };

@@ -27,6 +27,10 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
 
         return response.data;
     } catch (error) {
+        // Return full error data for deactivated accounts
+        if (error.response?.data?.isDeactivated) {
+            return rejectWithValue(error.response.data);
+        }
         return rejectWithValue(error.response?.data?.error || "Login failed");
     }
 });
@@ -71,7 +75,11 @@ const initialState = {
 const authSlice = createSlice({
     name: 'auth',
     initialState,
-    reducers: {},
+    reducers: {
+        setUser: (state, action) => {
+            state.user = action.payload;
+        },
+    },
     extraReducers: (builder) => {
         builder
             // checkAuth
@@ -131,4 +139,5 @@ const authSlice = createSlice({
     },
 });
 
+export const { setUser } = authSlice.actions;
 export default authSlice.reducer;

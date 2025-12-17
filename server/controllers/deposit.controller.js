@@ -80,12 +80,27 @@ export const createDeposit = async (req, res) => {
             return res.status(400).json({ error: 'Invalid product ID' });
         }
 
-        // Kiểm tra xác minh tài khoản
-        const user = await User.findById(userId).select('verification.isVerified');
+        // Kiểm tra xác minh tài khoản và thông tin cá nhân
+        const user = await User.findById(userId).select('verification.isVerified phone address location.city location.region');
         if (!user?.verification?.isVerified) {
             return res.status(403).json({
                 error: 'Bạn cần xác minh tài khoản trước khi đặt cọc',
                 code: 'VERIFICATION_REQUIRED'
+            });
+        }
+
+        // Kiểm tra thông tin cá nhân đầy đủ
+        const isProfileComplete = user.phone && user.address && user.location?.city && user.location?.region;
+        if (!isProfileComplete) {
+            return res.status(403).json({
+                error: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, quận/huyện) trước khi đặt cọc',
+                code: 'PROFILE_INCOMPLETE',
+                missingFields: {
+                    phone: !user.phone,
+                    address: !user.address,
+                    city: !user.location?.city,
+                    region: !user.location?.region
+                }
             });
         }
 

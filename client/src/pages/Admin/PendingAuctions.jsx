@@ -26,6 +26,7 @@ const PendingAuctions = () => {
         mutationFn: approveAuction,
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["pendingAuctions"] });
+            queryClient.invalidateQueries({ queryKey: ["pendingAuctionsCount"] });
             queryClient.invalidateQueries({ queryKey: ["adminDashboard"] });
             queryClient.invalidateQueries({ queryKey: ["allAuction"] });
             queryClient.invalidateQueries({ queryKey: ["adminAllAuctions"] }); // ✅ Added for admin test page
@@ -49,6 +50,7 @@ const PendingAuctions = () => {
         mutationFn: ({ auctionId, reason }) => rejectAuction(auctionId, reason),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["pendingAuctions"] });
+            queryClient.invalidateQueries({ queryKey: ["pendingAuctionsCount"] });
             queryClient.invalidateQueries({ queryKey: ["adminDashboard"] });
             queryClient.invalidateQueries({ queryKey: ["adminAllAuctions"] }); // ✅ Added for admin test page
             setShowRejectModal(false);
