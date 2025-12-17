@@ -76,5 +76,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=DUONGLT
+          command: pages deploy dist --project-name=online-auction
           workingDirectory: ./client
