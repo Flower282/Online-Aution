@@ -1,13 +1,30 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-export default function Toast({ message, type = 'success', onClose, duration = 2500 }) {
+export default function Toast({ message, type = 'success', onClose, duration = 5000 }) {
+    const onCloseRef = useRef(onClose);
+    const [isExiting, setIsExiting] = useState(false);
+
+    // Update ref when onClose changes
     useEffect(() => {
-        const timer = setTimeout(() => {
-            onClose();
+        onCloseRef.current = onClose;
+    }, [onClose]);
+
+    useEffect(() => {
+        // Start exit animation 500ms before closing
+        const exitTimer = setTimeout(() => {
+            setIsExiting(true);
+        }, duration - 500);
+
+        // Close after full duration
+        const closeTimer = setTimeout(() => {
+            onCloseRef.current();
         }, duration);
 
-        return () => clearTimeout(timer);
-    }, [duration, onClose]);
+        return () => {
+            clearTimeout(exitTimer);
+            clearTimeout(closeTimer);
+        };
+    }, [duration]); // Only depend on duration
 
     const getStyles = () => {
         switch (type) {
@@ -61,7 +78,10 @@ export default function Toast({ message, type = 'success', onClose, duration = 2
     const styles = getStyles();
 
     return (
-        <div className="fixed top-4 right-4 z-50 animate-slideInRight">
+        <div className={`fixed top-4 right-4 z-50 transition-all duration-500 ${isExiting
+            ? 'opacity-0 translate-x-full'
+            : 'opacity-100 translate-x-0 animate-slideInRight'
+            }`}>
             <div className={`${styles.bg} ${styles.text} border-l-4 ${styles.border} rounded-lg shadow-lg p-4 max-w-md min-w-[300px]`}>
                 <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
@@ -71,7 +91,10 @@ export default function Toast({ message, type = 'success', onClose, duration = 2
                         <p className="text-sm font-medium">{message}</p>
                     </div>
                     <button
-                        onClick={onClose}
+                        onClick={() => {
+                            setIsExiting(true);
+                            setTimeout(() => onClose(), 500);
+                        }}
                         className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
                     >
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

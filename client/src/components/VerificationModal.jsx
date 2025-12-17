@@ -19,7 +19,7 @@ import {
 import { HiOutlineIdentification, HiOutlineShieldCheck } from 'react-icons/hi';
 import { IoClose } from 'react-icons/io5';
 
-export default function VerificationModal({ isOpen, onClose, onVerified }) {
+export default function VerificationModal({ isOpen, onClose, onVerified: _onVerified }) {
     const queryClient = useQueryClient();
     const { user } = useSelector((state) => state.auth);
 
@@ -57,7 +57,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified }) {
             setPhoneNumber('');
 
             // Đợi refetch hoàn thành để cập nhật UI
-            const { data: newStatus } = await refetch();
+            await refetch();
             queryClient.invalidateQueries(['verificationStatus']);
 
             if (wasEditing) {
@@ -85,11 +85,11 @@ export default function VerificationModal({ isOpen, onClose, onVerified }) {
             setError('');
 
             // Đợi refetch hoàn thành để cập nhật UI
-            const { data: newStatus } = await refetch();
+            await refetch();
             queryClient.invalidateQueries(['verificationStatus']);
 
             // Kiểm tra CCCD
-            const identityStatus = newStatus?.identityCard?.status;
+            const identityStatus = verificationStatus?.identityCard?.status;
             if (identityStatus === 'approved') {
                 // Tất cả đã hoàn thành
                 setSuccess('Xác minh email thành công! Tài khoản đã được xác minh hoàn tất.');
