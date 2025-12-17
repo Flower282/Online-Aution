@@ -335,7 +335,7 @@ export const ViewAuction = () => {
   // Handle error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-200 max-w-md">
           <h2 className="text-2xl font-bold text-red-700 mb-4">Error Loading Auction</h2>
           <p className="text-gray-700 mb-6">{error.message || "Failed to load auction details"}</p>
@@ -358,7 +358,7 @@ export const ViewAuction = () => {
   // Handle undefined data
   if (!data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-red-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-green-200 max-w-md">
           <h2 className="text-2xl font-bold text-red-700 mb-4">Auction Not Found</h2>
           <p className="text-gray-700 mb-6">This auction may have been removed or doesn't exist.</p>
@@ -524,7 +524,7 @@ export const ViewAuction = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 mx-auto container">
+    <div className="min-h-screen mx-auto container" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Image Section */}

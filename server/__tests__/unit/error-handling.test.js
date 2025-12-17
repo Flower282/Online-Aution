@@ -50,7 +50,7 @@ await jest.unstable_mockModule('../../models/user.js', () => ({
   }
 }));
 
-// Mock Product model
+// Mock Product model with chaining support
 const mockProductFind = jest.fn();
 const mockProductFindById = jest.fn();
 const mockProductSave = jest.fn();
@@ -74,27 +74,10 @@ await jest.unstable_mockModule('../../models/product.js', () => ({
       return mockProductSave(this);
     }
     static find(query) {
-      const result = mockProductFind(query);
-      // If the mock returns a query object, use it; otherwise return the result
-      if (result && typeof result.then === 'function') {
-        return result;
-      }
-      // Return chainable query object
-      const queryObj = createProductQuery();
-      queryObj.sort.mockReturnValue(result || []);
-      return queryObj;
+      return mockProductFind(query);
     }
     static findById(id) {
-      const result = mockProductFindById(id);
-      // If the mock returns a promise or query object, use it
-      if (result && (typeof result.then === 'function' || result.populate)) {
-        return result;
-      }
-      // Return chainable query object
-      const queryObj = createProductQuery();
-      queryObj.populate.mockReturnValue(queryObj);
-      queryObj.exec.mockResolvedValue(result);
-      return queryObj;
+      return mockProductFindById(id);
     }
   }
 }));
@@ -139,11 +122,11 @@ const createApp = () => {
   const app = express();
   app.use(express.json());
   app.use(cookieParser());
-  
+
   app.use('/api/auth', userAuthRouter);
   app.use('/api/user', secureRoute, userRouter);
   app.use('/api/auction', secureRoute, auctionRouter);
-  
+
   return app;
 };
 
@@ -571,12 +554,7 @@ describe('ESM HTTP Error Handling - No Database', () => {
 
     it('should return 500 when auction fetch fails', async () => {
       const token = tokenFactory();
-      
-      // Mock Product.find() to return a chainable query that rejects
-      const mockQuery = {
-        sort: jest.fn().mockRejectedValue(new Error('Query failed'))
-      };
-      mockProductFind.mockReturnValue(mockQuery);
+      mockProductFind.mockRejectedValue(new Error('Query failed'));
 
       const response = await request(app)
         .get('/api/auction')
