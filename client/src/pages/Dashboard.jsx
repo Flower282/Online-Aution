@@ -20,6 +20,14 @@ const Dashboard = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchRef = useRef(null);
 
+  // Lazy loading refs and states
+  const newAuctionsRef = useRef(null);
+  const allAuctionsRef = useRef(null);
+  const yourAuctionsRef = useRef(null);
+  const [newAuctionsVisible, setNewAuctionsVisible] = useState(false);
+  const [allAuctionsVisible, setAllAuctionsVisible] = useState(false);
+  const [yourAuctionsVisible, setYourAuctionsVisible] = useState(false);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["stats"],
     queryFn: () => dashboardStats(),
@@ -138,6 +146,39 @@ const Dashboard = () => {
     setCurrentSlide(index);
     setTimeout(() => setIsTransitioning(false), 300);
   };
+
+  // Lazy loading with IntersectionObserver (re-trigger on enter/exit)
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach(entry => {
+        if (entry.target === newAuctionsRef.current) {
+          setNewAuctionsVisible(entry.isIntersecting);
+        } else if (entry.target === allAuctionsRef.current) {
+          setAllAuctionsVisible(entry.isIntersecting);
+        } else if (entry.target === yourAuctionsRef.current) {
+          setYourAuctionsVisible(entry.isIntersecting);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    if (newAuctionsRef.current) observer.observe(newAuctionsRef.current);
+    if (allAuctionsRef.current) observer.observe(allAuctionsRef.current);
+    if (yourAuctionsRef.current) observer.observe(yourAuctionsRef.current);
+
+    return () => {
+      if (newAuctionsRef.current) observer.unobserve(newAuctionsRef.current);
+      if (allAuctionsRef.current) observer.unobserve(allAuctionsRef.current);
+      if (yourAuctionsRef.current) observer.unobserve(yourAuctionsRef.current);
+    };
+  }, [recentAuctions.length, data]);
 
   if (isLoading) return <LoadingScreen />;
 
@@ -299,6 +340,7 @@ const Dashboard = () => {
                                     <img
                                       src={auction.itemPhoto}
                                       alt={auction.itemName}
+                                      loading="lazy"
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
@@ -353,7 +395,11 @@ const Dashboard = () => {
 
         {/* New Auctions Slideshow */}
         {recentAuctions.length > 0 && (
-          <div className="mb-12">
+          <div
+            ref={newAuctionsRef}
+            className={`mt-28 mb-16 transition-all duration-1000 ease-out ${newAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+          >
             <h2 className="text-3xl font-extrabold text-gray-900 mb-6">New Auctions</h2>
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-red-200">
               <div className="grid md:grid-cols-2 gap-0">
@@ -366,6 +412,7 @@ const Dashboard = () => {
                     <img
                       src={recentAuctions[currentSlide]?.itemPhoto || "https://picsum.photos/600"}
                       alt={recentAuctions[currentSlide]?.itemName}
+                      loading="lazy"
                       className="w-full h-full object-contain p-8"
                     />
                   </div>
@@ -461,7 +508,11 @@ const Dashboard = () => {
         )}
 
         {/* All Auctions Section */}
-        <div className="mb-12">
+        <div
+          ref={allAuctionsRef}
+          className={`mb-12 transition-all duration-1000 ease-out ${allAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+        >
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-extrabold text-gray-900">All Auctions</h2>
             <Link
@@ -490,7 +541,11 @@ const Dashboard = () => {
         </div>
 
         {/* Your Auctions Section */}
-        <div>
+        <div
+          ref={yourAuctionsRef}
+          className={`transition-all duration-1000 ease-out ${yourAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+            }`}
+        >
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-extrabold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent">Your Christmas Auctions</h2>
             <Link
