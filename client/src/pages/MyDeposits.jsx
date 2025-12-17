@@ -101,7 +101,7 @@ export const MyDeposits = () => {
     const balance = balanceData?.balance || 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50">
+        <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
