@@ -304,7 +304,7 @@ const Dashboard = () => {
 
               {/* Search Results Dropdown */}
               {showSearchResults && searchQuery.trim() && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-[450px] overflow-y-auto">
+                <div className="mt-4 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-20 max-h-[450px] overflow-y-auto w-full">
                   {searchResults.auctions.length === 0 && searchResults.categories.length === 0 ? (
                     <div className="p-6 text-center text-gray-500">
                       <Search className="h-10 w-10 mx-auto mb-3 text-gray-300" />
@@ -402,14 +402,16 @@ const Dashboard = () => {
 
 
           {/* Scroll Down Indicator */}
-          <div className="mt-12 animate-bounce">
-            <div className="flex flex-col items-center text-gray-400">
-              <span className="text-sm mb-2">Kéo xuống để xem đấu giá</span>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
+          {!showSearchResults && (
+            <div className="mt-12 animate-bounce">
+              <div className="flex flex-col items-center text-gray-400">
+                <span className="text-sm mb-2">Kéo xuống để xem đấu giá</span>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* New Auctions Slideshow */}
