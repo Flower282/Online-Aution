@@ -194,3 +194,61 @@ export const getFavoriteAuctions = async (req, res) => {
         });
     }
 };
+
+// Request account reactivation (for deactivated users)
+export const requestReactivation = async (req, res) => {
+    try {
+        const { email, message } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email is required'
+            });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        if (user.isActive) {
+            return res.status(400).json({
+                success: false,
+                message: 'Your account is already active'
+            });
+        }
+
+        if (user.reactivationRequest?.requested) {
+            return res.status(400).json({
+                success: false,
+                message: 'You have already submitted a reactivation request. Please wait for admin approval.'
+            });
+        }
+
+        // Save reactivation request
+        user.reactivationRequest = {
+            requested: true,
+            requestedAt: new Date(),
+            message: message || 'User requested account reactivation'
+        };
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Reactivation request submitted successfully. An admin will review your request.'
+        });
+
+    } catch (error) {
+        console.error('Error requesting reactivation:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to submit reactivation request'
+        });
+    }
+};

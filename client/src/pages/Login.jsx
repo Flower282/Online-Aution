@@ -5,6 +5,7 @@ import { login } from "../store/auth/authSlice";
 import { Link } from "react-router";
 import LoadingScreen from "../components/LoadingScreen";
 import { resetAuthFlags } from "../utils/axiosConfig";
+import { requestAccountReactivation } from "../api/reactivation";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,9 @@ const Login = () => {
     password: "",
   });
   const [isError, setIsError] = useState("");
+  const [deactivatedInfo, setDeactivatedInfo] = useState(null);
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [requestSuccess, setRequestSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,10 +29,40 @@ const Login = () => {
       navigate("/");
     } catch (error) {
       console.log("Login Failed", error);
-      setIsError(error || "something went wrong");
+
+      // Check if user is deactivated
+      if (error?.isDeactivated) {
+        setDeactivatedInfo({
+          email: error.email,
+          hasRequested: error.hasRequestedReactivation
+        });
+        setIsError(error.error || "Tài khoản của bạn đã bị vô hiệu hóa.");
+      } else {
+        setIsError(error?.error || error || "something went wrong");
+        setDeactivatedInfo(null);
+      }
+
       setTimeout(() => {
-        setIsError("");
+        if (!error?.isDeactivated) {
+          setIsError("");
+        }
       }, 10000);
+    }
+  };
+
+  const handleRequestReactivation = async () => {
+    if (!deactivatedInfo?.email) return;
+
+    try {
+      setRequestLoading(true);
+      await requestAccountReactivation(deactivatedInfo.email, "User requested account reactivation from login page");
+      setRequestSuccess(true);
+      setDeactivatedInfo({ ...deactivatedInfo, hasRequested: true });
+      setIsError("Yêu cầu mở khóa đã được gửi. Admin sẽ xem xét yêu cầu của bạn.");
+    } catch (error) {
+      setIsError(error.message || "Không thể gửi yêu cầu. Vui lòng thử lại sau.");
+    } finally {
+      setRequestLoading(false);
     }
   };
 
@@ -98,8 +132,26 @@ const Login = () => {
               </div>
 
               {isError && (
-                <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 mb-5 py-3 rounded-lg font-medium">
+                <div className={`border-2 px-4 mb-5 py-3 rounded-lg font-medium ${requestSuccess ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
                   {isError}
+                </div>
+              )}
+
+              {/* Reactivation Request Button */}
+              {deactivatedInfo && !deactivatedInfo.hasRequested && !requestSuccess && (
+                <button
+                  type="button"
+                  onClick={handleRequestReactivation}
+                  disabled={requestLoading}
+                  className="w-full mb-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-4 rounded-lg hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                >
+                  {requestLoading ? "Đang gửi yêu cầu..." : "Gửi yêu cầu mở khóa tài khoản"}
+                </button>
+              )}
+
+              {deactivatedInfo && deactivatedInfo.hasRequested && (
+                <div className="mb-4 bg-blue-50 border-2 border-blue-200 text-blue-700 px-4 py-3 rounded-lg font-medium text-center">
+                  ✓ Yêu cầu đã được gửi. Vui lòng chờ admin xem xét.
                 </div>
               )}
 

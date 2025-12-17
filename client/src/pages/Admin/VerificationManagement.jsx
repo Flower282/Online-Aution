@@ -36,6 +36,7 @@ export default function VerificationManagement() {
         onSuccess: () => {
             setToast({ message: 'Đã phê duyệt xác minh CCCD thành công!', type: 'success' });
             queryClient.invalidateQueries(['pendingVerifications']);
+            queryClient.invalidateQueries(['pendingVerificationsCount']);
             setShowDetailModal(false);
             setSelectedUser(null);
         },
@@ -50,6 +51,7 @@ export default function VerificationManagement() {
         onSuccess: () => {
             setToast({ message: 'Đã từ chối xác minh CCCD.', type: 'success' });
             queryClient.invalidateQueries(['pendingVerifications']);
+            queryClient.invalidateQueries(['pendingVerificationsCount']);
             setShowRejectModal(false);
             setShowDetailModal(false);
             setUserToReject(null);

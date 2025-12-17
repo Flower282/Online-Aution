@@ -69,6 +69,19 @@ export const reactivateUser = async (userId) => {
     }
 };
 
+// Get pending reactivation requests
+export const getPendingReactivationRequests = async () => {
+    try {
+        const res = await axios.get(`${API_ENDPOINTS.ADMIN_USERS}/reactivation-requests`,
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error(error?.response?.data?.error || "Can't load pending reactivation requests");
+        throw new Error(error?.response?.data?.error || "Failed to load pending reactivation requests. Please try again.");
+    }
+};
+
 // Block/Unblock user (future functionality)
 export const toggleUserStatus = async (userId, status) => {
     try {

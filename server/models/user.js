@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    // Yêu cầu mở khóa tài khoản
+    reactivationRequest: {
+        requested: { type: Boolean, default: false },
+        requestedAt: { type: Date, default: null },
+        message: { type: String, default: null }
+    },
     ipAddress: {
         type: String
     },

@@ -3,14 +3,15 @@ import { Link, NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import { logout } from "../store/auth/authSlice";
-import { Gavel, Search, User, Heart, Menu, X, Gift, Sparkles, Trophy, ChevronDown, Wallet, Package, Settings, LogOut, ShieldCheck, LayoutDashboard, Plus, Eye, FileText, Home, Info, Phone, UserCircle } from "lucide-react";
+import { Gavel, Search, User, Heart, Menu, X, Gift, Sparkles, Trophy, ChevronDown, Wallet, Package, Settings, LogOut, ShieldCheck, LayoutDashboard, Plus, Eye, FileText, Home, Info, Phone, UserCircle, UserCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import {
   IoLogOutOutline,
 } from "react-icons/io5";
-import { getPendingAuctions } from "../api/admin";
+import { getPendingAuctions, getPendingReactivationRequests } from "../api/admin";
 import { getWonAuctions, getAuctions } from "../api/auction";
+import { getPendingVerifications } from "../api/verification";
 
 // Static pages for search
 const staticPages = [
@@ -49,6 +50,26 @@ export const Navbar = () => {
   });
 
   const pendingCount = pendingData?.data?.pagination?.totalPending || 0;
+
+  // Fetch pending verifications count for admin
+  const { data: pendingVerificationsData } = useQuery({
+    queryKey: ["pendingVerificationsCount"],
+    queryFn: getPendingVerifications,
+    enabled: user?.user?.role === 'admin',
+    refetchInterval: 30000,
+  });
+
+  const pendingVerificationsCount = pendingVerificationsData?.count || 0;
+
+  // Fetch pending reactivation requests count for admin
+  const { data: pendingReactivationsData } = useQuery({
+    queryKey: ["pendingReactivationsCount"],
+    queryFn: getPendingReactivationRequests,
+    enabled: user?.user?.role === 'admin',
+    refetchInterval: 30000,
+  });
+
+  const pendingReactivationsCount = pendingReactivationsData?.count || 0;
 
   // Fetch auctions for search
   const { data: auctionsData } = useQuery({
@@ -127,6 +148,9 @@ export const Navbar = () => {
 
   // Track unseen notifications using localStorage
   const [unseenWonCount, setUnseenWonCount] = useState(0);
+  const [hasNewPendingAuctions, setHasNewPendingAuctions] = useState(false);
+  const [hasNewPendingVerifications, setHasNewPendingVerifications] = useState(false);
+  const [hasNewPendingReactivations, setHasNewPendingReactivations] = useState(false);
 
   useEffect(() => {
     if (user?.user?._id && totalWonNotifications > 0) {
@@ -142,12 +166,72 @@ export const Navbar = () => {
     }
   }, [totalWonNotifications, user?.user?._id]);
 
+  // Track if there are new pending auctions for admin (for animation)
+  useEffect(() => {
+    if (user?.user?._id && user?.user?.role === 'admin' && pendingCount > 0) {
+      const storageKey = `pendingAuctions_seen_${user.user._id}`;
+      const lastSeenCount = parseInt(localStorage.getItem(storageKey) || '0');
+      setHasNewPendingAuctions(pendingCount > lastSeenCount);
+    } else {
+      setHasNewPendingAuctions(false);
+    }
+  }, [pendingCount, user?.user?._id, user?.user?.role]);
+
+  // Track if there are new pending verifications for admin (for animation)
+  useEffect(() => {
+    if (user?.user?._id && user?.user?.role === 'admin' && pendingVerificationsCount > 0) {
+      const storageKey = `pendingVerifications_seen_${user.user._id}`;
+      const lastSeenCount = parseInt(localStorage.getItem(storageKey) || '0');
+      setHasNewPendingVerifications(pendingVerificationsCount > lastSeenCount);
+    } else {
+      setHasNewPendingVerifications(false);
+    }
+  }, [pendingVerificationsCount, user?.user?._id, user?.user?.role]);
+
+  // Track if there are new pending reactivations for admin (for animation)
+  useEffect(() => {
+    if (user?.user?._id && user?.user?.role === 'admin' && pendingReactivationsCount > 0) {
+      const storageKey = `pendingReactivations_seen_${user.user._id}`;
+      const lastSeenCount = parseInt(localStorage.getItem(storageKey) || '0');
+      setHasNewPendingReactivations(pendingReactivationsCount > lastSeenCount);
+    } else {
+      setHasNewPendingReactivations(false);
+    }
+  }, [pendingReactivationsCount, user?.user?._id, user?.user?.role]);
+
   // Function to mark won auctions as seen (call when visiting the page)
   const markWonAuctionsAsSeen = () => {
     if (user?.user?._id) {
       const storageKey = `wonAuctions_seen_${user.user._id}`;
       localStorage.setItem(storageKey, totalWonNotifications.toString());
       setUnseenWonCount(0);
+    }
+  };
+
+  // Function to mark pending auctions as seen (stops animation, badge stays)
+  const markPendingAuctionsAsSeen = () => {
+    if (user?.user?._id) {
+      const storageKey = `pendingAuctions_seen_${user.user._id}`;
+      localStorage.setItem(storageKey, pendingCount.toString());
+      setHasNewPendingAuctions(false);
+    }
+  };
+
+  // Function to mark pending verifications as seen (stops animation, badge stays)
+  const markPendingVerificationsAsSeen = () => {
+    if (user?.user?._id) {
+      const storageKey = `pendingVerifications_seen_${user.user._id}`;
+      localStorage.setItem(storageKey, pendingVerificationsCount.toString());
+      setHasNewPendingVerifications(false);
+    }
+  };
+
+  // Function to mark pending reactivations as seen (stops animation, badge stays)
+  const markPendingReactivationsAsSeen = () => {
+    if (user?.user?._id) {
+      const storageKey = `pendingReactivations_seen_${user.user._id}`;
+      localStorage.setItem(storageKey, pendingReactivationsCount.toString());
+      setHasNewPendingReactivations(false);
     }
   };
 
@@ -184,6 +268,8 @@ export const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const dropdownItems = getDropdownItems(user?.user?.role);
+
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b-2 border-red-300 bg-white backdrop-blur shadow-lg">
@@ -205,6 +291,15 @@ export const Navbar = () => {
                 <NavLink
                   to={item.link}
                   key={item.link}
+                  onClick={() => {
+                    if (item.name === "Pending Auctions") {
+                      markPendingAuctionsAsSeen();
+                    } else if (item.name === "Pending Verifications") {
+                      markPendingVerificationsAsSeen();
+                    } else if (item.name === "Pending Requests") {
+                      markPendingReactivationsAsSeen();
+                    }
+                  }}
                   className={({ isActive }) =>
                     isActive
                       ? "text-sm text-primary font-medium transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50"
@@ -214,8 +309,18 @@ export const Navbar = () => {
                   {item.icon && <item.icon className="h-4 w-4" />}
                   {item.name}
                   {item.name === "Pending Auctions" && pendingCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                    <span className={`bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
                       {pendingCount}
+                    </span>
+                  )}
+                  {item.name === "Pending Requests" && pendingReactivationsCount > 0 && (
+                    <span className={`bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
+                      {pendingReactivationsCount}
+                    </span>
+                  )}
+                  {item.name === "Pending Verifications" && pendingVerificationsCount > 0 && (
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
+                      {pendingVerificationsCount}
                     </span>
                   )}
                 </NavLink>
@@ -374,59 +479,65 @@ export const Navbar = () => {
             </Button>
             {user ? (
               <>
-                {/* Admin logout button - admin doesn't use dropdown */}
-                {user.user.role === 'admin' && (
-                  <Button
-                    className="hidden sm:flex bg-gradient-to-r from-red-600 via-red-700 to-red-800 hover:from-red-700 hover:via-red-800 hover:to-red-900 text-white gap-2 shadow-lg"
-                    onClick={handleLogout}
+                {/* User/Admin Dropdown Menu - Right side */}
+                <div className="relative hidden md:block" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 ${isDropdownOpen
+                      ? "bg-red-100 text-red-700 border-red-300"
+                      : "hover:bg-red-50 text-gray-700 border-gray-200 hover:border-red-200"
+                      }`}
                   >
-                    <IoLogOutOutline className="h-5 w-5" />
-                    Đăng xuất
-                  </Button>
-                )}
+                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white text-xs font-bold">
+                      {user.user.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <span className="hidden lg:inline">{user.user.name?.split(' ')[0]}</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    {/* Combined notification badge */}
+                    {unseenWonCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse shadow-lg">
+                        {unseenWonCount}
+                      </span>
+                    )}
+                  </button>
 
-                {/* User Dropdown Menu - Right side */}
-                {user.user.role !== 'admin' && (
-                  <div className="relative hidden md:block" ref={dropdownRef}>
-                    <button
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 ${isDropdownOpen
-                        ? "bg-red-100 text-red-700 border-red-300"
-                        : "hover:bg-red-50 text-gray-700 border-gray-200 hover:border-red-200"
-                        }`}
-                    >
-                      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white text-xs font-bold">
-                        {user.user.name?.charAt(0).toUpperCase() || 'U'}
-                      </div>
-                      <span className="hidden lg:inline">{user.user.name?.split(' ')[0]}</span>
-                      <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                      {/* Combined notification badge */}
-                      {unseenWonCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse shadow-lg">
-                          {unseenWonCount}
-                        </span>
-                      )}
-                    </button>
-
-                    {/* Dropdown Panel */}
-                    {isDropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                        {/* User Info Header */}
-                        <div className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-red-50 to-orange-50">
-                          <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
-                              {user.user.name?.charAt(0).toUpperCase() || 'U'}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-gray-900 truncate">{user.user.name}</p>
-                              <p className="text-xs text-gray-500 truncate">{user.user.email}</p>
-                            </div>
+                  {/* Dropdown Panel */}
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                      {/* User Info Header */}
+                      <div className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-red-50 to-orange-50">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                            {user.user.name?.charAt(0).toUpperCase() || 'U'}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 truncate">{user.user.name}</p>
+                            <p className="text-xs text-gray-500 truncate">{user.user.email}</p>
                           </div>
                         </div>
+                      </div>
 
-                        {/* Menu Items */}
-                        <div className="py-2">
-                          {dropdownMenuItems.map((item) => (
+                      {/* Menu Items */}
+                      <div className="py-2">
+                        {dropdownItems.map((item) => {
+                          const isLogout = item.action === 'logout';
+                          if (isLogout) {
+                            return (
+                              <button
+                                key={item.name}
+                                onClick={() => {
+                                  setIsDropdownOpen(false);
+                                  handleLogout();
+                                }}
+                                className="flex items-center justify-start gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                              >
+                                <item.icon className={`h-5 w-5 ${item.iconColor || 'text-red-600'}`} />
+                                <span className="flex-1 font-medium text-left">{item.name}</span>
+                              </button>
+                            );
+                          }
+
+                          return (
                             <NavLink
                               key={item.link}
                               to={item.link}
@@ -437,40 +548,26 @@ export const Navbar = () => {
                                 }
                               }}
                               className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-3 text-sm transition-colors ${isActive
+                                `flex items-center justify-start gap-2 px-4 py-3 text-sm transition-colors ${isActive
                                   ? "bg-red-50 text-red-700 font-medium"
                                   : "text-gray-700 hover:bg-gray-50"
                                 }`
                               }
                             >
                               <item.icon className={`h-5 w-5 ${item.iconColor || 'text-gray-500'}`} />
-                              <span className="flex-1">{item.name}</span>
+                              <span className="flex-1 text-left">{item.name}</span>
                               {item.name === "Won Auctions" && unseenWonCount > 0 && (
                                 <span className="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                                   {unseenWonCount}
                                 </span>
                               )}
                             </NavLink>
-                          ))}
-                        </div>
-
-                        {/* Logout */}
-                        <div className="border-t border-gray-100 pt-2 px-2">
-                          <button
-                            onClick={() => {
-                              setIsDropdownOpen(false);
-                              handleLogout();
-                            }}
-                            className="flex items-center gap-3 w-full px-3 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors rounded-lg"
-                          >
-                            <LogOut className="h-5 w-5" />
-                            <span className="font-medium">Đăng xuất</span>
-                          </button>
-                        </div>
+                          );
+                        })}
                       </div>
-                    )}
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -562,13 +659,29 @@ export const Navbar = () => {
                     setIsMenuOpen(false);
                     if (item.name === "Won Auctions") {
                       markWonAuctionsAsSeen();
+                    } else if (item.name === "Pending Auctions") {
+                      markPendingAuctionsAsSeen();
+                    } else if (item.name === "Pending Verifications") {
+                      markPendingVerificationsAsSeen();
+                    } else if (item.name === "Pending Requests") {
+                      markPendingReactivationsAsSeen();
                     }
                   }}
                 >
                   <span>{item.name}</span>
                   {item.name === "Pending Auctions" && pendingCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className={`bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
                       {pendingCount}
+                    </span>
+                  )}
+                  {item.name === "Pending Requests" && pendingReactivationsCount > 0 && (
+                    <span className={`bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
+                      {pendingReactivationsCount}
+                    </span>
+                  )}
+                  {item.name === "Pending Verifications" && pendingVerificationsCount > 0 && (
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
+                      {pendingVerificationsCount}
                     </span>
                   )}
                   {item.name === "Won Auctions" && unseenWonCount > 0 && (
@@ -602,13 +715,13 @@ export const Navbar = () => {
                 <li>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="w-full justify-start items-center text-destructive hover:text-destructive hover:bg-destructive/10 gap-2 px-3 py-3 rounded-lg"
                     onClick={() => {
                       setIsMenuOpen(false);
                       handleLogout();
                     }}
                   >
-                    <IoLogOutOutline className="mr-2 h-5 w-5" />
+                    <IoLogOutOutline className="h-5 w-5" />
                     Đăng xuất
                   </Button>
                 </li>
@@ -666,14 +779,23 @@ const dropdownMenuItems = [
   { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-amber-500" },
   { name: "My Deposits", link: "/deposits", icon: Wallet, iconColor: "text-emerald-500" },
   { name: "Profile", link: "/profile", icon: Settings, iconColor: "text-gray-500" },
+  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
+];
+
+// Admin dropdown items (same structure as user, but profile link points to /admin/profile)
+const adminDropdownMenuItems = [
+  { name: "My Auction", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
+  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-amber-500" },
+  { name: "Profile", link: "/admin/profile", icon: Settings, iconColor: "text-gray-500" },
+  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
 ];
 
 // Admin navigation links
 const adminNavLink = [
-  { name: "Admin Panel", link: "/admin", icon: ShieldCheck },
-  { name: "Pending Auctions", link: "/admin/auctions/pending", icon: Package },
   { name: "Auction", link: "/auction", icon: Eye },
-  { name: "Tạo mới", link: "/create", icon: Plus },
+  { name: "Pending Auctions", link: "/admin/auctions/pending", icon: Package },
+  { name: "Pending Requests", link: "/admin/reactivation-requests", icon: UserCheck },
+  { name: "Pending Verifications", link: "/admin/verifications", icon: ShieldCheck },
 ];
 
 // All protected links for mobile menu
@@ -695,6 +817,14 @@ const getMainNavLinks = (userRole) => {
     return adminNavLink;
   }
   return mainNavLinks;
+};
+
+// Helper to get dropdown items based on role
+const getDropdownItems = (userRole) => {
+  if (userRole === 'admin') {
+    return adminDropdownMenuItems;
+  }
+  return dropdownMenuItems;
 };
 
 // Legacy function for mobile menu

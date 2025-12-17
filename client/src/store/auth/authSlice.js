@@ -27,6 +27,10 @@ export const login = createAsyncThunk('auth/login', async ({ email, password }, 
 
         return response.data;
     } catch (error) {
+        // Return full error data for deactivated accounts
+        if (error.response?.data?.isDeactivated) {
+            return rejectWithValue(error.response.data);
+        }
         return rejectWithValue(error.response?.data?.error || "Login failed");
     }
 });
