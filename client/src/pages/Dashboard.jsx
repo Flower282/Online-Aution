@@ -13,6 +13,7 @@ const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showVerificationBanner, setShowVerificationBanner] = useState(true);
 
   // Search states
   const [searchTerm, setSearchTerm] = useState("");
@@ -221,21 +222,32 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen relative" style={{ backgroundColor: '#f5f1e8' }}>
       {/* Verification Warning Banner - fixed top-right, offset to avoid navbar/profile */}
-      {!isVerified && (
-        <div className="fixed top-24 sm:top-28 right-4 sm:right-6 z-50 w-[320px] sm:w-[360px]">
-          <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-2xl">
-            <div className="flex items-start gap-3">
-              <ShieldAlert className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+      {!isVerified && showVerificationBanner && (
+        <div className="fixed top-24 sm:top-28 right-4 sm:right-6 z-40 w-[280px] sm:w-[320px]">
+          <div className="p-3 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-xl relative">
+            {/* Close button */}
+            <button
+              onClick={() => setShowVerificationBanner(false)}
+              className="absolute top-2 right-2 text-amber-600 hover:text-amber-800 transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="flex items-start gap-2 pr-4">
+              <ShieldAlert className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h3 className="font-semibold text-amber-800">Tài khoản chưa xác minh</h3>
-                <p className="text-sm text-amber-700">
-                  Xác minh tài khoản để nạp tiền, đặt cọc và tham gia đấu giá
+                <h3 className="font-semibold text-sm text-amber-800">Chưa xác minh</h3>
+                <p className="text-xs text-amber-700 mt-1">
+                  Xác minh để nạp tiền & đấu giá
                 </p>
                 <button
                   onClick={() => setShowVerificationModal(true)}
-                  className="mt-3 px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors flex items-center gap-2 w-full justify-center"
+                  className="mt-2 px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-medium hover:bg-amber-700 transition-colors flex items-center gap-1.5 w-full justify-center"
                 >
-                  <ShieldAlert className="h-4 w-4" />
+                  <ShieldAlert className="h-3.5 w-3.5" />
                   Xác minh ngay
                 </button>
               </div>
@@ -481,11 +493,12 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  <Link to={`/auction/${recentAuctions[currentSlide]?._id}`}>
-                    <button className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-4 rounded-xl hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
-                      🎄 View Auction
-                    </button>
-                  </Link>
+                  <button
+                    onClick={() => navigate(`/auction/${recentAuctions[currentSlide]?._id}`)}
+                    className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-4 rounded-xl hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    🎄 Xem đấu giá
+                  </button>
 
                   {/* Slide Indicators */}
                   <div className="flex justify-center gap-2 mt-8">

@@ -163,8 +163,11 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
             <button
               className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-auto"
               onClick={(e) => {
-                e.preventDefault();
-                handleClick();
+                if (onClick) {
+                  e.preventDefault();
+                  handleClick();
+                }
+                // Nếu không có onClick prop, để Link xử lý navigation
               }}
             >
               🎄 Đấu giá ngay
