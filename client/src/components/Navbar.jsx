@@ -148,6 +148,9 @@ export const Navbar = () => {
 
   // Track unseen notifications using localStorage
   const [unseenWonCount, setUnseenWonCount] = useState(0);
+  const [hasNewPendingAuctions, setHasNewPendingAuctions] = useState(false);
+  const [hasNewPendingVerifications, setHasNewPendingVerifications] = useState(false);
+  const [hasNewPendingReactivations, setHasNewPendingReactivations] = useState(false);
 
   useEffect(() => {
     if (user?.user?._id && totalWonNotifications > 0) {
@@ -163,12 +166,72 @@ export const Navbar = () => {
     }
   }, [totalWonNotifications, user?.user?._id]);
 
+  // Track if there are new pending auctions for admin (for animation)
+  useEffect(() => {
+    if (user?.user?._id && user?.user?.role === 'admin' && pendingCount > 0) {
+      const storageKey = `pendingAuctions_seen_${user.user._id}`;
+      const lastSeenCount = parseInt(localStorage.getItem(storageKey) || '0');
+      setHasNewPendingAuctions(pendingCount > lastSeenCount);
+    } else {
+      setHasNewPendingAuctions(false);
+    }
+  }, [pendingCount, user?.user?._id, user?.user?.role]);
+
+  // Track if there are new pending verifications for admin (for animation)
+  useEffect(() => {
+    if (user?.user?._id && user?.user?.role === 'admin' && pendingVerificationsCount > 0) {
+      const storageKey = `pendingVerifications_seen_${user.user._id}`;
+      const lastSeenCount = parseInt(localStorage.getItem(storageKey) || '0');
+      setHasNewPendingVerifications(pendingVerificationsCount > lastSeenCount);
+    } else {
+      setHasNewPendingVerifications(false);
+    }
+  }, [pendingVerificationsCount, user?.user?._id, user?.user?.role]);
+
+  // Track if there are new pending reactivations for admin (for animation)
+  useEffect(() => {
+    if (user?.user?._id && user?.user?.role === 'admin' && pendingReactivationsCount > 0) {
+      const storageKey = `pendingReactivations_seen_${user.user._id}`;
+      const lastSeenCount = parseInt(localStorage.getItem(storageKey) || '0');
+      setHasNewPendingReactivations(pendingReactivationsCount > lastSeenCount);
+    } else {
+      setHasNewPendingReactivations(false);
+    }
+  }, [pendingReactivationsCount, user?.user?._id, user?.user?.role]);
+
   // Function to mark won auctions as seen (call when visiting the page)
   const markWonAuctionsAsSeen = () => {
     if (user?.user?._id) {
       const storageKey = `wonAuctions_seen_${user.user._id}`;
       localStorage.setItem(storageKey, totalWonNotifications.toString());
       setUnseenWonCount(0);
+    }
+  };
+
+  // Function to mark pending auctions as seen (stops animation, badge stays)
+  const markPendingAuctionsAsSeen = () => {
+    if (user?.user?._id) {
+      const storageKey = `pendingAuctions_seen_${user.user._id}`;
+      localStorage.setItem(storageKey, pendingCount.toString());
+      setHasNewPendingAuctions(false);
+    }
+  };
+
+  // Function to mark pending verifications as seen (stops animation, badge stays)
+  const markPendingVerificationsAsSeen = () => {
+    if (user?.user?._id) {
+      const storageKey = `pendingVerifications_seen_${user.user._id}`;
+      localStorage.setItem(storageKey, pendingVerificationsCount.toString());
+      setHasNewPendingVerifications(false);
+    }
+  };
+
+  // Function to mark pending reactivations as seen (stops animation, badge stays)
+  const markPendingReactivationsAsSeen = () => {
+    if (user?.user?._id) {
+      const storageKey = `pendingReactivations_seen_${user.user._id}`;
+      localStorage.setItem(storageKey, pendingReactivationsCount.toString());
+      setHasNewPendingReactivations(false);
     }
   };
 
@@ -228,6 +291,15 @@ export const Navbar = () => {
                 <NavLink
                   to={item.link}
                   key={item.link}
+                  onClick={() => {
+                    if (item.name === "Pending Auctions") {
+                      markPendingAuctionsAsSeen();
+                    } else if (item.name === "Pending Verifications") {
+                      markPendingVerificationsAsSeen();
+                    } else if (item.name === "Pending Requests") {
+                      markPendingReactivationsAsSeen();
+                    }
+                  }}
                   className={({ isActive }) =>
                     isActive
                       ? "text-sm text-primary font-medium transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50"
@@ -237,17 +309,17 @@ export const Navbar = () => {
                   {item.icon && <item.icon className="h-4 w-4" />}
                   {item.name}
                   {item.name === "Pending Auctions" && pendingCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                    <span className={`bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
                       {pendingCount}
                     </span>
                   )}
                   {item.name === "Pending Requests" && pendingReactivationsCount > 0 && (
-                    <span className="bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                    <span className={`bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
                       {pendingReactivationsCount}
                     </span>
                   )}
                   {item.name === "Pending Verifications" && pendingVerificationsCount > 0 && (
-                    <span className="bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
                       {pendingVerificationsCount}
                     </span>
                   )}
@@ -587,22 +659,28 @@ export const Navbar = () => {
                     setIsMenuOpen(false);
                     if (item.name === "Won Auctions") {
                       markWonAuctionsAsSeen();
+                    } else if (item.name === "Pending Auctions") {
+                      markPendingAuctionsAsSeen();
+                    } else if (item.name === "Pending Verifications") {
+                      markPendingVerificationsAsSeen();
+                    } else if (item.name === "Pending Requests") {
+                      markPendingReactivationsAsSeen();
                     }
                   }}
                 >
                   <span>{item.name}</span>
                   {item.name === "Pending Auctions" && pendingCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className={`bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
                       {pendingCount}
                     </span>
                   )}
                   {item.name === "Pending Requests" && pendingReactivationsCount > 0 && (
-                    <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className={`bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
                       {pendingReactivationsCount}
                     </span>
                   )}
                   {item.name === "Pending Verifications" && pendingVerificationsCount > 0 && (
-                    <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
                       {pendingVerificationsCount}
                     </span>
                   )}

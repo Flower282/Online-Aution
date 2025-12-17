@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import LoadingScreen from '../../components/LoadingScreen';
 import Toast from '../../components/Toast';
 import { getPendingReactivationRequests, reactivateUser } from '../../api/admin';
 
 const PendingReactivationRequests = () => {
+    const queryClient = useQueryClient();
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -36,6 +38,8 @@ const PendingReactivationRequests = () => {
             setToast({ message: `Đã kích hoạt lại tài khoản cho ${userName}`, type: 'success' });
             // Refresh list
             await fetchRequests();
+            // Invalidate navbar query cache to update badge count
+            queryClient.invalidateQueries({ queryKey: ['pendingReactivationsCount'] });
         } catch (error) {
             setToast({ message: error.message || 'Không thể kích hoạt tài khoản', type: 'error' });
         } finally {
