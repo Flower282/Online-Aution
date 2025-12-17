@@ -19,7 +19,7 @@ export default function WonAuctions() {
         amount: 0
     });
 
-    const { data, isLoading, error: _error } = useQuery({
+    const { data, isLoading, error } = useQuery({
         queryKey: ["wonAuctions"],
         queryFn: getWonAuctions,
         staleTime: 30 * 1000,
@@ -47,7 +47,7 @@ export default function WonAuctions() {
                 amount: depositInfo.auction.depositAmount
             });
             setShowDepositModal(true);
-        } catch (error) {
+        } catch (_error) {
             setToast({ message: "Không thể tải thông tin đặt cọc", type: "error" });
         }
     };
