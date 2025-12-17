@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { dashboardStats, getAuctions } from "../api/auction.js";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import { useState, useEffect, useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Play, Pause, ShieldAlert, Search, Package } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Pause, Search } from "lucide-react"; // Keep navigation/control icons only
 import { formatCurrency } from "../utils/formatCurrency";
 import { useSelector } from "react-redux";
 import VerificationModal from "../components/VerificationModal";
@@ -237,9 +237,8 @@ const Dashboard = () => {
             </button>
 
             <div className="flex items-start gap-2 pr-4">
-              <ShieldAlert className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h3 className="font-semibold text-sm text-amber-800">Chưa xác minh</h3>
+                <h3 className="font-semibold text-sm text-amber-800">⚠️ Chưa xác minh</h3>
                 <p className="text-xs text-amber-700 mt-1">
                   Xác minh để nạp tiền & đấu giá
                 </p>
@@ -247,7 +246,6 @@ const Dashboard = () => {
                   onClick={() => setShowVerificationModal(true)}
                   className="mt-2 px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-medium hover:bg-amber-700 transition-colors flex items-center gap-1.5 w-full justify-center"
                 >
-                  <ShieldAlert className="h-3.5 w-3.5" />
                   Xác minh ngay
                 </button>
               </div>
@@ -269,31 +267,40 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <div className="w-full max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="300">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                <Search className="h-8 w-8 text-red-500" />
+          <div className="w-full max-w-4xl mx-auto" ref={searchRef} data-aos="fade-up" data-aos-delay="300">
+            <div className="relative flex gap-3">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                  <Search className="h-8 w-8 text-red-500" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Nhập tên sản phẩm, danh mục..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onFocus={() => {
+                    if (searchQuery.trim()) setShowSearchResults(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setShowSearchResults(false);
+                    }
+                  }}
+                  autoComplete="off"
+                  className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-red-300 rounded-2xl shadow-2xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all placeholder:text-gray-400"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Nhập tên sản phẩm, danh mục... rồi bấm Enter"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onFocus={() => {
-                  if (searchQuery.trim()) setShowSearchResults(true);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleSearchSubmit();
-                  }
-                  if (e.key === 'Escape') {
-                    setShowSearchResults(false);
-                  }
-                }}
-                autoComplete="off"
-                className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-red-300 rounded-2xl shadow-2xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all placeholder:text-gray-400"
-              />
+
+              <button
+                onClick={handleSearchSubmit}
+                className="px-8 py-6 bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white font-bold text-xl rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
+              >
+                <Search className="h-6 w-6" />
+                Tìm kiếm
+              </button>
+            </div>
+
+            <div className="relative">
 
               {/* Search Results Dropdown */}
               {showSearchResults && searchQuery.trim() && (
@@ -356,8 +363,8 @@ const Dashboard = () => {
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <Package className="h-8 w-8 text-gray-400" />
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                                      <span className="text-4xl">📦</span>
                                     </div>
                                   )}
                                 </div>

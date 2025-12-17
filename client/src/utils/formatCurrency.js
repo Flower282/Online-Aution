@@ -1,14 +1,13 @@
 /**
- * Format number as currency with 2 decimal places
+ * Format number as currency in VND format
  * @param {number} amount - The amount to format
- * @param {string} currency - Currency symbol (default: '$')
- * @returns {string} Formatted currency string
+ * @returns {string} Formatted currency string in VND
  */
-export const formatCurrency = (amount, currency = '$') => {
+export const formatCurrency = (amount) => {
     if (amount === null || amount === undefined || isNaN(amount)) {
-        return `${currency}0.00`;
+        return '0 VNĐ';
     }
-    return `${currency}${Number(amount).toFixed(2)}`;
+    return `${Number(amount).toLocaleString('vi-VN')} VNĐ`;
 };
 
 /**
