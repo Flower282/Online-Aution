@@ -554,7 +554,12 @@ describe('ESM HTTP Error Handling - No Database', () => {
 
     it('should return 500 when auction fetch fails', async () => {
       const token = tokenFactory();
-      mockProductFind.mockRejectedValue(new Error('Query failed'));
+      
+      // Mock the query chain to reject
+      const mockQuery = {
+        sort: jest.fn().mockRejectedValue(new Error('Query failed')),
+      };
+      mockProductFind.mockReturnValue(mockQuery);
 
       const response = await request(app)
         .get('/api/auction')
