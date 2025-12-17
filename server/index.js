@@ -8,6 +8,8 @@ import { createClient } from 'redis';
 dotenv.config();
 import { connectDB } from './connection.js'
 import auctionRouter from './routes/auction.js';
+import depositRouter from './routes/deposit.js';
+import walletRouter from './routes/wallet.js';
 import { secureRoute } from './middleware/auth.js';
 import userAuthRouter from './routes/userAuth.js';
 import userRouter from './routes/user.js';
@@ -181,6 +183,8 @@ app.get('/', async (req, res) => {
 app.use('/auth', userAuthRouter)
 app.use('/user', secureRoute, userRouter)
 app.use('/auction', secureRoute, auctionRouter);
+app.use('/deposit', secureRoute, depositRouter);
+app.use('/wallet', secureRoute, walletRouter);
 app.use('/contact', contactRouter);
 app.use('/admin', secureRoute, adminRouter)
 
@@ -202,6 +206,7 @@ app.use((err, req, res, next) => {
 httpServer.listen(port, () => {
     console.log(`✅ Server is running on port ${port}`);
     console.log(`✅ Socket.io enabled`);
+    console.log(`✅ Wallet API enabled`);
     if (redisClient) {
         console.log(`✅ Redis enabled - Real-time bidding available`);
     } else {

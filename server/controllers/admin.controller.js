@@ -15,18 +15,17 @@ export const getAdminDashboard = async (req, res) => {
             createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
         });
 
-        // Get recent active auctions for display - only approved auctions from active sellers
-        const recentActiveAuctions = await Product.find({
-            itemEndDate: { $gt: new Date() },
+        // Get recent auctions for display - including ended ones (they will be dimmed on frontend)
+        const recentAuctions = await Product.find({
             status: 'approved'
         })
             .populate('seller', 'name email isActive')
-            .sort({ createdAt: -1 })
+            .sort({ itemEndDate: -1 })
             .limit(20) // Get more to account for filtering
             .lean();
 
         // Filter out auctions from inactive sellers and format with timeLeft
-        const filteredAuctions = recentActiveAuctions
+        const filteredAuctions = recentAuctions
             .filter(auction => auction.seller && auction.seller.isActive !== false)
             .map(auction => ({
                 _id: auction._id,
@@ -41,7 +40,14 @@ export const getAdminDashboard = async (req, res) => {
                 sellerActive: auction.seller?.isActive !== false,
                 itemPhoto: auction.itemPhoto,
                 status: auction.status,
+                isEnded: new Date(auction.itemEndDate) < new Date() // Flag for frontend
             }))
+            // Sort: active auctions first, then ended auctions
+            .sort((a, b) => {
+                if (a.isEnded && !b.isEnded) return 1;
+                if (!a.isEnded && b.isEnded) return -1;
+                return b.timeLeft - a.timeLeft;
+            })
             .slice(0, 10);
 
         // Get recent active users for display - only show active users
