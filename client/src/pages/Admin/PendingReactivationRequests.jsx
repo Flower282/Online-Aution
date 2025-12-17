@@ -11,6 +11,8 @@ const PendingReactivationRequests = () => {
     const [error, setError] = useState(null);
     const [toast, setToast] = useState(null);
     const [processingId, setProcessingId] = useState(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [userToApprove, setUserToApprove] = useState(null);
 
     const fetchRequests = async () => {
         try {
@@ -29,17 +31,24 @@ const PendingReactivationRequests = () => {
         fetchRequests();
     }, []);
 
-    const handleApprove = async (userId, userName) => {
-        if (!confirm(`Xác nhận kích hoạt lại tài khoản cho ${userName}?`)) return;
+    const handleApproveClick = (user) => {
+        setUserToApprove(user);
+        setShowConfirmModal(true);
+    };
+
+    const handleApproveConfirm = async () => {
+        if (!userToApprove) return;
 
         try {
-            setProcessingId(userId);
-            await reactivateUser(userId);
-            setToast({ message: `Đã kích hoạt lại tài khoản cho ${userName}`, type: 'success' });
+            setProcessingId(userToApprove._id);
+            await reactivateUser(userToApprove._id);
+            setToast({ message: `Đã kích hoạt lại tài khoản cho ${userToApprove.name}`, type: 'success' });
             // Refresh list
             await fetchRequests();
             // Invalidate navbar query cache to update badge count
             queryClient.invalidateQueries({ queryKey: ['pendingReactivationsCount'] });
+            setShowConfirmModal(false);
+            setUserToApprove(null);
         } catch (error) {
             setToast({ message: error.message || 'Không thể kích hoạt tài khoản', type: 'error' });
         } finally {
@@ -47,9 +56,34 @@ const PendingReactivationRequests = () => {
         }
     };
 
+    const handleApproveCancel = () => {
+        setShowConfirmModal(false);
+        setUserToApprove(null);
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleString('vi-VN', {
+
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInMs = now - date;
+        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+        // If same day (days = 0), show relative time
+        if (diffInDays === 0) {
+            if (diffInMinutes < 1) {
+                return 'Just now';
+            } else if (diffInMinutes < 60) {
+                return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+            } else {
+                return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+            }
+        }
+
+        // Otherwise show full date
+        return date.toLocaleString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -165,7 +199,7 @@ const PendingReactivationRequests = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <button
-                                                    onClick={() => handleApprove(request._id, request.name)}
+                                                    onClick={() => handleApproveClick(request)}
                                                     disabled={processingId === request._id}
                                                     className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
                                                 >
@@ -191,6 +225,87 @@ const PendingReactivationRequests = () => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* Confirm Modal */}
+                {showConfirmModal && userToApprove && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="bg-green-100 p-3 rounded-full">
+                                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900">Confirm Activation</h3>
+                            </div>
+
+                            <div className="mb-6">
+                                <p className="text-gray-700 mb-3">
+                                    Are you sure you want to <span className="font-semibold text-green-600">reactivate</span> the account for:
+                                </p>
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div className="flex items-center gap-3">
+                                        {userToApprove.avatar ? (
+                                            <img
+                                                src={userToApprove.avatar}
+                                                alt={userToApprove.name}
+                                                className="w-12 h-12 rounded-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                                <span className="text-lg font-semibold text-green-600">
+                                                    {userToApprove.name.charAt(0).toUpperCase()}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div>
+                                            <p className="font-semibold text-gray-900">{userToApprove.name}</p>
+                                            <p className="text-sm text-gray-500">{userToApprove.email}</p>
+                                        </div>
+                                    </div>
+                                    {userToApprove.reactivationRequest?.message && (
+                                        <div className="mt-3 pt-3 border-t border-gray-200">
+                                            <p className="text-xs text-gray-500 mb-1">Request reason:</p>
+                                            <p className="text-sm text-gray-700 italic">"{userToApprove.reactivationRequest.message}"</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleApproveCancel}
+                                    disabled={processingId}
+                                    className="flex-1 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleApproveConfirm}
+                                    disabled={processingId}
+                                    className="flex-1 px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                                >
+                                    {processingId ? (
+                                        <>
+                                            <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Confirm
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
