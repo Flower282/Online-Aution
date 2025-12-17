@@ -89,7 +89,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
             queryClient.invalidateQueries(['verificationStatus']);
 
             // Kiểm tra CCCD
-            const identityStatus = newStatus?.identityCard?.status;
+            const identityStatus = verificationStatus?.identityCard?.status;
             if (identityStatus === 'approved') {
                 // Tất cả đã hoàn thành
                 setSuccess('Xác minh email thành công! Tài khoản đã được xác minh hoàn tất.');

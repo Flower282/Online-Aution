@@ -137,8 +137,8 @@ export const AuctionList = () => {
                 setShowPriceMenu(false);
               }}
               className={`px-6 py-2.5 rounded-lg font-medium transition-all ${activeTab === "all" && categoryFilter === "all" && sortBy === "none"
-                  ? "bg-red-600 text-white shadow-lg scale-105"
-                  : "bg-red-50 text-red-700 hover:bg-red-100"
+                ? "bg-red-600 text-white shadow-lg scale-105"
+                : "bg-red-50 text-red-700 hover:bg-red-100"
                 }`}
             >
               ⭐ Tất cả
@@ -153,8 +153,8 @@ export const AuctionList = () => {
                   setShowPriceMenu(false);
                 }}
                 className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${categoryFilter !== "all"
-                    ? "bg-red-600 text-white shadow-lg"
-                    : "bg-red-50 text-red-700 hover:bg-red-100"
+                  ? "bg-red-600 text-white shadow-lg"
+                  : "bg-red-50 text-red-700 hover:bg-red-100"
                   }`}
               >
                 🎁 Danh mục {categoryFilter !== "all" && `(${categoryFilter})`}
@@ -193,8 +193,8 @@ export const AuctionList = () => {
                   setShowPriceMenu(false);
                 }}
                 className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${sortBy === "date-newest" || sortBy === "date-oldest" || sortBy === "ending-soon"
-                    ? "bg-red-600 text-white shadow-lg"
-                    : "bg-red-50 text-red-700 hover:bg-red-100"
+                  ? "bg-red-600 text-white shadow-lg"
+                  : "bg-red-50 text-red-700 hover:bg-red-100"
                   }`}
               >
                 ⏰ Thời gian
@@ -251,8 +251,8 @@ export const AuctionList = () => {
                   setShowTimeMenu(false);
                 }}
                 className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${sortBy === "price-low" || sortBy === "price-high"
-                    ? "bg-red-600 text-white shadow-lg"
-                    : "bg-red-50 text-red-700 hover:bg-red-100"
+                  ? "bg-red-600 text-white shadow-lg"
+                  : "bg-red-50 text-red-700 hover:bg-red-100"
                   }`}
               >
                 💰 Giá
