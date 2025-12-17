@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { X, AlertCircle, User, Phone, MapPin, Map } from 'lucide-react';
 
 const ProfileCompletionModal = ({ isOpen, onClose, missingFields = {} }) => {
