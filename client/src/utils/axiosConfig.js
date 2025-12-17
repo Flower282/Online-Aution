@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { toast } from 'sonner';
 import { API_ENDPOINTS } from '../config/api.js';
+import { env } from '../config/env.js';
+
+// Configure Axios defaults for production authentication
+axios.defaults.baseURL = env.API_URL;
+axios.defaults.withCredentials = true; // Always send cookies with requests
 
 let store;
 let isRefreshing = false;
