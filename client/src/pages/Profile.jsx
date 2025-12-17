@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { changePassword } from "../api/user";
-import { CiMail, CiUser, CiLock, CiCamera, CiPhone } from "react-icons/ci";
-import { useSelector } from "react-redux";
+import { changePassword, updateProfile } from "../api/user";
+import { CiMail, CiUser, CiLock, CiCamera, CiPhone, CiLocationOn } from "react-icons/ci";
+import { useSelector, useDispatch } from "react-redux";
 import { HiOutlineShieldCheck, HiOutlineIdentification } from "react-icons/hi";
+import { setUser } from "../store/auth/authSlice";
 import VerificationModal from "../components/VerificationModal";
+import { getProvinces, getDistricts } from "../utils/vietnamProvinces";
 
 export default function Profile() {
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [isError, setIsError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -17,6 +20,57 @@ export default function Profile() {
     confirmPassword: "",
   });
 
+  // Profile edit state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: user?.user?.name || "",
+    address: user?.user?.address || "",
+    city: user?.user?.location?.city || "",
+    region: user?.user?.location?.region || "",
+    country: user?.user?.location?.country || "",
+  });
+
+  // Vietnam provinces data
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState("");
+  const [selectedDistrictCode, setSelectedDistrictCode] = useState("");
+
+  // Sync profileData with user.user whenever it changes
+  useEffect(() => {
+    if (user?.user) {
+      setProfileData({
+        name: user.user.name || "",
+        address: user.user.address || "",
+        city: user.user.location?.city || "",
+        region: user.user.location?.region || "",
+        country: user.user.location?.country || "",
+      });
+    }
+  }, [user?.user]);
+
+  // Load provinces on mount
+  useEffect(() => {
+    const loadProvinces = async () => {
+      const data = await getProvinces();
+      setProvinces(data);
+    };
+    loadProvinces();
+  }, []);
+
+  // Load districts when province changes
+  useEffect(() => {
+    const loadDistricts = async () => {
+      if (selectedProvinceCode) {
+        const data = await getDistricts(selectedProvinceCode);
+        setDistricts(data);
+      } else {
+        setDistricts([]);
+      }
+    };
+    loadDistricts();
+  }, [selectedProvinceCode]);
+
   // Lấy trạng thái xác minh
   const verification = user?.user?.verification;
   const isVerified = verification?.isVerified;
@@ -24,6 +78,7 @@ export default function Profile() {
   const emailVerified = verification?.email;
   const identityCardStatus = verification?.identityCard;
 
+  // Change password mutation
   const { mutate, isPending } = useMutation({
     mutationFn: () => changePassword(formData),
     onSuccess: () => {
@@ -46,9 +101,58 @@ export default function Profile() {
     },
   });
 
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: (data) => updateProfile(data),
+    onSuccess: (data) => {
+      setSuccessMessage("Profile updated successfully");
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 5000);
+
+      // Update Redux store with new user data (useEffect will sync profileData automatically)
+      if (data.user) {
+        dispatch(setUser({ user: { ...user.user, ...data.user } }));
+      }
+
+      // Exit edit mode
+      setIsEditingProfile(false);
+    },
+    onError: (error) => {
+      setIsError(error?.message || "Failed to update profile");
+      setTimeout(() => {
+        setIsError("");
+      }, 5000);
+    },
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleProvinceChange = (e) => {
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const provinceName = selectedOption.text;
+    const provinceCode = e.target.value;
+
+    setSelectedProvinceCode(provinceCode);
+    setProfileData((prev) => ({ ...prev, city: provinceName, region: "" }));
+    setSelectedDistrictCode("");
+  };
+
+  const handleDistrictChange = (e) => {
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const districtName = selectedOption.text;
+    const districtCode = e.target.value;
+
+    setSelectedDistrictCode(districtCode);
+    setProfileData((prev) => ({ ...prev, region: districtName }));
   };
 
   const handleSubmit = (e) => {
@@ -69,6 +173,33 @@ export default function Profile() {
       return;
     }
     mutate(formData);
+  };
+
+  const handleProfileSubmit = (e) => {
+    e.preventDefault();
+    // Set country to Vietnam before submit
+    updateProfileMutation.mutate({
+      ...profileData,
+      country: "Việt Nam"
+    });
+  };
+
+  const handleEditProfile = () => {
+    setIsEditingProfile(true);
+  };
+
+  const handleCancelEdit = () => {
+    // Reset to current user data
+    if (user?.user) {
+      setProfileData({
+        name: user.user.name || "",
+        address: user.user.address || "",
+        city: user.user.location?.city || "",
+        region: user.user.location?.region || "",
+        country: user.user.location?.country || "",
+      });
+    }
+    setIsEditingProfile(false);
   };
 
   return (
@@ -133,66 +264,10 @@ export default function Profile() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="divide-y divide-gray-200">
-              {/* Personal Information */}
+            {/* Account Verification */}
+            <div className="bg-white shadow overflow-hidden border border-gray-200 rounded-md mb-6">
               <div className="px-4 py-5 sm:p-6" data-aos="fade-up" data-aos-delay="150">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Personal Information
-                </h3>
-                <div className="grid grid-cols-1 gap-6">
-                  <div data-aos="fade-right" data-aos-delay="200">
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Full Name
-                    </label>
-                    <div className="relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <CiUser className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        value={user.user.name}
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-400"
-                        placeholder="Your full name"
-                        required
-                        disabled
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Email Address
-                    </label>
-                    <div className="relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <CiMail className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        value={user.user.email}
-                        disabled
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-400"
-                        placeholder="you@example.com"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Account Verification */}
-              <div className="px-4 py-5 sm:p-6 border-t border-gray-200" data-aos="fade-up" data-aos-delay="300">
-                <div className="flex items-center justify-between mb-4" data-aos="fade-down" data-aos-delay="350">
+                <div className="flex items-center justify-between mb-4" data-aos="fade-down" data-aos-delay="200">
                   <div className="flex items-center gap-2">
                     <HiOutlineShieldCheck className={`h-6 w-6 ${isVerified ? 'text-green-600' : 'text-amber-500'}`} />
                     <h3 className="text-lg font-medium text-gray-900">
@@ -220,7 +295,7 @@ export default function Profile() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Số điện thoại */}
-                  <div className={`p-4 rounded-lg border-2 ${phoneVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="400">
+                  <div className={`p-4 rounded-lg border-2 ${phoneVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="250">
                     <div className="flex items-center gap-2 mb-2">
                       <CiPhone className={`h-5 w-5 ${phoneVerified ? 'text-green-600' : 'text-gray-400'}`} />
                       <span className="font-medium text-gray-900">Số điện thoại</span>
@@ -231,7 +306,7 @@ export default function Profile() {
                   </div>
 
                   {/* Email */}
-                  <div className={`p-4 rounded-lg border-2 ${emailVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="450">
+                  <div className={`p-4 rounded-lg border-2 ${emailVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="300">
                     <div className="flex items-center gap-2 mb-2">
                       <CiMail className={`h-5 w-5 ${emailVerified ? 'text-green-600' : 'text-gray-400'}`} />
                       <span className="font-medium text-gray-900">Email</span>
@@ -246,7 +321,7 @@ export default function Profile() {
                     identityCardStatus === 'pending' ? 'bg-yellow-50 border-yellow-200' :
                       identityCardStatus === 'rejected' ? 'bg-red-50 border-red-200' :
                         'bg-gray-50 border-gray-200'
-                    }`} data-aos="zoom-in" data-aos-delay="500">
+                    }`} data-aos="zoom-in" data-aos-delay="350">
                     <div className="flex items-center gap-2 mb-2">
                       <HiOutlineIdentification className={`h-5 w-5 ${identityCardStatus === 'approved' ? 'text-green-600' :
                         identityCardStatus === 'pending' ? 'text-yellow-600' :
@@ -281,14 +356,260 @@ export default function Profile() {
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* Password */}
-              <div className="px-4 py-5 sm:p-6" data-aos="fade-up" data-aos-delay="550">
-                <h3 className="text-lg font-medium text-gray-900 mb-4" data-aos="fade-right" data-aos-delay="600">
-                  Change Password
-                </h3>
-                <div className="grid grid-cols-1 gap-6">
-                  <div data-aos="fade-up" data-aos-delay="650">
+            {/* Personal Information Form */}
+            <div className="bg-white shadow overflow-hidden border border-gray-200 rounded-md mb-6">
+              <form onSubmit={handleProfileSubmit}>
+                <div className="px-4 py-5 sm:p-6" data-aos="fade-up" data-aos-delay="150">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Personal Information
+                    </h3>
+                    {!isEditingProfile && (
+                      <button
+                        type="button"
+                        onClick={handleEditProfile}
+                        className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 border border-indigo-600 rounded-md hover:bg-indigo-50 transition-colors"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
+                  {isEditingProfile ? (
+                    // Edit Mode - Show input fields
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Full Name */}
+                      <div>
+                        <label htmlFor="profileName" className="block text-sm font-medium text-gray-700 mb-1">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          id="profileName"
+                          value={profileData.name}
+                          onChange={handleProfileChange}
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          placeholder="Your full name"
+                        />
+                      </div>
+
+                      {/* Email (readonly) */}
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          id="email"
+                          value={user.user.email}
+                          disabled
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 sm:text-sm cursor-not-allowed"
+                        />
+                      </div>
+
+                      {/* Phone (readonly) */}
+                      <div>
+                        <label htmlFor="profilePhone" className="block text-sm font-medium text-gray-700 mb-1">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          id="profilePhone"
+                          value={user.user.phone || "Not provided"}
+                          disabled
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 sm:text-sm cursor-not-allowed"
+                        />
+                      </div>
+
+                      {/* Address */}
+                      <div className="md:col-span-2">
+                        <label htmlFor="profileAddress" className="block text-sm font-medium text-gray-700 mb-1">
+                          Address
+                        </label>
+                        <textarea
+                          name="address"
+                          id="profileAddress"
+                          rows="2"
+                          value={profileData.address}
+                          onChange={handleProfileChange}
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          placeholder="Your full address"
+                        />
+                      </div>
+
+                      {/* City (Tỉnh/Thành phố) */}
+                      <div>
+                        <label htmlFor="profileCity" className="block text-sm font-medium text-gray-700 mb-1">
+                          Tỉnh/Thành phố
+                        </label>
+                        <select
+                          id="profileCity"
+                          value={selectedProvinceCode}
+                          onChange={handleProvinceChange}
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        >
+                          <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                          {provinces.map((province) => (
+                            <option key={province.id} value={province.id}>
+                              {province.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Region (Quận/Huyện) */}
+                      <div>
+                        <label htmlFor="profileRegion" className="block text-sm font-medium text-gray-700 mb-1">
+                          Quận/Huyện
+                        </label>
+                        <select
+                          id="profileRegion"
+                          value={selectedDistrictCode}
+                          onChange={handleDistrictChange}
+                          disabled={!selectedProvinceCode}
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
+                        >
+                          <option value="">-- Chọn Quận/Huyện --</option>
+                          {districts.map((district) => (
+                            <option key={district.id} value={district.id}>
+                              {district.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Country */}
+                      <div className="md:col-span-2">
+                        <label htmlFor="profileCountry" className="block text-sm font-medium text-gray-700 mb-1">
+                          Quốc gia
+                        </label>
+                        <input
+                          type="text"
+                          name="country"
+                          id="profileCountry"
+                          value="Việt Nam"
+                          disabled
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 sm:text-sm cursor-not-allowed"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    // View Mode - Show text only
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Full Name */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Full Name
+                        </label>
+                        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-md">
+                          <CiUser className="h-5 w-5 text-gray-400" />
+                          <span className="text-sm text-gray-900">{profileData.name || "Not provided"}</span>
+                        </div>
+                      </div>
+
+                      {/* Email */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Email Address
+                        </label>
+                        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-md">
+                          <CiMail className="h-5 w-5 text-gray-400" />
+                          <span className="text-sm text-gray-900">{user.user.email}</span>
+                        </div>
+                      </div>
+
+                      {/* Phone */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Phone Number
+                        </label>
+                        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-md">
+                          <CiPhone className="h-5 w-5 text-gray-400" />
+                          <span className="text-sm text-gray-900">{user.user.phone || "Not provided"}</span>
+                        </div>
+                      </div>
+
+                      {/* Address */}
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Address
+                        </label>
+                        <div className="flex items-start gap-2 px-3 py-2 bg-gray-50 rounded-md min-h-[48px]">
+                          <CiLocationOn className="h-5 w-5 text-gray-400 mt-0.5" />
+                          <span className="text-sm text-gray-900">{profileData.address || "Not provided"}</span>
+                        </div>
+                      </div>
+
+                      {/* City (Tỉnh/Thành phố) */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Tỉnh/Thành phố
+                        </label>
+                        <div className="px-3 py-2 bg-gray-50 rounded-md">
+                          <span className="text-sm text-gray-900">{profileData.city || "Chưa cung cấp"}</span>
+                        </div>
+                      </div>
+
+                      {/* Region (Quận/Huyện) */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Quận/Huyện
+                        </label>
+                        <div className="px-3 py-2 bg-gray-50 rounded-md">
+                          <span className="text-sm text-gray-900">{profileData.region || "Chưa cung cấp"}</span>
+                        </div>
+                      </div>
+
+                      {/* Country */}
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Quốc gia
+                        </label>
+                        <div className="px-3 py-2 bg-gray-50 rounded-md">
+                          <span className="text-sm text-gray-900">Việt Nam</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Buttons - Only show when editing */}
+                  {isEditingProfile && (
+                    <div className="mt-6 flex gap-3">
+                      <button
+                        type="button"
+                        onClick={handleCancelEdit}
+                        disabled={updateProfileMutation.isPending}
+                        className="px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={updateProfileMutation.isPending}
+                        className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* Change Password Form */}
+            <div className="bg-white shadow overflow-hidden border border-gray-200 rounded-md">
+              <form onSubmit={handleSubmit} className="divide-y divide-gray-200">
+                {/* Password */}
+                <div className="px-4 py-5 sm:p-6"  >
+                  <h3 className="text-lg font-medium text-gray-900 mb-4"  >
+                    Change Password
+                  </h3>
+                  <div className="grid grid-cols-1 gap-6">
+
                     <label
                       htmlFor="currentPassword"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -308,95 +629,96 @@ export default function Profile() {
                         className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         placeholder="Enter your current password"
                       />
-                    </div>
-                  </div>
 
-                  <div data-aos="fade-up" data-aos-delay="700">
-                    <label
-                      htmlFor="newPassword"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      New Password
-                    </label>
-                    <div className="relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <CiLock className="h-5 w-5 text-gray-400" />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="newPassword"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        New Password
+                      </label>
+                      <div className="relative rounded-md shadow-sm">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <CiLock className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                          type="password"
+                          name="newPassword"
+                          id="newPassword"
+                          value={formData.newPassword}
+                          onChange={handleChange}
+                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          placeholder="Enter new password"
+                          minLength={8}
+                        />
                       </div>
-                      <input
-                        type="password"
-                        name="newPassword"
-                        id="newPassword"
-                        value={formData.newPassword}
-                        onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        placeholder="Enter new password"
-                        minLength={8}
-                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Password must be at least 8 characters long
+                      </p>
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">
-                      Password must be at least 8 characters long
-                    </p>
-                  </div>
 
-                  <div data-aos="fade-up" data-aos-delay="750">
-                    <label
-                      htmlFor="confirmPassword"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Confirm New Password
-                    </label>
-                    <div className="relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <CiLock className="h-5 w-5 text-gray-400" />
+                    <div >
+                      <label
+                        htmlFor="confirmPassword"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Confirm New Password
+                      </label>
+                      <div className="relative rounded-md shadow-sm">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <CiLock className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <input
+                          type="password"
+                          name="confirmPassword"
+                          id="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleChange}
+                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          placeholder="Confirm new password"
+                        />
                       </div>
-                      <input
-                        type="password"
-                        name="confirmPassword"
-                        id="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        placeholder="Confirm new password"
-                      />
                     </div>
+
+                    {/* Error Message */}
+                    {isError && (
+                      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                        {isError}
+                      </div>
+                    )}
+
+                    {/* Success Message */}
+                    {successMessage && (
+                      <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+                        {successMessage}
+                      </div>
+                    )}
                   </div>
-
-                  {/* Error Message */}
-                  {isError && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                      {isError}
-                    </div>
-                  )}
-
-                  {/* Success Message */}
-                  {successMessage && (
-                    <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
-                      {successMessage}
-                    </div>
-                  )}
                 </div>
-              </div>
 
-              {/* Submit button */}
-              <div className="px-4 py-5 sm:p-6" data-aos="fade-up" data-aos-delay="800">
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    disabled
-                    className="mr-3 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isPending}
-                    className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isPending ? "Saving..." : "Save Changes"}
-                  </button>
+                {/* Submit button */}
+                <div className="px-4 py-5 sm:p-6" >
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      disabled
+                      className="mr-3 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isPending}
+                      className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isPending ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </main>
       </div>
