@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { useState, useEffect, useCallback } from 'react';
 import LoadingScreen from '../../components/LoadingScreen';
 import Toast from '../../components/Toast';
 import { getAllUsers, deleteUser, reactivateUser } from '../../api/admin';
 
 export const UsersList = () => {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -21,9 +21,17 @@ export const UsersList = () => {
   const [reactivateLoading, setReactivateLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
-  const fetchUsers = async (page = 1, search = '', sort = 'createdAt', order = 'desc') => {
+  // Debounce search term - chỉ search sau 400ms ngừng gõ
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const fetchUsers = useCallback(async (page = 1, search = '', sort = 'createdAt', order = 'desc') => {
     try {
-      setLoading(true);
       setError(null);
       const response = await getAllUsers(page, search, 'all', 20, sort, order);
       // Filter out inactive users on client side as well
@@ -35,17 +43,24 @@ export const UsersList = () => {
       setError('Failed to load users');
       setUsers([]);
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
     }
-  };
+  }, []);
 
+  // Fetch users khi debounced search term thay đổi
   useEffect(() => {
-    fetchUsers(currentPage, searchTerm, sortBy, sortOrder);
-  }, [currentPage, searchTerm, sortBy, sortOrder]);
+    fetchUsers(currentPage, debouncedSearchTerm, sortBy, sortOrder);
+  }, [currentPage, debouncedSearchTerm, sortBy, sortOrder, fetchUsers]);
+
+  // Reset page về 1 khi search term thay đổi
+  useEffect(() => {
+    if (searchTerm !== '') {
+      setCurrentPage(1);
+    }
+  }, [debouncedSearchTerm]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1);
   };
 
   const handleSort = (field) => {
@@ -155,24 +170,16 @@ export const UsersList = () => {
     setUserToReactivate(null);
   };
 
-  if (loading) return <LoadingScreen />;
+  if (initialLoading) return <LoadingScreen />;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">All Users</h1>
-              <p className="text-gray-600">Manage and monitor all registered users</p>
-            </div>
-            <Link
-              to="/admin"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-            >
-              Back to Dashboard
-            </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">All Users</h1>
+            <p className="text-gray-600">Manage and monitor all registered users</p>
           </div>
         </div>
 
@@ -189,6 +196,8 @@ export const UsersList = () => {
                 placeholder="Search by name or email..."
                 value={searchTerm}
                 onChange={handleSearch}
+                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+                autoComplete="off"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -252,6 +261,9 @@ export const UsersList = () => {
                     Location
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Xác minh
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -262,7 +274,7 @@ export const UsersList = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
                       No users found matching your criteria.
                     </td>
                   </tr>
@@ -308,6 +320,23 @@ export const UsersList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatLocation(user.location)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${user.verification?.isVerified
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-600'
+                          }`}>
+                          {user.verification?.isVerified ? (
+                            <>
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                              Đã xác minh
+                            </>
+                          ) : (
+                            'Chưa xác minh'
+                          )}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false

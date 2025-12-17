@@ -4,7 +4,8 @@ import AuctionCard from '../../components/AuctionCard';
 import LoadingScreen from '../../components/LoadingScreen';
 import Toast from '../../components/Toast';
 import { getAdminDashboard, deleteUser } from '../../api/admin';
-import { ChevronLeft, ChevronRight, Play, Pause, Clock, Users, Tag, Eye } from 'lucide-react';
+import { getPendingVerifications } from '../../api/verification';
+import { ChevronLeft, ChevronRight, Play, Pause, Clock, Users, Tag, Eye, ShieldCheck } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 export const AdminDashboard = () => {
@@ -16,6 +17,7 @@ export const AdminDashboard = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [toast, setToast] = useState(null);
+  const [pendingVerifications, setPendingVerifications] = useState(0);
 
   // Slider state for auctions
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -38,6 +40,15 @@ export const AdminDashboard = () => {
         recentUsersList: activeUsers     // Only active users
       });
       setUsers(activeUsers);
+
+      // Fetch pending verifications count
+      try {
+        const verifications = await getPendingVerifications();
+        setPendingVerifications(verifications.count || 0);
+      } catch (e) {
+        console.error('Error fetching pending verifications:', e);
+        setPendingVerifications(0);
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       console.error('Error details:', error.response?.data); // More detailed error
@@ -245,6 +256,27 @@ export const AdminDashboard = () => {
                   <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
+                </div>
+              </div>
+            </Link>
+
+            <Link to="/admin/verifications" className="bg-white rounded-sm shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow block">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                    Pending Verifications
+                  </h3>
+                  <p className="text-2xl font-bold text-gray-900 mt-2">
+                    {pendingVerifications}
+                  </p>
+                  {pendingVerifications > 0 && (
+                    <p className="text-xs text-emerald-600 mt-1 font-medium">
+                      🆔 CCCD cần duyệt
+                    </p>
+                  )}
+                </div>
+                <div className="bg-emerald-100 p-3 rounded-full">
+                  <ShieldCheck className="w-6 h-6 text-emerald-600" />
                 </div>
               </div>
             </Link>

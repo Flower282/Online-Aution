@@ -1,13 +1,25 @@
 import AuctionCard from "../components/AuctionCard.jsx";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { dashboardStats } from "../api/auction.js";
+import { dashboardStats, getAuctions } from "../api/auction.js";
 import LoadingScreen from "../components/LoadingScreen.jsx";
-import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Play, Pause, ShieldAlert, Search, Package } from "lucide-react";
 import { formatCurrency } from "../utils/formatCurrency";
+import { useSelector } from "react-redux";
+import VerificationModal from "../components/VerificationModal";
 
 const Dashboard = () => {
+  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+
+  // Search states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchRef = useRef(null);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["stats"],
     queryFn: () => dashboardStats(),
@@ -16,6 +28,76 @@ const Dashboard = () => {
     refetchOnWindowFocus: true, // Refresh when user returns to tab
     refetchOnMount: true, // Always refetch when component mounts
   });
+
+  // Fetch all auctions for search
+  const { data: auctionsData } = useQuery({
+    queryKey: ["allAuctionsForDashboardSearch"],
+    queryFn: getAuctions,
+    staleTime: 60 * 1000,
+  });
+
+  // Get unique categories from auctions
+  const categories = useMemo(() => {
+    if (!auctionsData) return [];
+    const cats = [...new Set(auctionsData.map(a => a.itemCategory).filter(Boolean))];
+    return cats;
+  }, [auctionsData]);
+
+  // Search results computation
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      return { auctions: [], categories: [] };
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    const auctions = auctionsData || [];
+
+    // Filter auctions by name, description, category
+    const filteredAuctions = auctions
+      .filter(auction =>
+        auction.itemName?.toLowerCase().includes(query) ||
+        auction.itemDescription?.toLowerCase().includes(query) ||
+        auction.itemCategory?.toLowerCase().includes(query)
+      )
+      .slice(0, 6);
+
+    // Filter categories
+    const filteredCategories = categories
+      .filter(cat => cat.toLowerCase().includes(query))
+      .slice(0, 4);
+
+    return { auctions: filteredAuctions, categories: filteredCategories };
+  }, [searchQuery, auctionsData, categories]);
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle search submit
+  const handleSearchSubmit = () => {
+    if (searchTerm.trim().length >= 2) {
+      setSearchQuery(searchTerm);
+      setShowSearchResults(true);
+    }
+  };
+
+  // Handle search result click
+  const handleResultClick = (link) => {
+    setSearchTerm("");
+    setSearchQuery("");
+    setShowSearchResults(false);
+    navigate(link);
+  };
+
+  // Check verification status
+  const isVerified = user?.user?.verification?.isVerified;
 
   // Slideshow state
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -98,29 +180,172 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-7xl mx-auto px-4 py-10">
-        {/* Christmas Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white p-8 rounded-2xl shadow-lg border-2 border-red-200 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-              Total Auctions
-            </h3>
-            <p className="text-4xl font-extrabold text-red-600 mt-2">
-              {data.totalAuctions}
+        {/* Verification Warning Banner */}
+        {!isVerified && (
+          <div className="mb-8 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-lg">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-start gap-3">
+                <ShieldAlert className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-semibold text-amber-800">Tài khoản chưa xác minh</h3>
+                  <p className="text-sm text-amber-700">
+                    Xác minh tài khoản để nạp tiền, đặt cọc và tham gia đấu giá
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowVerificationModal(true)}
+                className="px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors flex items-center gap-2"
+              >
+                <ShieldAlert className="h-4 w-4" />
+                Xác minh ngay
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Hero Search Section */}
+        <div className="min-h-[70vh] flex flex-col items-center justify-center mb-16" ref={searchRef}>
+          <div className="text-center mb-8">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-orange-500 mb-4">
+              🎄 Online Auction
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Khám phá hàng ngàn sản phẩm đấu giá hấp dẫn. Tìm kiếm ngay!
             </p>
           </div>
-          <div className="bg-white p-8 rounded-2xl shadow-lg border-2 border-rose-200 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-              Active Auctions
-            </h3>
-            <p className="text-4xl font-extrabold text-rose-600 mt-2">
-              {data.activeAuctions}
-            </p>
+
+          <div className="w-full max-w-4xl mx-auto">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                <Search className="h-8 w-8 text-red-500" />
+              </div>
+              <input
+                type="text"
+                placeholder="Nhập tên sản phẩm, danh mục... rồi bấm Enter"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onFocus={() => {
+                  if (searchQuery.trim()) setShowSearchResults(true);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearchSubmit();
+                  }
+                  if (e.key === 'Escape') {
+                    setShowSearchResults(false);
+                  }
+                }}
+                autoComplete="off"
+                className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-red-300 rounded-2xl shadow-2xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all placeholder:text-gray-400"
+              />
+
+              {/* Search Results Dropdown */}
+              {showSearchResults && searchQuery.trim() && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-[450px] overflow-y-auto">
+                  {searchResults.auctions.length === 0 && searchResults.categories.length === 0 ? (
+                    <div className="p-6 text-center text-gray-500">
+                      <Search className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                      <p className="text-lg">Không tìm thấy kết quả cho "{searchQuery}"</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Categories Results */}
+                      {searchResults.categories.length > 0 && (
+                        <div>
+                          <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
+                            <span className="text-sm font-semibold text-blue-700 uppercase tracking-wider">
+                              📁 Danh mục ({searchResults.categories.length})
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-2 p-4">
+                            {searchResults.categories.map((category) => (
+                              <button
+                                key={category}
+                                onClick={() => handleResultClick(`/auction?category=${encodeURIComponent(category)}`)}
+                                className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-full font-medium transition-colors"
+                              >
+                                {category}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Auctions Results */}
+                      {searchResults.auctions.length > 0 && (
+                        <div>
+                          <div className="px-4 py-3 bg-gradient-to-r from-red-50 to-orange-50 border-b border-t border-gray-100">
+                            <span className="text-sm font-semibold text-red-700 uppercase tracking-wider">
+                              🏷️ Sản phẩm ({searchResults.auctions.length})
+                            </span>
+                          </div>
+                          {searchResults.auctions.map((auction) => {
+                            const timeRemaining = auction.timeLeft || 0;
+                            const isEnded = auction.isEnded || timeRemaining <= 0;
+                            const hoursLeft = Math.floor(timeRemaining / (1000 * 60 * 60));
+                            const daysLeft = Math.floor(hoursLeft / 24);
+
+                            return (
+                              <button
+                                key={auction._id}
+                                onClick={() => handleResultClick(`/auction/${auction._id}`)}
+                                className="w-full px-4 py-3 flex items-center gap-4 hover:bg-red-50 transition-colors text-left border-b border-gray-50 last:border-b-0"
+                              >
+                                <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 shadow">
+                                  {auction.itemPhoto ? (
+                                    <img
+                                      src={auction.itemPhoto}
+                                      alt={auction.itemName}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <Package className="h-8 w-8 text-gray-400" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-semibold text-gray-900 truncate text-lg">{auction.itemName}</p>
+                                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                      {auction.itemCategory}
+                                    </span>
+                                    {!isEnded ? (
+                                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                        {daysLeft > 0 ? `${daysLeft} ngày` : `${hoursLeft}h còn lại`}
+                                      </span>
+                                    ) : (
+                                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                        Đã kết thúc
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-red-600 font-bold mt-1">
+                                    {new Intl.NumberFormat('vi-VN').format(auction.currentPrice)}đ
+                                  </p>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-          <div className="bg-white p-8 rounded-2xl shadow-lg border-2 border-pink-200 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-            <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">Your Auctions</h3>
-            <p className="text-4xl font-extrabold text-pink-600 mt-2">
-              {data.userAuctionCount}
-            </p>
+
+          {/* Scroll Down Indicator */}
+          <div className="mt-12 animate-bounce">
+            <div className="flex flex-col items-center text-gray-400">
+              <span className="text-sm mb-2">Kéo xuống để xem đấu giá</span>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
           </div>
         </div>
 
@@ -303,6 +528,15 @@ const Dashboard = () => {
           )}
         </div>
       </main>
+
+      {/* Verification Modal */}
+      <VerificationModal
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+        onVerified={() => {
+          setShowVerificationModal(false);
+        }}
+      />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import User from '../models/user.js';
 import mongoose from 'mongoose';
+import { isUserVerified } from './verification.controller.js';
 
 /**
  * Get user balance
@@ -28,11 +29,21 @@ export const getBalance = async (req, res) => {
 
 /**
  * Top up / Add money to wallet
+ * Yêu cầu: Tài khoản phải được xác minh
  */
 export const topUp = async (req, res) => {
     try {
         const userId = req.user.id;
         const { amount, paymentMethod, transactionId } = req.body;
+
+        // Kiểm tra xác minh tài khoản
+        const verified = await isUserVerified(userId);
+        if (!verified) {
+            return res.status(403).json({
+                error: 'Bạn cần xác minh tài khoản trước khi nạp tiền',
+                code: 'VERIFICATION_REQUIRED'
+            });
+        }
 
         // Validate amount
         if (!amount || amount <= 0) {

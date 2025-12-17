@@ -5,9 +5,10 @@ import { placeBid, viewAuction, deleteAuction, toggleLikeAuction, checkDeposit, 
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import socket, { ensureSocketConnected } from "../utils/socket.js";
-import { TrendingUp, Package, Heart, Shield, CreditCard, Wallet, Building2, X } from "lucide-react";
+import { TrendingUp, Package, Heart, Shield, CreditCard, Wallet, Building2, X, ShieldAlert } from "lucide-react";
 import Toast from "../components/Toast.jsx";
 import { formatCurrency } from "../utils/formatCurrency.js";
+import VerificationModal from "../components/VerificationModal.jsx";
 
 export const ViewAuction = () => {
   const { id } = useParams();
@@ -31,6 +32,10 @@ export const ViewAuction = () => {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [isSubmittingDeposit, setIsSubmittingDeposit] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('bank_transfer');
+
+  // Verification states
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const isVerified = user?.user?.verification?.isVerified;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
@@ -484,6 +489,13 @@ export const ViewAuction = () => {
   const handleDepositSubmit = async () => {
     if (isSubmittingDeposit) return;
 
+    // Kiểm tra xác minh tài khoản
+    if (!isVerified) {
+      setShowDepositModal(false);
+      setShowVerificationModal(true);
+      return;
+    }
+
     setIsSubmittingDeposit(true);
     try {
       const result = await createDeposit(id, {
@@ -499,10 +511,25 @@ export const ViewAuction = () => {
       setShowDepositModal(false);
       setToast({ message: result.message || "Đặt cọc thành công! Bạn có thể đấu giá ngay.", type: "success" });
     } catch (error) {
+      // Kiểm tra nếu lỗi là do chưa xác minh
+      if (error.message?.includes('xác minh') || error.response?.data?.code === 'VERIFICATION_REQUIRED') {
+        setShowDepositModal(false);
+        setShowVerificationModal(true);
+        return;
+      }
       setToast({ message: error.message || "Không thể đặt cọc. Vui lòng thử lại.", type: "error" });
     } finally {
       setIsSubmittingDeposit(false);
     }
+  };
+
+  // Handle clicking deposit button - kiểm tra verification trước
+  const handleDepositClick = () => {
+    if (!isVerified) {
+      setShowVerificationModal(true);
+      return;
+    }
+    setShowDepositModal(true);
   };
 
   const paymentMethods = [
@@ -841,15 +868,29 @@ export const ViewAuction = () => {
                     </>
                   ) : (
                     <div className="text-center py-4">
+                      {/* Cảnh báo cần xác minh tài khoản */}
+                      {!isVerified && (
+                        <div className="mb-4 p-4 bg-amber-50 border-2 border-amber-200 rounded-lg text-left">
+                          <div className="flex items-start gap-3">
+                            <ShieldAlert className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <h4 className="font-semibold text-amber-800 mb-1">Tài khoản chưa xác minh</h4>
+                              <p className="text-sm text-amber-700">
+                                Bạn cần xác minh tài khoản (số điện thoại, email, CCCD) trước khi đặt cọc và tham gia đấu giá.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       <p className="text-gray-600 mb-4">
                         Bạn cần đặt cọc <span className="font-bold text-amber-600">{formatCurrency(depositStatus?.depositAmount || Math.round((data?.startingPrice || 0) * (depositStatus?.depositPercentage || 10) / 100))}</span> để tham gia đấu giá
                       </p>
                       <button
-                        onClick={() => setShowDepositModal(true)}
+                        onClick={handleDepositClick}
                         className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
                       >
                         <Shield className="h-5 w-5" />
-                        Đặt cọc ngay
+                        {isVerified ? 'Đặt cọc ngay' : 'Xác minh & Đặt cọc'}
                       </button>
                       <p className="text-xs text-gray-500 mt-3">
                         💡 Tiền cọc sẽ được hoàn trả nếu bạn không thắng đấu giá
@@ -899,36 +940,57 @@ export const ViewAuction = () => {
         {/* Bid History */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-red-700 mb-6">Bid History</h2>
-          <div className="bg-white rounded-md shadow-md border border-red-200 overflow-hidden">
-            {topTenBids.length === 0 ? (
-              <div className="p-8 text-center text-amber-700">
-                No bids yet. Be the first to bid!
-              </div>
-            ) : (
-              <div className="divide-y divide-red-50">
-                {topTenBids.map((bid, index) => (
-                  <div
-                    key={index}
-                    className="p-4 flex justify-between items-center"
-                  >
-                    <div>
-                      <p className="font-medium text-emerald-800">
-                        {bid.bidder?.name}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {new Date(bid.bidTime).toLocaleDateString()} at{" "}
-                        {new Date(bid.bidTime).toLocaleTimeString()}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-semibold text-red-700">
-                        {formatCurrency(bid.bidAmount)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+          <div className="relative">
+            {/* Blur overlay khi chưa đặt cọc - chỉ hiện khi không phải chủ sở hữu và auction đang active và approved */}
+            {data.seller._id !== user?.user?._id && isActive && isApproved && !depositStatus?.hasDeposit && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm rounded-md">
+                <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-amber-200 text-center max-w-sm mx-4">
+                  <Shield className="h-12 w-12 text-amber-500 mx-auto mb-3" />
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">
+                    Lịch sử đấu giá bị ẩn
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Bạn cần đặt cọc để xem chi tiết lịch sử đấu giá và tham gia đấu giá.
+                  </p>
+
+                </div>
               </div>
             )}
+
+            <div className={`bg-white rounded-md shadow-md border border-red-200 overflow-hidden ${data.seller._id !== user?.user?._id && isActive && isApproved && !depositStatus?.hasDeposit
+              ? 'blur-sm select-none pointer-events-none'
+              : ''
+              }`}>
+              {topTenBids.length === 0 ? (
+                <div className="p-8 text-center text-amber-700">
+                  No bids yet. Be the first to bid!
+                </div>
+              ) : (
+                <div className="divide-y divide-red-50">
+                  {topTenBids.map((bid, index) => (
+                    <div
+                      key={index}
+                      className="p-4 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="font-medium text-emerald-800">
+                          {bid.bidder?.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(bid.bidTime).toLocaleDateString()} at{" "}
+                          {new Date(bid.bidTime).toLocaleTimeString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-semibold text-red-700">
+                          {formatCurrency(bid.bidAmount)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
@@ -1065,6 +1127,16 @@ export const ViewAuction = () => {
           onClose={() => setToast(null)}
         />
       )}
+
+      {/* Verification Modal */}
+      <VerificationModal
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+        onVerified={() => {
+          setShowVerificationModal(false);
+          setToast({ message: "Tài khoản đã được xác minh! Bạn có thể đặt cọc ngay.", type: "success" });
+        }}
+      />
     </div>
   );
 };

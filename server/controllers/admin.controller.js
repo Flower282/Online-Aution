@@ -104,7 +104,7 @@ export const getAllUsers = async (req, res) => {
 
         // Get users with pagination, search, and sorting
         const users = await User.find(searchQuery)
-            .select('name email role createdAt signupAt lastLogin location avatar isActive')
+            .select('name email role createdAt signupAt lastLogin location avatar isActive verification')
             .sort({ [sortBy]: sortOrder })
             .skip(skip)
             .limit(limit)
