@@ -55,24 +55,14 @@ const mockProductFind = jest.fn();
 const mockProductFindById = jest.fn();
 const mockProductSave = jest.fn();
 
-// Helper to create chainable mock that eventually resolves/rejects
-const createChainableMock = (finalValue) => {
-  const chainable = {
-    sort: jest.fn(() => chainable),
-    populate: jest.fn(() => chainable),
-    select: jest.fn(() => chainable),
-    limit: jest.fn(() => chainable),
-    skip: jest.fn(() => chainable),
-    lean: jest.fn(() => chainable),
-    then: (resolve, reject) => {
-      if (finalValue instanceof Error) {
-        return Promise.reject(finalValue).then(resolve, reject);
-      }
-      return Promise.resolve(finalValue).then(resolve, reject);
-    },
-    catch: (reject) => Promise.reject(finalValue).catch(reject),
+// Create chainable mock for query methods
+const createProductQuery = () => {
+  const query = {
+    sort: jest.fn().mockReturnThis(),
+    populate: jest.fn().mockReturnThis(),
+    exec: jest.fn(),
   };
-  return chainable;
+  return query;
 };
 
 await jest.unstable_mockModule('../../models/product.js', () => ({
@@ -84,27 +74,10 @@ await jest.unstable_mockModule('../../models/product.js', () => ({
       return mockProductSave(this);
     }
     static find(query) {
-      const result = mockProductFind(query);
-      // If mockProductFind returns an Error, create chainable that rejects
-      if (result instanceof Error) {
-        return createChainableMock(result);
-      }
-      // If result is already chainable or a promise, return as-is
-      if (result && typeof result.then === 'function') {
-        return result;
-      }
-      // Otherwise wrap in chainable
-      return createChainableMock(result);
+      return mockProductFind(query);
     }
     static findById(id) {
-      const result = mockProductFindById(id);
-      if (result instanceof Error) {
-        return createChainableMock(result);
-      }
-      if (result && typeof result.then === 'function') {
-        return result;
-      }
-      return createChainableMock(result);
+      return mockProductFindById(id);
     }
   }
 }));
@@ -581,8 +554,12 @@ describe('ESM HTTP Error Handling - No Database', () => {
 
     it('should return 500 when auction fetch fails', async () => {
       const token = tokenFactory();
-      // Return Error object - chainable mock will reject with it
-      mockProductFind.mockReturnValue(new Error('Query failed'));
+      
+      // Mock the query chain to reject
+      const mockQuery = {
+        sort: jest.fn().mockRejectedValue(new Error('Query failed')),
+      };
+      mockProductFind.mockReturnValue(mockQuery);
 
       const response = await request(app)
         .get('/api/auction')
@@ -590,6 +567,7 @@ describe('ESM HTTP Error Handling - No Database', () => {
         .expect(500);
 
       expect(response.body.message).toContain('Error');
+      expect(mockProductFind).toHaveBeenCalledWith({ status: 'approved' });
     });
 
     it('should handle unexpected errors gracefully', async () => {
