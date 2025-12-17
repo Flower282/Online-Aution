@@ -27,7 +27,7 @@ function getEnv(key, fallback = null) {
 // Validate and export environment variables
 export const env = {
   // Primary API URL - the only required environment variable
-  API_URL: getEnv('VITE_API_URL', 'http://localhost:4000'),
+  API_URL: getEnv('VITE_API', 'http://localhost:4000'),
 };
 
 // Freeze the object to prevent mutations
