@@ -34,9 +34,17 @@ export const withdraw = async (data) => {
 };
 
 // Get transaction history
-export const getTransactionHistory = async () => {
+export const getTransactionHistory = async (params = {}) => {
     try {
-        const res = await axios.get('/wallet/transactions', { withCredentials: true });
+        const { page = 1, limit = 50, days, type, status } = params;
+        const queryParams = new URLSearchParams();
+        if (page) queryParams.append('page', page);
+        if (limit) queryParams.append('limit', limit);
+        if (days) queryParams.append('days', days);
+        if (type) queryParams.append('type', type);
+        if (status) queryParams.append('status', status);
+
+        const res = await axios.get(`/wallet/transactions?${queryParams.toString()}`, { withCredentials: true });
         return res.data;
     } catch (error) {
         console.error("Error getting transactions", error.message);

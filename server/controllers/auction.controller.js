@@ -1,5 +1,6 @@
 import uploadImage from '../services/cloudinaryService.js';
 import Product from '../models/product.js';
+import User from '../models/user.js';
 import mongoose from "mongoose";
 import { processAuctionDeposits } from './deposit.controller.js';
 
@@ -669,15 +670,22 @@ export const finalizeAuction = async (req, res) => {
         // Set winner
         auction.winner = highestBid.bidder;
         auction.currentPrice = highestBid.bidAmount;
+        auction.finalPrice = highestBid.bidAmount;
         auction.auctionStatus = 'ended';
 
-        // Calculate deposit
+        // Set payment deadline for winner: 1 tuần sau khi phiên kết thúc
+        const paymentDeadline = new Date(endDate);
+        paymentDeadline.setDate(paymentDeadline.getDate() + 7);
+        auction.paymentDeadline = paymentDeadline;
+        auction.paymentStatus = 'pending';
+
+        // Calculate deposit (tiền đặt cọc) nếu được yêu cầu
         if (auction.depositRequired) {
             auction.depositAmount = Math.round(
                 (auction.currentPrice * auction.depositPercentage) / 100
             );
 
-            // Set deposit deadline (e.g., 3 days after auction ends)
+            // Set deposit deadline (ví dụ: 3 ngày sau khi phiên kết thúc)
             const depositDeadline = new Date(endDate);
             depositDeadline.setDate(depositDeadline.getDate() + 3);
             auction.depositDeadline = depositDeadline;
@@ -701,6 +709,18 @@ export const finalizeAuction = async (req, res) => {
         const depositDeducted = auction.depositAmount || 0;
         const finalPriceAfterDeposit = auction.currentPrice - depositDeducted;
 
+        // ==================== TÍNH TIỀN NGƯỜI BÁN NHẬN ĐƯỢC ====================
+        // Theo quy định đấu giá quốc tế: người đăng nhận % trên giá cuối cùng
+        const commissionPercent = auction.platformCommissionPercentage || 10; // mặc định 10%
+        const platformCommissionAmount = Math.round(
+            (auction.finalPrice * commissionPercent) / 100
+        );
+        const sellerAmount = auction.finalPrice - platformCommissionAmount;
+
+        auction.platformCommissionPercentage = commissionPercent;
+        auction.platformCommissionAmount = platformCommissionAmount;
+        auction.sellerAmount = sellerAmount;
+
         // Populate winner info for response
         await auction.populate('winner', 'name email');
 
@@ -712,19 +732,159 @@ export const finalizeAuction = async (req, res) => {
             auction: {
                 id: auction._id,
                 winner: auction.winner,
-                finalPrice: auction.currentPrice,
+                finalPrice: auction.finalPrice,
                 depositDeducted: depositDeducted,
                 finalPriceAfterDeposit: finalPriceAfterDeposit,
                 depositRequired: auction.depositRequired,
                 depositAmount: auction.depositAmount,
                 depositDeadline: auction.depositDeadline,
-                auctionStatus: auction.auctionStatus
+                auctionStatus: auction.auctionStatus,
+                paymentDeadline: auction.paymentDeadline,
+                paymentStatus: auction.paymentStatus,
+                platformCommissionPercentage: auction.platformCommissionPercentage,
+                platformCommissionAmount: auction.platformCommissionAmount,
+                sellerAmount: auction.sellerAmount
             },
             depositProcessing: depositResult
         });
     } catch (error) {
         console.error('Error finalizing auction:', error);
         res.status(500).json({ error: 'Failed to finalize auction', details: error.message });
+    }
+};
+
+/**
+ * Winner pays for the auctioned product
+ * - Chỉ người thắng (winner) mới được thanh toán
+ * - Hạn thanh toán: trong vòng 1 tuần kể từ khi phiên kết thúc (paymentDeadline)
+ * - Số tiền người đăng sản phẩm nhận được = % giá đấu giá (sellerAmount)
+ *   theo quy định đấu giá quốc tế (platformCommissionPercentage là phí sàn)
+ */
+export const payForWonAuction = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ error: 'Invalid auction ID' });
+        }
+
+        const auction = await Product.findById(id)
+            .populate('seller', 'name email')
+            .populate('winner', 'name email');
+
+        if (!auction) {
+            return res.status(404).json({ error: 'Auction not found' });
+        }
+
+        // Nếu chưa có winner nhưng phiên đã kết thúc và có bid,
+        // tự động xác định winner giống finalizeAuction để người thắng có thể thanh toán.
+        const now = new Date();
+        const endDate = new Date(auction.itemEndDate);
+
+        let justFinalized = false;
+        if (!auction.winner && endDate <= now && auction.bids && auction.bids.length > 0) {
+            const sortedBids = [...auction.bids].sort((a, b) => b.bidAmount - a.bidAmount);
+            const highestBid = sortedBids[0];
+
+            auction.winner = highestBid.bidder;
+            auction.currentPrice = highestBid.bidAmount;
+            auction.finalPrice = highestBid.bidAmount;
+            auction.auctionStatus = 'ended';
+            justFinalized = true;
+
+            // Thiết lập hạn thanh toán nếu chưa có (1 tuần sau khi kết thúc)
+            if (!auction.paymentDeadline) {
+                const paymentDeadline = new Date(endDate);
+                paymentDeadline.setDate(paymentDeadline.getDate() + 7);
+                auction.paymentDeadline = paymentDeadline;
+            }
+
+            await auction.save();
+
+            // Nếu vừa tự động finalize ở đây, cần xử lý tiền đặt cọc:
+            // - Hoàn tiền người thua
+            // - Đánh dấu cọc của người thắng là 'deducted'
+            try {
+                await processAuctionDeposits(id, highestBid.bidder);
+            } catch (depositError) {
+                console.error('Error processing deposits in payForWonAuction:', depositError);
+            }
+        }
+
+        // Must have a winner at this point
+        if (!auction.winner) {
+            return res.status(400).json({ error: 'Auction does not have a winner yet' });
+        }
+
+        // Check if current user is the winner
+        if (auction.winner._id.toString() !== req.user.id.toString()) {
+            return res.status(403).json({ error: 'Only the auction winner can pay for this auction' });
+        }
+
+        // Không cho thanh toán nếu phiên đã bị hủy / hết hạn
+        if (auction.auctionStatus === 'cancelled' || auction.auctionStatus === 'expired') {
+            return res.status(400).json({ error: 'Auction is not in a payable state' });
+        }
+
+        // Check payment status
+        if (auction.paymentStatus === 'paid') {
+            return res.status(400).json({ error: 'Auction has already been paid' });
+        }
+
+        // Check payment deadline (1 week after auction end)
+        if (auction.paymentDeadline && now > auction.paymentDeadline) {
+            // Mark as expired
+            auction.paymentStatus = 'expired';
+            auction.auctionStatus = 'cancelled';
+            await auction.save();
+            return res.status(400).json({ error: 'Payment deadline has passed. Auction payment expired.' });
+        }
+
+        // Tính toán lại số tiền nếu cần (dựa trên finalPrice và % hoa hồng)
+        const finalPrice = auction.finalPrice || auction.currentPrice;
+        const commissionPercent = auction.platformCommissionPercentage || 10;
+        const platformCommissionAmount = Math.round(
+            (finalPrice * commissionPercent) / 100
+        );
+        const sellerAmount = finalPrice - platformCommissionAmount;
+
+        auction.finalPrice = finalPrice;
+        auction.platformCommissionPercentage = commissionPercent;
+        auction.platformCommissionAmount = platformCommissionAmount;
+        auction.sellerAmount = sellerAmount;
+
+        // Đánh dấu đã thanh toán
+        auction.paymentStatus = 'paid';
+        auction.paymentCompletedAt = now;
+        auction.auctionStatus = 'completed';
+        auction.isSold = true;
+
+        await auction.save();
+
+        // Lưu ý: Ở đây chỉ xử lý logic trạng thái.
+        // Nếu cần trừ tiền ví người thắng và cộng ví người bán,
+        // có thể triển khai thêm trong tương lai (sử dụng User.balance).
+
+        return res.status(200).json({
+            message: 'Payment for auction completed successfully',
+            auction: {
+                id: auction._id,
+                itemName: auction.itemName,
+                finalPrice: auction.finalPrice,
+                paymentStatus: auction.paymentStatus,
+                paymentDeadline: auction.paymentDeadline,
+                paymentCompletedAt: auction.paymentCompletedAt,
+                auctionStatus: auction.auctionStatus,
+                winner: auction.winner,
+                seller: auction.seller,
+                platformCommissionPercentage: auction.platformCommissionPercentage,
+                platformCommissionAmount: auction.platformCommissionAmount,
+                sellerAmount: auction.sellerAmount
+            }
+        });
+    } catch (error) {
+        console.error('Error paying for won auction:', error);
+        return res.status(500).json({ error: 'Failed to process auction payment', details: error.message });
     }
 };
 
@@ -790,29 +950,61 @@ export const getWonAuctions = async (req, res) => {
 
                 if (highestBidderId === userId) {
                     // User won this auction
-                    // Calculate deposit amount if not already set
+                    // ==================== THÔNG TIN THANH TOÁN (PAYMENT) ====================
+                    // finalPrice: giá thắng
+                    const finalPrice = auction.finalPrice || auction.currentPrice;
+
+                    // Hạn thanh toán: ưu tiên paymentDeadline nếu đã set; nếu chưa thì mặc định 7 ngày sau khi kết thúc
+                    const defaultPaymentDeadline = new Date(new Date(auction.itemEndDate).getTime() + 7 * 24 * 60 * 60 * 1000);
+                    const paymentDeadline = auction.paymentDeadline || defaultPaymentDeadline;
+
+                    // Trạng thái thanh toán (fallback theo trạng thái phiên và thời gian)
+                    let paymentStatus = auction.paymentStatus;
+                    const now = new Date();
+                    const deadline = auction.paymentDeadline || defaultPaymentDeadline;
+
+                    if (!paymentStatus) {
+                        if (auction.paymentCompletedAt || auction.auctionStatus === 'completed') {
+                            paymentStatus = 'paid';
+                        } else if (deadline && now > deadline) {
+                            paymentStatus = 'expired';
+                        } else {
+                            paymentStatus = 'pending';
+                        }
+                    }
+
+                    // Tính tiền hoa hồng sàn & tiền seller nhận (nếu chưa có)
+                    const commissionPercent = auction.platformCommissionPercentage || 10;
+                    const platformCommissionAmount = auction.platformCommissionAmount ||
+                        Math.round(finalPrice * commissionPercent / 100);
+                    const sellerAmount = auction.sellerAmount || (finalPrice - platformCommissionAmount);
+
+                    // Thông tin đặt cọc (để người thắng biết đã trừ bao nhiêu khỏi số tiền phải thanh toán)
                     const depositPercentage = auction.depositPercentage || 20;
                     const calculatedDepositAmount = auction.depositAmount ||
-                        Math.round(auction.currentPrice * depositPercentage / 100);
-
-                    // Calculate deposit deadline if not set (48 hours from end)
-                    const depositDeadline = auction.depositDeadline ||
-                        new Date(new Date(auction.itemEndDate).getTime() + 48 * 60 * 60 * 1000);
+                        Math.round(finalPrice * depositPercentage / 100);
 
                     wonAuctions.push({
                         _id: auction._id,
                         itemName: auction.itemName,
                         itemDescription: auction.itemDescription,
                         itemPhoto: auction.itemPhoto,
-                        currentPrice: auction.currentPrice,
+                        finalPrice: finalPrice,
                         itemEndDate: auction.itemEndDate,
-                        depositRequired: auction.depositRequired !== false, // Default true
+                        auctionStatus: auction.auctionStatus,
+                        // Payment info
+                        paymentStatus: paymentStatus,
+                        paymentDeadline: paymentDeadline,
+                        paymentCompletedAt: auction.paymentCompletedAt,
+                        // Commission info (nếu cần hiển thị)
+                        platformCommissionPercentage: commissionPercent,
+                        platformCommissionAmount: platformCommissionAmount,
+                        sellerAmount: sellerAmount,
+                        // Deposit info (cho người thắng tính số tiền phải thanh toán)
+                        depositRequired: auction.depositRequired !== false,
                         depositPercentage: depositPercentage,
                         depositAmount: calculatedDepositAmount,
-                        depositPaid: auction.depositPaid || false,
-                        depositPaidAt: auction.depositPaidAt,
-                        depositDeadline: depositDeadline,
-                        auctionStatus: auction.auctionStatus,
+                        // Seller info
                         seller: auction.seller
                     });
                 } else {
@@ -869,6 +1061,13 @@ export const getWonAuctions = async (req, res) => {
             const calculatedDepositAmount = auction.depositAmount ||
                 Math.round(auction.currentPrice * depositPercentage / 100);
 
+            // Tính tiền seller nhận + hoa hồng sàn
+            const finalPrice = auction.finalPrice || auction.currentPrice;
+            const commissionPercent = auction.platformCommissionPercentage || 10;
+            const platformCommissionAmount = auction.platformCommissionAmount ||
+                Math.round(finalPrice * commissionPercent / 100);
+            const sellerAmount = auction.sellerAmount || (finalPrice - platformCommissionAmount);
+
             return {
                 _id: auction._id,
                 itemName: auction.itemName,
@@ -884,7 +1083,11 @@ export const getWonAuctions = async (req, res) => {
                 depositPercentage: depositPercentage,
                 depositAmount: calculatedDepositAmount,
                 depositPaid: auction.depositPaid || false,
-                depositPaidAt: auction.depositPaidAt
+                depositPaidAt: auction.depositPaidAt,
+                finalPrice: finalPrice,
+                platformCommissionPercentage: commissionPercent,
+                platformCommissionAmount: platformCommissionAmount,
+                sellerAmount: sellerAmount
             };
         });
 
