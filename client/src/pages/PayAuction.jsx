@@ -87,9 +87,9 @@ export default function PayAuction() {
         return (
             <div className="min-h-screen" style={{ backgroundColor: "#f5f1e8" }}>
                 <main className="max-w-3xl mx-auto px-4 py-10">
-                    <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-red-100">
-                        <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-                        <h2 className="text-2xl font-bold text-red-600 mb-4">Không thể tải thông tin phiên đấu giá</h2>
+                    <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-emerald-100">
+                        <AlertCircle className="h-16 w-16 text-emerald-500 mx-auto mb-4" />
+                        <h2 className="text-2xl font-bold text-emerald-600 mb-4">Không thể tải thông tin phiên đấu giá</h2>
                         <p className="text-gray-600">{error.message}</p>
                     </div>
                 </main>
@@ -127,8 +127,8 @@ export default function PayAuction() {
                     </button>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-xl border-2 border-green-100 overflow-hidden">
-                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50 flex items-center gap-3">
+                <div className="bg-white rounded-2xl shadow-xl border-2 border-emerald-100 overflow-hidden">
+                    <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-emerald-50 flex items-center gap-3">
                         <Trophy className="h-7 w-7 text-yellow-500" />
                         <div>
                             <h1 className="text-2xl font-bold text-gray-800">
@@ -170,7 +170,7 @@ export default function PayAuction() {
                                     <p className="text-xs text-gray-500">
                                         <Clock className="inline h-3 w-3 mr-1" />
                                         Hạn thanh toán:{" "}
-                                        <span className="font-semibold text-red-600">
+                                        <span className="font-semibold text-emerald-600">
                                             {formatDate(auction.paymentDeadline)}
                                         </span>
                                     </p>
@@ -202,29 +202,29 @@ export default function PayAuction() {
                                 <span className="text-gray-700 font-semibold">
                                     Số tiền cần thanh toán
                                 </span>
-                                <span className="text-2xl font-extrabold text-green-600">
+                                <span className="text-2xl font-extrabold text-emerald-600">
                                     {formatCurrency(amountToPay)}
                                 </span>
                             </div>
                         </div>
 
                         {/* Balance info */}
-                        <div className={`p-4 rounded-xl border-2 ${hasSufficientBalance ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                        <div className={`p-4 rounded-xl border-2 ${hasSufficientBalance ? 'bg-emerald-50 border-emerald-200' : 'bg-emerald-50 border-emerald-200'}`}>
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                                     <Wallet className="h-4 w-4" />
                                     Số dư ví hiện tại:
                                 </span>
-                                <span className={`text-lg font-bold ${hasSufficientBalance ? 'text-green-700' : 'text-red-700'}`}>
+                                <span className={`text-lg font-bold ${hasSufficientBalance ? 'text-emerald-700' : 'text-emerald-700'}`}>
                                     {formatCurrency(currentBalance)}
                                 </span>
                             </div>
                             {!hasSufficientBalance && (
-                                <div className="mt-3 p-3 rounded-lg bg-red-100 border border-red-300">
-                                    <p className="text-sm text-red-800 font-semibold mb-1">
+                                <div className="mt-3 p-3 rounded-lg bg-emerald-100 border border-emerald-300">
+                                    <p className="text-sm text-emerald-800 font-semibold mb-1">
                                         ⚠️ Số dư không đủ!
                                     </p>
-                                    <p className="text-xs text-red-700 mb-2">
+                                    <p className="text-xs text-emerald-700 mb-2">
                                         Bạn cần {formatCurrency(amountToPay)} nhưng chỉ có {formatCurrency(currentBalance)}.
                                         Còn thiếu {formatCurrency(amountToPay - currentBalance)}.
                                     </p>
@@ -260,7 +260,7 @@ export default function PayAuction() {
                             <button
                                 onClick={() => payMutation.mutate()}
                                 disabled={payMutation.isPending || amountToPay <= 0 || !hasSufficientBalance}
-                                className="px-6 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-6 py-2 rounded-lg bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <DollarSign className="h-5 w-5" />
                                 {payMutation.isPending ? "Đang thanh toán..." : "Xác Nhận Thanh Toán"}
@@ -268,7 +268,7 @@ export default function PayAuction() {
                         </div>
 
                         {auction.paymentStatus === "paid" && auction.paymentCompletedAt && (
-                            <div className="mt-2 text-xs text-green-700 flex items-center gap-1">
+                            <div className="mt-2 text-xs text-emerald-700 flex items-center gap-1">
                                 <CheckCircle className="h-4 w-4" />
                                 Đã thanh toán lúc {formatDate(auction.paymentCompletedAt)}
                             </div>

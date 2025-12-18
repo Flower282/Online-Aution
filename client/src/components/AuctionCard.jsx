@@ -73,7 +73,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
     <Link to={`/auction/${auction._id}`} onClick={handleClick}>
       <div className={`bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group border flex flex-col h-full ${isEnded
         ? 'border-gray-300 opacity-70 grayscale-[30%]'
-        : 'border-gray-200 hover:border-red-300'
+        : 'border-gray-200 hover:border-emerald-300'
         }`}>
         {/* Image Container */}
         <div className="relative w-full h-36 overflow-hidden bg-gray-50 flex-shrink-0">
@@ -88,8 +88,8 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           {!isAdmin && (
             <button
               className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-300 ${isLiked
-                ? 'bg-red-500 hover:bg-red-600 text-white scale-110'
-                : 'bg-white/90 hover:bg-red-50 text-red-500'
+                ? 'bg-emerald-500 hover:bg-emerald-600 text-white scale-110'
+                : 'bg-white/90 hover:bg-emerald-50 text-emerald-500'
                 } shadow-md hover:shadow-lg`}
               onClick={handleLike}
               disabled={isLiking}
@@ -105,7 +105,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
             </div>
           )}
           {isRejected && !isEnded && (
-            <div className="absolute bottom-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
+            <div className="absolute bottom-2 left-2 bg-emerald-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
               Rejected
             </div>
           )}
@@ -127,23 +127,23 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
         </div>
 
         {/* Content */}
-        <div className="p-3 flex flex-col flex-1 bg-red-50/30">
+        <div className="p-3 flex flex-col flex-1 bg-emerald-50/30">
           {/* Title */}
           <h3 className="text-sm font-bold text-gray-800 mb-2 uppercase line-clamp-1">
             {auction.itemName}
           </h3>
 
           {/* Price Section with Pink Background */}
-          <div className="bg-red-50 rounded-lg p-2 mb-2">
+          <div className="bg-emerald-50 rounded-lg p-2 mb-2">
             <div className="flex items-center gap-2 mb-0.5">
               <span className="text-xs text-gray-600">Giá hiện tại</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-red-600">
+              <span className="text-lg font-bold text-emerald-600">
                 {formatCurrency(currentPrice)}
               </span>
               {priceIncrease > 0 && (
-                <span className="text-sm font-semibold text-green-600 flex items-center gap-1">
+                <span className="text-sm font-semibold text-emerald-600 flex items-center gap-1">
                   ↗ +{priceIncrease}%
                 </span>
               )}
@@ -166,7 +166,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           {/* Bid Now Button */}
           {!isEnded && !isPending && !isRejected && !isAdmin && (
             <button
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-auto text-sm"
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-auto text-sm"
               onClick={(e) => {
                 if (onClick) {
                   e.preventDefault();

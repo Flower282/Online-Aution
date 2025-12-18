@@ -181,12 +181,12 @@ export const CreateAuction = () => {
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6 text-center" data-aos="fade-down">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 mb-2">
             Create Christmas Auction
           </h1>
           <p className="text-gray-700">List your item for the Christmas season </p>
         </div>
-        <div className="bg-white rounded-lg shadow-lg border-2 border-red-200" data-aos="fade-up" data-aos-delay="200">
+        <div className="bg-white rounded-lg shadow-lg border-2 border-emerald-200" data-aos="fade-up" data-aos-delay="200">
           <div className="p-6 md:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Item Name */}
@@ -195,7 +195,7 @@ export const CreateAuction = () => {
                   htmlFor="itemName"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Item Name <span className="text-red-600">*</span>
+                  Item Name <span className="text-emerald-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -203,7 +203,7 @@ export const CreateAuction = () => {
                   name="itemName"
                   value={formData.itemName}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Enter the name of your item"
                   required
                 />
@@ -215,7 +215,7 @@ export const CreateAuction = () => {
                   htmlFor="itemDescription"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Item Description <span className="text-red-600">*</span>
+                  Item Description <span className="text-emerald-600">*</span>
                 </label>
                 <textarea
                   id="itemDescription"
@@ -223,7 +223,7 @@ export const CreateAuction = () => {
                   value={formData.itemDescription}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-vertical"
+                  className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-vertical"
                   placeholder="Provide a detailed description of your item including condition, features, and any relevant information"
                   required
                 />
@@ -237,14 +237,14 @@ export const CreateAuction = () => {
                     htmlFor="itemCategory"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Category <span className="text-red-600">*</span>
+                    Category <span className="text-emerald-600">*</span>
                   </label>
                   <select
                     id="itemCategory"
                     name="itemCategory"
                     value={formData.itemCategory}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     required
                   >
                     <option value="">Select a category</option>
@@ -262,7 +262,7 @@ export const CreateAuction = () => {
                     htmlFor="startingPrice"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Giá khởi điểm <span className="text-red-600">*</span>
+                    Giá khởi điểm <span className="text-emerald-600">*</span>
                   </label>
                   <div className="space-y-2">
                     <div className="relative">
@@ -274,7 +274,7 @@ export const CreateAuction = () => {
                         onChange={handleInputChange}
                         min="1"
                         step="1"
-                        className="w-full px-3 py-2 pr-20 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        className="w-full px-3 py-2 pr-20 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                         placeholder="50"
                         required
                       />
@@ -303,7 +303,7 @@ export const CreateAuction = () => {
                     htmlFor="itemStartDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    🕐 Auction Start (Date & Time) <span className="text-red-600">*</span>
+                    🕐 Auction Start (Date & Time) <span className="text-emerald-600">*</span>
                   </label>
                   <input
                     type="datetime-local"
@@ -313,7 +313,7 @@ export const CreateAuction = () => {
                     value={formData.itemStartDate}
                     max={maxStartDate}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -327,7 +327,7 @@ export const CreateAuction = () => {
                     htmlFor="itemEndDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    🕐 Auction End (Date & Time) <span className="text-red-600">*</span>
+                    🕐 Auction End (Date & Time) <span className="text-emerald-600">*</span>
                   </label>
                   <input
                     type="datetime-local"
@@ -337,7 +337,7 @@ export const CreateAuction = () => {
                     onChange={handleInputChange}
                     min={minEndDate || formData.itemStartDate}
                     max={maxEndDate}
-                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     required
                     disabled={!formData.itemStartDate}
                   />
@@ -355,7 +355,7 @@ export const CreateAuction = () => {
                   htmlFor="itemPhoto"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  📷 Item Photo <span className="text-red-600">*</span>
+                  📷 Item Photo <span className="text-emerald-600">*</span>
                 </label>
                 <div className="space-y-3">
                   <input
@@ -365,7 +365,7 @@ export const CreateAuction = () => {
                     onChange={handleFileChange}
                     ref={fileInputRef}
                     accept="image/*"
-                    className="w-full px-3 py-2 border-2 border-red-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+                    className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                   />
                   {formData.itemPhoto && (
                     <div className="mt-3" data-aos="zoom-in">
@@ -381,7 +381,7 @@ export const CreateAuction = () => {
                           setFormData((prev) => ({ ...prev, itemPhoto: "" }));
                           fileInputRef.current.value = "";
                         }}
-                        className="mt-2 text-sm text-red-600 hover:underline"
+                        className="mt-2 text-sm text-emerald-600 hover:underline"
                       >
                         Remove Image
                       </button>
@@ -392,17 +392,17 @@ export const CreateAuction = () => {
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-md">
                   {error}
                 </div>
               )}
 
               {/* Form Actions */}
-              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-red-200" data-aos="fade-up" data-aos-delay="550">
+              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-emerald-200" data-aos="fade-up" data-aos-delay="550">
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="flex-1 sm:flex-none bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-6 rounded-md hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold transition-all shadow-lg hover:shadow-xl"
+                  className="flex-1 sm:flex-none bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white py-3 px-6 rounded-md hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold transition-all shadow-lg hover:shadow-xl"
                 >
                   {isPending ? " Creating Auction..." : "🎄 Create Auction"}
                 </button>
@@ -420,33 +420,33 @@ export const CreateAuction = () => {
 
 export const HelpSection = () => {
   return (
-    <div className="mt-8 bg-red-50 border-2 border-red-200 rounded-lg p-6" data-aos="fade-up" data-aos-delay="600">
-      <h3 className="text-lg font-semibold text-red-900 mb-3" data-aos="fade-right" data-aos-delay="650">
+    <div className="mt-8 bg-emerald-50 border-2 border-emerald-200 rounded-lg p-6" data-aos="fade-up" data-aos-delay="600">
+      <h3 className="text-lg font-semibold text-emerald-900 mb-3" data-aos="fade-right" data-aos-delay="650">
         💡 Tips for Creating a Successful Christmas Auction
       </h3>
-      <ul className="space-y-2 text-red-800 text-sm">
+      <ul className="space-y-2 text-emerald-800 text-sm">
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="700">
-          <span className="text-red-600 mr-2">📷</span>
+          <span className="text-emerald-600 mr-2">📷</span>
           Use clear, high-quality photos that show your item from multiple angles
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="750">
-          <span className="text-red-600 mr-2">📝</span>
+          <span className="text-emerald-600 mr-2">📝</span>
           Write detailed descriptions including condition, dimensions, and any flaws
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="800">
-          <span className="text-red-600 mr-2">💰</span>
+          <span className="text-emerald-600 mr-2">💰</span>
           Set a reasonable starting price to attract bidders
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="850">
-          <span className="text-red-600 mr-2">⏰</span>
+          <span className="text-emerald-600 mr-2">⏰</span>
           Choose appropriate auction duration (tối thiểu 1 giờ, khuyến nghị 3-7 ngày)
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="900">
-          <span className="text-red-600 mr-2">🕐</span>
+          <span className="text-emerald-600 mr-2">🕐</span>
           Bạn có thể chọn chính xác giờ và phút cho thời gian bắt đầu/kết thúc
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="950">
-          <span className="text-red-600 mr-2">🏷️</span>
+          <span className="text-emerald-600 mr-2">🏷️</span>
           Select the most accurate category to help buyers find your item
         </li>
       </ul>

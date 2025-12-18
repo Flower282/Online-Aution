@@ -155,15 +155,15 @@ export const AdminDashboard = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-8 shadow-lg">
+          <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-8 shadow-lg">
             <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Error</h2>
-              <p className="text-red-600 mb-6">{error}</p>
+              <p className="text-emerald-600 mb-6">{error}</p>
               <button
                 onClick={() => window.location.reload()}
                 className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg"
@@ -211,18 +211,18 @@ export const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="bg-red-50 rounded-xl shadow-sm border-2 border-red-300 p-6 hover:shadow-md transition-all">
+              <div className="bg-emerald-50 rounded-xl shadow-sm border-2 border-emerald-300 p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-medium text-red-700 uppercase tracking-wide">
+                    <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
                       Total Auctions
                     </h3>
-                    <p className="text-2xl font-bold text-red-900 mt-2">
+                    <p className="text-2xl font-bold text-emerald-900 mt-2">
                       {dashboardData.stats.totalAuctions || 0}
                     </p>
                   </div>
-                  <div className="bg-red-200 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-emerald-200 p-3 rounded-full">
+                    <svg className="w-6 h-6 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
@@ -323,19 +323,19 @@ export const AdminDashboard = () => {
           <div className="mb-8 max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-green-800">Recent Active Auctions</h2>
-                <p className="text-sm text-green-600 mt-1">✅ Showing only approved auctions</p>
+                <h2 className="text-2xl font-bold text-gray-900">Recent Active Auctions</h2>
+                <p className="text-sm text-gray-500 mt-1">✅ Showing only approved auctions</p>
               </div>
               <Link
                 to="/auction"
-                className="text-green-600 hover:text-green-700 font-medium text-sm hover:underline"
+                className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline"
               >
                 View All Auctions
               </Link>
             </div>
 
             {!dashboardData.recentAuctions || dashboardData.recentAuctions.length === 0 ? (
-              <div className="text-center py-12 bg-green-50 rounded-xl shadow-sm border-2 border-green-200">
+              <div className="text-center py-12 bg-white rounded-sm shadow-sm border border-gray-200">
                 <p className="text-gray-500 text-lg">No approved active auctions at the moment.</p>
                 {dashboardData.stats?.pendingAuctions > 0 && (
                   <p className="text-yellow-600 text-sm mt-2">
@@ -349,16 +349,10 @@ export const AdminDashboard = () => {
                 const isEnded = currentAuction?.itemEndDate ? new Date(currentAuction.itemEndDate) <= new Date() : false;
 
                 return (
-                  <div className="relative bg-green-50 rounded-2xl shadow-xl border-2 border-green-300 overflow-hidden">
-                    {/* Christmas Tree Decorations */}
-                    <div className="absolute top-2 left-2 text-green-600 opacity-30 text-2xl z-0">🎄</div>
-                    <div className="absolute bottom-2 right-2 text-green-600 opacity-30 text-2xl z-0">🎄</div>
-                    <div className="absolute top-1/2 left-2 text-red-500 opacity-20 text-xl z-0">⭐</div>
-                    <div className="absolute top-1/2 right-2 text-red-500 opacity-20 text-xl z-0">⭐</div>
-                    
-                    <div className="grid md:grid-cols-2 relative z-10">
+                  <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="grid md:grid-cols-2">
                       {/* Image Section */}
-                      <div className={`relative h-[200px] md:h-[280px] overflow-hidden bg-gradient-to-br from-green-50 to-emerald-50 ${isEnded ? 'opacity-60 grayscale' : ''}`}>
+                      <div className={`relative h-[280px] md:h-[380px] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 ${isEnded ? 'opacity-60 grayscale' : ''}`}>
                         <div
                           className={`absolute inset-0 transition-all duration-300 ${isTransitioning ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
                             }`}
@@ -373,7 +367,7 @@ export const AdminDashboard = () => {
                         {/* Ended Overlay */}
                         {isEnded && (
                           <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                            <span className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-sm">
+                            <span className="bg-emerald-600 text-white px-4 py-2 rounded-full font-bold text-sm">
                               ĐÃ KẾT THÚC
                             </span>
                           </div>
@@ -411,58 +405,58 @@ export const AdminDashboard = () => {
 
                       {/* Info Section */}
                       <div
-                        className={`p-4 md:p-5 flex flex-col justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-white transition-all duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
+                        className={`p-6 md:p-8 flex flex-col justify-center bg-gradient-to-br from-blue-50 via-white to-gray-50 transition-all duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
                           }`}
                       >
                         {/* Category Badge */}
-                        <div className="mb-2">
-                          <span className="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
+                        <div className="mb-3">
+                          <span className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
                             <Tag className="h-3 w-3" />
                             {currentAuction?.itemCategory || 'Uncategorized'}
                           </span>
                           {isEnded && (
-                            <span className="ml-2 inline-flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                            <span className="ml-2 inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold">
                               Đã kết thúc
                             </span>
                           )}
                         </div>
 
                         {/* Title */}
-                        <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 line-clamp-2">
+                        <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 line-clamp-2">
                           {currentAuction?.itemName}
                         </h3>
 
                         {/* Description */}
-                        <p className="text-gray-600 mb-3 line-clamp-2 text-sm">
+                        <p className="text-gray-600 mb-5 line-clamp-2 text-sm">
                           {currentAuction?.itemDescription || "Không có mô tả"}
                         </p>
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-2 gap-2 mb-3">
-                          <div className="bg-white rounded-xl p-2 border border-green-200 shadow-sm">
-                            <p className="text-xs text-gray-500 mb-0.5">Giá hiện tại</p>
-                            <p className="text-lg font-bold text-green-600">
+                        <div className="grid grid-cols-2 gap-3 mb-5">
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
+                            <p className="text-xs text-gray-500 mb-1">Giá hiện tại</p>
+                            <p className="text-xl font-bold text-green-600">
                               {formatCurrency(currentAuction?.currentPrice || currentAuction?.startingPrice || 0)}
                             </p>
                           </div>
-                          <div className="bg-white rounded-xl p-2 border border-green-200 shadow-sm">
-                            <p className="text-xs text-gray-500 mb-0.5">Giá khởi điểm</p>
-                            <p className="text-lg font-bold text-gray-700">
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
+                            <p className="text-xs text-gray-500 mb-1">Giá khởi điểm</p>
+                            <p className="text-xl font-bold text-gray-700">
                               {formatCurrency(currentAuction?.startingPrice || 0)}
                             </p>
                           </div>
-                          <div className="bg-white rounded-xl p-2 border border-green-200 shadow-sm flex items-center gap-2">
-                            <Users className="h-4 w-4 text-green-500" />
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm flex items-center gap-2">
+                            <Users className="h-4 w-4 text-blue-500" />
                             <div>
                               <p className="text-xs text-gray-500">Lượt bid</p>
-                              <p className="text-base font-bold text-gray-800">{currentAuction?.bidsCount || 0}</p>
+                              <p className="text-lg font-bold text-gray-800">{currentAuction?.bidsCount || 0}</p>
                             </div>
                           </div>
-                          <div className="bg-white rounded-xl p-2 border border-green-200 shadow-sm flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-amber-500" />
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-orange-500" />
                             <div>
                               <p className="text-xs text-gray-500">Kết thúc</p>
-                              <p className="text-xs font-semibold text-gray-800">
+                              <p className="text-sm font-semibold text-gray-800">
                                 {currentAuction?.itemEndDate
                                   ? new Date(currentAuction.itemEndDate).toLocaleDateString('vi-VN')
                                   : 'N/A'}
@@ -474,22 +468,22 @@ export const AdminDashboard = () => {
                         {/* View Button */}
                         <Link
                           to={`/auction/${currentAuction?._id}`}
-                          className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
+                          className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-6 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-5 w-5" />
                           Xem chi tiết
                         </Link>
 
                         {/* Slide Indicators */}
-                        <div className="flex justify-center gap-2 mt-3">
+                        <div className="flex justify-center gap-2 mt-5">
                           {dashboardData.recentAuctions.map((_, index) => (
                             <button
                               key={index}
                               onClick={() => goToSlide(index)}
                               disabled={isTransitioning}
                               className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide
-                                ? 'w-6 bg-green-600'
-                                : 'w-2 bg-gray-300 hover:bg-green-300'
+                                ? 'w-6 bg-blue-600'
+                                : 'w-2 bg-gray-300 hover:bg-blue-300'
                                 }`}
                             />
                           ))}
@@ -594,7 +588,7 @@ export const AdminDashboard = () => {
                           <button
                             onClick={() => handleDeleteClick(user)}
                             disabled={user.role === 'admin'}
-                            className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="text-emerald-600 hover:text-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             title={user.role === 'admin' ? 'Cannot deactivate admin users' : 'Deactivate user'}
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -614,9 +608,9 @@ export const AdminDashboard = () => {
         {/* Delete Confirmation Dialog */}
         {deleteDialogOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-red-100">
-              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-red-100 to-red-200 rounded-full">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-emerald-100">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full">
+                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
@@ -629,7 +623,7 @@ export const AdminDashboard = () => {
                 Bạn có chắc chắn muốn vô hiệu hóa
               </p>
               <p className="text-center mb-6">
-                <span className="font-bold text-red-600 text-lg">{userToDelete?.name}</span>
+                <span className="font-bold text-emerald-600 text-lg">{userToDelete?.name}</span>
               </p>
               <p className="text-gray-500 text-center text-sm mb-8">
                 Tài khoản sẽ không thể đăng nhập và các auction của họ sẽ bị ẩn.
@@ -646,7 +640,7 @@ export const AdminDashboard = () => {
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleteLoading}
-                  className="flex-1 px-5 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-emerald-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
                 >
                   {deleteLoading ? 'Đang xử lý...' : 'Vô hiệu hóa'}
                 </button>

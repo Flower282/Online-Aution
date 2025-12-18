@@ -34,8 +34,8 @@ const DialogBox = ({ onConfirm, onCancel }) => {
             <button
               id="confirm-delete-btn"
               className={`block w-full md:inline-block md:w-auto px-4 py-3 md:py-2 ${
-                confirming ? "bg-red-500" : "bg-red-200"
-              } text-red-700 rounded-lg font-semibold text-sm md:ml-2 md:order-2`}
+                confirming ? "bg-emerald-500" : "bg-emerald-200"
+              } text-emerald-700 rounded-lg font-semibold text-sm md:ml-2 md:order-2`}
               onClick={handleConfirm}
             >
               {confirming ? "Deleting..." : "Delete"}

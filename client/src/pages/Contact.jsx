@@ -45,13 +45,13 @@ export const Contact = () => {
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-center mb-3" data-aos="fade-down">🎅 Contact Us</h1>
+        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-center mb-3" data-aos="fade-down">🎅 Contact Us</h1>
         <p className="text-center text-gray-700 mb-8 text-base" data-aos="fade-up" data-aos-delay="100">We'd love to hear from you! ❤️</p>
 
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-red-200 p-8" data-aos="zoom-in" data-aos-delay="200">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-emerald-200 p-8" data-aos="zoom-in" data-aos-delay="200">
           {submitted ? (
             <div className="text-center py-10">
-              <div className="inline-flex items-center justify-center w-18 h-18 rounded-full bg-gradient-to-r from-red-500 to-red-700 mb-5 shadow-lg">
+              <div className="inline-flex items-center justify-center w-18 h-18 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-700 mb-5 shadow-lg">
                 <svg
                   className="h-9 w-9 text-white"
                   xmlns="http://www.w3.org/2000/svg"
@@ -75,7 +75,7 @@ export const Contact = () => {
               </p>
               <button
                 onClick={() => setSubmitted(false)}
-                className="text-red-600 hover:text-red-700 font-bold text-base hover:underline"
+                className="text-emerald-600 hover:text-emerald-700 font-bold text-base hover:underline"
               >
                 Send another message →
               </button>
@@ -96,7 +96,7 @@ export const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   placeholder="John Doe"
                 />
               </div>
@@ -115,7 +115,7 @@ export const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   placeholder="your.email@example.com"
                 />
               </div>
@@ -134,7 +134,7 @@ export const Contact = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full px-4 py-2.5 border-2 border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   placeholder="How can we help you?"
                 />
               </div>
@@ -153,13 +153,13 @@ export const Contact = () => {
                   onChange={handleChange}
                   required
                   rows={5}
-                  className="w-full px-4 py-2.5 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all resize-none"
+                  className="w-full px-4 py-2.5 border-2 border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all resize-none"
                   placeholder="Tell us what's on your mind..."
                 ></textarea>
               </div>
               {/* Error Message */}
               {isError && (
-                <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-2.5 rounded-lg text-sm font-medium" data-aos="fade-in">
+                <div className="bg-emerald-50 border-2 border-emerald-200 text-emerald-700 px-4 py-2.5 rounded-lg text-sm font-medium" data-aos="fade-in">
                   {isError}
                 </div>
               )}
@@ -168,7 +168,7 @@ export const Contact = () => {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="flex justify-center items-center px-7 py-3 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-base shadow-md hover:shadow-lg transition-all"
+                  className="flex justify-center items-center px-7 py-3 bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white rounded-lg hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-base shadow-md hover:shadow-lg transition-all"
                 >
                   {isPending ? (
                     "🎅 Sending..."

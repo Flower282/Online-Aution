@@ -314,8 +314,8 @@ export const UsersList = () => {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-            <p className="text-red-600">{error}</p>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-md p-4 mb-6">
+            <p className="text-emerald-600">{error}</p>
           </div>
         )}
 
@@ -411,7 +411,7 @@ export const UsersList = () => {
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin'
                           ? 'bg-purple-100 text-purple-800'
-                          : 'bg-green-100 text-green-800'
+                          : 'bg-emerald-100 text-emerald-800'
                           }`}>
                           {user.role}
                         </span>
@@ -427,7 +427,7 @@ export const UsersList = () => {
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${user.verification?.isVerified
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-emerald-100 text-emerald-800'
                           : 'bg-gray-100 text-gray-600'
                           }`}>
                           {user.verification?.isVerified ? (
@@ -445,13 +445,13 @@ export const UsersList = () => {
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <div className="flex flex-col gap-1">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-green-100 text-green-800'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-emerald-100 text-emerald-800'
                             }`}>
                             {user.isActive === false ? 'Inactive' : 'Active'}
                           </span>
                           {user.reactivationRequest?.requested && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 animate-pulse">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 animate-pulse">
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                               </svg>
@@ -465,7 +465,7 @@ export const UsersList = () => {
                           {user.isActive === false ? (
                             <button
                               onClick={() => handleReactivateClick(user)}
-                              className="text-green-600 hover:text-green-900 transition-colors"
+                              className="text-emerald-600 hover:text-emerald-900 transition-colors"
                               title="Reactivate user"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -476,7 +476,7 @@ export const UsersList = () => {
                             <button
                               onClick={() => handleDeleteClick(user)}
                               disabled={user.role === 'admin'}
-                              className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              className="text-emerald-600 hover:text-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                               title={user.role === 'admin' ? 'Cannot deactivate admin users' : 'Deactivate user'}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -580,9 +580,9 @@ export const UsersList = () => {
         {/* Delete Confirmation Dialog */}
         {deleteDialogOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-red-100">
-              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-red-100 to-red-200 rounded-full">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-emerald-100">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full">
+                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
@@ -595,7 +595,7 @@ export const UsersList = () => {
                 Bạn có chắc chắn muốn vô hiệu hóa
               </p>
               <p className="text-center mb-6">
-                <span className="font-bold text-red-600 text-lg">{userToDelete?.name}</span>
+                <span className="font-bold text-emerald-600 text-lg">{userToDelete?.name}</span>
               </p>
               <p className="text-gray-500 text-center text-sm mb-8">
                 Tài khoản sẽ không thể đăng nhập và các auction của họ sẽ bị ẩn. Bạn có thể kích hoạt lại sau.
@@ -612,7 +612,7 @@ export const UsersList = () => {
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleteLoading}
-                  className="flex-1 px-5 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-emerald-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
                 >
                   {deleteLoading ? 'Đang xử lý...' : 'Vô hiệu hóa'}
                 </button>
@@ -624,9 +624,9 @@ export const UsersList = () => {
         {/* Reactivate Confirmation Dialog */}
         {reactivateDialogOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-green-100">
-              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-green-100 to-green-200 rounded-full">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-emerald-100">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full">
+                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -639,7 +639,7 @@ export const UsersList = () => {
                 Bạn có chắc chắn muốn kích hoạt lại
               </p>
               <p className="text-center mb-6">
-                <span className="font-bold text-green-600 text-lg">{userToReactivate?.name}</span>
+                <span className="font-bold text-emerald-600 text-lg">{userToReactivate?.name}</span>
               </p>
               <p className="text-gray-500 text-center text-sm mb-8">
                 Tài khoản sẽ có thể đăng nhập và các auction của họ sẽ hiển thị trở lại.
@@ -656,7 +656,7 @@ export const UsersList = () => {
                 <button
                   onClick={handleReactivateConfirm}
                   disabled={reactivateLoading}
-                  className="flex-1 px-5 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-emerald-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
                 >
                   {reactivateLoading ? 'Đang xử lý...' : 'Kích hoạt'}
                 </button>

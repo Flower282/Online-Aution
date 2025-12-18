@@ -223,7 +223,7 @@ export const TransactionHistory = () => {
                                                         <p className="text-xs text-gray-500">{date}</p>
                                                     </td>
                                                     <td className="px-4 py-3 text-right">
-                                                        <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-green-600' : 'text-red-600'}`}>
+                                                        <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-emerald-600' : 'text-emerald-600'}`}>
                                                             {sign}{formatCurrency(amount)}
                                                         </p>
                                                     </td>

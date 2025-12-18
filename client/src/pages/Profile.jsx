@@ -338,7 +338,7 @@ export default function Profile() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading user data...</p>
         </div>
       </div>
@@ -373,11 +373,11 @@ export default function Profile() {
           </div>
 
           {successMessage && (
-            <div className="mb-6 bg-green-50 border-l-4 border-green-400 p-4 rounded-md">
+            <div className="mb-6 bg-emerald-50 border-l-4 border-emerald-400 p-4 rounded-md">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg
-                    className="h-5 w-5 text-green-400"
+                    className="h-5 w-5 text-emerald-400"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -391,7 +391,7 @@ export default function Profile() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-green-700">{successMessage}</p>
+                  <p className="text-sm text-emerald-700">{successMessage}</p>
                 </div>
               </div>
             </div>
@@ -424,25 +424,25 @@ export default function Profile() {
               <div className="px-4 py-5 sm:p-6" data-aos="fade-up" data-aos-delay="150">
                 <div className="flex items-center justify-between mb-4" data-aos="fade-down" data-aos-delay="200">
                   <div className="flex items-center gap-2">
-                    <HiOutlineShieldCheck className={`h-6 w-6 ${isVerified ? 'text-green-600' : 'text-amber-500'}`} />
+                    <HiOutlineShieldCheck className={`h-6 w-6 ${isVerified ? 'text-emerald-600' : 'text-emerald-500'}`} />
                     <h3 className="text-lg font-medium text-gray-900">
                       Xác minh tài khoản
                     </h3>
                   </div>
                   {isVerified ? (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
                       ✓ Đã xác minh
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
                       ○ Chưa xác minh
                     </span>
                   )}
                 </div>
 
                 {!isVerified && (
-                  <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p className="text-sm text-amber-700">
+                  <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                    <p className="text-sm text-emerald-700">
                       <strong>⚠️ Lưu ý:</strong> Bạn cần xác minh tài khoản để nạp tiền, đặt cọc và tham gia đấu giá.
                     </p>
                   </div>
@@ -450,44 +450,44 @@ export default function Profile() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Số điện thoại */}
-                  <div className={`p-4 rounded-lg border-2 ${phoneVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="250">
+                  <div className={`p-4 rounded-lg border-2 ${phoneVerified ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="250">
                     <div className="flex items-center gap-2 mb-2">
-                      <CiPhone className={`h-5 w-5 ${phoneVerified ? 'text-green-600' : 'text-gray-400'}`} />
+                      <CiPhone className={`h-5 w-5 ${phoneVerified ? 'text-emerald-600' : 'text-gray-400'}`} />
                       <span className="font-medium text-gray-900">Số điện thoại</span>
                     </div>
-                    <p className={`text-sm ${phoneVerified ? 'text-green-700' : 'text-gray-500'}`}>
+                    <p className={`text-sm ${phoneVerified ? 'text-emerald-700' : 'text-gray-500'}`}>
                       {phoneVerified ? '✓ Đã xác minh' : '○ Chưa xác minh'}
                     </p>
                   </div>
 
                   {/* Email */}
-                  <div className={`p-4 rounded-lg border-2 ${emailVerified ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="300">
+                  <div className={`p-4 rounded-lg border-2 ${emailVerified ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="300">
                     <div className="flex items-center gap-2 mb-2">
-                      <CiMail className={`h-5 w-5 ${emailVerified ? 'text-green-600' : 'text-gray-400'}`} />
+                      <CiMail className={`h-5 w-5 ${emailVerified ? 'text-emerald-600' : 'text-gray-400'}`} />
                       <span className="font-medium text-gray-900">Email</span>
                     </div>
-                    <p className={`text-sm ${emailVerified ? 'text-green-700' : 'text-gray-500'}`}>
+                    <p className={`text-sm ${emailVerified ? 'text-emerald-700' : 'text-gray-500'}`}>
                       {emailVerified ? '✓ Đã xác minh' : '○ Chưa xác minh'}
                     </p>
                   </div>
 
                   {/* CCCD */}
-                  <div className={`p-4 rounded-lg border-2 ${identityCardStatus === 'approved' ? 'bg-green-50 border-green-200' :
+                  <div className={`p-4 rounded-lg border-2 ${identityCardStatus === 'approved' ? 'bg-emerald-50 border-emerald-200' :
                     identityCardStatus === 'pending' ? 'bg-yellow-50 border-yellow-200' :
-                      identityCardStatus === 'rejected' ? 'bg-red-50 border-red-200' :
+                      identityCardStatus === 'rejected' ? 'bg-emerald-50 border-emerald-200' :
                         'bg-gray-50 border-gray-200'
                     }`} data-aos="zoom-in" data-aos-delay="350">
                     <div className="flex items-center gap-2 mb-2">
-                      <HiOutlineIdentification className={`h-5 w-5 ${identityCardStatus === 'approved' ? 'text-green-600' :
+                      <HiOutlineIdentification className={`h-5 w-5 ${identityCardStatus === 'approved' ? 'text-emerald-600' :
                         identityCardStatus === 'pending' ? 'text-yellow-600' :
-                          identityCardStatus === 'rejected' ? 'text-red-600' :
+                          identityCardStatus === 'rejected' ? 'text-emerald-600' :
                             'text-gray-400'
                         }`} />
                       <span className="font-medium text-gray-900">CCCD</span>
                     </div>
-                    <p className={`text-sm ${identityCardStatus === 'approved' ? 'text-green-700' :
+                    <p className={`text-sm ${identityCardStatus === 'approved' ? 'text-emerald-700' :
                       identityCardStatus === 'pending' ? 'text-yellow-700' :
-                        identityCardStatus === 'rejected' ? 'text-red-700' :
+                        identityCardStatus === 'rejected' ? 'text-emerald-700' :
                           'text-gray-500'
                       }`}>
                       {identityCardStatus === 'approved' ? '✓ Đã xác minh' :
@@ -525,7 +525,7 @@ export default function Profile() {
                       <button
                         type="button"
                         onClick={handleEditProfile}
-                        className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 border border-indigo-600 rounded-md hover:bg-indigo-50 transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-lime-600 hover:text-lime-700 border border-lime-600 rounded-md hover:bg-lime-50 transition-colors"
                       >
                         Edit
                       </button>
@@ -545,7 +545,7 @@ export default function Profile() {
                           id="profileName"
                           value={profileData.name}
                           onChange={handleProfileChange}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
                           placeholder="Your full name"
                         />
                       </div>
@@ -591,7 +591,7 @@ export default function Profile() {
                           rows="2"
                           value={profileData.address}
                           onChange={handleProfileChange}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
                           placeholder="Your full address"
                         />
                       </div>
@@ -605,7 +605,7 @@ export default function Profile() {
                           id="profileCity"
                           value={selectedProvinceCode}
                           onChange={handleProvinceChange}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
                         >
                           <option value="">-- Chọn Tỉnh/Thành phố --</option>
                           {provinces.length === 0 && (
@@ -629,7 +629,7 @@ export default function Profile() {
                           value={selectedWardCode}
                           onChange={handleWardChange}
                           disabled={!selectedProvinceCode}
-                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
+                          className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
                         >
                           <option value="">-- Chọn Phường/Xã --</option>
                           {wards.length === 0 && selectedProvinceCode && (
@@ -767,7 +767,7 @@ export default function Profile() {
                         type="button"
                         onClick={handleProfileSubmit}
                         disabled={updateProfileMutation.isPending}
-                        className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2.5 bg-lime-600 text-white font-medium rounded-md hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
                       </button>
@@ -803,7 +803,7 @@ export default function Profile() {
                         id="currentPassword"
                         value={formData.currentPassword}
                         onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
                         placeholder="Enter your current password"
                       />
 
@@ -826,7 +826,7 @@ export default function Profile() {
                           id="newPassword"
                           value={formData.newPassword}
                           onChange={handleChange}
-                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
                           placeholder="Enter new password"
                           minLength={8}
                         />
@@ -853,7 +853,7 @@ export default function Profile() {
                           id="confirmPassword"
                           value={formData.confirmPassword}
                           onChange={handleChange}
-                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
                           placeholder="Confirm new password"
                         />
                       </div>
@@ -861,14 +861,14 @@ export default function Profile() {
 
                     {/* Error Message */}
                     {isError && (
-                      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-md">
                         {isError}
                       </div>
                     )}
 
                     {/* Success Message */}
                     {successMessage && (
-                      <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-md">
                         {successMessage}
                       </div>
                     )}
@@ -881,14 +881,14 @@ export default function Profile() {
                     <button
                       type="button"
                       disabled
-                      className="mr-3 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      className="mr-3 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={isPending}
-                      className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isPending ? "Saving..." : "Save Changes"}
                     </button>

@@ -105,16 +105,16 @@ const PendingReactivationRequests = () => {
 
                 {/* Error State */}
                 {error && (
-                    <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                    <div className="bg-emerald-50 border-2 border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg mb-6">
                         {error}
                     </div>
                 )}
 
                 {/* Stats Card */}
-                <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg shadow-lg p-6 mb-6 text-white">
+                <div className="bg-gradient-to-r from-emerald-500 to-orange-500 rounded-lg shadow-lg p-6 mb-6 text-white">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-amber-100 text-sm font-medium">Total Pending Requests</p>
+                            <p className="text-emerald-100 text-sm font-medium">Total Pending Requests</p>
                             <p className="text-4xl font-bold mt-1">{requests.length}</p>
                         </div>
                         <div className="bg-white/20 p-4 rounded-full">
@@ -129,8 +129,8 @@ const PendingReactivationRequests = () => {
                 {requests.length === 0 ? (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
                         <div className="flex flex-col items-center">
-                            <div className="bg-green-100 p-4 rounded-full mb-4">
-                                <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="bg-emerald-100 p-4 rounded-full mb-4">
+                                <svg className="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
@@ -171,7 +171,7 @@ const PendingReactivationRequests = () => {
                                                                 alt={request.name}
                                                             />
                                                         ) : (
-                                                            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                                                            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-400 to-orange-500 flex items-center justify-center">
                                                                 <span className="text-sm font-medium text-white">
                                                                     {request.name.charAt(0).toUpperCase()}
                                                                 </span>
@@ -201,7 +201,7 @@ const PendingReactivationRequests = () => {
                                                 <button
                                                     onClick={() => handleApproveClick(request)}
                                                     disabled={processingId === request._id}
-                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg hover:from-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
                                                 >
                                                     {processingId === request._id ? (
                                                         <>
@@ -234,8 +234,8 @@ const PendingReactivationRequests = () => {
                     <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
                         <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="bg-green-100 p-3 rounded-full">
-                                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="bg-emerald-100 p-3 rounded-full">
+                                    <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
@@ -244,7 +244,7 @@ const PendingReactivationRequests = () => {
 
                             <div className="mb-6">
                                 <p className="text-gray-700 mb-3">
-                                    Are you sure you want to <span className="font-semibold text-green-600">reactivate</span> the account for:
+                                    Are you sure you want to <span className="font-semibold text-emerald-600">reactivate</span> the account for:
                                 </p>
                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                     <div className="flex items-center gap-3">
@@ -255,8 +255,8 @@ const PendingReactivationRequests = () => {
                                                 className="w-12 h-12 rounded-full object-cover"
                                             />
                                         ) : (
-                                            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                                                <span className="text-lg font-semibold text-green-600">
+                                            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                                                <span className="text-lg font-semibold text-emerald-600">
                                                     {userToApprove.name.charAt(0).toUpperCase()}
                                                 </span>
                                             </div>
@@ -286,7 +286,7 @@ const PendingReactivationRequests = () => {
                                 <button
                                     onClick={handleApproveConfirm}
                                     disabled={processingId}
-                                    className="flex-1 px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                                    className="flex-1 px-3 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
                                 >
                                     {processingId ? (
                                         <>

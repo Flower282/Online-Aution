@@ -24,7 +24,7 @@ export default function WonAuctions() {
 
         if (status === 'paid') {
             return (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold">
                     <CheckCircle className="h-4 w-4" />
                     Đã thanh toán
                 </span>
@@ -34,7 +34,7 @@ export default function WonAuctions() {
         // Kiểm tra quá hạn
         if (status === 'expired' || (auction.paymentDeadline && new Date() > new Date(auction.paymentDeadline))) {
             return (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold">
                     <AlertCircle className="h-4 w-4" />
                     Quá hạn thanh toán
                 </span>
@@ -43,7 +43,7 @@ export default function WonAuctions() {
 
         // Mặc định: đang chờ thanh toán
         return (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold">
                 <Clock className="h-4 w-4" />
                 Chờ thanh toán
             </span>
@@ -64,7 +64,7 @@ export default function WonAuctions() {
 
         if (paymentStatus === 'paid') {
             return (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold">
                     <CheckCircle className="h-4 w-4" />
                     Người thắng đã thanh toán
                 </span>
@@ -74,7 +74,7 @@ export default function WonAuctions() {
         // Quá hạn thanh toán (nhưng chưa thanh toán)
         if (auction.paymentDeadline && new Date() > new Date(auction.paymentDeadline)) {
             return (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold">
                     <AlertCircle className="h-4 w-4" />
                     Quá hạn thanh toán
                 </span>
@@ -83,7 +83,7 @@ export default function WonAuctions() {
 
         // Mặc định: đang chờ người thắng thanh toán
         return (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-semibold">
                 <Clock className="h-4 w-4" />
                 Chờ người thắng thanh toán
             </span>
@@ -106,9 +106,9 @@ export default function WonAuctions() {
         return (
             <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
                 <main className="max-w-7xl mx-auto px-4 py-10">
-                    <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-red-100">
-                        <AlertCircle className="h-20 w-20 text-red-500 mx-auto mb-4" />
-                        <h2 className="text-2xl font-bold text-red-600 mb-4">Lỗi Tải Dữ Liệu</h2>
+                    <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-emerald-100">
+                        <AlertCircle className="h-20 w-20 text-emerald-500 mx-auto mb-4" />
+                        <h2 className="text-2xl font-bold text-emerald-600 mb-4">Lỗi Tải Dữ Liệu</h2>
                         <p className="text-gray-600">{error.message}</p>
                     </div>
                 </main>
@@ -134,9 +134,9 @@ export default function WonAuctions() {
                 {/* Hero section */}
                 <div className="mb-12 text-center space-y-4" data-aos="fade-down">
                     <div className="flex justify-center mb-4">
-                        <Package className="h-16 w-16 text-green-600" />
+                        <Package className="h-16 w-16 text-emerald-600" />
                     </div>
-                    <h1 className="bg-gradient-to-r from-green-500 via-green-600 to-emerald-700 bg-clip-text text-transparent text-4xl font-bold" data-aos="zoom-in" data-aos-delay="100">
+                    <h1 className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 bg-clip-text text-transparent text-4xl font-bold" data-aos="zoom-in" data-aos-delay="100">
                         Lịch Sử Đấu Giá
                     </h1>
                     <p className="text-gray-700 max-w-2xl mx-auto font-medium">
@@ -146,25 +146,25 @@ export default function WonAuctions() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8" data-aos="fade-up" data-aos-delay="200">
-                    <div className="p-6 rounded-lg bg-gradient-to-br from-green-100 to-green-200 border-2 border-green-300">
-                        <p className="text-3xl font-bold text-green-700">{wonAuctions.length}</p>
-                        <p className="text-sm text-green-800 font-medium">Đã thắng</p>
+                    <div className="p-6 rounded-lg bg-emerald-50 border-2 border-emerald-300">
+                        <p className="text-3xl font-bold text-emerald-700">{wonAuctions.length}</p>
+                        <p className="text-sm text-emerald-800 font-medium">Đã thắng</p>
                     </div>
-                    <div className="p-6 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 border-2 border-blue-300">
-                        <p className="text-3xl font-bold text-blue-700">{participatedAuctions.length}</p>
-                        <p className="text-sm text-blue-800 font-medium">Đã tham gia</p>
+                    <div className="p-6 rounded-lg bg-emerald-50 border-2 border-emerald-300">
+                        <p className="text-3xl font-bold text-emerald-700">{participatedAuctions.length}</p>
+                        <p className="text-sm text-emerald-800 font-medium">Đã tham gia</p>
                     </div>
-                    <div className="p-6 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 border-2 border-purple-300">
-                        <p className="text-3xl font-bold text-purple-700">{myAuctions.length}</p>
-                        <p className="text-sm text-purple-800 font-medium">Sản phẩm của tôi</p>
+                    <div className="p-6 rounded-lg bg-emerald-50 border-2 border-emerald-300">
+                        <p className="text-3xl font-bold text-emerald-700">{myAuctions.length}</p>
+                        <p className="text-sm text-emerald-800 font-medium">Sản phẩm của tôi</p>
                     </div>
-                    <div className="p-6 rounded-lg bg-gradient-to-br from-yellow-100 to-yellow-200 border-2 border-yellow-300">
-                        <p className="text-3xl font-bold text-yellow-700">
+                    <div className="p-6 rounded-lg bg-emerald-50 border-2 border-emerald-300">
+                        <p className="text-3xl font-bold text-emerald-700">
                             {wonAuctions.filter(a => (a.paymentStatus || 'pending') === 'pending').length}
                         </p>
-                        <p className="text-sm text-yellow-800 font-medium">Chờ thanh toán</p>
+                        <p className="text-sm text-emerald-800 font-medium">Chờ thanh toán</p>
                     </div>
-                    <div className="p-6 rounded-lg bg-gradient-to-br from-emerald-100 to-emerald-200 border-2 border-emerald-300">
+                    <div className="p-6 rounded-lg bg-emerald-50 border-2 border-emerald-300">
                         <p className="text-3xl font-bold text-emerald-700">
                             {wonAuctions.filter(a => a.paymentStatus === 'paid').length}
                         </p>
@@ -177,8 +177,8 @@ export default function WonAuctions() {
                     <button
                         onClick={() => setActiveTab('won')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${activeTab === 'won'
-                            ? 'bg-green-500 text-white shadow-lg'
-                            : 'bg-white text-gray-600 hover:bg-green-50 border-2 border-gray-200'
+                            ? 'bg-emerald-500 text-white shadow-lg'
+                            : 'bg-white text-gray-600 hover:bg-emerald-50 border-2 border-gray-200'
                             }`}
                     >
                         <Trophy className="h-5 w-5" />
@@ -188,7 +188,7 @@ export default function WonAuctions() {
                         onClick={() => setActiveTab('participated')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${activeTab === 'participated'
                             ? 'bg-blue-500 text-white shadow-lg'
-                            : 'bg-white text-gray-600 hover:bg-blue-50 border-2 border-gray-200'
+                            : 'bg-white text-gray-600 hover:bg-green-50 border-2 border-gray-200'
                             }`}
                     >
                         <Users className="h-5 w-5" />
@@ -198,7 +198,7 @@ export default function WonAuctions() {
                         onClick={() => setActiveTab('myAuctions')}
                         className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all ${activeTab === 'myAuctions'
                             ? 'bg-purple-500 text-white shadow-lg'
-                            : 'bg-white text-gray-600 hover:bg-purple-50 border-2 border-gray-200'
+                            : 'bg-white text-gray-600 hover:bg-lime-50 border-2 border-gray-200'
                             }`}
                     >
                         <Store className="h-5 w-5" />
@@ -210,7 +210,7 @@ export default function WonAuctions() {
                 {activeTab === 'won' && (
                     <>
                         {wonAuctions.length === 0 ? (
-                            <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-green-100">
+                            <div className="text-center py-20 bg-white rounded-2xl shadow-lg border-2 border-emerald-100">
                                 <Trophy className="h-20 w-20 text-gray-300 mx-auto mb-4" />
                                 <h3 className="text-2xl font-bold text-gray-600 mb-2">Chưa thắng đấu giá nào</h3>
                                 <p className="text-gray-500 mb-6">
@@ -218,7 +218,7 @@ export default function WonAuctions() {
                                 </p>
                                 <a
                                     href="/auction"
-                                    className="inline-block bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors font-semibold"
+                                    className="inline-block bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-colors font-semibold"
                                 >
                                     Khám Phá Đấu Giá
                                 </a>
@@ -228,7 +228,7 @@ export default function WonAuctions() {
                                 {wonAuctions.map((auction, index) => (
                                     <div
                                         key={auction._id}
-                                        className="bg-white rounded-xl shadow-lg border-2 border-green-100 hover:shadow-xl transition-all overflow-hidden"
+                                        className="bg-white rounded-xl shadow-lg border-2 border-emerald-100 hover:shadow-xl transition-all overflow-hidden"
                                         data-aos="fade-up"
                                         data-aos-delay={400 + index * 50}
                                     >
@@ -245,7 +245,7 @@ export default function WonAuctions() {
                                             {/* Info */}
                                             <div className="md:col-span-2 space-y-2">
                                                 <div className="flex items-center gap-2">
-                                                    <Trophy className="h-5 w-5 text-yellow-500" />
+                                                    <Trophy className="h-5 w-5 text-emerald-500" />
                                                     <h3 className="text-xl font-bold text-gray-800">{auction.itemName}</h3>
                                                 </div>
                                                 <p className="text-gray-600 line-clamp-2">{auction.itemDescription}</p>
@@ -253,7 +253,7 @@ export default function WonAuctions() {
                                                 <div className="flex flex-col gap-1 text-sm">
                                                     <div>
                                                         <span className="text-gray-500">Giá thắng:</span>
-                                                        <span className="ml-2 font-bold text-green-600 text-lg">
+                                                        <span className="ml-2 font-bold text-emerald-600 text-lg">
                                                             {formatCurrency(auction.finalPrice || auction.currentPrice)}
                                                         </span>
                                                     </div>
@@ -285,7 +285,7 @@ export default function WonAuctions() {
                                                     <div className="text-sm font-semibold">
                                                         <AlertCircle className="inline h-4 w-4 mr-1 text-orange-500" />
                                                         Hạn thanh toán:{" "}
-                                                        <span className="text-red-600">
+                                                        <span className="text-emerald-600">
                                                             {formatDate(auction.paymentDeadline)}
                                                         </span>
                                                     </div>
@@ -312,7 +312,7 @@ export default function WonAuctions() {
                                                 {(auction.paymentStatus || "pending") === "pending" && (
                                                     <button
                                                         onClick={() => navigate(`/payment/${auction._id}`)}
-                                                        className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                                                        className="w-full bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 transition-colors font-semibold flex items-center justify-center gap-2"
                                                     >
                                                         <DollarSign className="h-5 w-5" />
                                                         Thanh Toán Ngay
@@ -321,7 +321,7 @@ export default function WonAuctions() {
 
                                                 {auction.paymentStatus === 'paid' && auction.paymentCompletedAt && (
                                                     <div className="text-center text-sm text-gray-600">
-                                                        <CheckCircle className="inline h-5 w-5 text-green-500 mr-1" />
+                                                        <CheckCircle className="inline h-5 w-5 text-emerald-500 mr-1" />
                                                         Đã thanh toán: {formatDate(auction.paymentCompletedAt)}
                                                     </div>
                                                 )}
@@ -346,7 +346,7 @@ export default function WonAuctions() {
                                 </p>
                                 <a
                                     href="/auction"
-                                    className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+                                    className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors font-semibold"
                                 >
                                     Khám Phá Đấu Giá
                                 </a>
@@ -378,7 +378,7 @@ export default function WonAuctions() {
                                                 <div className="flex flex-wrap items-center gap-4 text-sm">
                                                     <div>
                                                         <span className="text-gray-500">Giá cuối:</span>
-                                                        <span className="ml-2 font-bold text-green-600 text-lg">
+                                                        <span className="ml-2 font-bold text-emerald-600 text-lg">
                                                             {formatCurrency(auction.currentPrice)}
                                                         </span>
                                                     </div>
@@ -404,10 +404,10 @@ export default function WonAuctions() {
                                             {/* Winner Info & Actions */}
                                             <div className="flex flex-col justify-between">
                                                 <div className="mb-4">
-                                                    <div className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg border-2 border-yellow-200">
+                                                    <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-50 rounded-lg border-2 border-emerald-200">
                                                         <p className="text-xs text-gray-500 mb-1">Người thắng cuộc</p>
                                                         <div className="flex items-center gap-2">
-                                                            <Trophy className="h-5 w-5 text-yellow-500" />
+                                                            <Trophy className="h-5 w-5 text-emerald-500" />
                                                             <span className="font-bold text-gray-800">
                                                                 {auction.winner?.name || "Ẩn danh"}
                                                             </span>
@@ -417,7 +417,7 @@ export default function WonAuctions() {
 
                                                 <Link
                                                     to={`/auction/${auction._id}`}
-                                                    className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                                                    className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors font-semibold flex items-center justify-center gap-2"
                                                 >
                                                     <Eye className="h-5 w-5" />
                                                     Xem Chi Tiết
@@ -443,7 +443,7 @@ export default function WonAuctions() {
                                 </p>
                                 <a
                                     href="/auction/create"
-                                    className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors font-semibold"
+                                    className="inline-block bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-lime-600 transition-colors font-semibold"
                                 >
                                     Tạo Đấu Giá Mới
                                 </a>
@@ -484,7 +484,7 @@ export default function WonAuctions() {
                                                     </div>
                                                     <div className="flex items-baseline gap-2">
                                                         <span className="text-gray-500">Giá cuối:</span>
-                                                        <span className="font-bold text-green-600 text-lg">
+                                                        <span className="font-bold text-emerald-600 text-lg">
                                                             {formatCurrency(auction.currentPrice)}
                                                         </span>
                                                     </div>
@@ -507,10 +507,10 @@ export default function WonAuctions() {
                                                     {getMyAuctionStatusBadge(auction)}
 
                                                     {auction.winner && (
-                                                        <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+                                                        <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-50 rounded-lg border-2 border-emerald-200">
                                                             <p className="text-xs text-gray-500 mb-1">Người thắng cuộc</p>
                                                             <div className="flex items-center gap-2">
-                                                                <Trophy className="h-5 w-5 text-yellow-500" />
+                                                                <Trophy className="h-5 w-5 text-emerald-500" />
                                                                 <span className="font-bold text-gray-800">
                                                                     {auction.winner?.name || "Ẩn danh"}
                                                                 </span>
@@ -528,7 +528,7 @@ export default function WonAuctions() {
                                                 {auction.winner && (
                                                     <div className="text-sm">
                                                         <p className="text-gray-500">Tiền người bán nhận:</p>
-                                                        <p className="font-bold text-green-600 text-lg">
+                                                        <p className="font-bold text-emerald-600 text-lg">
                                                             {formatCurrency(auction.sellerAmount || 0)}
                                                         </p>
                                                         {auction.platformCommissionAmount != null && (
@@ -542,7 +542,7 @@ export default function WonAuctions() {
 
                                                 <Link
                                                     to={`/auction/${auction._id}`}
-                                                    className="w-full bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors font-semibold flex items-center justify-center gap-2 mt-2"
+                                                    className="w-full bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-lime-600 transition-colors font-semibold flex items-center justify-center gap-2 mt-2"
                                                 >
                                                     <Eye className="h-5 w-5" />
                                                     Xem Chi Tiết
