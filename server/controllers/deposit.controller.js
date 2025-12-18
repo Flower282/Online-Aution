@@ -81,7 +81,7 @@ export const createDeposit = async (req, res) => {
         }
 
         // Kiểm tra xác minh tài khoản và thông tin cá nhân + số dư ví
-        const user = await User.findById(userId).select('verification.isVerified phone address location.city location.region balance');
+        const user = await User.findById(userId).select('verification.isVerified verification.phone.number phone address location.city location.region location.ward balance');
         if (!user?.verification?.isVerified) {
             return res.status(403).json({
                 error: 'Bạn cần xác minh tài khoản trước khi đặt cọc',
@@ -89,17 +89,22 @@ export const createDeposit = async (req, res) => {
             });
         }
 
+        // Get phone number from verification.phone.number (if verified) or fallback to user.phone
+        const phoneNumber = user.verification?.phone?.number || user.phone || null;
+        // Get region from location.region or location.ward (ward is mapped to region in updateProfile)
+        const region = user.location?.region || user.location?.ward || null;
+
         // Kiểm tra thông tin cá nhân đầy đủ
-        const isProfileComplete = user.phone && user.address && user.location?.city && user.location?.region;
+        const isProfileComplete = phoneNumber && user.address && user.location?.city && region;
         if (!isProfileComplete) {
             return res.status(403).json({
-                error: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, quận/huyện) trước khi đặt cọc',
+                error: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, phường/xã) trước khi đặt cọc',
                 code: 'PROFILE_INCOMPLETE',
                 missingFields: {
-                    phone: !user.phone,
+                    phone: !phoneNumber,
                     address: !user.address,
                     city: !user.location?.city,
-                    region: !user.location?.region
+                    region: !region
                 }
             });
         }
