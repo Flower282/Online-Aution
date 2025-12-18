@@ -16,6 +16,7 @@ import userRouter from './routes/user.js';
 import contactRouter from "./routes/contact.js";
 import adminRouter from './routes/admin.js';
 import verificationRouter from './routes/verification.js';
+import publicRouter from './routes/public.js';
 import handleAuctionSocket from './socket/auction.socket.js';
 import { socketAuthMiddleware } from './middleware/socketAuth.js';
 
@@ -181,13 +182,24 @@ app.use((req, res, next) => {
 app.get('/', async (req, res) => {
     res.json({ msg: 'Welcome to Online Auction System API' });
 });
-app.use('/auth', userAuthRouter)
-app.use('/user', secureRoute, userRouter)
-app.use('/auction', secureRoute, auctionRouter);
+
+// Public routes (no authentication required)
+app.use('/api/public', publicRouter);
+
+// Authentication & user routes
+app.use('/auth', userAuthRouter);
+app.use('/user', secureRoute, userRouter);
+
+// Auction routes (mixed: some public, some protected - auth applied at route level)
+app.use('/auction', auctionRouter);
+
+// Protected routes (authentication required)
 app.use('/deposit', secureRoute, depositRouter);
 app.use('/wallet', secureRoute, walletRouter);
-app.use('/contact', contactRouter);
 app.use('/admin', secureRoute, adminRouter);
+
+// Shared routes
+app.use('/contact', contactRouter);
 app.use('/verification', verificationRouter);
 
 // Global Error Handler - must be after all routes

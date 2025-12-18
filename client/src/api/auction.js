@@ -1,8 +1,33 @@
 import axios from "../utils/axiosConfig.js";
 import { API_ENDPOINTS } from '../config/api.js';
 
+// ==================== PUBLIC APIs (No Auth Required) ====================
 
-// getting list of all auction
+// Get all auctions (no authentication required - backend now allows GET without auth)
+export const getPublicAuctions = async () => {
+    try {
+        const res = await axios.get(API_ENDPOINTS.AUCTION);
+        return res.data;
+    } catch (error) {
+        console.error("Error on getting public auction data", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load auctions. Please try again.");
+    }
+}
+
+// Get single auction by ID (no authentication required)
+export const getPublicAuctionById = async (id) => {
+    try {
+        const res = await axios.get(`${API_ENDPOINTS.AUCTION}/${id}`);
+        return res.data;
+    } catch (error) {
+        console.error("Error on getting public auction data", error.message);
+        throw new Error(error.response?.data?.message || "Failed to load auction details. Please try again.");
+    }
+}
+
+// ==================== AUTHENTICATED APIs ====================
+
+// Get list of all auctions (with authentication for personalized data like isLiked)
 export const getAuctions = async () => {
     try {
         const res = await axios.get(API_ENDPOINTS.AUCTION,
