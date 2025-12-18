@@ -602,13 +602,38 @@ export const ViewAuction = () => {
       setShowDepositModal(false);
       setToast({ message: result.message || "Đặt cọc thành công! Bạn có thể đấu giá ngay.", type: "success" });
     } catch (error) {
+      const errorData = error.response?.data || {};
+      const errorCode = errorData.code;
+
       // Kiểm tra nếu lỗi là do chưa xác minh
-      if (error.message?.includes('xác minh') || error.response?.data?.code === 'VERIFICATION_REQUIRED') {
+      if (error.message?.includes('xác minh') || errorCode === 'VERIFICATION_REQUIRED') {
         setShowDepositModal(false);
         setShowVerificationModal(true);
         return;
       }
-      setToast({ message: error.message || "Không thể đặt cọc. Vui lòng thử lại.", type: "error" });
+
+      // Kiểm tra nếu lỗi là do không đủ tiền trong ví
+      if (errorCode === 'INSUFFICIENT_WALLET_BALANCE') {
+        const currentBalance = errorData.currentBalance || 0;
+        const requiredAmount = errorData.requiredAmount || 0;
+        const missingAmount = errorData.missingAmount || (requiredAmount - currentBalance);
+        setToast({
+          message: `Số dư ví không đủ! Bạn cần ${formatCurrency(requiredAmount)} nhưng chỉ có ${formatCurrency(currentBalance)}. Vui lòng nạp thêm ${formatCurrency(missingAmount)}.`,
+          type: "error"
+        });
+        return;
+      }
+
+      // Kiểm tra nếu chỉ hỗ trợ ví
+      if (errorCode === 'WALLET_ONLY') {
+        setToast({
+          message: errorData.error || "Hiện tại chỉ hỗ trợ thanh toán bằng ví. Vui lòng nạp tiền vào ví trước khi đặt cọc.",
+          type: "error"
+        });
+        return;
+      }
+
+      setToast({ message: error.message || errorData.error || "Không thể đặt cọc. Vui lòng thử lại.", type: "error" });
     } finally {
       setIsSubmittingDeposit(false);
     }
@@ -652,10 +677,9 @@ export const ViewAuction = () => {
     setShowDepositModal(true);
   };
 
+  // Chỉ hỗ trợ thanh toán bằng ví
   const paymentMethods = [
-    { id: 'bank_transfer', name: 'Chuyển khoản ngân hàng', emoji: '' },
-    { id: 'credit_card', name: 'Thẻ tín dụng', emoji: '' },
-    { id: 'wallet', name: 'Ví điện tử', emoji: '' },
+    { id: 'wallet', name: 'Ví điện tử', emoji: '💳' },
   ];
 
   // Debug info - after all variables are declared

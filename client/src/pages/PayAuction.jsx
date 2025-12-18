@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, Link } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { viewAuction } from "../api/auction";
 import { payForWonAuction } from "../api/auction";
+import { getBalance } from "../api/wallet";
 import LoadingScreen from "../components/LoadingScreen";
 import Toast from "../components/Toast";
 import { formatCurrency } from "../utils/formatCurrency";
-import { AlertCircle, CheckCircle, Clock, DollarSign, Store, Trophy } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, DollarSign, Store, Trophy, Wallet } from "lucide-react";
 
 export default function PayAuction() {
     const { id } = useParams();
@@ -20,18 +21,53 @@ export default function PayAuction() {
         staleTime: 30 * 1000,
     });
 
+    // Fetch user balance to check if sufficient
+    const { data: balanceData } = useQuery({
+        queryKey: ["walletBalance"],
+        queryFn: getBalance,
+        staleTime: 10 * 1000,
+    });
+
     const payMutation = useMutation({
         mutationFn: () => payForWonAuction(id),
         onSuccess: (data) => {
+            console.log('✅ Payment success:', data);
+            // Invalidate all related queries to refresh data
             queryClient.invalidateQueries({ queryKey: ["wonAuctions"] });
-            setToast({ message: data?.message || "Thanh toán thành công! 🎉", type: "success" });
+            queryClient.invalidateQueries({ queryKey: ["walletBalance"] });
+            queryClient.invalidateQueries({ queryKey: ["transactionHistory"] });
+            queryClient.invalidateQueries({ queryKey: ["payAuction", id] });
+
+            const paymentInfo = data?.payment;
+            const amountPaid = paymentInfo?.amountPaid || amountToPay;
+            const newBalance = paymentInfo?.newBalance;
+
+            const message = newBalance !== undefined
+                ? `Thanh toán thành công ${formatCurrency(amountPaid)}! Số dư mới: ${formatCurrency(newBalance)} 🎉`
+                : `Thanh toán thành công ${formatCurrency(amountPaid)}! 🎉`;
+
+            setToast({ message, type: "success" });
             // Sau một lúc quay lại trang lịch sử thắng đấu giá
             setTimeout(() => {
                 navigate("/won");
-            }, 1500);
+            }, 2000);
         },
         onError: (err) => {
-            setToast({ message: err.message || "Không thể thanh toán. Vui lòng thử lại.", type: "error" });
+            const errorData = err.response?.data || {};
+            const errorCode = errorData.code;
+
+            // Kiểm tra nếu lỗi là do không đủ tiền trong ví
+            if (errorCode === 'INSUFFICIENT_WALLET_BALANCE') {
+                const currentBalance = errorData.currentBalance || 0;
+                const requiredAmount = errorData.requiredAmount || 0;
+                const missingAmount = requiredAmount - currentBalance;
+                setToast({
+                    message: `Số dư ví không đủ! Bạn cần ${formatCurrency(requiredAmount)} nhưng chỉ có ${formatCurrency(currentBalance)}. Vui lòng nạp thêm ${formatCurrency(missingAmount)}.`,
+                    type: "error"
+                });
+            } else {
+                setToast({ message: err.message || errorData.error || "Không thể thanh toán. Vui lòng thử lại.", type: "error" });
+            }
         },
     });
 
@@ -66,11 +102,10 @@ export default function PayAuction() {
     }
 
     const finalPrice = auction.finalPrice || auction.currentPrice || 0;
-    const depositAmount =
-        auction.depositRequired && auction.depositAmount
-            ? auction.depositAmount
-            : 0;
+    const depositAmount = auction.depositAmount || 0;
     const amountToPay = finalPrice - depositAmount;
+    const currentBalance = balanceData?.balance || 0;
+    const hasSufficientBalance = currentBalance >= amountToPay;
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: "#f5f1e8" }}>
@@ -173,12 +208,43 @@ export default function PayAuction() {
                             </div>
                         </div>
 
+                        {/* Balance info */}
+                        <div className={`p-4 rounded-xl border-2 ${hasSufficientBalance ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <Wallet className="h-4 w-4" />
+                                    Số dư ví hiện tại:
+                                </span>
+                                <span className={`text-lg font-bold ${hasSufficientBalance ? 'text-green-700' : 'text-red-700'}`}>
+                                    {formatCurrency(currentBalance)}
+                                </span>
+                            </div>
+                            {!hasSufficientBalance && (
+                                <div className="mt-3 p-3 rounded-lg bg-red-100 border border-red-300">
+                                    <p className="text-sm text-red-800 font-semibold mb-1">
+                                        ⚠️ Số dư không đủ!
+                                    </p>
+                                    <p className="text-xs text-red-700 mb-2">
+                                        Bạn cần {formatCurrency(amountToPay)} nhưng chỉ có {formatCurrency(currentBalance)}.
+                                        Còn thiếu {formatCurrency(amountToPay - currentBalance)}.
+                                    </p>
+                                    <Link
+                                        to="/deposits"
+                                        className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-lg transition-colors"
+                                    >
+                                        <Wallet className="h-4 w-4" />
+                                        Nạp tiền ngay
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+
                         {/* Info note */}
                         <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-xs text-yellow-800 flex gap-2">
                             <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                             <p>
                                 Bằng việc xác nhận thanh toán, bạn đồng ý thanh toán số tiền còn lại cho phiên đấu giá này.
-                                Vui lòng đảm bảo số dư hoặc phương thức thanh toán của bạn có đủ để hoàn tất giao dịch.
+                                Tiền sẽ được trừ trực tiếp từ ví của bạn.
                             </p>
                         </div>
 
@@ -193,8 +259,8 @@ export default function PayAuction() {
                             </button>
                             <button
                                 onClick={() => payMutation.mutate()}
-                                disabled={payMutation.isPending || amountToPay <= 0}
-                                className="px-6 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors flex items-center gap-2 disabled:opacity-50"
+                                disabled={payMutation.isPending || amountToPay <= 0 || !hasSufficientBalance}
+                                className="px-6 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <DollarSign className="h-5 w-5" />
                                 {payMutation.isPending ? "Đang thanh toán..." : "Xác Nhận Thanh Toán"}
