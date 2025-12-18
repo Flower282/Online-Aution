@@ -196,16 +196,19 @@ export const createDeposit = async (req, res) => {
                 amount: depositAmount,
                 status: 'completed',
                 paymentMethod: 'wallet',
-                orderId: productId,
-                description: `Đặt cọc cho sản phẩm: ${product.itemName}`,
+                paymentGateway: 'wallet',
+                gatewayOrderId: productId.toString(),
+                notes: `Đặt cọc cho sản phẩm: ${product.itemName}`,
                 balanceBefore: previousBalance,
                 balanceAfter: user.balance,
                 relatedAuction: productId,
                 relatedDeposit: null, // Will be updated after deposit is created
                 completedAt: new Date()
             });
+            console.log(`✅ Deposit transaction created for user ${userId}, amount ${depositAmount}`);
         } catch (transactionError) {
-            console.error('Error creating deposit transaction record:', transactionError);
+            console.error('❌ Error creating deposit transaction record:', transactionError);
+            console.error('❌ Transaction error details:', transactionError.message);
             // Không block deposit nếu transaction record fail
         }
 
@@ -228,7 +231,7 @@ export const createDeposit = async (req, res) => {
         try {
             const Transaction = (await import('../models/transaction.js')).default;
             await Transaction.findOneAndUpdate(
-                { user: userId, orderId: productId, type: 'deposit', status: 'completed' },
+                { user: userId, gatewayOrderId: productId.toString(), type: 'deposit', status: 'completed' },
                 { relatedDeposit: deposit._id },
                 { sort: { createdAt: -1 } }
             );

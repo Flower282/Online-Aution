@@ -31,14 +31,26 @@ export default function PayAuction() {
     const payMutation = useMutation({
         mutationFn: () => payForWonAuction(id),
         onSuccess: (data) => {
+            console.log('✅ Payment success:', data);
+            // Invalidate all related queries to refresh data
             queryClient.invalidateQueries({ queryKey: ["wonAuctions"] });
             queryClient.invalidateQueries({ queryKey: ["walletBalance"] });
             queryClient.invalidateQueries({ queryKey: ["transactionHistory"] });
-            setToast({ message: data?.message || "Thanh toán thành công! 🎉", type: "success" });
+            queryClient.invalidateQueries({ queryKey: ["payAuction", id] });
+
+            const paymentInfo = data?.payment;
+            const amountPaid = paymentInfo?.amountPaid || amountToPay;
+            const newBalance = paymentInfo?.newBalance;
+
+            const message = newBalance !== undefined
+                ? `Thanh toán thành công ${formatCurrency(amountPaid)}! Số dư mới: ${formatCurrency(newBalance)} 🎉`
+                : `Thanh toán thành công ${formatCurrency(amountPaid)}! 🎉`;
+
+            setToast({ message, type: "success" });
             // Sau một lúc quay lại trang lịch sử thắng đấu giá
             setTimeout(() => {
                 navigate("/won");
-            }, 1500);
+            }, 2000);
         },
         onError: (err) => {
             const errorData = err.response?.data || {};

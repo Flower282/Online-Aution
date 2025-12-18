@@ -934,9 +934,21 @@ export const payForWonAuction = async (req, res) => {
         auction.sellerAmount = sellerAmount;
 
         // ==================== KIỂM TRA VÀ TRỪ TIỀN TỪ VÍ ====================
+        // Lấy số tiền cọc thực tế của người thắng từ Deposit model
+        const Deposit = (await import('../models/deposit.js')).default;
+        const winnerDeposit = await Deposit.findOne({
+            user: req.user.id,
+            product: auction._id,
+            status: { $in: ['paid', 'deducted'] }
+        });
+
+        // Số tiền cọc thực tế của người thắng (nếu có)
+        const depositAmount = winnerDeposit?.amount || auction.depositAmount || 0;
+
         // Tính số tiền cần thanh toán = finalPrice - depositAmount (đã trừ tiền cọc)
-        const depositAmount = auction.depositAmount || 0;
         const amountToPay = finalPrice - depositAmount;
+
+        console.log(`💰 Payment calculation: FinalPrice=${finalPrice}, DepositAmount=${depositAmount}, AmountToPay=${amountToPay}`);
 
         // Lấy thông tin user để kiểm tra số dư ví
         const winnerUser = await User.findById(req.user.id).select('balance');
@@ -980,56 +992,60 @@ export const payForWonAuction = async (req, res) => {
         try {
             const Transaction = (await import('../models/transaction.js')).default;
 
+            console.log(`📝 Creating payment transaction for user ${req.user.id}, amount ${amountToPay}`);
+
             // Transaction cho người mua (trừ tiền)
-            paymentTransaction = await Transaction.create({
+            const paymentData = {
                 user: req.user.id,
                 type: 'payment',
                 amount: amountToPay,
                 status: 'completed',
                 paymentMethod: 'wallet',
                 paymentGateway: 'wallet',
-                orderId: auction._id.toString(),
-                description: `Thanh toán sản phẩm: ${auction.itemName}`,
+                gatewayOrderId: auction._id.toString(),
+                notes: `Thanh toán sản phẩm: ${auction.itemName}`,
                 balanceBefore: previousBalance,
                 balanceAfter: winnerUser.balance,
                 relatedAuction: auction._id,
                 completedAt: new Date()
-            });
+            };
+            console.log('📝 Payment transaction data:', JSON.stringify(paymentData, null, 2));
+
+            paymentTransaction = await Transaction.create(paymentData);
             console.log(`✅ Payment transaction created: ${paymentTransaction._id}`);
 
             // Transaction cho người bán (cộng tiền)
             if (sellerUser) {
                 const sellerBalanceBefore = sellerUser.balance - sellerAmount;
-                sellerTransaction = await Transaction.create({
+                const sellerData = {
                     user: auction.seller._id || auction.seller,
                     type: 'payment',
                     amount: sellerAmount,
                     status: 'completed',
                     paymentMethod: 'wallet',
                     paymentGateway: 'wallet',
-                    orderId: auction._id.toString(),
-                    description: `Nhận tiền bán sản phẩm: ${auction.itemName}`,
+                    gatewayOrderId: auction._id.toString(),
+                    notes: `Nhận tiền bán sản phẩm: ${auction.itemName}`,
                     balanceBefore: sellerBalanceBefore,
                     balanceAfter: sellerUser.balance,
                     relatedAuction: auction._id,
                     completedAt: new Date()
-                });
+                };
+                console.log('📝 Seller transaction data:', JSON.stringify(sellerData, null, 2));
+
+                sellerTransaction = await Transaction.create(sellerData);
                 console.log(`✅ Seller transaction created: ${sellerTransaction._id}`);
             }
         } catch (transactionError) {
             console.error('❌ Error creating transaction record:', transactionError);
-            console.error('❌ Transaction error details:', transactionError.message, transactionError.stack);
-            // Nếu transaction fail, rollback balance changes
-            winnerUser.balance = previousBalance;
-            await winnerUser.save();
-            if (sellerUser) {
-                sellerUser.balance = sellerUser.balance - sellerAmount;
-                await sellerUser.save();
+            console.error('❌ Transaction error details:', transactionError.message);
+            console.error('❌ Transaction error stack:', transactionError.stack);
+            if (transactionError.errors) {
+                console.error('❌ Validation errors:', JSON.stringify(transactionError.errors, null, 2));
             }
-            return res.status(500).json({
-                error: 'Failed to create transaction record',
-                details: transactionError.message
-            });
+            // Không rollback balance vì đã trừ tiền thành công
+            // Chỉ log lỗi và tiếp tục
+            console.warn('⚠️ Balance updated but transaction record failed. Manual review may be needed.');
         }
 
         // Đánh dấu đã thanh toán
@@ -1039,6 +1055,12 @@ export const payForWonAuction = async (req, res) => {
         auction.isSold = true;
 
         await auction.save();
+
+        console.log(`✅ Payment completed successfully for auction ${auction._id}`);
+        console.log(`💰 Winner balance: ${previousBalance} -> ${winnerUser.balance}`);
+        if (sellerUser) {
+            console.log(`💰 Seller balance: ${sellerUser.balance - sellerAmount} -> ${sellerUser.balance}`);
+        }
 
         return res.status(200).json({
             message: 'Payment for auction completed successfully',
@@ -1055,6 +1077,14 @@ export const payForWonAuction = async (req, res) => {
                 platformCommissionPercentage: auction.platformCommissionPercentage,
                 platformCommissionAmount: auction.platformCommissionAmount,
                 sellerAmount: auction.sellerAmount
+            },
+            payment: {
+                finalPrice: finalPrice,
+                depositAmount: depositAmount,
+                amountPaid: amountToPay,
+                calculation: `${finalPrice} - ${depositAmount} = ${amountToPay}`,
+                newBalance: winnerUser.balance,
+                transactionId: paymentTransaction?._id?.toString()
             }
         });
     } catch (error) {
