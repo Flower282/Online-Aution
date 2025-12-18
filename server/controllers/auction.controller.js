@@ -7,28 +7,53 @@ import { processAuctionDeposits } from './deposit.controller.js';
 
 export const createAuction = async (req, res) => {
     try {
+        // Check authentication
+        if (!req.user || !req.user.id) {
+            console.error('❌ Create auction: User not authenticated');
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+
         const { itemName, startingPrice, itemDescription, itemCategory, itemStartDate, itemEndDate } = req.body;
 
         // Validate required fields
         if (!itemName || !startingPrice || !itemDescription || !itemCategory || !itemStartDate || !itemEndDate) {
+            console.error('❌ Create auction: Missing required fields', {
+                itemName: !!itemName,
+                startingPrice: !!startingPrice,
+                itemDescription: !!itemDescription,
+                itemCategory: !!itemCategory,
+                itemStartDate: !!itemStartDate,
+                itemEndDate: !!itemEndDate
+            });
             return res.status(400).json({ message: 'All fields are required' });
         }
 
         // Validate image
         if (!req.file) {
+            console.error('❌ Create auction: No image file provided');
             return res.status(400).json({ message: 'Item photo is required' });
         }
 
         let imageUrl = '';
 
         try {
+            console.log('📤 Uploading image to Cloudinary...');
             imageUrl = await uploadImage(req.file);
+            console.log('✅ Image uploaded successfully:', imageUrl);
 
             // ✅ Tự động xóa file tạm sau khi upload thành công
-            const fs = await import('fs');
-            fs.unlinkSync(req.file.path);
-            console.log('🗑️ Deleted temp file:', req.file.filename);
+            try {
+                const fs = await import('fs');
+                if (req.file && req.file.path) {
+                    fs.unlinkSync(req.file.path);
+                    console.log('🗑️ Deleted temp file:', req.file.filename);
+                }
+            } catch (unlinkError) {
+                console.warn('⚠️ Failed to delete temp file:', unlinkError.message);
+            }
         } catch (error) {
+            console.error('❌ Error uploading image to Cloudinary:', error);
+
             // Xóa file tạm ngay cả khi upload fail
             try {
                 const fs = await import('fs');
@@ -36,10 +61,14 @@ export const createAuction = async (req, res) => {
                     fs.unlinkSync(req.file.path);
                 }
             } catch (unlinkError) {
-                console.error('Failed to delete temp file:', unlinkError.message);
+                console.error('❌ Failed to delete temp file:', unlinkError.message);
             }
 
-            return res.status(500).json({ message: 'Error uploading image to Cloudinary', error: error.message });
+            return res.status(500).json({
+                message: 'Error uploading image to Cloudinary',
+                error: error.message,
+                details: process.env.NODE_ENV === 'production' ? undefined : error.stack
+            });
         }
 
         // Validate dates
@@ -48,22 +77,35 @@ export const createAuction = async (req, res) => {
         const now = new Date();
 
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            console.error('❌ Create auction: Invalid date format', { itemStartDate, itemEndDate });
             return res.status(400).json({ message: 'Invalid date format' });
         }
 
         if (start < now) {
+            console.error('❌ Create auction: Start time in past', { start, now });
             return res.status(400).json({ message: 'Start time cannot be in the past' });
         }
 
         if (end <= start) {
+            console.error('❌ Create auction: End date before start date', { start, end });
             return res.status(400).json({ message: 'Auction end date must be after start date' });
         }
 
         // Validate price
         const price = parseFloat(startingPrice);
         if (isNaN(price) || price <= 0) {
+            console.error('❌ Create auction: Invalid price', { startingPrice, price });
             return res.status(400).json({ message: 'Starting price must be a positive number' });
         }
+
+        console.log('📝 Creating auction with data:', {
+            itemName,
+            startingPrice: price,
+            itemCategory,
+            seller: req.user.id,
+            itemStartDate: start,
+            itemEndDate: end
+        });
 
         const newAuction = new Product({
             itemName,
@@ -76,12 +118,23 @@ export const createAuction = async (req, res) => {
             itemEndDate: end,
             seller: req.user.id,
         });
+
         await newAuction.save();
+        console.log('✅ Auction created successfully:', newAuction._id);
 
         res.status(201).json({ message: 'Auction created successfully', newAuction });
     } catch (error) {
-        console.error('Error creating auction:', error);
-        res.status(500).json({ message: 'Error creating auction', error: error.message });
+        console.error('❌ Error creating auction:', error);
+        console.error('❌ Error stack:', error.stack);
+        console.error('❌ Request body:', req.body);
+        console.error('❌ Request file:', req.file ? { filename: req.file.filename, size: req.file.size } : 'No file');
+        console.error('❌ User:', req.user ? { id: req.user.id, role: req.user.role } : 'No user');
+
+        res.status(500).json({
+            message: 'Error creating auction',
+            error: error.message,
+            details: process.env.NODE_ENV === 'production' ? undefined : error.stack
+        });
     }
 };
 
