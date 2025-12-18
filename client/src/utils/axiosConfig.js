@@ -94,15 +94,16 @@ axios.interceptors.response.use(
                 if (!isLoggingOut) {
                     isLoggingOut = true;
 
-                    // Dynamically import logout action
-                    import('../store/auth/authSlice').then(({ logout }) => {
-                        // Dispatch logout action first
+                    // Dynamically import logout action and setUser
+                    import('../store/auth/authSlice').then(({ setUser }) => {
+                        // Clear user state WITHOUT setting isManualLogout flag
+                        // This is token expiration, not manual logout
                         if (store) {
-                            store.dispatch(logout());
+                            store.dispatch(setUser(null));
                         }
 
                         // Let React Router handle navigation through MainLayout
-                        // No manual redirect needed - MainLayout will detect !user and navigate
+                        // MainLayout will detect !user and navigate to /login
 
                         // Reset the flag after 3 seconds to allow future logouts
                         setTimeout(() => {

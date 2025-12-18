@@ -236,9 +236,13 @@ export const Navbar = () => {
   };
 
   // User logout
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    await dispatch(logout());
     navigate("/");
+    // Clear the manual logout flag after navigation
+    setTimeout(() => {
+      dispatch({ type: 'auth/clearManualLogout' });
+    }, 100);
   };
 
   const toggleMenu = () => {
