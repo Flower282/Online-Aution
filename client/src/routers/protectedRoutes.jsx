@@ -1,7 +1,6 @@
 import Error from "../Error";
-import { ViewAuction } from "../pages/ViewAuction";
 import { MainLayout } from "../layout/MainLayout";
-import { AuctionList } from "../pages/AuctionList";
+import { ViewAuction } from "../pages/ViewAuction";
 import { CreateAuction } from "../pages/CreateAuction";
 import { MyAuction } from "../pages/MyAuction";
 import Favorites from "../pages/Favorites";
@@ -25,11 +24,6 @@ export const protectedRoutes = [
       {
         path: "dashboard",
         element: <Dashboard />,
-        errorElement: <Error />,
-      },
-      {
-        path: "auction",
-        element: <AuctionList />,
         errorElement: <Error />,
       },
       {
@@ -62,7 +56,6 @@ export const protectedRoutes = [
         element: <ViewAuction />,
         errorElement: <Error />,
       },
-
       {
         path: "profile",
         element: <Profile />,

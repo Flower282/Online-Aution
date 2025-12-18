@@ -1,71 +1,88 @@
 import { FaClock, FaChevronRight, FaChevronLeft, FaPause, FaPlay } from "react-icons/fa";
 import { Link } from "react-router";
 import { useState, useEffect } from "react";
-// import { AdsComponent } from "../AdsComponent";
+import { useQuery } from "@tanstack/react-query";
+import { getPublicAuctions } from "../../api/auction";
 
 export const Auction = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const auctions = [
-    {
-      id: 1,
-      image: "https://res.cloudinary.com/dhv8qx1qy/image/upload/v1750644725/miekytfqgwnlj4jqai5k.png",
-      title: "Vintage Film Camera - Excellent Condition",
-      currentBid: "$245.00",
-      bids: 12,
-      timeLeft: "2h 15m",
-      timeColor: "from-red-500 to-red-600"
-    },
-    {
-      id: 2,
-      image: "https://res.cloudinary.com/dhv8qx1qy/image/upload/v1750644637/lk7l3ar3sptniptieyo3.png",
-      title: "Luxury Swiss Watch - Gold Plated",
-      currentBid: "$1,250.00",
-      bids: 28,
-      timeLeft: "5h 42m",
-      timeColor: "from-orange-500 to-orange-600"
-    },
-    {
-      id: 3,
-      image: "https://res.cloudinary.com/dhv8qx1qy/image/upload/v1750644675/tatznfsoekfp3vsoeswd.png",
-      title: "Original Oil Painting - Abstract Art",
-      currentBid: "$890.00",
-      bids: 7,
-      timeLeft: "1d 3h",
-      timeColor: "from-green-500 to-green-600"
+  // Fetch real auction data from database
+  const { data: auctionData, isLoading } = useQuery({
+    queryKey: ["publicAuctions"],
+    queryFn: getPublicAuctions,
+    staleTime: 30 * 1000,
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Format auction data for carousel
+  const auctions = auctionData?.slice(0, 5).map(auction => {
+    const timeLeft = auction.timeLeft;
+    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const days = Math.floor(hours / 24);
+    
+    let timeString;
+    let timeColor;
+    
+    if (auction.isEnded) {
+      timeString = "Ended";
+      timeColor = "from-gray-500 to-gray-600";
+    } else if (days > 0) {
+      timeString = `${days}d ${hours % 24}h`;
+      timeColor = "from-green-500 to-green-600";
+    } else if (hours > 5) {
+      timeString = `${hours}h ${minutes}m`;
+      timeColor = "from-orange-500 to-orange-600";
+    } else {
+      timeString = `${hours}h ${minutes}m`;
+      timeColor = "from-red-500 to-red-600";
     }
-  ];
+
+    return {
+      id: auction._id,
+      image: auction.itemPhoto || "https://via.placeholder.com/500",
+      title: auction.itemName,
+      currentBid: `₹${auction.currentPrice.toLocaleString()}`,
+      bids: auction.bidsCount,
+      timeLeft: timeString,
+      timeColor: timeColor
+    };
+  }) || [];
+
+  // Fallback to empty array if no data
+  const displayAuctions = auctions.length > 0 ? auctions : [];
 
   // Auto slide every 5 seconds
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || displayAuctions.length === 0) return;
     
     const timer = setInterval(() => {
       setIsTransitioning(true);
       setTimeout(() => {
-        setCurrentSlide((prev) => (prev + 1) % auctions.length);
+        setCurrentSlide((prev) => (prev + 1) % displayAuctions.length);
         setIsTransitioning(false);
       }, 300);
     }, 5000);
     return () => clearInterval(timer);
-  }, [auctions.length, isPlaying]);
+  }, [displayAuctions.length, isPlaying]);
 
   const nextSlide = () => {
-    if (isTransitioning) return;
+    if (isTransitioning || displayAuctions.length === 0) return;
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentSlide((prev) => (prev + 1) % auctions.length);
+      setCurrentSlide((prev) => (prev + 1) % displayAuctions.length);
       setIsTransitioning(false);
     }, 300);
   };
 
   const prevSlide = () => {
-    if (isTransitioning) return;
+    if (isTransitioning || displayAuctions.length === 0) return;
     setIsTransitioning(true);
     setTimeout(() => {
-      setCurrentSlide((prev) => (prev - 1 + auctions.length) % auctions.length);
+      setCurrentSlide((prev) => (prev - 1 + displayAuctions.length) % displayAuctions.length);
       setIsTransitioning(false);
     }, 300);
   };
@@ -74,7 +91,34 @@ export const Auction = () => {
     setIsPlaying(!isPlaying);
   };
 
-  const currentAuction = auctions[currentSlide];
+  // Show loading or empty state
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-transparent">
+        <div className="container mx-auto px-4 bg-transparent">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading live auctions...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (displayAuctions.length === 0) {
+    return (
+      <section className="py-20 bg-transparent">
+        <div className="container mx-auto px-4 bg-transparent">
+          <h2 className="text-4xl font-extrabold text-gray-900 mb-12">Live Auctions</h2>
+          <div className="text-center py-12 bg-gradient-to-br from-sky-50 to-blue-50 rounded-3xl">
+            <p className="text-gray-600 text-lg">No active auctions at the moment. Check back soon!</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const currentAuction = displayAuctions[currentSlide];
 
   return (
     <section className="py-20 bg-transparent">
@@ -143,7 +187,7 @@ export const Auction = () => {
               {/* Slide Indicators & Play/Pause */}
               <div className="flex items-center justify-between mt-4">
                 <div className="flex items-center gap-3">
-                  {auctions.map((_, index) => (
+                  {displayAuctions.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => {

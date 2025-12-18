@@ -25,7 +25,13 @@ export const API_ENDPOINTS = {
     USER_FAVORITES: `${API_URL}/user/favorites`,
     USER_LOGINS: `${API_URL}/user/logins`,
 
-    // Auction endpoints
+    // Public endpoints (no auth required)
+    PUBLIC: {
+        AUCTIONS: `${API_URL}/api/public/auctions`,
+        AUCTION_BY_ID: (id) => `${API_URL}/api/public/auctions/${id}`,
+    },
+
+    // Auction endpoints (auth required)
     AUCTION: `${API_URL}/auction`,
 
     // Admin endpoints

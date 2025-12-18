@@ -43,6 +43,7 @@ export const ViewAuction = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [missingFields, setMissingFields] = useState({});
 
+  // Requires authentication (protected route)
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
     queryFn: () => viewAuction(id),
