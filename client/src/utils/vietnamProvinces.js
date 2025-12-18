@@ -1,60 +1,176 @@
-// API từ https://open.oapi.vn/location
+// API từ https://34tinhthanh.com
 
-const API_BASE = 'https://34tinhthanh.com';
+const API_BASE = 'https://34tinhthanh.com/api';
+
+// Cache configuration
+const CACHE_PREFIX = 'vietnam_provinces_';
+const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+/**
+ * Cache helper functions
+ */
+const cache = {
+    set: (key, data) => {
+        try {
+            const cacheData = {
+                data,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(`${CACHE_PREFIX}${key}`, JSON.stringify(cacheData));
+        } catch (error) {
+            console.warn('Failed to save to cache:', error);
+        }
+    },
+
+    get: (key) => {
+        try {
+            const cached = localStorage.getItem(`${CACHE_PREFIX}${key}`);
+            if (!cached) return null;
+
+            const cacheData = JSON.parse(cached);
+            const now = Date.now();
+
+            // Check if cache is expired
+            if (now - cacheData.timestamp > CACHE_EXPIRY) {
+                localStorage.removeItem(`${CACHE_PREFIX}${key}`);
+                return null;
+            }
+
+            return cacheData.data;
+        } catch (error) {
+            console.warn('Failed to read from cache:', error);
+            return null;
+        }
+    },
+
+    clear: (key) => {
+        try {
+            if (key) {
+                localStorage.removeItem(`${CACHE_PREFIX}${key}`);
+            } else {
+                // Clear all cache entries
+                Object.keys(localStorage).forEach(k => {
+                    if (k.startsWith(CACHE_PREFIX)) {
+                        localStorage.removeItem(k);
+                    }
+                });
+            }
+        } catch (error) {
+            console.warn('Failed to clear cache:', error);
+        }
+    }
+};
 
 /**
  * Lấy tất cả tỉnh/thành phố
+ * Sử dụng cache để tránh gọi API nhiều lần
  */
 export const getProvinces = async () => {
+    const cacheKey = 'provinces';
+
+    // Check cache first
+    const cached = cache.get(cacheKey);
+    if (cached) {
+        console.log('📦 Using cached provinces data');
+        return cached;
+    }
+
     try {
-        const response = await fetch(`${API_BASE}/provinces?page=0&size=100`);
-        const result = await response.json();
-        return result.data || [];
+        console.log('🌐 Fetching provinces from API...');
+        const response = await fetch(`${API_BASE}/provinces`);
+        const data = await response.json();
+
+        // Map data to standard format
+        const mapped = data.map(province => ({
+            id: province.province_code,
+            name: province.name
+        }));
+
+        // Save to cache
+        cache.set(cacheKey, mapped);
+        console.log('✅ Provinces fetched and cached');
+
+        return mapped;
     } catch (error) {
         console.error('Error fetching provinces:', error);
         return [];
     }
 };
 
-/**
- * Lấy quận/huyện theo id tỉnh
- */
-export const getDistricts = async (provinceId) => {
-    try {
-        const response = await fetch(`${API_BASE}/districts/${provinceId}?page=0&size=100`);
-        const result = await response.json();
-        return result.data || [];
-    } catch (error) {
-        console.error('Error fetching districts:', error);
-        return [];
-    }
-};
 
 /**
- * Lấy phường/xã theo id quận
+ * Lấy phường/xã theo province_code
+ * Lưu ý: API này lấy TẤT CẢ phường/xã của tỉnh, không theo quận/huyện
+ * Sử dụng cache để tránh gọi API nhiều lần
  */
-export const getWards = async (districtId) => {
+export const getWards = async (provinceCode) => {
+    if (!provinceCode) return [];
+
+    const cacheKey = `wards_${provinceCode}`;
+
+    // Check cache first
+    const cached = cache.get(cacheKey);
+    if (cached) {
+        console.log(`📦 Using cached wards data for province ${provinceCode}`);
+        return cached;
+    }
+
     try {
-        const response = await fetch(`${API_BASE}/wards/${districtId}?page=0&size=100`);
-        const result = await response.json();
-        return result.data || [];
+        console.log(`🌐 Fetching wards from API for province ${provinceCode}...`);
+        const response = await fetch(`${API_BASE}/wards?province_code=${provinceCode}`);
+        const data = await response.json();
+
+        // Deduplicate wards by ward_code (some wards may have duplicate IDs)
+        const uniqueWards = new Map();
+        data.forEach(ward => {
+            if (!uniqueWards.has(ward.ward_code)) {
+                uniqueWards.set(ward.ward_code, {
+                    id: ward.ward_code,
+                    name: ward.ward_name
+                });
+            }
+        });
+
+        const mapped = Array.from(uniqueWards.values());
+
+        // Save to cache
+        cache.set(cacheKey, mapped);
+        console.log(`✅ Wards fetched and cached for province ${provinceCode}`);
+
+        return mapped;
     } catch (error) {
         console.error('Error fetching wards:', error);
         return [];
     }
 };
 
+
+
 /**
- * Tìm kiếm tỉnh thành theo tên
+ * Tìm kiếm tỉnh thành theo tên (client-side filtering)
+ * Sử dụng cache từ getProvinces
  */
 export const searchProvinces = async (query) => {
     try {
-        const response = await fetch(`${API_BASE}/provinces?page=0&size=30&query=${encodeURIComponent(query)}`);
-        const result = await response.json();
-        return result.data || [];
+        const provinces = await getProvinces(); // This will use cache if available
+        if (!query) return provinces;
+
+        const lowerQuery = query.toLowerCase();
+        return provinces.filter(province =>
+            province.name.toLowerCase().includes(lowerQuery)
+        );
     } catch (error) {
         console.error('Error searching provinces:', error);
         return [];
     }
+};
+
+/**
+ * Clear cache for provinces or wards
+ * @param {string} key - 'provinces' or 'wards_{provinceCode}' or null to clear all
+ */
+export const clearCache = (key = null) => {
+    cache.clear(key);
+    console.log(key ? `🗑️ Cache cleared for: ${key}` : '🗑️ All cache cleared');
 };
 

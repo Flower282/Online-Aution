@@ -569,10 +569,10 @@ export const ViewAuction = () => {
       phone: !userData?.phone,
       address: !userData?.address,
       city: !userData?.location?.city,
-      region: !userData?.location?.region
+      ward: !userData?.location?.ward
     };
 
-    const isComplete = !missing.phone && !missing.address && !missing.city && !missing.region;
+    const isComplete = !missing.phone && !missing.address && !missing.city && !missing.ward;
     return { isComplete, missingFields: missing };
   };
 
