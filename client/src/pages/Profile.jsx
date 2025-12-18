@@ -270,7 +270,10 @@ export default function Profile() {
   };
 
   const handleProfileSubmit = (e) => {
-    e.preventDefault();
+    // Cho phép gọi từ onSubmit hoặc onClick
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
 
     // Format data for backend - backend expects FLAT format, not location object
     // Backend only accepts: { name, address, city, region, country }
@@ -756,7 +759,8 @@ export default function Profile() {
                         Cancel
                       </button>
                       <button
-                        type="submit"
+                        type="button"
+                        onClick={handleProfileSubmit}
                         disabled={updateProfileMutation.isPending}
                         className="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >

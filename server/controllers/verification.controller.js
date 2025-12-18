@@ -2,7 +2,6 @@ import User from "../models/user.js";
 import uploadImage from "../services/cloudinaryService.js";
 import fs from "fs";
 import crypto from "crypto";
-import { sendVerificationEmail } from "../services/emailService.js";
 
 // Secret key cho hash CCCD (trong production nên lưu vào .env)
 const CCCD_HASH_SECRET = process.env.CCCD_HASH_SECRET || "auction-cccd-secret-key-2024";
@@ -152,8 +151,12 @@ export const verifyPhone = async (req, res) => {
 };
 
 /**
- * Gửi email xác minh (thật) – tạo token + gửi mail
- * Frontend gọi endpoint này khi người dùng nhấn nút "Gửi email xác minh"
+ * "Xác minh" email nhưng KHÔNG gửi email (theo yêu cầu)
+ * Frontend gọi endpoint này khi người dùng nhấn nút "Gửi email xác minh".
+ *
+ * Ở đây ta chỉ đánh dấu email là đã xác minh và chuyển sang bước kế tiếp,
+ * không tạo token, không gửi mail. Mục đích: giữ giao diện tab "Email"
+ * nhưng bỏ hoàn toàn phụ thuộc vào Gmail/SMTP ở production.
  */
 export const sendVerificationEmailRequest = async (req, res) => {
     try {
@@ -177,22 +180,23 @@ export const sendVerificationEmailRequest = async (req, res) => {
             });
         }
 
-        // Tạo token xác minh (24h)
-        const verificationToken = crypto.randomBytes(32).toString("hex");
-        const tokenExpires = new Date();
-        tokenExpires.setHours(tokenExpires.getHours() + 24);
+        // ✅ Không gửi email, chỉ đánh dấu là đã xác minh
+        user.verification.email.isVerified = true;
+        user.verification.email.verifiedAt = new Date();
+        user.verification.email.verificationToken = null;
+        user.verification.email.tokenExpires = null;
 
-        user.verification.email.verificationToken = verificationToken;
-        user.verification.email.tokenExpires = tokenExpires;
+        updateOverallVerification(user);
         await user.save();
 
-        // Gửi email xác minh
-        await sendVerificationEmail(user.email, verificationToken, user.name);
-
         return res.status(200).json({
-            message:
-                "Email xác minh đã được gửi. Vui lòng kiểm tra hộp thư (kể cả spam) và nhấp vào liên kết để xác minh.",
-            email: user.email,
+            message: "Email đã được xác minh thành công (không cần gửi email).",
+            email: {
+                address: user.email,
+                isVerified: true,
+                verifiedAt: user.verification.email.verifiedAt,
+            },
+            isVerified: user.verification.isVerified,
         });
     } catch (error) {
         console.error("Error in sendVerificationEmailRequest:", error);
@@ -204,59 +208,13 @@ export const sendVerificationEmailRequest = async (req, res) => {
 };
 
 /**
- * Xác minh email qua token (public)
- * Được gọi bởi trang /verify-email?token=...
+ * Xác minh email qua token (public) – hiện KHÔNG sử dụng nữa
+ * Giữ lại để nếu người dùng click link cũ thì trả về lỗi dễ hiểu.
  */
 export const verifyEmail = async (req, res) => {
     try {
-        const { token } = req.query;
-
-        if (!token || typeof token !== "string") {
-            return res.status(400).json({ error: "Token xác minh không hợp lệ" });
-        }
-
-        const decodedToken = decodeURIComponent(token).trim();
-
-        // Tìm user theo token
-        const user = await User.findOne({
-            "verification.email.verificationToken": decodedToken,
-        });
-
-        if (!user) {
-            return res
-                .status(400)
-                .json({ error: "Token xác minh không hợp lệ hoặc đã được sử dụng." });
-        }
-
-        const tokenExpires = user.verification?.email?.tokenExpires;
-        if (!tokenExpires || new Date() > tokenExpires) {
-            // Xóa token hết hạn
-            user.verification.email.verificationToken = null;
-            user.verification.email.tokenExpires = null;
-            await user.save();
-
-            return res.status(400).json({
-                error: "Token xác minh đã hết hạn. Vui lòng gửi lại yêu cầu xác minh email.",
-            });
-        }
-
-        // Đánh dấu email đã xác minh
-        user.verification.email.isVerified = true;
-        user.verification.email.verifiedAt = new Date();
-        user.verification.email.verificationToken = null;
-        user.verification.email.tokenExpires = null;
-
-        updateOverallVerification(user);
-        await user.save();
-
-        return res.status(200).json({
-            message: "Email đã được xác minh thành công",
-            email: {
-                address: user.email,
-                isVerified: true,
-                verifiedAt: user.verification.email.verifiedAt,
-            },
-            isVerified: user.verification.isVerified,
+        return res.status(400).json({
+            error: "Xác minh email qua link đã được vô hiệu hóa. Vui lòng xác minh trực tiếp trong ứng dụng.",
         });
     } catch (error) {
         console.error("Error verifying email:", error);

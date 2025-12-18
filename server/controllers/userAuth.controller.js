@@ -5,7 +5,6 @@ import dotenv from "dotenv"
 import crypto from "crypto";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 import { getClientIp, getLocationFromIp } from "../utils/geoDetails.js";
-import { sendPasswordResetEmail } from "../services/emailService.js";
 dotenv.config();
 
 
@@ -75,18 +74,23 @@ export const handleUserLogin = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
 
-        // Getting user gro location
+        // Getting user geo location
         const ip = getClientIp(req);
         const userAgent = req.headers["user-agent"];
         const location = await getLocationFromIp(ip);
 
-        // Update user's last login and location
-        await User.findByIdAndUpdate(user._id, {
-            lastLogin: new Date(),
-            location: location,
-            ipAddress: ip,
-            userAgent: userAgent
-        });
+        // Update user's last login and technical info
+        // NOTE: Không ghi đè location (city/region/ward) do người dùng đã chọn trong Profile
+        // để tránh mất thông tin Tỉnh/Thành & Phường/Xã đã lưu vào database.
+        await User.findByIdAndUpdate(
+            user._id,
+            {
+                lastLogin: new Date(),
+                ipAddress: ip,
+                userAgent: userAgent,
+            },
+            { new: false }
+        );
 
         // Saving login details
         const login = new Login({
@@ -424,25 +428,6 @@ export const requestPasswordReset = async (req, res) => {
             return res.status(403).json({
                 error: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin hoặc gửi yêu cầu mở khóa.",
             });
-        }
-
-        // Tạo token và thời gian hết hạn (1 giờ)
-        const token = crypto.randomBytes(32).toString("hex");
-        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-
-        user.passwordReset = {
-            token,
-            expiresAt,
-        };
-
-        await user.save();
-
-        try {
-            await sendPasswordResetEmail(user.email, token, user.name);
-        } catch (emailError) {
-            console.error("Error sending password reset email:", emailError);
-            // Vẫn trả về message chung để tránh lộ thông tin
-            return res.status(200).json({ message: genericMessage });
         }
 
         return res.status(200).json({ message: genericMessage });
