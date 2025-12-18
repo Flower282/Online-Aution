@@ -84,9 +84,9 @@ const Login = () => {
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative h-full flex items-center justify-center p-8">
                 <div className="text-center">
-                  <img 
-                    src="https://images.unsplash.com/photo-1512389098783-66b81f86e199?w=600&h=800&fit=crop" 
-                    alt="Christmas Fireplace" 
+                  <img
+                    src="https://images.unsplash.com/photo-1512389098783-66b81f86e199?w=600&h=800&fit=crop"
+                    alt="Christmas Fireplace"
                     className="w-full h-full object-cover rounded-xl shadow-2xl"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-xl"></div>
@@ -100,106 +100,109 @@ const Login = () => {
 
             {/* Right Side - Login Form */}
             <div className="bg-white p-10 border-l-2 border-red-200" data-aos="zoom-in">
-            <div className="text-center mb-8" data-aos="fade-down" data-aos-delay="100">
-              <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2"> Welcome Back!</h1>
-              <p className="text-gray-700">Sign in to your Christmas account </p>
-            </div>
-
-            <form onSubmit={handleSubmit} data-aos="fade-up" data-aos-delay="200">
-              <div className="mb-5">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Email Address
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      email: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-3 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                  placeholder="you@example.com"
-                  required
-                />
+              <div className="text-center mb-8" data-aos="fade-down" data-aos-delay="100">
+                <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2"> Welcome Back!</h1>
+                <p className="text-gray-700">Sign in to your Christmas account </p>
               </div>
 
-              <div className="mb-6">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      password: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-3 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-
-              {isError && (
-                <div className={`border-2 px-4 mb-5 py-3 rounded-lg font-medium ${requestSuccess ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
-                  {isError}
+              <form onSubmit={handleSubmit} data-aos="fade-up" data-aos-delay="200">
+                <div className="mb-5">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        email: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                    placeholder="you@example.com"
+                    required
+                  />
                 </div>
-              )}
 
-              {/* Reactivation Request Button */}
-              {deactivatedInfo && !deactivatedInfo.hasRequested && !requestSuccess && (
+                <div className="mb-6">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        password: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+
+                {isError && (
+                  <div className={`border-2 px-4 mb-5 py-3 rounded-lg font-medium ${requestSuccess ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                    {isError}
+                  </div>
+                )}
+
+                {/* Reactivation Request Button */}
+                {deactivatedInfo && !deactivatedInfo.hasRequested && !requestSuccess && (
+                  <button
+                    type="button"
+                    onClick={handleRequestReactivation}
+                    disabled={requestLoading}
+                    className="w-full mb-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-4 rounded-lg hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  >
+                    {requestLoading ? "Đang gửi yêu cầu..." : "Gửi yêu cầu mở khóa tài khoản"}
+                  </button>
+                )}
+
+                {deactivatedInfo && deactivatedInfo.hasRequested && (
+                  <div className="mb-4 bg-blue-50 border-2 border-blue-200 text-blue-700 px-4 py-3 rounded-lg font-medium text-center">
+                    ✓ Yêu cầu đã được gửi. Vui lòng chờ admin xem xét.
+                  </div>
+                )}
+
                 <button
-                  type="button"
-                  onClick={handleRequestReactivation}
-                  disabled={requestLoading}
-                  className="w-full mb-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-4 rounded-lg hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  {requestLoading ? "Đang gửi yêu cầu..." : "Gửi yêu cầu mở khóa tài khoản"}
+                  {loading ? " Logging in..." : "Sign In"}
                 </button>
-              )}
+              </form>
 
-              {deactivatedInfo && deactivatedInfo.hasRequested && (
-                <div className="mb-4 bg-blue-50 border-2 border-blue-200 text-blue-700 px-4 py-3 rounded-lg font-medium text-center">
-                  ✓ Yêu cầu đã được gửi. Vui lòng chờ admin xem xét.
-                </div>
-              )}
+              <div className="mt-5 text-center text-sm">
+                <Link
+                  to="/forgot-password"
+                  className="text-red-600 hover:text-red-700 font-medium hover:underline"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-              >
-                {loading ? " Logging in..." : "Sign In"}
-              </button>
-            </form>
-
-            <div className="mt-5 text-center text-sm">
-              <Link to="#" className="text-red-600 hover:text-red-700 font-medium hover:underline">
-                Forgot your password?
-              </Link>
-            </div>
-
-            <div className="mt-6 text-center text-sm text-gray-600">
-              Don't have an account?{" "}
-              <Link
-                to="/signup"
-                className="text-red-600 font-bold hover:text-red-700 hover:underline"
-              >
-                Sign up now
-              </Link>
-            </div>
+              <div className="mt-6 text-center text-sm text-gray-600">
+                Don't have an account?{" "}
+                <Link
+                  to="/signup"
+                  className="text-red-600 font-bold hover:text-red-700 hover:underline"
+                >
+                  Sign up now
+                </Link>
+              </div>
             </div>
           </div>
         </div>

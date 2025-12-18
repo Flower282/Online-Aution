@@ -34,19 +34,37 @@ export const verifyPhone = async (phoneNumber) => {
 };
 
 /**
- * Xác minh email
+ * Gửi email xác minh
  */
-export const verifyEmail = async () => {
+export const sendVerificationEmail = async () => {
     try {
         const res = await axios.post(
-            API_ENDPOINTS.VERIFICATION.EMAIL,
+            API_ENDPOINTS.VERIFICATION.EMAIL_SEND,
             {},
             { withCredentials: true }
         );
         return res.data;
     } catch (error) {
-        console.error("Error verifying email:", error.message);
-        throw new Error(error.response?.data?.error || "Failed to verify email");
+        console.error("Error sending verification email:", error.message);
+        throw new Error(error.response?.data?.error || "Failed to send verification email");
+    }
+};
+
+/**
+ * Xác minh email qua token (public route)
+ */
+export const verifyEmailToken = async (token) => {
+    try {
+        // Encode token để đảm bảo URL encoding đúng
+        const encodedToken = encodeURIComponent(token);
+        const res = await axios.get(
+            `${API_ENDPOINTS.VERIFICATION.EMAIL_VERIFY}?token=${encodedToken}`
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error verifying email token:", error.message);
+        const errorMessage = error.response?.data?.error || "Failed to verify email";
+        throw new Error(errorMessage);
     }
 };
 

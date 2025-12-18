@@ -13,6 +13,9 @@ import { AuctionList } from "../pages/AuctionList";
 // import TermsOfService from "../pages/legal/TermsOfService";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
+import VerifyEmail from "../pages/VerifyEmail";
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 
 export const openRoutes = [
   {
@@ -33,6 +36,21 @@ export const openRoutes = [
       {
         path: "signup",
         element: <Signup />,
+        errorElement: <Error />,
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPassword />,
+        errorElement: <Error />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPassword />,
+        errorElement: <Error />,
+      },
+      {
+        path: "verify-email",
+        element: <VerifyEmail />,
         errorElement: <Error />,
       },
       {
