@@ -14,6 +14,7 @@ import ProfileCompletionModal from "../components/ProfileCompletionModal.jsx";
 export const ViewAuction = () => {
   const { id } = useParams();
   const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.user?.role === "admin";
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const inputRef = useRef();
@@ -656,20 +657,22 @@ export const ViewAuction = () => {
                     {isActive ? "Active" : "Ended"}
                   </span>
                 </div>
-                {/* Like Button */}
-                <button
-                  onClick={handleLike}
-                  disabled={isLiking}
-                  className="flex items-center gap-2 px-4 py-2 rounded-md transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{
-                    backgroundColor: isLiked ? '#fee2e2' : '#f9fafb',
-                    border: isLiked ? '2px solid #ef4444' : '2px solid #e5e7eb'
-                  }}
-                >
-                  <span className={`font-semibold text-sm ${isLiked ? 'text-red-600' : 'text-gray-700'}`}>
-                    {likesCount}
-                  </span>
-                </button>
+                {/* Like Button - Hidden for admin */}
+                {!isAdmin && (
+                  <button
+                    onClick={handleLike}
+                    disabled={isLiking}
+                    className="flex items-center gap-2 px-4 py-2 rounded-md transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      backgroundColor: isLiked ? '#fee2e2' : '#f9fafb',
+                      border: isLiked ? '2px solid #ef4444' : '2px solid #e5e7eb'
+                    }}
+                  >
+                    <span className={`font-semibold text-sm ${isLiked ? 'text-red-600' : 'text-gray-700'}`}>
+                      {likesCount}
+                    </span>
+                  </button>
+                )}
               </div>
               <div className="flex items-start justify-between gap-4 mb-3">
                 <h1 className="text-2xl font-bold text-gray-900 flex-1">
@@ -860,8 +863,8 @@ export const ViewAuction = () => {
                 </div>
               )}
 
-              {/* Deposit Status & Bid Form - Only show if approved */}
-              {data.seller._id != user.user._id && isActive && !isSellerInactive && isApproved && (
+              {/* Deposit Status & Bid Form - Only show if approved and not admin */}
+              {data.seller._id != user.user._id && isActive && !isSellerInactive && isApproved && !isAdmin && (
                 <div className="bg-white p-6 rounded-md shadow-md border border-green-200 md:col-span-2">
                   {/* Deposit Status - Loading */}
                   {!depositStatus && (
@@ -1044,8 +1047,8 @@ export const ViewAuction = () => {
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-red-700 mb-6">Bid History</h2>
           <div className="relative">
-            {/* Blur overlay khi chưa đặt cọc - chỉ hiện khi không phải chủ sở hữu và auction đang active và approved */}
-            {data.seller._id !== user?.user?._id && isActive && isApproved && !depositStatus?.hasDeposit && (
+            {/* Blur overlay khi chưa đặt cọc - chỉ hiện khi không phải chủ sở hữu và auction đang active và approved và không phải admin */}
+            {data.seller._id !== user?.user?._id && isActive && isApproved && !depositStatus?.hasDeposit && !isAdmin && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm rounded-md">
                 <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-amber-200 text-center max-w-sm mx-4">
                   <h3 className="text-lg font-bold text-gray-800 mb-2">
@@ -1059,7 +1062,7 @@ export const ViewAuction = () => {
               </div>
             )}
 
-            <div className={`bg-white rounded-md shadow-md border border-red-200 overflow-hidden ${data.seller._id !== user?.user?._id && isActive && isApproved && !depositStatus?.hasDeposit
+            <div className={`bg-white rounded-md shadow-md border border-red-200 overflow-hidden ${data.seller._id !== user?.user?._id && isActive && isApproved && !depositStatus?.hasDeposit && !isAdmin
               ? 'blur-sm select-none pointer-events-none'
               : ''
               }`}>

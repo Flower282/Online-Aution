@@ -13,20 +13,6 @@ import { getPendingAuctions, getPendingReactivationRequests } from "../api/admin
 import { getWonAuctions, getAuctions } from "../api/auction";
 import { getPendingVerifications } from "../api/verification";
 
-// Static pages for search
-const staticPages = [
-  { name: "Trang chủ", link: "/", icon: Home, keywords: ["home", "trang chu", "dashboard"] },
-  { name: "Đấu giá", link: "/auction", icon: Gavel, keywords: ["auction", "dau gia", "san pham"] },
-  { name: "Tạo đấu giá", link: "/create", icon: Plus, keywords: ["create", "tao", "dang ban", "moi"] },
-  { name: "Đấu giá của tôi", link: "/myauction", icon: Package, keywords: ["my auction", "cua toi", "san pham cua toi"] },
-  { name: "Đấu giá đã thắng", link: "/won", icon: Trophy, keywords: ["won", "thang", "chien thang"] },
-  { name: "Tiền cọc", link: "/deposits", icon: Wallet, keywords: ["deposit", "tien coc", "dat coc"] },
-  { name: "Yêu thích", link: "/favorites", icon: Heart, keywords: ["favorite", "yeu thich", "like"] },
-  { name: "Hồ sơ", link: "/profile", icon: UserCircle, keywords: ["profile", "ho so", "tai khoan", "account"] },
-  { name: "Giới thiệu", link: "/about", icon: Info, keywords: ["about", "gioi thieu", "ve chung toi"] },
-  { name: "Liên hệ", link: "/contact", icon: Phone, keywords: ["contact", "lien he", "ho tro"] },
-];
-
 export const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -35,6 +21,29 @@ export const Navbar = () => {
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
   const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.user?.role === "admin";
+
+  // Static pages for search - Filter out Favorites for admin
+  const staticPages = useMemo(() => {
+    const pages = [
+      { name: "Trang chủ", link: "/", icon: Home, keywords: ["home", "trang chu", "dashboard"] },
+      { name: "Đấu giá", link: "/auction", icon: Gavel, keywords: ["auction", "dau gia", "san pham"] },
+      { name: "Tạo đấu giá", link: "/create", icon: Plus, keywords: ["create", "tao", "dang ban", "moi"] },
+      { name: "Đấu giá của tôi", link: "/myauction", icon: Package, keywords: ["my auction", "cua toi", "san pham cua toi"] },
+      { name: "Đấu giá đã thắng", link: "/won", icon: Trophy, keywords: ["won", "thang", "chien thang"] },
+      { name: "Tiền cọc", link: "/deposits", icon: Wallet, keywords: ["deposit", "tien coc", "dat coc"] },
+      { name: "Yêu thích", link: "/favorites", icon: Heart, keywords: ["favorite", "yeu thich", "like"] },
+      { name: "Hồ sơ", link: "/profile", icon: UserCircle, keywords: ["profile", "ho so", "tai khoan", "account"] },
+      { name: "Giới thiệu", link: "/about", icon: Info, keywords: ["about", "gioi thieu", "ve chung toi"] },
+      { name: "Liên hệ", link: "/contact", icon: Phone, keywords: ["contact", "lien he", "ho tro"] },
+    ];
+    
+    // Filter out Favorites for admin
+    if (isAdmin) {
+      return pages.filter(page => page.link !== "/favorites");
+    }
+    return pages;
+  }, [isAdmin]);
 
   // Search states
   const [searchTerm, setSearchTerm] = useState("");
@@ -470,8 +479,8 @@ export const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Favorites button - always visible for logged in users */}
-            {user && (
+            {/* Favorites button - hidden for admin */}
+            {user && !isAdmin && (
               <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-red-50 text-red-500 hover:text-red-600 transition-colors" asChild>
                 <Link to="/favorites" title="Yêu thích">
                   <Heart className="h-5 w-5" />
@@ -782,6 +791,7 @@ const dropdownMenuItems = [
   { name: "My Auction", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
   { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-amber-500" },
   { name: "My Deposits", link: "/deposits", icon: Wallet, iconColor: "text-emerald-500" },
+  { name: "Favorites", link: "/favorites", icon: Heart, iconColor: "text-red-500" },
   { name: "Profile", link: "/profile", icon: Settings, iconColor: "text-gray-500" },
   { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
 ];
@@ -810,6 +820,7 @@ const protectedNavLink = [
   { name: "My Auction", link: "/myauction" },
   { name: "Won Auctions", link: "/won" },
   { name: "My Deposits", link: "/deposits" },
+  { name: "Favorites", link: "/favorites" },
   { name: "Contact", link: "/contact" },
   { name: "Profile", link: "/profile" },
   { name: "Privacy", link: "/privacy" },

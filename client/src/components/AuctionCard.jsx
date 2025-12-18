@@ -1,11 +1,15 @@
 import { Link } from "react-router";
 import { Heart } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { toggleLikeAuction } from "../api/auction";
 import { toast } from "sonner";
 import { formatCurrency } from "../utils/formatCurrency";
 
 export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.user?.role === "admin";
+  
   const timeLeft = auction.timeLeft || 0;
   const sellerName = auction?.sellerName || auction?.seller?.name;
   const isSellerInactive = auction?.sellerActive === false || sellerName === "Tài khoản bị vô hiệu hóa";
@@ -80,17 +84,19 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
               }`}
           />
 
-          {/* Like Button */}
-          <button
-            className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-300 ${isLiked
-              ? 'bg-red-500 hover:bg-red-600 text-white scale-110'
-              : 'bg-white/90 hover:bg-red-50 text-red-500'
-              } shadow-md hover:shadow-lg`}
-            onClick={handleLike}
-            disabled={isLiking}
-          >
-            <Heart className={`h-3.5 w-3.5 ${isLiked ? 'fill-current' : ''}`} />
-          </button>
+          {/* Like Button - Hidden for admin */}
+          {!isAdmin && (
+            <button
+              className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-300 ${isLiked
+                ? 'bg-red-500 hover:bg-red-600 text-white scale-110'
+                : 'bg-white/90 hover:bg-red-50 text-red-500'
+                } shadow-md hover:shadow-lg`}
+              onClick={handleLike}
+              disabled={isLiking}
+            >
+              <Heart className={`h-3.5 w-3.5 ${isLiked ? 'fill-current' : ''}`} />
+            </button>
+          )}
 
           {/* Status Badges */}
           {isPending && !isEnded && (
@@ -158,7 +164,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           )}
 
           {/* Bid Now Button */}
-          {!isEnded && !isPending && !isRejected && (
+          {!isEnded && !isPending && !isRejected && !isAdmin && (
             <button
               className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-auto"
               onClick={(e) => {
