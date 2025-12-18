@@ -80,8 +80,8 @@ export const createDeposit = async (req, res) => {
             return res.status(400).json({ error: 'Invalid product ID' });
         }
 
-        // Kiểm tra xác minh tài khoản và thông tin cá nhân
-        const user = await User.findById(userId).select('verification.isVerified phone address location.city location.region');
+        // Kiểm tra xác minh tài khoản và thông tin cá nhân + số dư ví
+        const user = await User.findById(userId).select('verification.isVerified verification.phone.number phone address location.city location.region location.ward balance');
         if (!user?.verification?.isVerified) {
             return res.status(403).json({
                 error: 'Bạn cần xác minh tài khoản trước khi đặt cọc',
@@ -89,17 +89,22 @@ export const createDeposit = async (req, res) => {
             });
         }
 
+        // Get phone number from verification.phone.number (if verified) or fallback to user.phone
+        const phoneNumber = user.verification?.phone?.number || user.phone || null;
+        // Get region from location.region or location.ward (ward is mapped to region in updateProfile)
+        const region = user.location?.region || user.location?.ward || null;
+
         // Kiểm tra thông tin cá nhân đầy đủ
-        const isProfileComplete = user.phone && user.address && user.location?.city && user.location?.region;
+        const isProfileComplete = phoneNumber && user.address && user.location?.city && region;
         if (!isProfileComplete) {
             return res.status(403).json({
-                error: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, quận/huyện) trước khi đặt cọc',
+                error: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, phường/xã) trước khi đặt cọc',
                 code: 'PROFILE_INCOMPLETE',
                 missingFields: {
-                    phone: !user.phone,
+                    phone: !phoneNumber,
                     address: !user.address,
                     city: !user.location?.city,
-                    region: !user.location?.region
+                    region: !region
                 }
             });
         }
@@ -154,6 +159,59 @@ export const createDeposit = async (req, res) => {
             (product.startingPrice * product.depositPercentage) / 100
         );
 
+        // ==================== KIỂM TRA VÀ TRỪ TIỀN TỪ VÍ ====================
+        // Chỉ cho phép thanh toán bằng ví (wallet) để đảm bảo kiểm tra số dư
+        if (paymentMethod !== 'wallet') {
+            return res.status(400).json({
+                error: 'Hiện tại chỉ hỗ trợ thanh toán bằng ví. Vui lòng nạp tiền vào ví trước khi đặt cọc.',
+                code: 'WALLET_ONLY',
+                supportedMethods: ['wallet']
+            });
+        }
+
+        // Kiểm tra số dư ví có đủ để đặt cọc không
+        const currentBalance = user.balance || 0;
+        if (currentBalance < depositAmount) {
+            return res.status(400).json({
+                error: 'Số dư ví không đủ để đặt cọc',
+                code: 'INSUFFICIENT_WALLET_BALANCE',
+                currentBalance,
+                requiredAmount: depositAmount,
+                missingAmount: depositAmount - currentBalance
+            });
+        }
+
+        // Trừ tiền từ ví ngay khi đặt cọc
+        const previousBalance = currentBalance;
+        user.balance = previousBalance - depositAmount;
+        await user.save();
+        console.log(`💰 Wallet deposit: User ${userId} -${depositAmount}. Balance: ${previousBalance} -> ${user.balance}`);
+
+        // Tạo transaction record cho đặt cọc
+        try {
+            const Transaction = (await import('../models/transaction.js')).default;
+            await Transaction.create({
+                user: userId,
+                type: 'deposit',
+                amount: depositAmount,
+                status: 'completed',
+                paymentMethod: 'wallet',
+                paymentGateway: 'wallet',
+                gatewayOrderId: productId.toString(),
+                notes: `Đặt cọc cho sản phẩm: ${product.itemName}`,
+                balanceBefore: previousBalance,
+                balanceAfter: user.balance,
+                relatedAuction: productId,
+                relatedDeposit: null, // Will be updated after deposit is created
+                completedAt: new Date()
+            });
+            console.log(`✅ Deposit transaction created for user ${userId}, amount ${depositAmount}`);
+        } catch (transactionError) {
+            console.error('❌ Error creating deposit transaction record:', transactionError);
+            console.error('❌ Transaction error details:', transactionError.message);
+            // Không block deposit nếu transaction record fail
+        }
+
         // Create or update deposit
         const deposit = await Deposit.findOneAndUpdate(
             { user: userId, product: productId },
@@ -169,6 +227,18 @@ export const createDeposit = async (req, res) => {
             { upsert: true, new: true }
         );
 
+        // Update transaction record with deposit ID
+        try {
+            const Transaction = (await import('../models/transaction.js')).default;
+            await Transaction.findOneAndUpdate(
+                { user: userId, gatewayOrderId: productId.toString(), type: 'deposit', status: 'completed' },
+                { relatedDeposit: deposit._id },
+                { sort: { createdAt: -1 } }
+            );
+        } catch (transactionError) {
+            console.error('Error updating deposit transaction record:', transactionError);
+        }
+
         res.status(200).json({
             message: 'Deposit submitted successfully. You can now bid on this auction!',
             deposit: {
@@ -178,7 +248,8 @@ export const createDeposit = async (req, res) => {
                 paymentMethod: deposit.paymentMethod,
                 paidAt: deposit.paidAt
             },
-            canBid: true
+            canBid: true,
+            newBalance: user.balance
         });
     } catch (error) {
         console.error('Error creating deposit:', error);
@@ -205,7 +276,53 @@ export const getMyDeposits = async (req, res) => {
             .populate('product', 'itemName itemPhoto currentPrice startingPrice itemEndDate seller')
             .sort({ createdAt: -1 });
 
-        // Calculate stats
+        // Tính toán lịch sử dòng tiền (cash flow) cho ví
+        // moneyIn: tiền hoàn về ví từ cọc (refunded, chỉ tính paymentMethod = wallet)
+        // moneyOut: tiền đã trừ khỏi ví khi đặt cọc (paid/deducted, chỉ tính paymentMethod = wallet)
+        let moneyIn = 0;
+        let moneyOut = 0;
+
+        const formattedDeposits = deposits.map(d => {
+            let walletFlow = 'none'; // 'in' | 'out' | 'none'
+            let walletChange = 0;
+
+            if (d.paymentMethod === 'wallet') {
+                if (d.status === 'paid' || d.status === 'deducted') {
+                    walletFlow = 'out';
+                    walletChange = -d.amount;
+                    moneyOut += d.amount;
+                } else if (d.status === 'refunded') {
+                    walletFlow = 'in';
+                    walletChange = d.amount;
+                    moneyIn += d.amount;
+                }
+            }
+
+            return {
+                id: d._id,
+                amount: d.amount,
+                status: d.status,
+                paymentMethod: d.paymentMethod,
+                transactionId: d.transactionId,
+                paidAt: d.paidAt,
+                refundedAt: d.refundedAt,
+                deductedAt: d.deductedAt,
+                product: d.product ? {
+                    id: d.product._id,
+                    itemName: d.product.itemName,
+                    itemPhoto: d.product.itemPhoto,
+                    currentPrice: d.product.currentPrice,
+                    startingPrice: d.product.startingPrice,
+                    itemEndDate: d.product.itemEndDate,
+                    isEnded: new Date(d.product.itemEndDate) < new Date()
+                } : null,
+                createdAt: d.createdAt,
+                // Thông tin cash flow
+                walletFlow,       // 'in' | 'out' | 'none'
+                walletChange      // âm: tiền ra, dương: tiền vào, 0: không ảnh hưởng ví
+            };
+        });
+
         const stats = {
             total: deposits.length,
             paid: deposits.filter(d => d.status === 'paid').length,
@@ -214,30 +331,12 @@ export const getMyDeposits = async (req, res) => {
             totalAmount: deposits.reduce((sum, d) => sum + d.amount, 0),
             refundedAmount: deposits
                 .filter(d => d.status === 'refunded')
-                .reduce((sum, d) => sum + d.amount, 0)
+                .reduce((sum, d) => sum + d.amount, 0),
+            // Thêm thống kê dòng tiền ví
+            walletMoneyIn: moneyIn,
+            walletMoneyOut: moneyOut,
+            walletNet: moneyIn - moneyOut
         };
-
-        // Format deposits
-        const formattedDeposits = deposits.map(d => ({
-            id: d._id,
-            amount: d.amount,
-            status: d.status,
-            paymentMethod: d.paymentMethod,
-            transactionId: d.transactionId,
-            paidAt: d.paidAt,
-            refundedAt: d.refundedAt,
-            deductedAt: d.deductedAt,
-            product: d.product ? {
-                id: d.product._id,
-                itemName: d.product.itemName,
-                itemPhoto: d.product.itemPhoto,
-                currentPrice: d.product.currentPrice,
-                startingPrice: d.product.startingPrice,
-                itemEndDate: d.product.itemEndDate,
-                isEnded: new Date(d.product.itemEndDate) < new Date()
-            } : null,
-            createdAt: d.createdAt
-        }));
 
         res.status(200).json({
             stats,
@@ -285,7 +384,23 @@ export const processAuctionDeposits = async (productId, winnerId) => {
                 deposit.status = 'refunded';
                 deposit.refundedAt = now;
                 deposit.notes = 'Deposit refunded - auction lost';
-                // TODO: Process actual refund via payment gateway
+
+                // Nếu đặt cọc bằng ví, hoàn tiền lại vào ví người dùng
+                if (deposit.paymentMethod === 'wallet') {
+                    try {
+                        const user = await User.findById(deposit.user);
+                        if (user) {
+                            const previousBalance = user.balance || 0;
+                            user.balance = previousBalance + deposit.amount;
+                            await user.save();
+                            console.log(`💸 Wallet refund: User ${user._id} +${deposit.amount}. Balance: ${previousBalance} -> ${user.balance}`);
+                        }
+                    } catch (walletErr) {
+                        console.error('Error refunding wallet for deposit:', walletErr);
+                    }
+                }
+
+                // TODO: Process actual refund via payment gateway for other methods
                 refunded++;
             }
             await deposit.save();

@@ -1,23 +1,16 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getWonAuctions, getDepositInfo, submitDeposit } from "../api/auction";
+import { useQuery } from "@tanstack/react-query";
+import { getWonAuctions } from "../api/auction";
 import LoadingScreen from "../components/LoadingScreen";
 import { Package, Clock, CheckCircle, AlertCircle, DollarSign, Trophy, Users, Eye, Store } from "lucide-react";
 import Toast from "../components/Toast";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { formatCurrency } from "../utils/formatCurrency";
 
 export default function WonAuctions() {
-    const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const [toast, setToast] = useState(null);
-    const [selectedAuction, setSelectedAuction] = useState(null);
-    const [showDepositModal, setShowDepositModal] = useState(false);
     const [activeTab, setActiveTab] = useState('won'); // 'won', 'participated', 'myAuctions'
-    const [depositForm, setDepositForm] = useState({
-        paymentMethod: '',
-        transactionId: '',
-        amount: 0
-    });
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["wonAuctions"],
@@ -25,87 +18,40 @@ export default function WonAuctions() {
         staleTime: 30 * 1000,
     });
 
-    const submitDepositMutation = useMutation({
-        mutationFn: ({ auctionId, depositData }) => submitDeposit(auctionId, depositData),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["wonAuctions"] });
-            setShowDepositModal(false);
-            setToast({ message: "Đặt cọc thành công! 🎉", type: "success" });
-            setDepositForm({ paymentMethod: '', transactionId: '', amount: 0 });
-        },
-        onError: (error) => {
-            setToast({ message: error.message || "Không thể đặt cọc. Vui lòng thử lại.", type: "error" });
-        },
-    });
-
-    const handleOpenDepositModal = async (auction) => {
-        try {
-            const depositInfo = await getDepositInfo(auction._id);
-            setSelectedAuction(depositInfo.auction);
-            setDepositForm({
-                ...depositForm,
-                amount: depositInfo.auction.depositAmount
-            });
-            setShowDepositModal(true);
-        } catch (_error) {
-            setToast({ message: "Không thể tải thông tin đặt cọc", type: "error" });
-        }
-    };
-
-    const handleSubmitDeposit = (e) => {
-        e.preventDefault();
-
-        if (!depositForm.paymentMethod) {
-            setToast({ message: "Vui lòng chọn phương thức thanh toán", type: "error" });
-            return;
-        }
-
-        submitDepositMutation.mutate({
-            auctionId: selectedAuction.id,
-            depositData: depositForm
-        });
-    };
-
     const getStatusBadge = (auction) => {
-        if (auction.depositPaid) {
+        // Thanh toán cho người thắng
+        const status = auction.paymentStatus || 'pending';
+
+        if (status === 'paid') {
             return (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
                     <CheckCircle className="h-4 w-4" />
-                    Đã đặt cọc
+                    Đã thanh toán
                 </span>
             );
         }
 
-        if (auction.depositDeadline) {
-            const deadline = new Date(auction.depositDeadline);
-            const now = new Date();
-            const isExpired = now > deadline;
-
-            if (isExpired) {
-                return (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
-                        <AlertCircle className="h-4 w-4" />
-                        Quá hạn
-                    </span>
-                );
-            }
-
+        // Kiểm tra quá hạn
+        if (status === 'expired' || (auction.paymentDeadline && new Date() > new Date(auction.paymentDeadline))) {
             return (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">
-                    <Clock className="h-4 w-4" />
-                    Chờ đặt cọc
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+                    <AlertCircle className="h-4 w-4" />
+                    Quá hạn thanh toán
                 </span>
             );
         }
 
+        // Mặc định: đang chờ thanh toán
         return (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
-                Chờ xử lý
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">
+                <Clock className="h-4 w-4" />
+                Chờ thanh toán
             </span>
         );
     };
 
     const getMyAuctionStatusBadge = (auction) => {
+        // Góc nhìn người bán
         if (!auction.winner) {
             return (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
@@ -114,28 +60,32 @@ export default function WonAuctions() {
             );
         }
 
-        if (auction.depositPaid) {
+        const paymentStatus = auction.paymentStatus || (auction.auctionStatus === 'completed' ? 'paid' : 'pending');
+
+        if (paymentStatus === 'paid') {
             return (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
                     <CheckCircle className="h-4 w-4" />
-                    Đã nhận cọc
+                    Người thắng đã thanh toán
                 </span>
             );
         }
 
-        if (auction.depositRequired) {
+        // Quá hạn thanh toán (nhưng chưa thanh toán)
+        if (auction.paymentDeadline && new Date() > new Date(auction.paymentDeadline)) {
             return (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">
-                    <Clock className="h-4 w-4" />
-                    Chờ đặt cọc
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+                    <AlertCircle className="h-4 w-4" />
+                    Quá hạn thanh toán
                 </span>
             );
         }
 
+        // Mặc định: đang chờ người thắng thanh toán
         return (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
-                <CheckCircle className="h-4 w-4" />
-                Đã bán
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">
+                <Clock className="h-4 w-4" />
+                Chờ người thắng thanh toán
             </span>
         );
     };
@@ -210,15 +160,15 @@ export default function WonAuctions() {
                     </div>
                     <div className="p-6 rounded-lg bg-gradient-to-br from-yellow-100 to-yellow-200 border-2 border-yellow-300">
                         <p className="text-3xl font-bold text-yellow-700">
-                            {wonAuctions.filter(a => !a.depositPaid && a.depositRequired).length}
+                            {wonAuctions.filter(a => (a.paymentStatus || 'pending') === 'pending').length}
                         </p>
-                        <p className="text-sm text-yellow-800 font-medium">Chờ đặt cọc</p>
+                        <p className="text-sm text-yellow-800 font-medium">Chờ thanh toán</p>
                     </div>
                     <div className="p-6 rounded-lg bg-gradient-to-br from-emerald-100 to-emerald-200 border-2 border-emerald-300">
                         <p className="text-3xl font-bold text-emerald-700">
-                            {wonAuctions.filter(a => a.depositPaid).length}
+                            {wonAuctions.filter(a => a.paymentStatus === 'paid').length}
                         </p>
-                        <p className="text-sm text-emerald-800 font-medium">Đã hoàn tất</p>
+                        <p className="text-sm text-emerald-800 font-medium">Đã thanh toán</p>
                     </div>
                 </div>
 
@@ -300,32 +250,54 @@ export default function WonAuctions() {
                                                 </div>
                                                 <p className="text-gray-600 line-clamp-2">{auction.itemDescription}</p>
 
-                                                <div className="flex flex-wrap gap-4 text-sm">
+                                                <div className="flex flex-col gap-1 text-sm">
                                                     <div>
                                                         <span className="text-gray-500">Giá thắng:</span>
                                                         <span className="ml-2 font-bold text-green-600 text-lg">
-                                                            {formatCurrency(auction.currentPrice)}
+                                                            {formatCurrency(auction.finalPrice || auction.currentPrice)}
                                                         </span>
                                                     </div>
-                                                    {auction.depositRequired && (
+                                                    {auction.depositRequired && auction.depositAmount > 0 && (
                                                         <div>
-                                                            <span className="text-gray-500">Tiền cọc:</span>
+                                                            <span className="text-gray-500">Đã đặt cọc:</span>
                                                             <span className="ml-2 font-bold text-orange-600">
                                                                 {formatCurrency(auction.depositAmount)}
                                                             </span>
+                                                            {auction.depositPercentage && (
+                                                                <span className="ml-1 text-xs text-gray-500">
+                                                                    ({auction.depositPercentage}% giá thắng)
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     )}
+                                                    <div>
+                                                        <span className="text-gray-500">Số tiền cần thanh toán:</span>
+                                                        <span className="ml-2 font-bold text-blue-600 text-lg">
+                                                            {formatCurrency(
+                                                                (auction.finalPrice || auction.currentPrice) -
+                                                                (auction.depositRequired ? (auction.depositAmount || 0) : 0)
+                                                            )}
+                                                        </span>
+                                                    </div>
                                                 </div>
 
-                                                <div className="text-sm text-gray-500">
-                                                    <Clock className="inline h-4 w-4 mr-1" />
-                                                    Kết thúc: {formatDate(auction.itemEndDate)}
-                                                </div>
+                                                {auction.paymentDeadline && (
+                                                    <div className="text-sm font-semibold">
+                                                        <AlertCircle className="inline h-4 w-4 mr-1 text-orange-500" />
+                                                        Hạn thanh toán:{" "}
+                                                        <span className="text-red-600">
+                                                            {formatDate(auction.paymentDeadline)}
+                                                        </span>
+                                                    </div>
+                                                )}
 
-                                                {auction.depositDeadline && !auction.depositPaid && (
-                                                    <div className="text-sm text-red-600 font-semibold">
-                                                        <AlertCircle className="inline h-4 w-4 mr-1" />
-                                                        Hạn đặt cọc: {formatDate(auction.depositDeadline)}
+                                                {auction.seller && (
+                                                    <div className="text-sm text-gray-600 mt-1">
+                                                        <Store className="inline h-4 w-4 mr-1 text-purple-500" />
+                                                        Người bán:{" "}
+                                                        <span className="font-semibold">
+                                                            {auction.seller.name + " - " + auction.seller.email || "Người bán"}
+                                                        </span>
                                                     </div>
                                                 )}
                                             </div>
@@ -336,20 +308,21 @@ export default function WonAuctions() {
                                                     {getStatusBadge(auction)}
                                                 </div>
 
-                                                {auction.depositRequired && !auction.depositPaid && (
+                                                {/* Nút chuyển sang trang thanh toán cho người thắng */}
+                                                {(auction.paymentStatus || "pending") === "pending" && (
                                                     <button
-                                                        onClick={() => handleOpenDepositModal(auction)}
+                                                        onClick={() => navigate(`/payment/${auction._id}`)}
                                                         className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors font-semibold flex items-center justify-center gap-2"
                                                     >
                                                         <DollarSign className="h-5 w-5" />
-                                                        Đặt Cọc Ngay
+                                                        Thanh Toán Ngay
                                                     </button>
                                                 )}
 
-                                                {auction.depositPaid && (
+                                                {auction.paymentStatus === 'paid' && auction.paymentCompletedAt && (
                                                     <div className="text-center text-sm text-gray-600">
                                                         <CheckCircle className="inline h-5 w-5 text-green-500 mr-1" />
-                                                        Đã đặt cọc: {formatDate(auction.depositPaidAt)}
+                                                        Đã thanh toán: {formatDate(auction.paymentCompletedAt)}
                                                     </div>
                                                 )}
                                             </div>
@@ -402,7 +375,7 @@ export default function WonAuctions() {
                                                 <h3 className="text-xl font-bold text-gray-800">{auction.itemName}</h3>
                                                 <p className="text-gray-600 line-clamp-2">{auction.itemDescription}</p>
 
-                                                <div className="flex flex-wrap gap-4 text-sm">
+                                                <div className="flex flex-wrap items-center gap-4 text-sm">
                                                     <div>
                                                         <span className="text-gray-500">Giá cuối:</span>
                                                         <span className="ml-2 font-bold text-green-600 text-lg">
@@ -502,16 +475,16 @@ export default function WonAuctions() {
                                                 </div>
                                                 <p className="text-gray-600 line-clamp-2">{auction.itemDescription}</p>
 
-                                                <div className="flex flex-wrap gap-4 text-sm">
-                                                    <div>
+                                                <div className="flex items-baseline gap-6 text-sm flex-wrap md:flex-nowrap">
+                                                    <div className="flex items-baseline gap-2">
                                                         <span className="text-gray-500">Giá khởi điểm:</span>
-                                                        <span className="ml-2 font-bold text-gray-600">
+                                                        <span className="font-bold text-gray-600">
                                                             {formatCurrency(auction.startingPrice)}
                                                         </span>
                                                     </div>
-                                                    <div>
+                                                    <div className="flex items-baseline gap-2">
                                                         <span className="text-gray-500">Giá cuối:</span>
-                                                        <span className="ml-2 font-bold text-green-600 text-lg">
+                                                        <span className="font-bold text-green-600 text-lg">
                                                             {formatCurrency(auction.currentPrice)}
                                                         </span>
                                                     </div>
@@ -551,16 +524,17 @@ export default function WonAuctions() {
                                                     )}
                                                 </div>
 
-                                                {auction.depositRequired && auction.winner && (
+                                                {/* Thông tin tiền người bán nhận được */}
+                                                {auction.winner && (
                                                     <div className="text-sm">
-                                                        <p className="text-gray-500">Tiền cọc cần nhận:</p>
-                                                        <p className="font-bold text-orange-600 text-lg">
-                                                            {formatCurrency(auction.depositAmount)}
+                                                        <p className="text-gray-500">Tiền người bán nhận:</p>
+                                                        <p className="font-bold text-green-600 text-lg">
+                                                            {formatCurrency(auction.sellerAmount || 0)}
                                                         </p>
-                                                        {auction.depositPaid && (
-                                                            <p className="text-green-600 text-xs mt-1">
-                                                                <CheckCircle className="inline h-4 w-4 mr-1" />
-                                                                Đã nhận: {formatDate(auction.depositPaidAt)}
+                                                        {auction.platformCommissionAmount != null && (
+                                                            <p className="text-xs text-gray-500 mt-1">
+                                                                (Đã trừ phí sàn {auction.platformCommissionPercentage || 10}%:
+                                                                {" "}{formatCurrency(auction.platformCommissionAmount)})
                                                             </p>
                                                         )}
                                                     </div>
@@ -583,74 +557,6 @@ export default function WonAuctions() {
                 )}
             </main>
 
-            {/* Deposit Modal */}
-            {showDepositModal && selectedAuction && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Đặt Cọc</h2>
-
-                        <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
-                            <p className="font-semibold text-gray-700">{selectedAuction.itemName}</p>
-                            <p className="text-2xl font-bold text-green-600 mt-2">
-                                {formatCurrency(selectedAuction.depositAmount)}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                                ({selectedAuction.depositPercentage}% của giá thắng)
-                            </p>
-                        </div>
-
-                        <form onSubmit={handleSubmitDeposit} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Phương thức thanh toán *
-                                </label>
-                                <select
-                                    value={depositForm.paymentMethod}
-                                    onChange={(e) => setDepositForm({ ...depositForm, paymentMethod: e.target.value })}
-                                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    required
-                                >
-                                    <option value="">Chọn phương thức</option>
-                                    <option value="bank_transfer">Chuyển khoản ngân hàng</option>
-                                    <option value="credit_card">Thẻ tín dụng</option>
-                                    <option value="cash">Tiền mặt</option>
-                                    <option value="paypal">PayPal</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    Mã giao dịch (nếu có)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={depositForm.transactionId}
-                                    onChange={(e) => setDepositForm({ ...depositForm, transactionId: e.target.value })}
-                                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    placeholder="Nhập mã giao dịch"
-                                />
-                            </div>
-
-                            <div className="flex gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowDepositModal(false)}
-                                    className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={submitDepositMutation.isPending}
-                                    className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors font-semibold disabled:opacity-50"
-                                >
-                                    {submitDepositMutation.isPending ? "Đang xử lý..." : "Xác Nhận"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

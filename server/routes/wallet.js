@@ -3,22 +3,36 @@ import {
     getBalance,
     topUp,
     withdraw,
-    getTransactionHistory
+    getTransactionHistory,
+    createPaymentRequest,
+    paymentCallback,
+    paymentWebhook
 } from '../controllers/wallet.controller.js';
+import { secureRoute } from '../middleware/auth.js';
 
 const walletRouter = express.Router();
 
-// Get current balance
-walletRouter.get('/balance', getBalance);
+// Get current balance (requires auth)
+walletRouter.get('/balance', secureRoute, getBalance);
 
-// Top up / Add money
-walletRouter.post('/topup', topUp);
+// Create secure payment request for top-up (requires auth)
+walletRouter.post('/payment/request', secureRoute, createPaymentRequest);
 
-// Withdraw money
-walletRouter.post('/withdraw', withdraw);
+// Payment callback from gateway (public - called by payment gateway)
+walletRouter.get('/payment/callback', paymentCallback);
+walletRouter.post('/payment/callback', paymentCallback);
 
-// Get transaction history
-walletRouter.get('/transactions', getTransactionHistory);
+// Payment webhook from gateway (public - called by payment gateway server-to-server)
+walletRouter.post('/payment/webhook', paymentWebhook);
+
+// Top up / Add money (DEPRECATED - use /payment/request instead)
+walletRouter.post('/topup', secureRoute, topUp);
+
+// Withdraw money (requires auth)
+walletRouter.post('/withdraw', secureRoute, withdraw);
+
+// Get transaction history (requires auth)
+walletRouter.get('/transactions', secureRoute, getTransactionHistory);
 
 export default walletRouter;
 

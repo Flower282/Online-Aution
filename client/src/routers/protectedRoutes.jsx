@@ -6,9 +6,11 @@ import { MyAuction } from "../pages/MyAuction";
 import Favorites from "../pages/Favorites";
 import WonAuctions from "../pages/WonAuctions";
 import MyDeposits from "../pages/MyDeposits";
+import TransactionHistory from "../pages/TransactionHistory";
 import Profile from "../pages/Profile";
 import Privacy from "../pages/Privacy";
 import Dashboard from "../pages/Dashboard";
+import PayAuction from "../pages/PayAuction";
 
 export const protectedRoutes = [
   {
@@ -42,8 +44,18 @@ export const protectedRoutes = [
         errorElement: <Error />,
       },
       {
+        path: "payment/:id",
+        element: <PayAuction />,
+        errorElement: <Error />,
+      },
+      {
         path: "deposits",
         element: <MyDeposits />,
+        errorElement: <Error />,
+      },
+      {
+        path: "transactions",
+        element: <TransactionHistory />,
         errorElement: <Error />,
       },
       {

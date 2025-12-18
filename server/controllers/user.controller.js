@@ -15,6 +15,9 @@ export const handleGetUser = async (req, res) => {
         // Select only needed fields for response (include _id for frontend)
         const { _id, name, email, avatar, role, verification, phone, address, location } = user;
 
+        // Get phone number from verification.phone.number (if verified) or fallback to user.phone
+        const phoneNumber = verification?.phone?.number || phone || null;
+
         // Trả về trạng thái xác minh
         const verificationStatus = {
             isVerified: verification?.isVerified || false,
@@ -31,7 +34,7 @@ export const handleGetUser = async (req, res) => {
                 avatar,
                 role,
                 verification: verificationStatus,
-                phone,
+                phone: phoneNumber,
                 address,
                 location
             }

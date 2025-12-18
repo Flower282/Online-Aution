@@ -396,15 +396,58 @@ export const ViewAuction = () => {
   // Check if seller is inactive
   const isSellerInactive = data.seller?.isActive === false;
 
+  // Calculate isActive BEFORE using it in getAuctionStatusInfo
+  const isActive = Math.max(0, new Date(data.itemEndDate) - new Date()) > 0;
+
+  // Product / auction status label for detail page
+  const getAuctionStatusInfo = () => {
+    const auctionStatus = data.auctionStatus; // active, ended, completed, cancelled, expired
+    const paymentStatus = data.paymentStatus; // pending, paid, expired (nếu có)
+
+    // Ưu tiên kiểm tra thời gian: nếu còn thời gian thì luôn là "Đang diễn ra"
+    if (isActive) {
+      // Kiểm tra các trạng thái đặc biệt trước
+      if (auctionStatus === 'cancelled') {
+        return { label: 'Đã hủy', className: 'bg-red-100 text-red-800' };
+      }
+
+      // Nếu còn thời gian và không bị hủy, luôn hiển thị "Đang diễn ra"
+      return { label: 'Đang diễn ra', className: 'bg-green-100 text-green-800' };
+    }
+
+    // Nếu đã hết thời gian, kiểm tra các trạng thái khác
+    if (auctionStatus === 'cancelled') {
+      return { label: 'Đã hủy', className: 'bg-red-100 text-red-800' };
+    }
+
+    if (auctionStatus === 'expired') {
+      return { label: 'Hết hạn (không có người tham gia)', className: 'bg-gray-100 text-gray-800' };
+    }
+
+    if (auctionStatus === 'completed' || paymentStatus === 'paid') {
+      return { label: 'Đã thanh toán / Hoàn tất', className: 'bg-emerald-100 text-emerald-800' };
+    }
+
+    // Đã kết thúc nhưng chưa hoàn tất thanh toán
+    if (auctionStatus === 'ended' || !isActive) {
+      return { label: 'Đã kết thúc, chờ thanh toán', className: 'bg-yellow-100 text-yellow-800' };
+    }
+
+    // Mặc định: đang diễn ra (fallback)
+    return { label: 'Đang diễn ra', className: 'bg-green-100 text-green-800' };
+  };
+
+  const auctionStatusInfo = getAuctionStatusInfo();
+
   const handleBidSubmit = (e) => {
     e.preventDefault();
-    
+
     // Check if user is logged in
     if (!user) {
       navigate("/login", { state: { from: `/auction/${id}` } });
       return;
     }
-    
+
     const bidAmountInThousands = parseFloat(bidInputValue);
 
     if (!bidInputValue || isNaN(bidAmountInThousands) || bidAmountInThousands <= 0) {
@@ -523,7 +566,7 @@ export const ViewAuction = () => {
   const _daysLeft = Math.ceil(
     Math.max(0, new Date(data.itemEndDate) - new Date()) / (1000 * 60 * 60 * 24)
   );
-  const isActive = Math.max(0, new Date(data.itemEndDate) - new Date()) > 0;
+  // isActive is already declared above, before getAuctionStatusInfo()
   const topTenBids = [...(data.bids || [])]
     .sort((a, b) => b.bidAmount - a.bidAmount)
     .slice(0, 10);
@@ -559,13 +602,38 @@ export const ViewAuction = () => {
       setShowDepositModal(false);
       setToast({ message: result.message || "Đặt cọc thành công! Bạn có thể đấu giá ngay.", type: "success" });
     } catch (error) {
+      const errorData = error.response?.data || {};
+      const errorCode = errorData.code;
+
       // Kiểm tra nếu lỗi là do chưa xác minh
-      if (error.message?.includes('xác minh') || error.response?.data?.code === 'VERIFICATION_REQUIRED') {
+      if (error.message?.includes('xác minh') || errorCode === 'VERIFICATION_REQUIRED') {
         setShowDepositModal(false);
         setShowVerificationModal(true);
         return;
       }
-      setToast({ message: error.message || "Không thể đặt cọc. Vui lòng thử lại.", type: "error" });
+
+      // Kiểm tra nếu lỗi là do không đủ tiền trong ví
+      if (errorCode === 'INSUFFICIENT_WALLET_BALANCE') {
+        const currentBalance = errorData.currentBalance || 0;
+        const requiredAmount = errorData.requiredAmount || 0;
+        const missingAmount = errorData.missingAmount || (requiredAmount - currentBalance);
+        setToast({
+          message: `Số dư ví không đủ! Bạn cần ${formatCurrency(requiredAmount)} nhưng chỉ có ${formatCurrency(currentBalance)}. Vui lòng nạp thêm ${formatCurrency(missingAmount)}.`,
+          type: "error"
+        });
+        return;
+      }
+
+      // Kiểm tra nếu chỉ hỗ trợ ví
+      if (errorCode === 'WALLET_ONLY') {
+        setToast({
+          message: errorData.error || "Hiện tại chỉ hỗ trợ thanh toán bằng ví. Vui lòng nạp tiền vào ví trước khi đặt cọc.",
+          type: "error"
+        });
+        return;
+      }
+
+      setToast({ message: error.message || errorData.error || "Không thể đặt cọc. Vui lòng thử lại.", type: "error" });
     } finally {
       setIsSubmittingDeposit(false);
     }
@@ -574,11 +642,17 @@ export const ViewAuction = () => {
   // Check if user profile is complete
   const checkProfileCompleteness = () => {
     const userData = user?.user;
+
+    // Get phone number from verification.phone.number (if verified) or fallback to user.phone
+    const phoneNumber = userData?.verification?.phone?.number || userData?.phone || null;
+    // Get region from location.ward or location.region (backend stores ward in region field)
+    const ward = userData?.location?.ward || userData?.location?.region || null;
+
     const missing = {
-      phone: !userData?.phone,
+      phone: !phoneNumber,
       address: !userData?.address,
       city: !userData?.location?.city,
-      ward: !userData?.location?.ward
+      ward: !ward
     };
 
     const isComplete = !missing.phone && !missing.address && !missing.city && !missing.ward;
@@ -603,14 +677,13 @@ export const ViewAuction = () => {
     setShowDepositModal(true);
   };
 
+  // Chỉ hỗ trợ thanh toán bằng ví
   const paymentMethods = [
-    { id: 'bank_transfer', name: 'Chuyển khoản ngân hàng', emoji: '' },
-    { id: 'credit_card', name: 'Thẻ tín dụng', emoji: '' },
-    { id: 'wallet', name: 'Ví điện tử', emoji: '' },
+    { id: 'wallet', name: 'Ví điện tử', emoji: '💳' },
   ];
 
   // Debug info - after all variables are declared
-  console.log(' Debug Place Bid Visibility:', {
+  console.log('🔍 Debug Place Bid Visibility:', {
     userId: user?.user?._id,
     sellerId: data?.seller?._id,
     isUserSeller: data?.seller?._id === user?.user?._id,
@@ -618,7 +691,11 @@ export const ViewAuction = () => {
     isSellerInactive,
     status: data?.status,
     isApproved,
-    showBidForm: data?.seller?._id !== user?.user?._id && isActive && !isSellerInactive && isApproved
+    isAdmin,
+    depositStatus,
+    hasDeposit: depositStatus?.hasDeposit,
+    showBidFormSection: data?.seller?._id !== user?.user?._id && isActive && !isSellerInactive && isApproved && !isAdmin && user?.user?._id,
+    showBidForm: depositStatus?.hasDeposit === true
   });
 
   return (
@@ -656,12 +733,9 @@ export const ViewAuction = () => {
                     {data.itemCategory}
                   </span>
                   <span
-                    className={`px-2 py-1 rounded-md text-xs font-medium ${isActive
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                      }`}
+                    className={`px-2 py-1 rounded-md text-xs font-medium ${auctionStatusInfo.className}`}
                   >
-                    {isActive ? "Active" : "Ended"}
+                    {auctionStatusInfo.label}
                   </span>
                 </div>
                 {/* Like Button - Hidden for admin */}
@@ -873,161 +947,179 @@ export const ViewAuction = () => {
                 </div>
               )}
 
-              {/* Deposit Status & Bid Form - Only show if approved and not admin */}
-              {data.seller._id != user.user._id && isActive && !isSellerInactive && isApproved && !isAdmin && (
+              {/* Deposit Status & Bid Form - Show when auction is active and user is not seller */}
+              {isActive && data?.seller?._id !== user?.user?._id && !isSellerInactive && isApproved && !isAdmin && (
                 <div className="bg-white p-6 rounded-md shadow-md border border-green-200 md:col-span-2">
-                  {/* Deposit Status - Loading */}
-                  {!depositStatus && (
-                    <div className="mb-4 p-4 rounded-lg border-2 bg-gray-50 border-gray-200 animate-pulse">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <div className="h-4 bg-gray-200 rounded w-48 mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-32"></div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Deposit Status - Loaded */}
-                  {depositStatus && (
-                    <div className={`mb-3 p-3 rounded-lg border-2 ${depositStatus.hasDeposit
-                      ? 'bg-green-50 border-green-300'
-                      : 'bg-amber-50 border-amber-300'
-                      }`}>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1">
-                          <h4 className={`font-semibold text-sm ${depositStatus.hasDeposit ? 'text-green-800' : 'text-amber-800'}`}>
-                            {depositStatus.hasDeposit ? '✓ Đã đặt cọc' : 'Cần đặt cọc trước khi đấu giá'}
-                          </h4>
-
-                        </div>
-
-                      </div>
-                      {depositStatus.hasDeposit && depositStatus.deposit && (
-                        <p className="text-xs text-green-600 mt-2">
-                          Đã cọc lúc: {new Date(depositStatus.deposit.paidAt).toLocaleString('vi-VN')}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Show bid form only if deposited */}
-                  {depositStatus?.hasDeposit ? (
+                  {/* Show only if user is logged in */}
+                  {user?.user?._id ? (
                     <>
-                      <h3 className="text-base font-semibold mb-3">Place Your Bid</h3>
-                      <form onSubmit={handleBidSubmit} className="space-y-3">
-                        {/* Bid Range Info */}
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3">
-                          <div className="flex items-center justify-between text-xs">
-                            <div>
-                              <span className="text-gray-600">Tối thiểu: </span>
-                              <span className="font-bold text-blue-600">
-                                {(() => {
-                                  const basePrice = currentPrice || data.currentPrice;
-                                  if (basePrice < 100000) return (basePrice + 10000).toLocaleString('vi-VN');
-                                  if (basePrice < 1000000) return (basePrice + 100000).toLocaleString('vi-VN');
-                                  if (basePrice < 10000000) return (basePrice + 200000).toLocaleString('vi-VN');
-                                  return (basePrice + 1000000).toLocaleString('vi-VN');
-                                })()} VNĐ
-                              </span>
-                            </div>
-                            <div className="w-px h-4 bg-blue-300"></div>
-                            <div>
-                              <span className="text-gray-600">Tối đa: </span>
-                              <span className="font-bold text-blue-600">
-                                {(() => {
-                                  const basePrice = currentPrice || data.currentPrice;
-                                  if (basePrice < 100000) return (basePrice + 60000).toLocaleString('vi-VN');
-                                  if (basePrice < 1000000) return (basePrice + 600000).toLocaleString('vi-VN');
-                                  if (basePrice < 10000000) return (basePrice + 1200000).toLocaleString('vi-VN');
-                                  return (basePrice + 11000000).toLocaleString('vi-VN');
-                                })()} VNĐ
-                              </span>
+                      {/* Deposit Status - Loading */}
+                      {!depositStatus && (
+                        <div className="mb-4 p-4 rounded-lg border-2 bg-gray-50 border-gray-200 animate-pulse">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1">
+                              <div className="h-4 bg-gray-200 rounded w-48 mb-2"></div>
+                              <div className="h-3 bg-gray-200 rounded w-32"></div>
                             </div>
                           </div>
                         </div>
+                      )}
 
-                        <div>
-                          <label
-                            htmlFor="bidAmount"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                          >
-                            Số tiền đặt giá
-                          </label>
-                          <div className="space-y-2">
-                            <div className="relative">
-                              <input
-                                type="number"
-                                name="bidAmount"
-                                id="bidAmount"
-                                ref={inputRef}
-                                value={bidInputValue}
-                                onChange={(e) => setBidInputValue(e.target.value)}
-                                min={(() => {
-                                  const basePrice = currentPrice || data.currentPrice;
-                                  if (basePrice < 100000) return Math.ceil((basePrice + 10000) / 1000);
-                                  if (basePrice < 1000000) return Math.ceil((basePrice + 100000) / 1000);
-                                  if (basePrice < 10000000) return Math.ceil((basePrice + 200000) / 1000);
-                                  return Math.ceil((basePrice + 1000000) / 1000);
-                                })()}
-                                max={(() => {
-                                  const basePrice = currentPrice || data.currentPrice;
-                                  if (basePrice < 100000) return Math.ceil((basePrice + 60000) / 1000);
-                                  if (basePrice < 1000000) return Math.ceil((basePrice + 600000) / 1000);
-                                  if (basePrice < 10000000) return Math.ceil((basePrice + 1200000) / 1000);
-                                  return Math.ceil((basePrice + 11000000) / 1000);
-                                })()}
-                                step="1"
-                                className="w-full px-3 py-2 pr-24 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                                placeholder="VD: 50"
-                                required
-                              />
+                      {/* Deposit Status - Loaded */}
+                      {depositStatus && (
+                        <div className={`mb-3 p-3 rounded-lg border-2 ${depositStatus.hasDeposit
+                          ? 'bg-green-50 border-green-300'
+                          : 'bg-amber-50 border-amber-300'
+                          }`}>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1">
+                              <h4 className={`font-semibold text-sm ${depositStatus.hasDeposit ? 'text-green-800' : 'text-amber-800'}`}>
+                                {depositStatus.hasDeposit ? '✓ Đã đặt cọc' : 'Cần đặt cọc trước khi đấu giá'}
+                              </h4>
 
                             </div>
-                            {bidInputValue && parseFloat(bidInputValue) > 0 && (
-                              <div className="bg-green-50 border border-green-200 rounded-md px-3 py-2">
-                                <p className="text-sm text-green-700">
-                                  = <span className="font-bold text-lg text-green-800">
-                                    {(parseFloat(bidInputValue) * 1000).toLocaleString('vi-VN')} VNĐ
+
+                          </div>
+                          {depositStatus.hasDeposit && depositStatus.deposit && (
+                            <p className="text-xs text-green-600 mt-2">
+                              Đã cọc lúc: {new Date(depositStatus.deposit.paidAt).toLocaleString('vi-VN')}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Show bid form only if deposited */}
+                      {depositStatus?.hasDeposit ? (
+                        <>
+                          <h3 className="text-base font-semibold mb-3">Place Your Bid</h3>
+                          <form onSubmit={handleBidSubmit} className="space-y-3">
+                            {/* Bid Range Info */}
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3">
+                              <div className="flex items-center justify-between text-xs">
+                                <div>
+                                  <span className="text-gray-600">Tối thiểu: </span>
+                                  <span className="font-bold text-blue-600">
+                                    {(() => {
+                                      const basePrice = currentPrice || data.currentPrice;
+                                      if (basePrice < 100000) return (basePrice + 10000).toLocaleString('vi-VN');
+                                      if (basePrice < 1000000) return (basePrice + 100000).toLocaleString('vi-VN');
+                                      if (basePrice < 10000000) return (basePrice + 200000).toLocaleString('vi-VN');
+                                      return (basePrice + 1000000).toLocaleString('vi-VN');
+                                    })()} VNĐ
                                   </span>
+                                </div>
+                                <div className="w-px h-4 bg-blue-300"></div>
+                                <div>
+                                  <span className="text-gray-600">Tối đa: </span>
+                                  <span className="font-bold text-blue-600">
+                                    {(() => {
+                                      const basePrice = currentPrice || data.currentPrice;
+                                      if (basePrice < 100000) return (basePrice + 60000).toLocaleString('vi-VN');
+                                      if (basePrice < 1000000) return (basePrice + 600000).toLocaleString('vi-VN');
+                                      if (basePrice < 10000000) return (basePrice + 1200000).toLocaleString('vi-VN');
+                                      return (basePrice + 11000000).toLocaleString('vi-VN');
+                                    })()} VNĐ
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label
+                                htmlFor="bidAmount"
+                                className="block text-sm font-medium text-gray-700 mb-1"
+                              >
+                                Số tiền đặt giá
+                              </label>
+                              <div className="space-y-2">
+                                <div className="relative">
+                                  <input
+                                    type="number"
+                                    name="bidAmount"
+                                    id="bidAmount"
+                                    ref={inputRef}
+                                    value={bidInputValue}
+                                    onChange={(e) => setBidInputValue(e.target.value)}
+                                    min={(() => {
+                                      const basePrice = currentPrice || data.currentPrice;
+                                      if (basePrice < 100000) return Math.ceil((basePrice + 10000) / 1000);
+                                      if (basePrice < 1000000) return Math.ceil((basePrice + 100000) / 1000);
+                                      if (basePrice < 10000000) return Math.ceil((basePrice + 200000) / 1000);
+                                      return Math.ceil((basePrice + 1000000) / 1000);
+                                    })()}
+                                    max={(() => {
+                                      const basePrice = currentPrice || data.currentPrice;
+                                      if (basePrice < 100000) return Math.ceil((basePrice + 60000) / 1000);
+                                      if (basePrice < 1000000) return Math.ceil((basePrice + 600000) / 1000);
+                                      if (basePrice < 10000000) return Math.ceil((basePrice + 1200000) / 1000);
+                                      return Math.ceil((basePrice + 11000000) / 1000);
+                                    })()}
+                                    step="1"
+                                    className="w-full px-3 py-2 pr-24 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    placeholder="VD: 50"
+                                    required
+                                  />
+
+                                </div>
+                                {bidInputValue && parseFloat(bidInputValue) > 0 && (
+                                  <div className="bg-green-50 border border-green-200 rounded-md px-3 py-2">
+                                    <p className="text-sm text-green-700">
+                                      = <span className="font-bold text-lg text-green-800">
+                                        {(parseFloat(bidInputValue) * 1000).toLocaleString('vi-VN')} VNĐ
+                                      </span>
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <button
+                              type="submit"
+                              className="w-full bg-green-600 text-white py-2.5 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md text-sm"
+                            >
+                              Đặt giá
+                            </button>
+                          </form>
+                        </>
+                      ) : (
+                        <div className="text-center py-3">
+                          {/* Cảnh báo cần xác minh tài khoản */}
+                          {!isVerified && (
+                            <div className="mb-3 p-3 bg-amber-50 border-2 border-amber-200 rounded-lg text-left">
+                              <div>
+                                <h4 className="font-semibold text-sm text-amber-800 mb-1"> Tài khoản chưa xác minh</h4>
+                                <p className="text-xs text-amber-700">
+                                  Bạn cần xác minh tài khoản (số điện thoại, email, CCCD) trước khi đặt cọc và tham gia đấu giá.
                                 </p>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                        <button
-                          type="submit"
-                          className="w-full bg-green-600 text-white py-2.5 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md text-sm"
-                        >
-                          Đặt giá
-                        </button>
-                      </form>
-                    </>
-                  ) : (
-                    <div className="text-center py-3">
-                      {/* Cảnh báo cần xác minh tài khoản */}
-                      {!isVerified && (
-                        <div className="mb-3 p-3 bg-amber-50 border-2 border-amber-200 rounded-lg text-left">
-                          <div>
-                            <h4 className="font-semibold text-sm text-amber-800 mb-1"> Tài khoản chưa xác minh</h4>
-                            <p className="text-xs text-amber-700">
-                              Bạn cần xác minh tài khoản (số điện thoại, email, CCCD) trước khi đặt cọc và tham gia đấu giá.
-                            </p>
-                          </div>
+                            </div>
+                          )}
+                          <p className="text-gray-600 mb-4">
+                            Bạn cần đặt cọc <span className="font-bold text-amber-600">{formatCurrency(depositStatus?.depositAmount || Math.round((data?.startingPrice || 0) * (depositStatus?.depositPercentage || 10) / 100))}</span> để tham gia đấu giá
+                          </p>
+                          <button
+                            onClick={handleDepositClick}
+                            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
+                          >
+                            {isVerified ? 'Đặt cọc ngay' : 'Xác minh & Đặt cọc'}
+                          </button>
+                          <p className="text-xs text-gray-500 mt-3">
+                            Tiền cọc sẽ được hoàn trả nếu bạn không thắng đấu giá
+                          </p>
                         </div>
                       )}
+                    </>
+                  ) : (
+                    <div className="text-center py-4">
                       <p className="text-gray-600 mb-4">
-                        Bạn cần đặt cọc <span className="font-bold text-amber-600">{formatCurrency(depositStatus?.depositAmount || Math.round((data?.startingPrice || 0) * (depositStatus?.depositPercentage || 10) / 100))}</span> để tham gia đấu giá
+                        Vui lòng đăng nhập để tham gia đấu giá
                       </p>
-                      <button
-                        onClick={handleDepositClick}
-                        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
+                      <Link
+                        to="/login"
+                        state={{ from: `/auction/${id}` }}
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl"
                       >
-                        {isVerified ? 'Đặt cọc ngay' : 'Xác minh & Đặt cọc'}
-                      </button>
-                      <p className="text-xs text-gray-500 mt-3">
-                        Tiền cọc sẽ được hoàn trả nếu bạn không thắng đấu giá
-                      </p>
+                        Đăng nhập
+                      </Link>
                     </div>
                   )}
                 </div>

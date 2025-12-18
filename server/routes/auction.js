@@ -14,6 +14,7 @@ import {
     getDepositInfo,
     submitDeposit,
     finalizeAuction,
+    payForWonAuction,
     getWonAuctions
 } from '../controllers/auction.controller.js';
 import upload from '../middleware/multer.js';
@@ -52,6 +53,7 @@ auctionRouter.post('/', secureRoute, upload.single('itemPhoto'), createAuction);
 auctionRouter.get('/:id/deposit', secureRoute, getDepositInfo);
 auctionRouter.post('/:id/deposit', secureRoute, submitDeposit);
 auctionRouter.post('/:id/finalize', secureRoute, finalizeAuction);
+auctionRouter.post('/:id/pay', secureRoute, payForWonAuction);
 
 // Protected: View single auction details (requires auth)
 auctionRouter.get('/:id', secureRoute, auctionById);

@@ -193,6 +193,20 @@ export const getWonAuctions = async () => {
     }
 }
 
+// pay for a won auction
+export const payForWonAuction = async (id) => {
+    try {
+        const res = await axios.post(`${API_ENDPOINTS.AUCTION}/${id}/pay`,
+            {},
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error("Error paying for won auction", error.message);
+        throw new Error(error.response?.data?.error || error.response?.data?.message || "Failed to pay for auction. Please try again.");
+    }
+}
+
 // get deposit information for an auction
 export const getDepositInfo = async (id) => {
     try {

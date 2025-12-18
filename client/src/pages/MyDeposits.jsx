@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router";
 import { getMyDeposits } from "../api/auction";
-import { getBalance, topUp } from "../api/wallet.js";
+import { getBalance, topUp, getTransactionHistory } from "../api/wallet.js";
 import LoadingScreen from "../components/LoadingScreen";
-import { ArrowLeft, RefreshCcw, ExternalLink, X } from "lucide-react"; // Keep only control icons
+import { ArrowLeft, ExternalLink, X } from "lucide-react"; // Keep only control icons
 import { formatCurrency } from "../utils/formatCurrency";
 import Toast from "../components/Toast";
 
@@ -40,6 +40,13 @@ export const MyDeposits = () => {
         staleTime: 30 * 1000,
     });
 
+    // Fetch transaction history
+    const { data: transactionsData, isLoading: transactionsLoading } = useQuery({
+        queryKey: ["transactionHistory"],
+        queryFn: getTransactionHistory,
+        staleTime: 30 * 1000,
+    });
+
     // Fetch balance
     const { data: balanceData, isLoading: balanceLoading } = useQuery({
         queryKey: ["walletBalance"],
@@ -52,6 +59,7 @@ export const MyDeposits = () => {
         mutationFn: topUp,
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["walletBalance"] });
+            queryClient.invalidateQueries({ queryKey: ["transactionHistory"] });
             setShowTopUpModal(false);
             setTopUpAmount('');
             setCustomAmount('');
@@ -80,13 +88,14 @@ export const MyDeposits = () => {
         // Multiply by 1000 to get actual VND amount
         const actualAmount = amountInThousands * 1000;
 
+        // Tạm thời: Luôn dùng 'wallet' để tiền tự động cộng vào ví (không qua cổng thanh toán)
         topUpMutation.mutate({
             amount: actualAmount,
-            paymentMethod: selectedPaymentMethod,
+            paymentMethod: 'wallet', // Tự động cộng tiền vào ví
         });
     };
 
-    if (depositsLoading || balanceLoading) return <LoadingScreen />;
+    if (depositsLoading || balanceLoading || transactionsLoading) return <LoadingScreen />;
 
     if (depositsError) {
         return (
@@ -105,37 +114,51 @@ export const MyDeposits = () => {
         );
     }
 
-    const stats = depositsData?.stats || { total: 0, paid: 0, refunded: 0, deducted: 0, totalAmount: 0 };
+    const stats = depositsData?.stats || {
+        total: 0,
+        paid: 0,
+        refunded: 0,
+        deducted: 0,
+        totalAmount: 0,
+        walletMoneyIn: 0,
+        walletMoneyOut: 0,
+        walletNet: 0
+    };
     const deposits = depositsData?.deposits || [];
+    const transactions = transactionsData?.transactions || [];
     const balance = balanceData?.balance || 0;
+
+    // Combine deposits and transactions, then sort by date (newest first)
+    const allTransactions = [
+        ...deposits.map(deposit => ({
+            ...deposit,
+            _type: 'deposit',
+            _date: deposit.paidAt || deposit.createdAt || new Date()
+        })),
+        ...transactions.map(transaction => ({
+            ...transaction,
+            _type: 'transaction',
+            _date: transaction.completedAt || transaction.createdAt || new Date()
+        }))
+    ].sort((a, b) => new Date(b._date) - new Date(a._date));
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
             <div className="container mx-auto px-4 py-6">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6" data-aos="fade-down">
-                    <div className="flex items-center gap-3">
-                        <Link
-                            to="/auction"
-                            className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow"
-                        >
-                            <ArrowLeft className="h-5 w-5 text-gray-600" />
-                        </Link>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                Ví & Tiền Cọc
-                            </h1>
-                            <p className="text-sm text-gray-600 mt-0.5">Quản lý số dư và tiền cọc đấu giá</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={() => refetch()}
-                        disabled={isFetching}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50 text-sm"
+                <div className="flex items-center gap-3 mb-6" data-aos="fade-down">
+                    <Link
+                        to="/auction"
+                        className="p-2 rounded-full bg-white shadow-md hover:shadow-lg transition-shadow"
                     >
-                        <RefreshCcw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
-                        Làm mới
-                    </button>
+                        <ArrowLeft className="h-5 w-5 text-gray-600" />
+                    </Link>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                            Ví & Tiền Cọc
+                        </h1>
+                        <p className="text-sm text-gray-600 mt-0.5">Quản lý số dư và tiền cọc đấu giá</p>
+                    </div>
                 </div>
 
                 {/* Balance Card */}
@@ -179,114 +202,152 @@ export const MyDeposits = () => {
                     </div>
                 </div>
 
-                {/* Deposits Section Title */}
-                <h2 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2" data-aos="fade-up" data-aos-delay="300">
-                    Lịch sử đặt cọc
-                </h2>
-
-                {/* Deposits List */}
-                {deposits.length === 0 ? (
-                    <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-                        <div className="text-5xl mb-3">🛡️</div>
-                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Chưa có tiền cọc</h3>
-                        <p className="text-gray-500 mb-6">
-                            Bạn chưa đặt cọc cho sản phẩm nào. Hãy tham gia đấu giá ngay!
-                        </p>
+                {/* Transaction History Section Title */}
+                <div className="flex items-center justify-between mb-3" data-aos="fade-up" data-aos-delay="300">
+                    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        Giao dịch gần đây
+                    </h2>
+                    {allTransactions.length > 0 && (
                         <Link
-                            to="/auction"
-                            className="inline-flex items-center gap-2 bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition-colors font-semibold"
+                            to="/transactions"
+                            className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1"
                         >
-                            Xem đấu giá
+                            Xem tất cả giao dịch
                             <ExternalLink className="h-4 w-4" />
                         </Link>
+                    )}
+                </div>
+
+                {/* Top 5 Transactions Table */}
+                {allTransactions.length === 0 ? (
+                    <div className="bg-white rounded-xl shadow-lg p-8 text-center" data-aos="zoom-in" data-aos-delay="400">
+                        <div className="text-5xl mb-3 animate-bounce">💳</div>
+                        <h3 className="text-lg font-semibold text-gray-700 mb-2">Chưa có giao dịch</h3>
+                        <p className="text-gray-500 mb-6">
+                            Bạn chưa có giao dịch nào. Hãy nạp tiền hoặc tham gia đấu giá ngay!
+                        </p>
+                        <div className="flex gap-3 justify-center">
+                            <button
+                                onClick={() => setShowTopUpModal(true)}
+                                className="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
+                            >
+                                Nạp tiền
+                            </button>
+                            <Link
+                                to="/auction"
+                                className="inline-flex items-center gap-2 bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
+                            >
+                                Xem đấu giá
+                                <ExternalLink className="h-4 w-4" />
+                            </Link>
+                        </div>
                     </div>
                 ) : (
-                    <div className="grid gap-3">
-                        {deposits.map((deposit) => {
-                            const status = statusConfig[deposit.status] || statusConfig.pending;
+                    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden" data-aos="fade-up" data-aos-delay="400">
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Loại</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Mô tả</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Thời gian</th>
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">Số tiền</th>
+                                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase">Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {allTransactions.slice(0, 5).map((item, index) => {
+                                        const transactionTypeLabels = {
+                                            topup: { label: 'Nạp tiền', emoji: '💰', sign: '+' },
+                                            withdraw: { label: 'Rút tiền', emoji: '💸', sign: '-' },
+                                            payment: { label: 'Thanh toán', emoji: '💳', sign: '-' },
+                                            refund: { label: 'Hoàn tiền', emoji: '↩️', sign: '+' },
+                                            deposit: { label: 'Đặt cọc', emoji: '🛡️', sign: '-' }
+                                        };
 
-                            return (
-                                <div
-                                    key={deposit.id}
-                                    className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
-                                >
-                                    <div className="flex flex-col md:flex-row">
-                                        {/* Product Image */}
-                                        {deposit.product && (
-                                            <Link
-                                                to={`/auction/${deposit.product.id}`}
-                                                className="md:w-40 h-28 md:h-auto flex-shrink-0"
+                                        const statusLabels = {
+                                            pending: { label: 'Chờ xử lý', color: 'amber' },
+                                            processing: { label: 'Đang xử lý', color: 'blue' },
+                                            completed: { label: 'Hoàn thành', color: 'green' },
+                                            failed: { label: 'Thất bại', color: 'red' },
+                                            cancelled: { label: 'Đã hủy', color: 'gray' },
+                                            paid: { label: 'Đã đặt cọc', color: 'blue' },
+                                            refunded: { label: 'Đã hoàn tiền', color: 'green' },
+                                            deducted: { label: 'Đã trừ vào giá', color: 'purple' }
+                                        };
+
+                                        let typeLabel, emoji, sign, description, date, amount, statusLabel, statusColor;
+
+                                        if (item._type === 'deposit') {
+                                            const deposit = item;
+                                            typeLabel = 'Đặt cọc';
+                                            emoji = '🛡️';
+                                            sign = '-';
+                                            description = deposit.product ? deposit.product.itemName : 'Sản phẩm đã bị xóa';
+                                            date = new Date(deposit.paidAt || deposit.createdAt).toLocaleString('vi-VN');
+                                            amount = deposit.amount;
+                                            const status = statusConfig[deposit.status] || statusConfig.pending;
+                                            statusLabel = status.label;
+                                            statusColor = status.color;
+                                        } else {
+                                            const transaction = item;
+                                            const typeConfig = transactionTypeLabels[transaction.type] || { label: 'Giao dịch', emoji: '💼', sign: '' };
+                                            typeLabel = typeConfig.label;
+                                            emoji = typeConfig.emoji;
+                                            sign = typeConfig.sign;
+                                            description = transaction.notes || typeConfig.label;
+                                            date = new Date(transaction.createdAt).toLocaleString('vi-VN');
+                                            amount = transaction.amount;
+                                            const status = statusLabels[transaction.status] || statusLabels.pending;
+                                            statusLabel = status.label;
+                                            statusColor = status.color;
+                                        }
+
+                                        return (
+                                            <tr
+                                                key={item._type === 'deposit' ? `deposit-${item.id}` : `transaction-${item._id}`}
+                                                className="hover:bg-gray-50 transition-all duration-200"
+                                                data-aos="fade-left"
+                                                data-aos-delay={450 + index * 50}
                                             >
-                                                <img
-                                                    src={deposit.product.itemPhoto || 'https://picsum.photos/200'}
-                                                    alt={deposit.product.itemName}
-                                                    className={`w-full h-full object-cover ${deposit.product.isEnded ? 'opacity-60 grayscale' : ''}`}
-                                                />
-                                            </Link>
-                                        )}
-
-                                        {/* Content */}
-                                        <div className="flex-1 p-3">
-                                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                                                <div className="flex-1">
-                                                    {deposit.product ? (
-                                                        <Link
-                                                            to={`/auction/${deposit.product.id}`}
-                                                            className="text-base font-semibold text-gray-900 hover:text-amber-600 transition-colors"
-                                                        >
-                                                            {deposit.product.itemName}
-                                                        </Link>
-                                                    ) : (
-                                                        <p className="text-base font-semibold text-gray-400">Sản phẩm đã bị xóa</p>
-                                                    )}
-
-                                                    <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
-                                                        <span>Đặt cọc: {new Date(deposit.paidAt).toLocaleDateString('vi-VN')}</span>
-                                                        {deposit.product && (
-                                                            <>
-                                                                <span>•</span>
-                                                                <span>Giá hiện tại: {formatCurrency(deposit.product.currentPrice)}</span>
-                                                            </>
-                                                        )}
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-2 transition-transform duration-200 hover:scale-105">
+                                                        <span className="text-lg transform transition-transform duration-200 hover:scale-110">{emoji}</span>
+                                                        <span className="text-sm font-medium text-gray-900">{typeLabel}</span>
                                                     </div>
-                                                </div>
-
-                                                {/* Amount & Status */}
-                                                <div className="flex items-center gap-3">
-                                                    <div className="text-right">
-                                                        <p className="text-xl font-bold text-amber-600">{formatCurrency(deposit.amount)}</p>
-                                                        <p className="text-[10px] text-gray-500">
-                                                            {deposit.paymentMethod === 'bank_transfer' && 'Chuyển khoản'}
-                                                            {deposit.paymentMethod === 'credit_card' && 'Thẻ tín dụng'}
-                                                            {deposit.paymentMethod === 'wallet' && 'Từ ví'}
-                                                        </p>
-                                                    </div>
-
-                                                    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-${status.color}-50 border border-${status.color}-200`}>
-                                                        <span className="text-base">{status.emoji}</span>
-                                                        <span className={`text-xs font-medium text-${status.color}-700`}>
-                                                            {status.label}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Additional Info */}
-                                            {deposit.status === 'refunded' && deposit.refundedAt && (
-                                                <p className="text-xs text-green-600 mt-1.5">
-                                                    ✓ Hoàn tiền lúc: {new Date(deposit.refundedAt).toLocaleString('vi-VN')}
-                                                </p>
-                                            )}
-                                            {deposit.status === 'deducted' && deposit.deductedAt && (
-                                                <p className="text-sm text-purple-600 mt-2">
-                                                    ✓ Đã trừ vào giá cuối lúc: {new Date(deposit.deductedAt).toLocaleString('vi-VN')}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <p className="text-sm text-gray-700 transition-colors duration-200">{description}</p>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <p className="text-xs text-gray-500">{date}</p>
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {sign}{formatCurrency(amount)}
+                                                    </p>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${statusColor}-50 text-${statusColor}-700 transition-all duration-200 hover:shadow-md`}>
+                                                        {statusLabel}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                        {allTransactions.length > 5 && (
+                            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-center" data-aos="fade-up" data-aos-delay="700">
+                                <Link
+                                    to="/transactions"
+                                    className="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
+                                >
+                                    Xem thêm {allTransactions.length - 5} giao dịch khác →
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 )}
 
