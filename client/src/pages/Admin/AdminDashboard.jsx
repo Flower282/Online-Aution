@@ -194,7 +194,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-green-700 uppercase tracking-wide">
-                      Active Auctions
+                      🎄 Active Auctions
                     </h3>
                     <p className="text-2xl font-bold text-green-900 mt-2">
                       {dashboardData.stats.activeAuctions || 0}
@@ -215,14 +215,14 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-red-700 uppercase tracking-wide">
-                      Total Auctions
+                      🎁 Total Auctions
                     </h3>
                     <p className="text-2xl font-bold text-red-900 mt-2">
                       {dashboardData.stats.totalAuctions || 0}
                     </p>
                   </div>
                   <div className="bg-red-200 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
@@ -233,14 +233,14 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-amber-700 uppercase tracking-wide">
-                      Total Users
+                      ⭐ Total Users
                     </h3>
                     <p className="text-2xl font-bold text-amber-900 mt-2">
                       {dashboardData.stats.totalUsers || 0}
                     </p>
                   </div>
                   <div className="bg-amber-200 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
                   </div>
@@ -254,7 +254,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-rose-700 uppercase tracking-wide">
-                      Pending Auctions
+                      🎅 Pending Auctions
                     </h3>
                     <p className="text-2xl font-bold text-rose-900 mt-2">
                       {dashboardData.stats.pendingAuctions || 0}
@@ -266,7 +266,7 @@ export const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="bg-rose-200 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
@@ -277,7 +277,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
-                      Pending Verifications
+                      ✨ Pending Verifications
                     </h3>
                     <p className="text-2xl font-bold text-emerald-900 mt-2">
                       {pendingVerifications}
@@ -289,7 +289,7 @@ export const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="bg-emerald-200 p-3 rounded-full">
-                    <ShieldCheck className="w-6 h-6 text-emerald-700" />
+                    <ShieldCheck className="w-6 h-6 text-emerald-600" />
                   </div>
                 </div>
               </Link>
@@ -298,7 +298,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-orange-700 uppercase tracking-wide">
-                      Pending Reactivations
+                      🔔 Pending Reactivations
                     </h3>
                     <p className="text-2xl font-bold text-orange-900 mt-2">
                       {pendingReactivations}
@@ -310,7 +310,7 @@ export const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="bg-orange-200 p-3 rounded-full">
-                    <UserCheck className="w-6 h-6 text-orange-700" />
+                    <UserCheck className="w-6 h-6 text-amber-600" />
                   </div>
                 </div>
               </Link>
@@ -323,19 +323,19 @@ export const AdminDashboard = () => {
           <div className="mb-8 max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-green-800">Recent Active Auctions</h2>
-                <p className="text-sm text-green-600 mt-1">✅ Showing only approved auctions</p>
+                <h2 className="text-2xl font-bold text-gray-900">Recent Active Auctions</h2>
+                <p className="text-sm text-gray-500 mt-1">✅ Showing only approved auctions</p>
               </div>
               <Link
                 to="/auction"
-                className="text-green-600 hover:text-green-700 font-medium text-sm hover:underline"
+                className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline"
               >
                 View All Auctions
               </Link>
             </div>
 
             {!dashboardData.recentAuctions || dashboardData.recentAuctions.length === 0 ? (
-              <div className="text-center py-12 bg-green-50 rounded-xl shadow-sm border-2 border-green-200">
+              <div className="text-center py-12 bg-white rounded-sm shadow-sm border border-gray-200">
                 <p className="text-gray-500 text-lg">No approved active auctions at the moment.</p>
                 {dashboardData.stats?.pendingAuctions > 0 && (
                   <p className="text-yellow-600 text-sm mt-2">
@@ -349,16 +349,10 @@ export const AdminDashboard = () => {
                 const isEnded = currentAuction?.itemEndDate ? new Date(currentAuction.itemEndDate) <= new Date() : false;
 
                 return (
-                  <div className="relative bg-green-50 rounded-2xl shadow-xl border-2 border-green-300 overflow-hidden">
-                    {/* Christmas Tree Decorations */}
-                    <div className="absolute top-2 left-2 text-green-600 opacity-30 text-2xl z-0">🎄</div>
-                    <div className="absolute bottom-2 right-2 text-green-600 opacity-30 text-2xl z-0">🎄</div>
-                    <div className="absolute top-1/2 left-2 text-red-500 opacity-20 text-xl z-0">⭐</div>
-                    <div className="absolute top-1/2 right-2 text-red-500 opacity-20 text-xl z-0">⭐</div>
-                    
-                    <div className="grid md:grid-cols-2 relative z-10">
+                  <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div className="grid md:grid-cols-2">
                       {/* Image Section */}
-                      <div className={`relative h-[200px] md:h-[280px] overflow-hidden bg-gradient-to-br from-green-50 to-emerald-50 ${isEnded ? 'opacity-60 grayscale' : ''}`}>
+                      <div className={`relative h-[280px] md:h-[380px] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 ${isEnded ? 'opacity-60 grayscale' : ''}`}>
                         <div
                           className={`absolute inset-0 transition-all duration-300 ${isTransitioning ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
                             }`}
@@ -411,12 +405,12 @@ export const AdminDashboard = () => {
 
                       {/* Info Section */}
                       <div
-                        className={`p-4 md:p-5 flex flex-col justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-white transition-all duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
+                        className={`p-6 md:p-8 flex flex-col justify-center bg-gradient-to-br from-blue-50 via-white to-gray-50 transition-all duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
                           }`}
                       >
                         {/* Category Badge */}
-                        <div className="mb-2">
-                          <span className="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
+                        <div className="mb-3">
+                          <span className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
                             <Tag className="h-3 w-3" />
                             {currentAuction?.itemCategory || 'Uncategorized'}
                           </span>
@@ -428,41 +422,41 @@ export const AdminDashboard = () => {
                         </div>
 
                         {/* Title */}
-                        <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 line-clamp-2">
+                        <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 line-clamp-2">
                           {currentAuction?.itemName}
                         </h3>
 
                         {/* Description */}
-                        <p className="text-gray-600 mb-3 line-clamp-2 text-sm">
+                        <p className="text-gray-600 mb-5 line-clamp-2 text-sm">
                           {currentAuction?.itemDescription || "Không có mô tả"}
                         </p>
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-2 gap-2 mb-3">
-                          <div className="bg-white rounded-xl p-2 border border-green-200 shadow-sm">
-                            <p className="text-xs text-gray-500 mb-0.5">Giá hiện tại</p>
-                            <p className="text-lg font-bold text-green-600">
+                        <div className="grid grid-cols-2 gap-3 mb-5">
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
+                            <p className="text-xs text-gray-500 mb-1">Giá hiện tại</p>
+                            <p className="text-xl font-bold text-green-600">
                               {formatCurrency(currentAuction?.currentPrice || currentAuction?.startingPrice || 0)}
                             </p>
                           </div>
-                          <div className="bg-white rounded-xl p-2 border border-green-200 shadow-sm">
-                            <p className="text-xs text-gray-500 mb-0.5">Giá khởi điểm</p>
-                            <p className="text-lg font-bold text-gray-700">
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm">
+                            <p className="text-xs text-gray-500 mb-1">Giá khởi điểm</p>
+                            <p className="text-xl font-bold text-gray-700">
                               {formatCurrency(currentAuction?.startingPrice || 0)}
                             </p>
                           </div>
-                          <div className="bg-white rounded-xl p-2 border border-green-200 shadow-sm flex items-center gap-2">
-                            <Users className="h-4 w-4 text-green-500" />
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm flex items-center gap-2">
+                            <Users className="h-4 w-4 text-blue-500" />
                             <div>
                               <p className="text-xs text-gray-500">Lượt bid</p>
-                              <p className="text-base font-bold text-gray-800">{currentAuction?.bidsCount || 0}</p>
+                              <p className="text-lg font-bold text-gray-800">{currentAuction?.bidsCount || 0}</p>
                             </div>
                           </div>
-                          <div className="bg-white rounded-xl p-2 border border-green-200 shadow-sm flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-amber-500" />
+                          <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-orange-500" />
                             <div>
                               <p className="text-xs text-gray-500">Kết thúc</p>
-                              <p className="text-xs font-semibold text-gray-800">
+                              <p className="text-sm font-semibold text-gray-800">
                                 {currentAuction?.itemEndDate
                                   ? new Date(currentAuction.itemEndDate).toLocaleDateString('vi-VN')
                                   : 'N/A'}
@@ -474,22 +468,22 @@ export const AdminDashboard = () => {
                         {/* View Button */}
                         <Link
                           to={`/auction/${currentAuction?._id}`}
-                          className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-4 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
+                          className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-6 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-5 w-5" />
                           Xem chi tiết
                         </Link>
 
                         {/* Slide Indicators */}
-                        <div className="flex justify-center gap-2 mt-3">
+                        <div className="flex justify-center gap-2 mt-5">
                           {dashboardData.recentAuctions.map((_, index) => (
                             <button
                               key={index}
                               onClick={() => goToSlide(index)}
                               disabled={isTransitioning}
                               className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide
-                                ? 'w-6 bg-green-600'
-                                : 'w-2 bg-gray-300 hover:bg-green-300'
+                                ? 'w-6 bg-blue-600'
+                                : 'w-2 bg-gray-300 hover:bg-blue-300'
                                 }`}
                             />
                           ))}

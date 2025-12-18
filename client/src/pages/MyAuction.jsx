@@ -82,7 +82,7 @@ export const MyAuction = () => {
       approved: {
         icon: CheckCircle,
         label: 'Approved',
-        className: 'bg-green-100 text-green-700 border-green-300',
+        className: 'bg-cyan-100 text-cyan-700 border-cyan-300',
       },
       rejected: {
         icon: XCircle,
@@ -164,8 +164,8 @@ export const MyAuction = () => {
               <button
                 onClick={() => setStatusFilter("approved")}
                 className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "approved"
-                  ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg"
-                  : "bg-white text-gray-700 border-2 border-green-200 hover:bg-green-50 shadow-md"
+                  ? "bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-lg"
+                  : "bg-white text-gray-700 border-2 border-cyan-200 hover:bg-cyan-50 shadow-md"
                   }`}
               >
                 <CheckCircle className="w-4 h-4" />

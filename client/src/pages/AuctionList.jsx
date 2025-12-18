@@ -318,8 +318,8 @@ export const AuctionList = () => {
               onClick={() => setStatusFilter("active")}
               className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
                 statusFilter === "active"
-                  ? "bg-green-600 text-white shadow-lg scale-105"
-                  : "bg-green-50 text-green-700 hover:bg-green-100"
+                  ? "bg-cyan-600 text-white shadow-lg scale-105"
+                  : "bg-cyan-50 text-cyan-700 hover:bg-cyan-100"
               }`}
             >
               ✅ Đang đấu giá
@@ -427,14 +427,14 @@ export const AuctionList = () => {
                   </span>
                 )}
                 {statusFilter === "active" && (
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-2">
+                  <span className="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm font-medium flex items-center gap-2">
                     Đang đấu giá
                     <button
                       onClick={() => {
                         setStatusFilter("all");
                         if (categoryFilter === "all" && sortBy === "none") setActiveTab("all");
                       }}
-                      className="hover:bg-green-200 rounded-full p-0.5"
+                      className="hover:bg-cyan-200 rounded-full p-0.5"
                     >
                       ✕
                     </button>

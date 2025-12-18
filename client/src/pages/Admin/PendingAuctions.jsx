@@ -182,7 +182,7 @@ const PendingAuctions = () => {
                         <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 pointer-events-none">
                             <div
                                 className={`toast-popup pointer-events-auto ${toast.type === "success"
-                                    ? "bg-white border-2 border-green-500"
+                                    ? "bg-white border-2 border-cyan-500"
                                     : "bg-white border-2 border-red-500"
                                     } rounded-2xl shadow-2xl max-w-md w-full overflow-hidden`}
                             >
@@ -190,11 +190,11 @@ const PendingAuctions = () => {
                                     <div className="flex items-start gap-4">
                                         {/* Icon */}
                                         <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${toast.type === "success"
-                                            ? "bg-green-100"
+                                            ? "bg-cyan-100"
                                             : "bg-red-100"
                                             }`}>
                                             {toast.type === "success" ? (
-                                                <CheckCircle className="w-7 h-7 text-green-600" />
+                                                <CheckCircle className="w-7 h-7 text-cyan-600" />
                                             ) : (
                                                 <XCircle className="w-7 h-7 text-red-600" />
                                             )}
@@ -202,7 +202,7 @@ const PendingAuctions = () => {
 
                                         {/* Message */}
                                         <div className="flex-1 pt-1">
-                                            <h3 className={`text-lg font-bold mb-1 ${toast.type === "success" ? "text-green-800" : "text-red-800"
+                                            <h3 className={`text-lg font-bold mb-1 ${toast.type === "success" ? "text-cyan-800" : "text-red-800"
                                                 }`}>
                                                 {toast.type === "success" ? "✨ Success!" : "⚠️ Error"}
                                             </h3>
@@ -226,7 +226,7 @@ const PendingAuctions = () => {
                                 {/* Progress Bar */}
                                 <div className="relative h-1 bg-gray-200">
                                     <div
-                                        className={`toast-progress absolute top-0 left-0 h-full ${toast.type === "success" ? "bg-green-500" : "bg-red-500"
+                                        className={`toast-progress absolute top-0 left-0 h-full ${toast.type === "success" ? "bg-cyan-500" : "bg-red-500"
                                             }`}
                                     />
                                 </div>
@@ -237,7 +237,7 @@ const PendingAuctions = () => {
 
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-green-600 mb-2">
+                    <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-cyan-600 mb-2">
                         🎅 Pending Auctions
                     </h1>
                     <p className="text-gray-600">
@@ -247,7 +247,7 @@ const PendingAuctions = () => {
 
                 {/* Auctions List */}
                 {auctions.length === 0 ? (
-                    <div className="bg-white p-12 rounded-2xl shadow-lg text-center border-2 border-green-200">
+                    <div className="bg-white p-12 rounded-2xl shadow-lg text-center border-2 border-cyan-200">
                         <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-2xl font-bold text-gray-700 mb-2">No Pending Auctions</h3>
                         <p className="text-gray-500">All auctions have been reviewed! 🎉</p>
@@ -301,7 +301,7 @@ const PendingAuctions = () => {
                                                 className="px-6 py-4 cursor-pointer"
                                                 onClick={() => navigate(`/auction/${auction._id}`)}
                                             >
-                                                <p className="font-semibold text-green-600">{formatCurrency(auction.startingPrice)}</p>
+                                                <p className="font-semibold text-cyan-600">{formatCurrency(auction.startingPrice)}</p>
                                             </td>
                                             <td
                                                 className="px-6 py-4 cursor-pointer"
@@ -341,7 +341,7 @@ const PendingAuctions = () => {
                                                             handleApprove(auction);
                                                         }}
                                                         disabled={approveMutation.isPending}
-                                                        className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="p-2 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         title="Approve"
                                                     >
                                                         <CheckCircle className="w-5 h-5" />
@@ -377,7 +377,7 @@ const PendingAuctions = () => {
                         >
                             Previous
                         </button>
-                        <span className="px-4 py-2 bg-white border-2 border-green-200 rounded-lg font-semibold">
+                        <span className="px-4 py-2 bg-white border-2 border-cyan-200 rounded-lg font-semibold">
                             Page {pagination.currentPage} of {pagination.totalPages}
                         </span>
                         <button
@@ -394,9 +394,9 @@ const PendingAuctions = () => {
             {/* Approve Modal */}
             {showApproveModal && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
-                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl pointer-events-auto border-2 border-green-300 animate-bounce-in">
+                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl pointer-events-auto border-2 border-cyan-300 animate-bounce-in">
                         <div className="flex items-center gap-3 mb-6">
-                            <CheckCircle className="w-8 h-8 text-green-500" />
+                            <CheckCircle className="w-8 h-8 text-cyan-500" />
                             <h2 className="text-2xl font-bold text-gray-800">Approve Auction</h2>
                         </div>
                         <p className="text-gray-700 text-center text-lg mb-6">
@@ -418,7 +418,7 @@ const PendingAuctions = () => {
                             <button
                                 onClick={handleApproveConfirm}
                                 disabled={approveMutation.isPending}
-                                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all disabled:opacity-50"
+                                className="flex-1 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-cyan-700 transition-all disabled:opacity-50"
                             >
                                 {approveMutation.isPending ? "Approving..." : "Confirm"}
                             </button>

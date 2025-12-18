@@ -248,7 +248,7 @@ export const ViewAuction = () => {
                 </span>
                 <span
                   className={`px-2 py-1 rounded-md text-xs font-medium ${isActive
-                    ? "bg-green-100 text-green-800"
+                    ? "bg-cyan-100 text-cyan-800"
                     : "bg-red-100 text-red-800"
                     }`}
                 >
@@ -274,7 +274,7 @@ export const ViewAuction = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Current Price</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-bold text-cyan-600">
                     ${data.currentPrice}
                   </p>
                 </div>
@@ -433,7 +433,7 @@ export const ViewAuction = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold text-green-600">
+                      <p className="text-lg font-semibold text-cyan-600">
                         ${bid.bidAmount}
                       </p>
                     </div>

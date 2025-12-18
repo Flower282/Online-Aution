@@ -205,12 +205,12 @@ const Dashboard = () => {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
-        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-200 max-w-md">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">No Data Available</h2>
-          <p className="text-gray-600 mb-6">Unable to load dashboard statistics. Please try again.</p>
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-cyan-200 max-w-md">
+          <h2 className="text-2xl font-bold text-cyan-600 mb-4">Error Loading Dashboard</h2>
+          <p className="text-gray-600 mb-6">Unable to load dashboard data. Please try again.</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white px-6 py-3 rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-colors"
+            className="bg-gradient-to-r from-cyan-500 via-cyan-600 to-cyan-600 text-white px-6 py-3 rounded-lg hover:from-cyan-600 hover:via-cyan-700 hover:to-cyan-700 transition-colors"
           >
             Refresh
           </button>
@@ -259,7 +259,7 @@ const Dashboard = () => {
         {/* Hero Search Section */}
         <div className="min-h-[70vh] flex flex-col items-center justify-center mb-16" ref={searchRef}>
           <div className="text-center mb-8" data-aos="fade-down">
-            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-orange-500 mb-4" data-aos="zoom-in" data-aos-delay="100">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-cyan-500 to-cyan-500 mb-4" data-aos="zoom-in" data-aos-delay="100">
               🎄 Online Auction
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
@@ -271,7 +271,7 @@ const Dashboard = () => {
             <div className="relative flex gap-3">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                  <Search className="h-8 w-8 text-red-500" />
+                  <Search className="h-8 w-8 text-cyan-500" />
                 </div>
                 <input
                   type="text"
@@ -375,7 +375,7 @@ const Dashboard = () => {
                                       {auction.itemCategory}
                                     </span>
                                     {!isEnded ? (
-                                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-700">
                                         {daysLeft > 0 ? `${daysLeft} ngày` : `${hoursLeft}h còn lại`}
                                       </span>
                                     ) : (

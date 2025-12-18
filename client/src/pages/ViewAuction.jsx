@@ -368,7 +368,7 @@ export const ViewAuction = () => {
             </Link>
             <button
               onClick={() => window.location.reload()}
-              className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold"
+              className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 transition-colors font-semibold"
             >
               Retry
             </button>
@@ -382,10 +382,10 @@ export const ViewAuction = () => {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
-        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-green-200 max-w-md">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-cyan-200 max-w-md">
           <h2 className="text-2xl font-bold text-red-700 mb-4">Auction Not Found</h2>
           <p className="text-gray-700 mb-6">This auction may have been removed or doesn't exist.</p>
-          <Link to="/auction" className="inline-block bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold">
+          <Link to="/auction" className="inline-block bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 transition-colors font-semibold">
             Back to Auctions
           </Link>
         </div>
@@ -412,7 +412,7 @@ export const ViewAuction = () => {
       }
 
       // Nếu còn thời gian và không bị hủy, luôn hiển thị "Đang diễn ra"
-      return { label: 'Đang diễn ra', className: 'bg-green-100 text-green-800' };
+      return { label: 'Đang diễn ra', className: 'bg-cyan-100 text-cyan-800' };
     }
 
     // Nếu đã hết thời gian, kiểm tra các trạng thái khác
@@ -425,7 +425,7 @@ export const ViewAuction = () => {
     }
 
     if (auctionStatus === 'completed' || paymentStatus === 'paid') {
-      return { label: 'Đã thanh toán / Hoàn tất', className: 'bg-emerald-100 text-emerald-800' };
+      return { label: 'Đã thanh toán / Hoàn tất', className: 'bg-cyan-100 text-cyan-800' };
     }
 
     // Đã kết thúc nhưng chưa hoàn tất thanh toán
@@ -434,7 +434,7 @@ export const ViewAuction = () => {
     }
 
     // Mặc định: đang diễn ra (fallback)
-    return { label: 'Đang diễn ra', className: 'bg-green-100 text-green-800' };
+    return { label: 'Đang diễn ra', className: 'bg-cyan-100 text-cyan-800' };
   };
 
   const auctionStatusInfo = getAuctionStatusInfo();
@@ -765,9 +765,9 @@ export const ViewAuction = () => {
                 {/* Seller Info - Compact */}
                 <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border ${isSellerInactive
                   ? 'bg-red-50 border-red-200'
-                  : 'bg-emerald-50 border-emerald-200'
+                  : 'bg-cyan-50 border-cyan-200'
                   }`}>
-                  <span className={`text-xs font-medium ${isSellerInactive ? 'text-red-700' : 'text-emerald-700'}`}>
+                  <span className={`text-xs font-medium ${isSellerInactive ? 'text-red-700' : 'text-cyan-700'}`}>
                     {isSellerInactive ? 'Bị vô hiệu hóa' : data.seller.name}
                   </span>
                 </div>
@@ -793,11 +793,11 @@ export const ViewAuction = () => {
                   </div>
 
                   {/* Current Price */}
-                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-2 rounded-lg border-2 border-emerald-300">
-                    <p className="text-[9px] text-emerald-700 font-medium mb-0.5">
+                  <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 p-2 rounded-lg border-2 border-cyan-300">
+                    <p className="text-[9px] text-cyan-700 font-medium mb-0.5">
                       Current
                     </p>
-                    <p className="text-lg font-bold text-emerald-800">
+                    <p className="text-lg font-bold text-cyan-800">
                       {formatCurrency(currentPrice ?? data.currentPrice)}
                     </p>
                   </div>
@@ -825,10 +825,10 @@ export const ViewAuction = () => {
 
                 {/* Time Left - Full width bar with countdown */}
                 <div className={`mt-2 p-2 rounded-lg border ${isActive
-                  ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-300'
+                  ? 'bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-300'
                   : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300'
                   }`}>
-                  <p className={`text-[9px] font-medium mb-1 ${isActive ? 'text-green-700' : 'text-gray-600'
+                  <p className={`text-[9px] font-medium mb-1 ${isActive ? 'text-cyan-700' : 'text-gray-600'
                     }`}>
                     Time Remaining
                   </p>
@@ -838,29 +838,29 @@ export const ViewAuction = () => {
                     ) : (
                       <div className="flex items-center gap-1.5">
                         {timeRemaining.days > 0 && (
-                          <div className="flex flex-col items-center bg-green-100 px-1.5 py-0.5 rounded">
-                            <span className="text-lg font-bold text-green-800">{timeRemaining.days}</span>
-                            <span className="text-[7px] text-green-600">days</span>
+                          <div className="flex flex-col items-center bg-cyan-100 px-1.5 py-0.5 rounded">
+                            <span className="text-lg font-bold text-cyan-800">{timeRemaining.days}</span>
+                            <span className="text-[7px] text-cyan-600">days</span>
                           </div>
                         )}
-                        <div className="flex flex-col items-center bg-green-100 px-1.5 py-0.5 rounded">
-                          <span className="text-lg font-bold text-green-800">{String(timeRemaining.hours).padStart(2, '0')}</span>
-                          <span className="text-[7px] text-green-600">hrs</span>
+                        <div className="flex flex-col items-center bg-cyan-100 px-1.5 py-0.5 rounded">
+                          <span className="text-lg font-bold text-cyan-800">{String(timeRemaining.hours).padStart(2, '0')}</span>
+                          <span className="text-[7px] text-cyan-600">hrs</span>
                         </div>
-                        <span className="text-green-800 font-bold text-sm">:</span>
-                        <div className="flex flex-col items-center bg-green-100 px-1.5 py-0.5 rounded">
-                          <span className="text-lg font-bold text-green-800">{String(timeRemaining.minutes).padStart(2, '0')}</span>
-                          <span className="text-[7px] text-green-600">min</span>
+                        <span className="text-cyan-800 font-bold text-sm">:</span>
+                        <div className="flex flex-col items-center bg-cyan-100 px-1.5 py-0.5 rounded">
+                          <span className="text-lg font-bold text-cyan-800">{String(timeRemaining.minutes).padStart(2, '0')}</span>
+                          <span className="text-[7px] text-cyan-600">min</span>
                         </div>
-                        <span className="text-green-800 font-bold text-sm">:</span>
-                        <div className="flex flex-col items-center bg-green-100 px-1.5 py-0.5 rounded">
-                          <span className="text-lg font-bold text-green-800">{String(timeRemaining.seconds).padStart(2, '0')}</span>
-                          <span className="text-[7px] text-green-600">sec</span>
+                        <span className="text-cyan-800 font-bold text-sm">:</span>
+                        <div className="flex flex-col items-center bg-cyan-100 px-1.5 py-0.5 rounded">
+                          <span className="text-lg font-bold text-cyan-800">{String(timeRemaining.seconds).padStart(2, '0')}</span>
+                          <span className="text-[7px] text-cyan-600">sec</span>
                         </div>
                       </div>
                     )
                   ) : (
-                    <p className="text-base font-bold text-green-800">Loading...</p>
+                    <p className="text-base font-bold text-cyan-800">Loading...</p>
                   )}
                 </div>
               </div>
@@ -949,7 +949,7 @@ export const ViewAuction = () => {
 
               {/* Deposit Status & Bid Form - Show when auction is active and user is not seller */}
               {isActive && data?.seller?._id !== user?.user?._id && !isSellerInactive && isApproved && !isAdmin && (
-                <div className="bg-white p-6 rounded-md shadow-md border border-green-200 md:col-span-2">
+                <div className="bg-white p-6 rounded-md shadow-md border border-cyan-200 md:col-span-2">
                   {/* Show only if user is logged in */}
                   {user?.user?._id ? (
                     <>
@@ -968,12 +968,12 @@ export const ViewAuction = () => {
                       {/* Deposit Status - Loaded */}
                       {depositStatus && (
                         <div className={`mb-3 p-3 rounded-lg border-2 ${depositStatus.hasDeposit
-                          ? 'bg-green-50 border-green-300'
+                          ? 'bg-cyan-50 border-cyan-300'
                           : 'bg-amber-50 border-amber-300'
                           }`}>
                           <div className="flex items-center gap-2">
                             <div className="flex-1">
-                              <h4 className={`font-semibold text-sm ${depositStatus.hasDeposit ? 'text-green-800' : 'text-amber-800'}`}>
+                              <h4 className={`font-semibold text-sm ${depositStatus.hasDeposit ? 'text-cyan-800' : 'text-amber-800'}`}>
                                 {depositStatus.hasDeposit ? '✓ Đã đặt cọc' : 'Cần đặt cọc trước khi đấu giá'}
                               </h4>
 
@@ -981,7 +981,7 @@ export const ViewAuction = () => {
 
                           </div>
                           {depositStatus.hasDeposit && depositStatus.deposit && (
-                            <p className="text-xs text-green-600 mt-2">
+                            <p className="text-xs text-cyan-600 mt-2">
                               Đã cọc lúc: {new Date(depositStatus.deposit.paidAt).toLocaleString('vi-VN')}
                             </p>
                           )}
@@ -1055,16 +1055,16 @@ export const ViewAuction = () => {
                                       return Math.ceil((basePrice + 11000000) / 1000);
                                     })()}
                                     step="1"
-                                    className="w-full px-3 py-2 pr-24 border border-green-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    className="w-full px-3 py-2 pr-24 border border-cyan-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                                     placeholder="VD: 50"
                                     required
                                   />
 
                                 </div>
                                 {bidInputValue && parseFloat(bidInputValue) > 0 && (
-                                  <div className="bg-green-50 border border-green-200 rounded-md px-3 py-2">
-                                    <p className="text-sm text-green-700">
-                                      = <span className="font-bold text-lg text-green-800">
+                                  <div className="bg-cyan-50 border border-cyan-200 rounded-md px-3 py-2">
+                                    <p className="text-sm text-cyan-700">
+                                      = <span className="font-bold text-lg text-cyan-800">
                                         {(parseFloat(bidInputValue) * 1000).toLocaleString('vi-VN')} VNĐ
                                       </span>
                                     </p>
@@ -1074,7 +1074,7 @@ export const ViewAuction = () => {
                             </div>
                             <button
                               type="submit"
-                              className="w-full bg-green-600 text-white py-2.5 px-4 rounded-md hover:bg-green-700 transition-colors font-semibold shadow-md text-sm"
+                              className="w-full bg-cyan-600 text-white py-2.5 px-4 rounded-md hover:bg-cyan-700 transition-colors font-semibold shadow-md text-sm"
                             >
                               Đặt giá
                             </button>
@@ -1180,7 +1180,7 @@ export const ViewAuction = () => {
                       className="p-4 flex justify-between items-center"
                     >
                       <div>
-                        <p className="font-medium text-emerald-800">
+                        <p className="font-medium text-cyan-800">
                           {bid.bidder?.name}
                         </p>
                         <p className="text-sm text-gray-600">

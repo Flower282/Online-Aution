@@ -39,19 +39,19 @@ export default function VerificationRequired({
                         {/* Trạng thái chi tiết */}
                         <div className="flex flex-wrap gap-2 mb-3">
                             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${verification?.phone
-                                ? 'bg-green-100 text-green-700'
+                                ? 'bg-cyan-100 text-cyan-700'
                                 : 'bg-gray-100 text-gray-600'
                                 }`}>
                                 {verification?.phone ? '✓' : '○'} Số điện thoại
                             </span>
                             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${verification?.email
-                                ? 'bg-green-100 text-green-700'
+                                ? 'bg-cyan-100 text-cyan-700'
                                 : 'bg-gray-100 text-gray-600'
                                 }`}>
                                 {verification?.email ? '✓' : '○'} Email
                             </span>
                             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${verification?.identityCard === 'approved'
-                                ? 'bg-green-100 text-green-700'
+                                ? 'bg-cyan-100 text-cyan-700'
                                 : verification?.identityCard === 'pending'
                                     ? 'bg-yellow-100 text-yellow-700'
                                     : 'bg-gray-100 text-gray-600'

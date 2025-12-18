@@ -411,7 +411,7 @@ export const UsersList = () => {
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin'
                           ? 'bg-purple-100 text-purple-800'
-                          : 'bg-green-100 text-green-800'
+                          : 'bg-cyan-100 text-cyan-800'
                           }`}>
                           {user.role}
                         </span>
@@ -427,7 +427,7 @@ export const UsersList = () => {
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${user.verification?.isVerified
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-cyan-100 text-cyan-800'
                           : 'bg-gray-100 text-gray-600'
                           }`}>
                           {user.verification?.isVerified ? (
@@ -446,7 +446,7 @@ export const UsersList = () => {
                         <div className="flex flex-col gap-1">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false
                             ? 'bg-red-100 text-red-800'
-                            : 'bg-green-100 text-green-800'
+                            : 'bg-cyan-100 text-cyan-800'
                             }`}>
                             {user.isActive === false ? 'Inactive' : 'Active'}
                           </span>
@@ -465,7 +465,7 @@ export const UsersList = () => {
                           {user.isActive === false ? (
                             <button
                               onClick={() => handleReactivateClick(user)}
-                              className="text-green-600 hover:text-green-900 transition-colors"
+                              className="text-cyan-600 hover:text-cyan-900 transition-colors"
                               title="Reactivate user"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -624,9 +624,9 @@ export const UsersList = () => {
         {/* Reactivate Confirmation Dialog */}
         {reactivateDialogOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-green-100">
-              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-green-100 to-green-200 rounded-full">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-cyan-100">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-full">
+                <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -639,7 +639,7 @@ export const UsersList = () => {
                 Bạn có chắc chắn muốn kích hoạt lại
               </p>
               <p className="text-center mb-6">
-                <span className="font-bold text-green-600 text-lg">{userToReactivate?.name}</span>
+                <span className="font-bold text-cyan-600 text-lg">{userToReactivate?.name}</span>
               </p>
               <p className="text-gray-500 text-center text-sm mb-8">
                 Tài khoản sẽ có thể đăng nhập và các auction của họ sẽ hiển thị trở lại.
@@ -656,7 +656,7 @@ export const UsersList = () => {
                 <button
                   onClick={handleReactivateConfirm}
                   disabled={reactivateLoading}
-                  className="flex-1 px-5 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl font-bold hover:from-cyan-700 hover:to-cyan-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
                 >
                   {reactivateLoading ? 'Đang xử lý...' : 'Kích hoạt'}
                 </button>

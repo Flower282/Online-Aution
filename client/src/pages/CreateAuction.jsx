@@ -283,9 +283,9 @@ export const CreateAuction = () => {
                       </span>
                     </div>
                     {formData.startingPrice && parseFloat(formData.startingPrice) > 0 && (
-                      <div className="bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2">
-                        <p className="text-sm text-emerald-700">
-                          = <span className="font-bold text-lg text-emerald-800">
+                      <div className="bg-cyan-50 border border-cyan-200 rounded-md px-3 py-2">
+                        <p className="text-sm text-cyan-700">
+                          = <span className="font-bold text-lg text-cyan-800">
                             {(parseFloat(formData.startingPrice) * 1000).toLocaleString('vi-VN')} VNĐ
                           </span>
                         </p>

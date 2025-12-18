@@ -34,7 +34,7 @@ export const Auction = () => {
       timeColor = "from-gray-500 to-gray-600";
     } else if (days > 0) {
       timeString = `${days}d ${hours % 24}h`;
-      timeColor = "from-green-500 to-green-600";
+      timeColor = "from-cyan-500 to-cyan-600";
     } else if (hours > 5) {
       timeString = `${hours}h ${minutes}m`;
       timeColor = "from-orange-500 to-orange-600";
@@ -194,7 +194,7 @@ export const Auction = () => {
         </div>
 
         {/* Slideshow Container */}
-        <div className="relative rounded-2xl shadow-2xl overflow-visible p-6 pt-16 pb-16 max-w-5xl mx-auto border-4 border-green-600" data-aos="zoom-in" data-aos-delay="100" style={{ background: `linear-gradient(to bottom right, rgb(240 253 244), rgb(209 250 229)), url('/transparent-christmas-tree.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto, 120px', backgroundPosition: 'center, center', backgroundBlendMode: 'normal, soft-light' }}>
+        <div className="relative rounded-2xl shadow-2xl overflow-visible p-6 pt-16 pb-16 max-w-5xl mx-auto border-4 border-cyan-600" data-aos="zoom-in" data-aos-delay="100" style={{ background: `linear-gradient(to bottom right, rgb(240 253 244), rgb(209 250 229)), url('/transparent-christmas-tree.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto, 120px', backgroundPosition: 'center, center', backgroundBlendMode: 'normal, soft-light' }}>
           {/* Christmas Lights Decoration - Top */}
           <div className="absolute -top-8 left-0 right-0 h-24 z-40 pointer-events-none" style={{ backgroundImage: 'url(/christmas-lights.gif)', backgroundRepeat: 'repeat-x', backgroundSize: 'auto 100%', backgroundPosition: 'center' }}>
           </div>
