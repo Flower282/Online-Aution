@@ -85,7 +85,7 @@ const Login = () => {
               <div className="relative h-full flex items-center justify-center p-8">
                 <div className="text-center">
                   <img
-                    src="https://images.unsplash.com/photo-1512389098783-66b81f86e199?w=600&h=800&fit=crop"
+                    src="/fire-place.jpg"
                     alt="Christmas Fireplace"
                     className="w-full h-full object-cover rounded-xl shadow-2xl"
                   />
@@ -99,7 +99,7 @@ const Login = () => {
             </div>
 
             {/* Right Side - Login Form */}
-            <div className="bg-white p-10 border-l-2 border-red-200" data-aos="zoom-in">
+            <div className="bg-white p-10 border-l-2 border-red-200 min-h-[700px]" data-aos="zoom-in">
               <div className="text-center mb-8" data-aos="fade-down" data-aos-delay="100">
                 <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2"> Welcome Back!</h1>
                 <p className="text-gray-700">Sign in to your Christmas account </p>

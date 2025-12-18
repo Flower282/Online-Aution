@@ -398,6 +398,13 @@ export const ViewAuction = () => {
 
   const handleBidSubmit = (e) => {
     e.preventDefault();
+    
+    // Check if user is logged in
+    if (!user) {
+      navigate("/login", { state: { from: `/auction/${id}` } });
+      return;
+    }
+    
     const bidAmountInThousands = parseFloat(bidInputValue);
 
     if (!bidInputValue || isNaN(bidAmountInThousands) || bidAmountInThousands <= 0) {

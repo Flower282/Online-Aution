@@ -562,7 +562,8 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Your Auctions Section */}
+        {/* Your Auctions Section - Only show if user is logged in */}
+        {user && (
         <div
           ref={yourAuctionsRef}
           className={`transition-all duration-1000 ease-out ${yourAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
@@ -608,6 +609,7 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+        )}
       </main>
 
       {/* Verification Modal */}

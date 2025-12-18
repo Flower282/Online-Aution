@@ -479,14 +479,6 @@ export const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Favorites button - hidden for admin */}
-            {user && !isAdmin && (
-              <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-red-50 text-red-500 hover:text-red-600 transition-colors" asChild>
-                <Link to="/favorites" title="Yêu thích">
-                  <Heart className="h-5 w-5" />
-                </Link>
-              </Button>
-            )}
             <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-green-50 text-green-600">
               <Gift className="h-5 w-5 christmas-sparkle" />
             </Button>
@@ -496,16 +488,18 @@ export const Navbar = () => {
                 <div className="relative hidden md:block" ref={dropdownRef}>
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 ${isDropdownOpen
+                    className={`flex items-center justify-between gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 min-w-[220px] ${isDropdownOpen
                       ? "bg-red-100 text-red-700 border-red-300"
                       : "hover:bg-red-50 text-gray-700 border-gray-200 hover:border-red-200"
                       }`}
                   >
-                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white text-xs font-bold">
-                      {user.user.name?.charAt(0).toUpperCase() || 'U'}
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white text-xs font-bold">
+                        {user.user.name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <span>{user.user.name}</span>
                     </div>
-                    <span className="hidden lg:inline">{user.user.name?.split(' ')[0]}</span>
-                    <ChevronDown className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-4 w-4 transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                     {/* Combined notification badge */}
                     {unseenWonCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse shadow-lg">
@@ -584,11 +578,11 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <Button variant="outline" className="hidden sm:flex border-red-600 text-red-600 hover:bg-red-50" asChild>
+                <Button variant="outline" className="hidden sm:flex border-red-600 text-red-600 hover:bg-red-50 min-w-[105px]" asChild>
                   <Link to="/login">Đăng nhập</Link>
                 </Button>
-                <Button className="hidden sm:flex bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 shadow-lg" asChild>
-                  <Link to="/signup"> Đăng ký</Link>
+                <Button className="hidden sm:flex bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 shadow-lg min-w-[105px]" asChild>
+                  <Link to="/signup">Đăng ký</Link>
                 </Button>
               </>
             )}
@@ -710,7 +704,7 @@ export const Navbar = () => {
           {user ? (
             <div className="mt-6 pt-6 border-t">
               <ul className="space-y-4">
-                {protectedNavLink.slice(5, 8).map((item) => (
+                {protectedNavLink.slice(5, 10).map((item) => (
                   <li key={item.link}>
                     <NavLink
                       to={item.link}
@@ -772,11 +766,13 @@ export const LoginSignup = () => {
   );
 };
 
-// Guest navigation menu
+// Guest navigation menu (same as logged-in users, but will redirect to login for protected routes)
 const navMenu = [
-  { name: "Home", link: "/" },
-  { name: "About", link: "/about" },
-  { name: "Contact", link: "/contact" },
+  { name: "Dashboard", link: "/", icon: LayoutDashboard },
+  { name: "Auction", link: "/auction", icon: Eye },
+  { name: "Tạo mới", link: "/create", icon: Plus },
+  { name: "About", link: "/about", icon: Info },
+  { name: "Contact", link: "/contact", icon: Phone },
 ];
 
 // Main navigation links for logged-in users (shown directly in navbar)
@@ -784,6 +780,8 @@ const mainNavLinks = [
   { name: "Dashboard", link: "/", icon: LayoutDashboard },
   { name: "Auction", link: "/auction", icon: Eye },
   { name: "Tạo mới", link: "/create", icon: Plus },
+  { name: "About", link: "/about", icon: Info },
+  { name: "Contact", link: "/contact", icon: Phone },
 ];
 
 // Dropdown menu items for user account
@@ -815,13 +813,14 @@ const adminNavLink = [
 // All protected links for mobile menu
 const protectedNavLink = [
   { name: "Dashboard", link: "/" },
-  { name: "Create Auction", link: "/create" },
-  { name: "View Auction", link: "/auction" },
+  { name: "Auction", link: "/auction" },
+  { name: "Tạo mới", link: "/create" },
+  { name: "About", link: "/about" },
+  { name: "Contact", link: "/contact" },
   { name: "My Auction", link: "/myauction" },
   { name: "Won Auctions", link: "/won" },
   { name: "My Deposits", link: "/deposits" },
   { name: "Favorites", link: "/favorites" },
-  { name: "Contact", link: "/contact" },
   { name: "Profile", link: "/profile" },
   { name: "Privacy", link: "/privacy" },
 ];
@@ -842,10 +841,10 @@ const getDropdownItems = (userRole) => {
   return dropdownMenuItems;
 };
 
-// Legacy function for mobile menu
+// Helper function for mobile menu - returns first 5 items (matching desktop nav)
 const getNavLinks = (userRole) => {
   if (userRole === 'admin') {
     return adminNavLink;
   }
-  return protectedNavLink.slice(0, 6);
+  return protectedNavLink.slice(0, 5); // Dashboard, Auction, Create, About, Contact
 };
