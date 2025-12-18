@@ -100,12 +100,12 @@ export const MyDeposits = () => {
     if (depositsError) {
         return (
             <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
-                <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-200 max-w-md">
-                    <h2 className="text-2xl font-bold text-red-700 mb-4">Lỗi</h2>
+                <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-200 max-w-md">
+                    <h2 className="text-2xl font-bold text-emerald-700 mb-4">Lỗi</h2>
                     <p className="text-gray-700 mb-6">{depositsError.message}</p>
                     <button
                         onClick={() => refetch()}
-                        className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold"
+                        className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold"
                     >
                         Thử lại
                     </button>
@@ -162,20 +162,20 @@ export const MyDeposits = () => {
                 </div>
 
                 {/* Balance Card */}
-                <div className="bg-gradient-to-r from-cyan-500 to-teal-600 rounded-xl shadow-lg p-4 mb-6 text-white" data-aos="zoom-in" data-aos-delay="100">
+                <div className="bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl shadow-lg p-4 mb-6 text-white" data-aos="zoom-in" data-aos-delay="100">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div>
-                            <p className="text-cyan-100 text-xs mb-1 flex items-center gap-1">
+                            <p className="text-emerald-100 text-xs mb-1 flex items-center gap-1">
                                 Số dư tài khoản
                             </p>
                             <p className="text-3xl font-bold">{formatCurrency(balance)}</p>
-                            <p className="text-cyan-200 text-xs mt-1">
+                            <p className="text-emerald-200 text-xs mt-1">
                                 Dùng để đặt cọc tham gia đấu giá
                             </p>
                         </div>
                         <button
                             onClick={() => setShowTopUpModal(true)}
-                            className="bg-white text-cyan-600 px-4 py-2 rounded-lg font-semibold hover:bg-cyan-50 transition-colors shadow-md flex items-center gap-2 text-sm"
+                            className="bg-white text-emerald-600 px-4 py-2 rounded-lg font-semibold hover:bg-emerald-50 transition-colors shadow-md flex items-center gap-2 text-sm"
                         >
                             ➕ Nạp tiền
                         </button>
@@ -192,13 +192,13 @@ export const MyDeposits = () => {
                         <p className="text-xs text-blue-600 mb-0.5">Đang giữ</p>
                         <p className="text-xl font-bold text-blue-800">{stats.paid || 0}</p>
                     </div>
-                    <div className="bg-cyan-50 p-3 rounded-lg shadow-md border border-cyan-200">
-                        <p className="text-xs text-cyan-600 mb-0.5">Đã hoàn trả</p>
-                        <p className="text-xl font-bold text-cyan-800">{stats.refunded || 0}</p>
+                    <div className="bg-emerald-50 p-3 rounded-lg shadow-md border border-emerald-200">
+                        <p className="text-xs text-emerald-600 mb-0.5">Đã hoàn trả</p>
+                        <p className="text-xl font-bold text-emerald-800">{stats.refunded || 0}</p>
                     </div>
-                    <div className="bg-amber-50 p-3 rounded-lg shadow-md border border-amber-200">
-                        <p className="text-xs text-amber-600 mb-0.5">Tổng tiền cọc</p>
-                        <p className="text-xl font-bold text-amber-800">{formatCurrency(stats.totalAmount || 0)}</p>
+                    <div className="bg-emerald-50 p-3 rounded-lg shadow-md border border-emerald-200">
+                        <p className="text-xs text-emerald-600 mb-0.5">Tổng tiền cọc</p>
+                        <p className="text-xl font-bold text-emerald-800">{formatCurrency(stats.totalAmount || 0)}</p>
                     </div>
                 </div>
 
@@ -210,7 +210,7 @@ export const MyDeposits = () => {
                     {allTransactions.length > 0 && (
                         <Link
                             to="/transactions"
-                            className="text-sm text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1"
+                            className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1"
                         >
                             Xem tất cả giao dịch
                             <ExternalLink className="h-4 w-4" />
@@ -229,13 +229,13 @@ export const MyDeposits = () => {
                         <div className="flex gap-3 justify-center">
                             <button
                                 onClick={() => setShowTopUpModal(true)}
-                                className="inline-flex items-center gap-2 bg-cyan-500 text-white px-6 py-3 rounded-lg hover:bg-cyan-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
+                                className="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
                             >
                                 Nạp tiền
                             </button>
                             <Link
                                 to="/auction"
-                                className="inline-flex items-center gap-2 bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
+                                className="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
                             >
                                 Xem đấu giá
                                 <ExternalLink className="h-4 w-4" />
@@ -323,7 +323,7 @@ export const MyDeposits = () => {
                                                     <p className="text-xs text-gray-500">{date}</p>
                                                 </td>
                                                 <td className="px-4 py-3 text-right">
-                                                    <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-cyan-600' : 'text-red-600'}`}>
+                                                    <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-emerald-600' : 'text-red-600'}`}>
                                                         {sign}{formatCurrency(amount)}
                                                     </p>
                                                 </td>
@@ -342,7 +342,7 @@ export const MyDeposits = () => {
                             <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-center" data-aos="fade-up" data-aos-delay="700">
                                 <Link
                                     to="/transactions"
-                                    className="text-sm text-cyan-600 hover:text-cyan-700 font-medium transition-colors duration-200"
+                                    className="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
                                 >
                                     Xem thêm {allTransactions.length - 5} giao dịch khác →
                                 </Link>
@@ -368,7 +368,7 @@ export const MyDeposits = () => {
                     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                         <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
                             {/* Header */}
-                            <div className="bg-gradient-to-r from-cyan-500 to-teal-600 p-4 text-white">
+                            <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-4 text-white">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <h3 className="text-lg font-bold"> Nạp tiền vào ví</h3>
@@ -402,7 +402,7 @@ export const MyDeposits = () => {
                                                     setCustomAmount('');
                                                 }}
                                                 className={`py-2 rounded-lg font-semibold text-sm transition-all ${topUpAmount === amount && !customAmount
-                                                    ? 'bg-cyan-500 text-white'
+                                                    ? 'bg-emerald-500 text-white'
                                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                     }`}
                                             >
@@ -427,16 +427,16 @@ export const MyDeposits = () => {
                                                 placeholder="VD: 50"
                                                 min="1"
                                                 step="1"
-                                                className="w-full pl-4 pr-24 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                                                className="w-full pl-4 pr-24 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                                             />
                                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
                                                 x1,000 VNĐ
                                             </span>
                                         </div>
                                         {customAmount && parseFloat(customAmount) > 0 && (
-                                            <div className="bg-cyan-50 border border-cyan-200 rounded-md px-3 py-2">
-                                                <p className="text-sm text-cyan-700">
-                                                    = <span className="font-bold text-lg text-cyan-800">
+                                            <div className="bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2">
+                                                <p className="text-sm text-emerald-700">
+                                                    = <span className="font-bold text-lg text-emerald-800">
                                                         {(parseFloat(customAmount) * 1000).toLocaleString('vi-VN')} VNĐ
                                                     </span>
                                                 </p>
@@ -454,17 +454,17 @@ export const MyDeposits = () => {
                                                 key={method.id}
                                                 onClick={() => setSelectedPaymentMethod(method.id)}
                                                 className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${selectedPaymentMethod === method.id
-                                                    ? 'border-cyan-500 bg-cyan-50'
+                                                    ? 'border-emerald-500 bg-emerald-50'
                                                     : 'border-gray-200 hover:border-gray-300'
                                                     }`}
                                             >
                                                 <span className="text-2xl">{method.emoji}</span>
-                                                <span className={`font-medium ${selectedPaymentMethod === method.id ? 'text-cyan-800' : 'text-gray-700'
+                                                <span className={`font-medium ${selectedPaymentMethod === method.id ? 'text-emerald-800' : 'text-gray-700'
                                                     }`}>
                                                     {method.name}
                                                 </span>
                                                 {selectedPaymentMethod === method.id && (
-                                                    <span className="ml-auto text-cyan-600">✓</span>
+                                                    <span className="ml-auto text-emerald-600">✓</span>
                                                 )}
                                             </button>
                                         ))}
@@ -475,7 +475,7 @@ export const MyDeposits = () => {
                                 <button
                                     onClick={handleTopUp}
                                     disabled={topUpMutation.isPending || (!topUpAmount && !customAmount)}
-                                    className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {topUpMutation.isPending ? (
                                         <>

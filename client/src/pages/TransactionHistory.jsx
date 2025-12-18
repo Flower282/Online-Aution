@@ -134,7 +134,7 @@ export const TransactionHistory = () => {
                         <select
                             value={days}
                             onChange={(e) => handleDaysChange(parseInt(e.target.value))}
-                            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all duration-200"
+                            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
                         >
                             <option value={7}>7 ngày gần nhất</option>
                             <option value={30}>30 ngày gần nhất</option>
@@ -155,7 +155,7 @@ export const TransactionHistory = () => {
                         </p>
                         <Link
                             to="/deposits"
-                            className="inline-flex items-center gap-2 bg-cyan-500 text-white px-6 py-3 rounded-lg hover:bg-cyan-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
+                            className="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-lg hover:bg-emerald-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg"
                         >
                             Quay lại
                         </Link>
@@ -223,7 +223,7 @@ export const TransactionHistory = () => {
                                                         <p className="text-xs text-gray-500">{date}</p>
                                                     </td>
                                                     <td className="px-4 py-3 text-right">
-                                                        <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-cyan-600' : 'text-red-600'}`}>
+                                                        <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-emerald-600' : 'text-emerald-600'}`}>
                                                             {sign}{formatCurrency(amount)}
                                                         </p>
                                                     </td>
@@ -246,7 +246,7 @@ export const TransactionHistory = () => {
                                 <button
                                     onClick={handleLoadMore}
                                     disabled={transactionsLoading}
-                                    className="px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
+                                    className="px-6 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-all duration-200 font-semibold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
                                 >
                                     {transactionsLoading ? (
                                         <>

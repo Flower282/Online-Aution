@@ -110,8 +110,8 @@ const PendingAuctions = () => {
         return (
             <div className="min-h-screen p-6" style={{ backgroundColor: '#f5f1e8' }}>
                 <div className="max-w-7xl mx-auto">
-                    <div className="bg-red-50 border-2 border-red-200 p-6 rounded-lg">
-                        <p className="text-red-700 font-semibold">❌ {error.message}</p>
+                    <div className="bg-emerald-50 border-2 border-emerald-200 p-6 rounded-lg">
+                        <p className="text-emerald-700 font-semibold">❌ {error.message}</p>
                     </div>
                 </div>
             </div>
@@ -182,27 +182,27 @@ const PendingAuctions = () => {
                         <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 pointer-events-none">
                             <div
                                 className={`toast-popup pointer-events-auto ${toast.type === "success"
-                                    ? "bg-white border-2 border-cyan-500"
-                                    : "bg-white border-2 border-red-500"
+                                    ? "bg-white border-2 border-emerald-500"
+                                    : "bg-white border-2 border-emerald-500"
                                     } rounded-2xl shadow-2xl max-w-md w-full overflow-hidden`}
                             >
                                 <div className="p-6">
                                     <div className="flex items-start gap-4">
                                         {/* Icon */}
                                         <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${toast.type === "success"
-                                            ? "bg-cyan-100"
-                                            : "bg-red-100"
+                                            ? "bg-emerald-100"
+                                            : "bg-emerald-100"
                                             }`}>
                                             {toast.type === "success" ? (
-                                                <CheckCircle className="w-7 h-7 text-cyan-600" />
+                                                <CheckCircle className="w-7 h-7 text-emerald-600" />
                                             ) : (
-                                                <XCircle className="w-7 h-7 text-red-600" />
+                                                <XCircle className="w-7 h-7 text-emerald-600" />
                                             )}
                                         </div>
 
                                         {/* Message */}
                                         <div className="flex-1 pt-1">
-                                            <h3 className={`text-lg font-bold mb-1 ${toast.type === "success" ? "text-cyan-800" : "text-red-800"
+                                            <h3 className={`text-lg font-bold mb-1 ${toast.type === "success" ? "text-emerald-800" : "text-emerald-800"
                                                 }`}>
                                                 {toast.type === "success" ? "✨ Success!" : "⚠️ Error"}
                                             </h3>
@@ -226,7 +226,7 @@ const PendingAuctions = () => {
                                 {/* Progress Bar */}
                                 <div className="relative h-1 bg-gray-200">
                                     <div
-                                        className={`toast-progress absolute top-0 left-0 h-full ${toast.type === "success" ? "bg-cyan-500" : "bg-red-500"
+                                        className={`toast-progress absolute top-0 left-0 h-full ${toast.type === "success" ? "bg-emerald-500" : "bg-emerald-500"
                                             }`}
                                     />
                                 </div>
@@ -237,7 +237,7 @@ const PendingAuctions = () => {
 
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-cyan-600 mb-2">
+                    <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-600 mb-2">
                         🎅 Pending Auctions
                     </h1>
                     <p className="text-gray-600">
@@ -247,7 +247,7 @@ const PendingAuctions = () => {
 
                 {/* Auctions List */}
                 {auctions.length === 0 ? (
-                    <div className="bg-white p-12 rounded-2xl shadow-lg text-center border-2 border-cyan-200">
+                    <div className="bg-white p-12 rounded-2xl shadow-lg text-center border-2 border-emerald-200">
                         <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-2xl font-bold text-gray-700 mb-2">No Pending Auctions</h3>
                         <p className="text-gray-500">All auctions have been reviewed! 🎉</p>
@@ -256,7 +256,7 @@ const PendingAuctions = () => {
                     <div className="bg-white rounded-2xl shadow-lg border-2 border-yellow-200 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full">
-                                <thead className="bg-gradient-to-r from-yellow-50 to-amber-50 border-b-2 border-yellow-200">
+                                <thead className="bg-gradient-to-r from-yellow-50 to-emerald-50 border-b-2 border-yellow-200">
                                     <tr>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Item Name</th>
                                         <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Category</th>
@@ -280,7 +280,7 @@ const PendingAuctions = () => {
                                                 <div className="flex items-center gap-2">
                                                     <ExternalLink className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     <div>
-                                                        <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                                        <p className="font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
                                                             {auction.itemName}
                                                         </p>
                                                         <p className="text-xs text-gray-500 line-clamp-1">
@@ -293,7 +293,7 @@ const PendingAuctions = () => {
                                                 className="px-6 py-4 cursor-pointer"
                                                 onClick={() => navigate(`/auction/${auction._id}`)}
                                             >
-                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                                                     {auction.itemCategory}
                                                 </span>
                                             </td>
@@ -301,7 +301,7 @@ const PendingAuctions = () => {
                                                 className="px-6 py-4 cursor-pointer"
                                                 onClick={() => navigate(`/auction/${auction._id}`)}
                                             >
-                                                <p className="font-semibold text-cyan-600">{formatCurrency(auction.startingPrice)}</p>
+                                                <p className="font-semibold text-emerald-600">{formatCurrency(auction.startingPrice)}</p>
                                             </td>
                                             <td
                                                 className="px-6 py-4 cursor-pointer"
@@ -341,7 +341,7 @@ const PendingAuctions = () => {
                                                             handleApprove(auction);
                                                         }}
                                                         disabled={approveMutation.isPending}
-                                                        className="p-2 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         title="Approve"
                                                     >
                                                         <CheckCircle className="w-5 h-5" />
@@ -352,7 +352,7 @@ const PendingAuctions = () => {
                                                             handleRejectClick(auction);
                                                         }}
                                                         disabled={rejectMutation.isPending}
-                                                        className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         title="Reject"
                                                     >
                                                         <XCircle className="w-5 h-5" />
@@ -373,17 +373,17 @@ const PendingAuctions = () => {
                         <button
                             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                             disabled={!pagination.hasPrevPage}
-                            className="px-4 py-2 bg-white border-2 border-red-200 rounded-lg font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 bg-white border-2 border-emerald-200 rounded-lg font-semibold text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Previous
                         </button>
-                        <span className="px-4 py-2 bg-white border-2 border-cyan-200 rounded-lg font-semibold">
+                        <span className="px-4 py-2 bg-white border-2 border-emerald-200 rounded-lg font-semibold">
                             Page {pagination.currentPage} of {pagination.totalPages}
                         </span>
                         <button
                             onClick={() => setCurrentPage((p) => p + 1)}
                             disabled={!pagination.hasNextPage}
-                            className="px-4 py-2 bg-white border-2 border-red-200 rounded-lg font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 bg-white border-2 border-emerald-200 rounded-lg font-semibold text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Next
                         </button>
@@ -394,16 +394,16 @@ const PendingAuctions = () => {
             {/* Approve Modal */}
             {showApproveModal && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
-                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl pointer-events-auto border-2 border-cyan-300 animate-bounce-in">
+                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl pointer-events-auto border-2 border-emerald-300 animate-bounce-in">
                         <div className="flex items-center gap-3 mb-6">
-                            <CheckCircle className="w-8 h-8 text-cyan-500" />
+                            <CheckCircle className="w-8 h-8 text-emerald-500" />
                             <h2 className="text-2xl font-bold text-gray-800">Approve Auction</h2>
                         </div>
                         <p className="text-gray-700 text-center text-lg mb-6">
                             Are you sure you want to approve this auction?
                         </p>
                         <p className="text-center text-gray-600 mb-6">
-                            <strong className="text-red-600">{auctionToApprove?.itemName}</strong>
+                            <strong className="text-emerald-600">{auctionToApprove?.itemName}</strong>
                         </p>
                         <div className="flex gap-3">
                             <button
@@ -418,7 +418,7 @@ const PendingAuctions = () => {
                             <button
                                 onClick={handleApproveConfirm}
                                 disabled={approveMutation.isPending}
-                                className="flex-1 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-cyan-700 transition-all disabled:opacity-50"
+                                className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all disabled:opacity-50"
                             >
                                 {approveMutation.isPending ? "Approving..." : "Confirm"}
                             </button>
@@ -430,23 +430,23 @@ const PendingAuctions = () => {
             {/* Reject Modal */}
             {showRejectModal && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
-                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl pointer-events-auto border-2 border-red-300 animate-bounce-in">
+                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl pointer-events-auto border-2 border-emerald-300 animate-bounce-in">
                         <div className="flex items-center gap-3 mb-6">
-                            <AlertCircle className="w-8 h-8 text-red-500" />
+                            <AlertCircle className="w-8 h-8 text-emerald-500" />
                             <h2 className="text-2xl font-bold text-gray-800">Reject Auction</h2>
                         </div>
                         <p className="text-gray-700 text-center text-lg mb-4">
                             Are you sure you want to reject this auction?
                         </p>
                         <p className="text-center text-gray-600 mb-4">
-                            <strong className="text-red-600">{selectedAuction?.itemName}</strong>
+                            <strong className="text-emerald-600">{selectedAuction?.itemName}</strong>
                         </p>
                         <p className="text-sm text-gray-600 mb-2">Please provide a rejection reason:</p>
                         <textarea
                             value={rejectionReason}
                             onChange={(e) => setRejectionReason(e.target.value)}
                             placeholder="Enter rejection reason..."
-                            className="w-full border-2 border-gray-300 rounded-lg p-3 mb-4 focus:border-red-500 focus:outline-none resize-none"
+                            className="w-full border-2 border-gray-300 rounded-lg p-3 mb-4 focus:border-emerald-500 focus:outline-none resize-none"
                             rows="4"
                         />
                         <div className="flex gap-3">
@@ -463,7 +463,7 @@ const PendingAuctions = () => {
                             <button
                                 onClick={handleRejectConfirm}
                                 disabled={rejectMutation.isPending}
-                                className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all disabled:opacity-50"
+                                className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all disabled:opacity-50"
                             >
                                 {rejectMutation.isPending ? "Rejecting..." : "Confirm"}
                             </button>

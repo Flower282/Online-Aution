@@ -285,15 +285,15 @@ export const Navbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b-2 border-cyan-300 bg-white backdrop-blur shadow-lg">
+      <header className="sticky top-0 z-50 w-full border-b-2 border-emerald-300 bg-white backdrop-blur shadow-lg">
         <div className="container mx-auto flex h-20 items-center justify-between px-4 relative">
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2 group">
               <div className="relative">
-                <Gavel className="h-7 w-7 text-cyan-600 group-hover:text-cyan-700 transition-colors christmas-sparkle" />
+                <Gavel className="h-7 w-7 text-emerald-600 group-hover:text-emerald-700 transition-colors christmas-sparkle" />
                 <Sparkles className="h-3.5 w-3.5 text-yellow-500 absolute -top-1 -right-1 animate-pulse" />
               </div>
-              <span className="font-bold text-xl bg-gradient-to-r from-cyan-500 via-cyan-600 to-cyan-600 bg-clip-text text-transparent">
+              <span className="font-bold text-xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 bg-clip-text text-transparent">
                 Online Auction
               </span>
             </Link>
@@ -315,24 +315,24 @@ export const Navbar = () => {
                   }}
                   className={({ isActive }) =>
                     isActive
-                      ? "text-sm text-primary font-medium transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-50"
-                      : "text-sm hover:text-primary hover:bg-cyan-50/50 transition-all flex items-center gap-1.5 px-3 py-2 rounded-lg"
+                      ? "text-sm text-primary font-medium transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-50"
+                      : "text-sm hover:text-primary hover:bg-emerald-50/50 transition-all flex items-center gap-1.5 px-3 py-2 rounded-lg"
                   }
                 >
                   {item.icon && <item.icon className="h-4 w-4" />}
                   {item.name}
                   {item.name === "Pending Auctions" && pendingCount > 0 && (
-                    <span className={`bg-cyan-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
                       {pendingCount}
                     </span>
                   )}
                   {item.name === "Pending Requests" && pendingReactivationsCount > 0 && (
-                    <span className={`bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
                       {pendingReactivationsCount}
                     </span>
                   )}
                   {item.name === "Pending Verifications" && pendingVerificationsCount > 0 && (
-                    <span className={`bg-cyan-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
                       {pendingVerificationsCount}
                     </span>
                   )}
@@ -343,7 +343,7 @@ export const Navbar = () => {
 
           <div className="hidden lg:flex flex-1 max-w-md mx-6" ref={searchRef}>
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cyan-600" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
               <Input
                 placeholder="Tìm kiếm đấu giá, trang... (Enter để tìm)"
                 value={searchTerm}
@@ -361,7 +361,7 @@ export const Navbar = () => {
                   }
                 }}
                 autoComplete="off"
-                className="pl-9 bg-cyan-50 border-cyan-200 focus:border-cyan-400 focus:ring-cyan-400"
+                className="pl-9 bg-emerald-50 border-emerald-200 focus:border-emerald-400 focus:ring-emerald-400"
               />
 
               {/* Search Results Dropdown */}
@@ -377,8 +377,8 @@ export const Navbar = () => {
                       {/* Auctions Results */}
                       {searchResults.auctions.length > 0 && (
                         <div>
-                          <div className="px-4 py-2 bg-gradient-to-r from-cyan-50 to-cyan-50 border-b border-gray-100">
-                            <span className="text-xs font-semibold text-cyan-700 uppercase tracking-wider flex items-center gap-1">
+                          <div className="px-4 py-2 bg-gradient-to-r from-emerald-50 to-emerald-50 border-b border-gray-100">
+                            <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider flex items-center gap-1">
                               <Gavel className="h-3 w-3" />
                               Đấu giá ({searchResults.auctions.length})
                             </span>
@@ -395,7 +395,7 @@ export const Navbar = () => {
                               <button
                                 key={auction._id}
                                 onClick={() => handleSearchResultClick(`/auction/${auction._id}`)}
-                                className="w-full px-4 py-3 flex items-start gap-3 hover:bg-cyan-50 transition-colors text-left border-b border-gray-50 last:border-b-0"
+                                className="w-full px-4 py-3 flex items-start gap-3 hover:bg-emerald-50 transition-colors text-left border-b border-gray-50 last:border-b-0"
                               >
                                 <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 shadow-sm">
                                   {auction.itemPhoto ? (
@@ -417,7 +417,7 @@ export const Navbar = () => {
                                     {auction.itemDescription?.length > 60 ? '...' : ''}
                                   </p>
                                   <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-700">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
                                       {auction.itemCategory}
                                     </span>
                                     {auction.bidsCount > 0 && (
@@ -426,7 +426,7 @@ export const Navbar = () => {
                                       </span>
                                     )}
                                     {!isEnded ? (
-                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-700">
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
                                         {daysLeft > 0 ? `${daysLeft}d ${hoursLeft}h` : hoursLeft > 0 ? `${hoursLeft}h ${minutesLeft}m` : `${minutesLeft}m còn lại`}
                                       </span>
                                     ) : (
@@ -437,7 +437,7 @@ export const Navbar = () => {
                                   </div>
                                   <div className="flex items-center gap-2 mt-1.5">
                                     <span className="text-xs text-gray-500">Giá hiện tại:</span>
-                                    <span className="text-sm font-bold text-cyan-600">
+                                    <span className="text-sm font-bold text-emerald-600">
                                       {new Intl.NumberFormat('vi-VN').format(auction.currentPrice)}đ
                                     </span>
                                   </div>
@@ -461,7 +461,7 @@ export const Navbar = () => {
                             <button
                               key={page.link}
                               onClick={() => handleSearchResultClick(page.link)}
-                              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left"
+                              className="w-full px-4 py-3 flex items-center gap-3 hover:bg-green-50 transition-colors text-left"
                             >
                               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
                                 <page.icon className="h-5 w-5 text-blue-600" />
@@ -479,7 +479,7 @@ export const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-cyan-50 text-cyan-600">
+            <Button variant="ghost" size="icon" className="hidden md:flex hover:bg-emerald-50 text-emerald-600">
               <Gift className="h-5 w-5 christmas-sparkle" />
             </Button>
             {user ? (
@@ -489,12 +489,12 @@ export const Navbar = () => {
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     className={`flex items-center justify-between gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 min-w-[220px] ${isDropdownOpen
-                      ? "bg-cyan-100 text-cyan-700 border-cyan-300"
-                      : "hover:bg-cyan-50 text-gray-700 border-gray-200 hover:border-cyan-200"
+                      ? "bg-emerald-100 text-emerald-700 border-emerald-300"
+                      : "hover:bg-emerald-50 text-gray-700 border-gray-200 hover:border-emerald-200"
                       }`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center text-white text-xs font-bold">
+                      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold">
                         {user.user.name?.charAt(0).toUpperCase() || 'U'}
                       </div>
                       <span>{user.user.name}</span>
@@ -502,7 +502,7 @@ export const Navbar = () => {
                     <ChevronDown className={`h-4 w-4 transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                     {/* Combined notification badge */}
                     {unseenWonCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-cyan-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse shadow-lg">
+                      <span className="absolute -top-1 -right-1 bg-emerald-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse shadow-lg">
                         {unseenWonCount}
                       </span>
                     )}
@@ -512,9 +512,9 @@ export const Navbar = () => {
                   {isDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                       {/* User Info Header */}
-                      <div className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-cyan-50 to-cyan-50">
+                      <div className="px-4 py-4 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-emerald-50">
                         <div className="flex items-center gap-3">
-                          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
                             {user.user.name?.charAt(0).toUpperCase() || 'U'}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -536,9 +536,9 @@ export const Navbar = () => {
                                   setIsDropdownOpen(false);
                                   handleLogout();
                                 }}
-                                className="flex items-center justify-start gap-2 w-full px-4 py-3 text-sm text-cyan-600 hover:bg-cyan-50 transition-colors text-left"
+                                className="flex items-center justify-start gap-2 w-full px-4 py-3 text-sm text-emerald-600 hover:bg-emerald-50 transition-colors text-left"
                               >
-                                <item.icon className={`h-5 w-5 ${item.iconColor || 'text-cyan-600'}`} />
+                                <item.icon className={`h-5 w-5 ${item.iconColor || 'text-emerald-600'}`} />
                                 <span className="flex-1 font-medium text-left">{item.name}</span>
                               </button>
                             );
@@ -556,7 +556,7 @@ export const Navbar = () => {
                               }}
                               className={({ isActive }) =>
                                 `flex items-center justify-start gap-2 px-4 py-3 text-sm transition-colors ${isActive
-                                  ? "bg-red-50 text-red-700 font-medium"
+                                  ? "bg-emerald-50 text-emerald-700 font-medium"
                                   : "text-gray-700 hover:bg-gray-50"
                                 }`
                               }
@@ -564,7 +564,7 @@ export const Navbar = () => {
                               <item.icon className={`h-5 w-5 ${item.iconColor || 'text-gray-500'}`} />
                               <span className="flex-1 text-left">{item.name}</span>
                               {item.name === "Won Auctions" && unseenWonCount > 0 && (
-                                <span className="bg-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                                   {unseenWonCount}
                                 </span>
                               )}
@@ -578,10 +578,10 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <Button variant="outline" className="hidden sm:flex border-cyan-600 text-cyan-600 hover:bg-cyan-50 min-w-[105px]" asChild>
+                <Button variant="outline" className="hidden sm:flex border-emerald-600 text-emerald-600 hover:bg-emerald-50 min-w-[105px]" asChild>
                   <Link to="/login">Đăng nhập</Link>
                 </Button>
-                <Button className="hidden sm:flex bg-gradient-to-r from-cyan-500 via-cyan-600 to-cyan-600 hover:from-cyan-600 hover:via-cyan-700 hover:to-cyan-700 shadow-lg min-w-[105px]" asChild>
+                <Button className="hidden sm:flex bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-700 shadow-lg min-w-[105px]" asChild>
                   <Link to="/signup">Đăng ký</Link>
                 </Button>
               </>
@@ -590,7 +590,7 @@ export const Navbar = () => {
               variant="ghost"
               size="icon"
               onClick={toggleMenu}
-              className="md:hidden hover:bg-cyan-50 text-cyan-600"
+              className="md:hidden hover:bg-emerald-50 text-emerald-600"
             >
               <Menu className="h-5 w-5" />
             </Button>
@@ -609,10 +609,10 @@ export const Navbar = () => {
         className={`fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
       >
-        <div className="flex justify-between items-center p-4 border-b-2 border-cyan-300 bg-gradient-to-r from-cyan-100 via-cyan-50 to-cyan-100">
+        <div className="flex justify-between items-center p-4 border-b-2 border-emerald-300 bg-gradient-to-r from-emerald-100 via-emerald-50 to-emerald-100">
           <div className="flex items-center space-x-2">
-            <Gavel className="h-6 w-6 text-cyan-600 christmas-sparkle" />
-            <span className="text-xl font-bold bg-gradient-to-r from-cyan-500 via-cyan-600 to-cyan-600 bg-clip-text text-transparent">
+            <Gavel className="h-6 w-6 text-emerald-600 christmas-sparkle" />
+            <span className="text-xl font-bold bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 bg-clip-text text-transparent">
               Auction
             </span>
           </div>
@@ -621,16 +621,16 @@ export const Navbar = () => {
             size="icon"
             onClick={() => setIsMenuOpen(false)}
             aria-label="Close menu"
-            className="hover:bg-cyan-100 text-cyan-600"
+            className="hover:bg-emerald-100 text-emerald-600"
           >
             <X className="h-5 w-5" />
           </Button>
         </div>
 
         {user && (
-          <div className="p-4 border-b border-cyan-300 bg-gradient-to-r from-cyan-100 to-cyan-50">
+          <div className="p-4 border-b border-emerald-300 bg-gradient-to-r from-emerald-100 to-emerald-50">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-cyan-100 flex items-center justify-center overflow-hidden ring-2 ring-cyan-400">
+              <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center overflow-hidden ring-2 ring-emerald-400">
                 {user.user.avatar ? (
                   <img
                     src={user.user.avatar}
@@ -638,12 +638,12 @@ export const Navbar = () => {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <User className="h-6 w-6 text-cyan-600" />
+                  <User className="h-6 w-6 text-emerald-600" />
                 )}
               </div>
               <div>
-                <p className="font-semibold text-cyan-900"> {user.user.name}</p>
-                <p className="text-sm text-cyan-600 truncate">
+                <p className="font-semibold text-emerald-900"> {user.user.name}</p>
+                <p className="text-sm text-emerald-600 truncate">
                   {user.user.email}
                 </p>
               </div>
@@ -677,22 +677,22 @@ export const Navbar = () => {
                 >
                   <span>{item.name}</span>
                   {item.name === "Pending Auctions" && pendingCount > 0 && (
-                    <span className={`bg-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
                       {pendingCount}
                     </span>
                   )}
                   {item.name === "Pending Requests" && pendingReactivationsCount > 0 && (
-                    <span className={`bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
                       {pendingReactivationsCount}
                     </span>
                   )}
                   {item.name === "Pending Verifications" && pendingVerificationsCount > 0 && (
-                    <span className={`bg-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
+                    <span className={`bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
                       {pendingVerificationsCount}
                     </span>
                   )}
                   {item.name === "Won Auctions" && unseenWonCount > 0 && (
-                    <span className="bg-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                    <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
                       {unseenWonCount}
                     </span>
                   )}
@@ -783,19 +783,19 @@ const mainNavLinks = [
 // Dropdown menu items for user account
 const dropdownMenuItems = [
   { name: "My Auction", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
-  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-amber-500" },
-  { name: "My Deposits", link: "/deposits", icon: Wallet, iconColor: "text-cyan-500" },
-  { name: "Favorites", link: "/favorites", icon: Heart, iconColor: "text-cyan-500" },
+  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-emerald-500" },
+  { name: "My Deposits", link: "/deposits", icon: Wallet, iconColor: "text-emerald-500" },
+  { name: "Favorites", link: "/favorites", icon: Heart, iconColor: "text-emerald-500" },
   { name: "Profile", link: "/profile", icon: Settings, iconColor: "text-gray-500" },
-  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
+  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-emerald-600" },
 ];
 
 // Admin dropdown items (same structure as user, but profile link points to /admin/profile)
 const adminDropdownMenuItems = [
   { name: "My Auction", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
-  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-amber-500" },
+  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-emerald-500" },
   { name: "Profile", link: "/admin/profile", icon: Settings, iconColor: "text-gray-500" },
-  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
+  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-emerald-600" },
 ];
 
 // Admin navigation links

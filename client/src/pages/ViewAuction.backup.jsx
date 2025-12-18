@@ -155,8 +155,8 @@ export const ViewAuction = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-100 max-w-md">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Auction</h2>
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-100 max-w-md">
+          <h2 className="text-2xl font-bold text-emerald-600 mb-4">Error Loading Auction</h2>
           <p className="text-gray-600 mb-6">{error.message || "Failed to load auction details"}</p>
           <div className="flex gap-3 justify-center">
             <Link to="/auction" className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors font-semibold">
@@ -164,7 +164,7 @@ export const ViewAuction = () => {
             </Link>
             <button
               onClick={() => window.location.reload()}
-              className="bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors font-semibold"
+              className="bg-lime-500 text-white px-6 py-3 rounded-lg hover:bg-lime-600 transition-colors font-semibold"
             >
               Retry
             </button>
@@ -181,7 +181,7 @@ export const ViewAuction = () => {
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-yellow-100 max-w-md">
           <h2 className="text-2xl font-bold text-yellow-600 mb-4">Auction Not Found</h2>
           <p className="text-gray-600 mb-6">This auction may have been removed or doesn't exist.</p>
-          <Link to="/auction" className="inline-block bg-sky-500 text-white px-6 py-3 rounded-lg hover:bg-sky-600 transition-colors font-semibold">
+          <Link to="/auction" className="inline-block bg-lime-500 text-white px-6 py-3 rounded-lg hover:bg-lime-600 transition-colors font-semibold">
             Back to Auctions
           </Link>
         </div>
@@ -248,8 +248,8 @@ export const ViewAuction = () => {
                 </span>
                 <span
                   className={`px-2 py-1 rounded-md text-xs font-medium ${isActive
-                    ? "bg-cyan-100 text-cyan-800"
-                    : "bg-red-100 text-red-800"
+                    ? "bg-emerald-100 text-emerald-800"
+                    : "bg-emerald-100 text-emerald-800"
                     }`}
                 >
                   {isActive ? "Active" : "Ended"}
@@ -274,7 +274,7 @@ export const ViewAuction = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Current Price</p>
-                  <p className="text-2xl font-bold text-cyan-600">
+                  <p className="text-2xl font-bold text-emerald-600">
                     ${data.currentPrice}
                   </p>
                 </div>
@@ -290,7 +290,7 @@ export const ViewAuction = () => {
                 <div>
                   <p className="text-sm text-gray-500">Time Left</p>
                   <p
-                    className={`text-lg font-semibold ${isActive ? "text-red-600" : "text-gray-500"
+                    className={`text-lg font-semibold ${isActive ? "text-emerald-600" : "text-gray-500"
                       }`}
                   >
                     {isActive ? `${daysLeft} days` : "Ended"}
@@ -320,16 +320,16 @@ export const ViewAuction = () => {
 
             {/* Warning if seller is inactive */}
             {isSellerInactive && isActive && (
-              <div className="bg-red-50 border-2 border-red-200 p-6 rounded-md shadow-md">
+              <div className="bg-emerald-50 border-2 border-emerald-200 p-6 rounded-md shadow-md">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0">
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-red-800 mb-2">Không thể đấu giá</h3>
-                    <p className="text-red-700 text-sm">
+                    <h3 className="text-lg font-semibold text-emerald-800 mb-2">Không thể đấu giá</h3>
+                    <p className="text-emerald-700 text-sm">
                       Tài khoản người bán đã bị vô hiệu hóa. Bạn có thể xem thông tin nhưng không thể đặt giá cho phiên đấu giá này.
                     </p>
                   </div>
@@ -364,7 +364,7 @@ export const ViewAuction = () => {
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                    className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-medium"
                   >
                     Place Bid
                   </button>
@@ -374,16 +374,16 @@ export const ViewAuction = () => {
 
             {/* Seller Info */}
             <div className={`p-6 rounded-md shadow-md border ${isSellerInactive
-              ? 'bg-red-50 border-red-200'
+              ? 'bg-emerald-50 border-emerald-200'
               : 'bg-white border-gray-200'
               }`}>
               <h3 className="text-lg font-semibold mb-3">Seller Information</h3>
-              <p className={`font-medium ${isSellerInactive ? 'text-red-700' : 'text-gray-900'
+              <p className={`font-medium ${isSellerInactive ? 'text-emerald-700' : 'text-gray-900'
                 }`}>
                 {isSellerInactive ? 'Tài khoản bị vô hiệu hóa' : data.seller.name}
               </p>
               {isSellerInactive && (
-                <p className="text-xs text-red-600 mt-2">
+                <p className="text-xs text-emerald-600 mt-2">
                   Tài khoản này đã bị vô hiệu hóa bởi quản trị viên
                 </p>
               )}
@@ -391,12 +391,12 @@ export const ViewAuction = () => {
 
             {/* Admin Delete Button */}
             {user?.user?.role === "admin" && (
-              <div className="bg-white p-6 rounded-md shadow-md border border-red-200">
-                <h3 className="text-lg font-semibold mb-3 text-red-600">Admin Actions</h3>
+              <div className="bg-white p-6 rounded-md shadow-md border border-emerald-200">
+                <h3 className="text-lg font-semibold mb-3 text-emerald-600">Admin Actions</h3>
                 <button
                   onClick={handleDelete}
                   disabled={deleteAuctionMutate.isPending}
-                  className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-emerald-600 text-white py-3 px-4 rounded-md hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {deleteAuctionMutate.isPending ? "Deleting..." : "Delete Auction"}
                 </button>
@@ -433,7 +433,7 @@ export const ViewAuction = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold text-cyan-600">
+                      <p className="text-lg font-semibold text-emerald-600">
                         ${bid.bidAmount}
                       </p>
                     </div>
@@ -462,7 +462,7 @@ export const ViewAuction = () => {
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
               >
                 Delete
               </button>

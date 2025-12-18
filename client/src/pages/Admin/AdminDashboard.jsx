@@ -155,15 +155,15 @@ export const AdminDashboard = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-8 shadow-lg">
+          <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-8 shadow-lg">
             <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Error</h2>
-              <p className="text-red-600 mb-6">{error}</p>
+              <p className="text-emerald-600 mb-6">{error}</p>
               <button
                 onClick={() => window.location.reload()}
                 className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg"
@@ -194,7 +194,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-green-700 uppercase tracking-wide">
-                      🎄 Active Auctions
+                      Active Auctions
                     </h3>
                     <p className="text-2xl font-bold text-green-900 mt-2">
                       {dashboardData.stats.activeAuctions || 0}
@@ -211,18 +211,18 @@ export const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="bg-red-50 rounded-xl shadow-sm border-2 border-red-300 p-6 hover:shadow-md transition-all">
+              <div className="bg-emerald-50 rounded-xl shadow-sm border-2 border-emerald-300 p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-medium text-red-700 uppercase tracking-wide">
-                      🎁 Total Auctions
+                    <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
+                      Total Auctions
                     </h3>
-                    <p className="text-2xl font-bold text-red-900 mt-2">
+                    <p className="text-2xl font-bold text-emerald-900 mt-2">
                       {dashboardData.stats.totalAuctions || 0}
                     </p>
                   </div>
-                  <div className="bg-red-200 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-emerald-200 p-3 rounded-full">
+                    <svg className="w-6 h-6 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
@@ -233,14 +233,14 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-amber-700 uppercase tracking-wide">
-                      ⭐ Total Users
+                      Total Users
                     </h3>
                     <p className="text-2xl font-bold text-amber-900 mt-2">
                       {dashboardData.stats.totalUsers || 0}
                     </p>
                   </div>
                   <div className="bg-amber-200 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
                   </div>
@@ -254,7 +254,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-rose-700 uppercase tracking-wide">
-                      🎅 Pending Auctions
+                      Pending Auctions
                     </h3>
                     <p className="text-2xl font-bold text-rose-900 mt-2">
                       {dashboardData.stats.pendingAuctions || 0}
@@ -266,7 +266,7 @@ export const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="bg-rose-200 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
@@ -277,7 +277,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
-                      ✨ Pending Verifications
+                      Pending Verifications
                     </h3>
                     <p className="text-2xl font-bold text-emerald-900 mt-2">
                       {pendingVerifications}
@@ -289,7 +289,7 @@ export const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="bg-emerald-200 p-3 rounded-full">
-                    <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                    <ShieldCheck className="w-6 h-6 text-emerald-700" />
                   </div>
                 </div>
               </Link>
@@ -298,7 +298,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-orange-700 uppercase tracking-wide">
-                      🔔 Pending Reactivations
+                      Pending Reactivations
                     </h3>
                     <p className="text-2xl font-bold text-orange-900 mt-2">
                       {pendingReactivations}
@@ -310,7 +310,7 @@ export const AdminDashboard = () => {
                     )}
                   </div>
                   <div className="bg-orange-200 p-3 rounded-full">
-                    <UserCheck className="w-6 h-6 text-amber-600" />
+                    <UserCheck className="w-6 h-6 text-orange-700" />
                   </div>
                 </div>
               </Link>
@@ -367,7 +367,7 @@ export const AdminDashboard = () => {
                         {/* Ended Overlay */}
                         {isEnded && (
                           <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                            <span className="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-sm">
+                            <span className="bg-emerald-600 text-white px-4 py-2 rounded-full font-bold text-sm">
                               ĐÃ KẾT THÚC
                             </span>
                           </div>
@@ -415,7 +415,7 @@ export const AdminDashboard = () => {
                             {currentAuction?.itemCategory || 'Uncategorized'}
                           </span>
                           {isEnded && (
-                            <span className="ml-2 inline-flex items-center gap-1 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                            <span className="ml-2 inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold">
                               Đã kết thúc
                             </span>
                           )}
@@ -588,7 +588,7 @@ export const AdminDashboard = () => {
                           <button
                             onClick={() => handleDeleteClick(user)}
                             disabled={user.role === 'admin'}
-                            className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="text-emerald-600 hover:text-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             title={user.role === 'admin' ? 'Cannot deactivate admin users' : 'Deactivate user'}
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -608,9 +608,9 @@ export const AdminDashboard = () => {
         {/* Delete Confirmation Dialog */}
         {deleteDialogOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-red-100">
-              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-red-100 to-red-200 rounded-full">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] max-w-md w-full p-8 transform transition-all animate-slideUp border-2 border-emerald-100">
+              <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full">
+                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
@@ -623,7 +623,7 @@ export const AdminDashboard = () => {
                 Bạn có chắc chắn muốn vô hiệu hóa
               </p>
               <p className="text-center mb-6">
-                <span className="font-bold text-red-600 text-lg">{userToDelete?.name}</span>
+                <span className="font-bold text-emerald-600 text-lg">{userToDelete?.name}</span>
               </p>
               <p className="text-gray-500 text-center text-sm mb-8">
                 Tài khoản sẽ không thể đăng nhập và các auction của họ sẽ bị ẩn.
@@ -640,7 +640,7 @@ export const AdminDashboard = () => {
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleteLoading}
-                  className="flex-1 px-5 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-emerald-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
                 >
                   {deleteLoading ? 'Đang xử lý...' : 'Vô hiệu hóa'}
                 </button>

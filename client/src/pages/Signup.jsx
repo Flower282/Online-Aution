@@ -48,9 +48,9 @@ const Signup = () => {
         <div className="w-full max-w-5xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 bg-white rounded-2xl shadow-2xl overflow-hidden">
             {/* Left Side - Signup Form */}
-            <div className="bg-white p-10 border-r-2 border-cyan-200 max-h-[550px]" data-aos="zoom-in">
+            <div className="bg-white p-10 border-r-2 border-emerald-200 max-h-[550px]" data-aos="zoom-in">
             <div className="text-center mb-8" data-aos="fade-down" data-aos-delay="100">
-              <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-cyan-600 to-cyan-600 mb-2">
+              <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 mb-2">
                 Join Us Today!
               </h1>
               <p className="text-gray-700">Create your Christmas account to get started</p>
@@ -74,7 +74,7 @@ const Signup = () => {
                       name: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-3 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full px-4 py-3 border-2 border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   placeholder="John Doe"
                   required
                 />
@@ -97,7 +97,7 @@ const Signup = () => {
                       email: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-3 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full px-4 py-3 border-2 border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   placeholder="you@example.com"
                   required
                 />
@@ -120,7 +120,7 @@ const Signup = () => {
                       password: e.target.value,
                     })
                   }
-                  className="w-full px-4 py-3 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                  className="w-full px-4 py-3 border-2 border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   placeholder="••••••••"
                   required
                   minLength={8}
@@ -131,7 +131,7 @@ const Signup = () => {
               </div>
 
               {isError && (
-                <div className="bg-cyan-50 border-2 border-cyan-200 text-cyan-700 px-4 mb-5 py-3 rounded-lg font-medium">
+                <div className="bg-emerald-50 border-2 border-emerald-200 text-emerald-700 px-4 mb-5 py-3 rounded-lg font-medium">
                   {isError}
                 </div>
               )}
@@ -139,7 +139,7 @@ const Signup = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-cyan-600 text-white py-3 px-4 rounded-lg hover:from-cyan-600 hover:via-cyan-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                className="w-full bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 text-white py-3 px-4 rounded-lg hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
               >
                 {loading ? "Creating account..." : "Create Account"}
               </button>
@@ -149,7 +149,7 @@ const Signup = () => {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-cyan-600 font-bold hover:text-cyan-700 hover:underline"
+                className="text-emerald-600 font-bold hover:text-emerald-700 hover:underline"
               >
                 Sign in
               </Link>
@@ -157,7 +157,7 @@ const Signup = () => {
             </div>
 
             {/* Right Side - Fireplace Image */}
-            <div className="hidden lg:block relative bg-gradient-to-br from-cyan-700 via-cyan-600 to-cyan-700" data-aos="fade-up" data-aos-duration="1000" data-aos-easing="ease-out">
+            <div className="hidden lg:block relative bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-700" data-aos="fade-up" data-aos-duration="1000" data-aos-easing="ease-out">
               <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative h-full flex items-center justify-center p-8">
                 <div className="text-center">

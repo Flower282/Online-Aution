@@ -92,12 +92,12 @@ export default function VerificationManagement() {
     if (error) {
         return (
             <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
-                <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-200 max-w-md">
-                    <h2 className="text-2xl font-bold text-red-600 mb-4">Lỗi tải dữ liệu</h2>
+                <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-200 max-w-md">
+                    <h2 className="text-2xl font-bold text-emerald-600 mb-4">Lỗi tải dữ liệu</h2>
                     <p className="text-gray-600 mb-6">{error.message}</p>
                     <button
                         onClick={() => refetch()}
-                        className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 transition-colors"
+                        className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors"
                     >
                         Thử lại
                     </button>
@@ -114,7 +114,7 @@ export default function VerificationManagement() {
                 {/* Header */}
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-2">
-                        <HiOutlineIdentification className="w-8 h-8 text-cyan-600" />
+                        <HiOutlineIdentification className="w-8 h-8 text-emerald-600" />
                         <h1 className="text-3xl font-bold text-gray-900">Quản lý xác minh CCCD</h1>
                     </div>
                     <p className="text-gray-600">Xem xét và phê duyệt yêu cầu xác minh căn cước công dân của người dùng</p>
@@ -122,18 +122,18 @@ export default function VerificationManagement() {
 
                 {/* Stats Card */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white rounded-xl shadow-md border border-amber-200 p-6">
+                    <div className="bg-white rounded-xl shadow-md border border-emerald-200 p-6">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
                                     Chờ xác minh
                                 </h3>
-                                <p className="text-3xl font-bold text-amber-600 mt-2">
+                                <p className="text-3xl font-bold text-emerald-600 mt-2">
                                     {pendingUsers.length}
                                 </p>
                             </div>
-                            <div className="bg-amber-100 p-3 rounded-full">
-                                <HiOutlineShieldExclamation className="w-6 h-6 text-amber-600" />
+                            <div className="bg-emerald-100 p-3 rounded-full">
+                                <HiOutlineShieldExclamation className="w-6 h-6 text-emerald-600" />
                             </div>
                         </div>
                     </div>
@@ -143,16 +143,16 @@ export default function VerificationManagement() {
 
                 {/* Table */}
                 <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-cyan-50 to-teal-50">
+                    <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-green-50">
                         <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                            <HiOutlineShieldExclamation className="w-5 h-5 text-amber-500" />
+                            <HiOutlineShieldExclamation className="w-5 h-5 text-emerald-500" />
                             Danh sách chờ xác minh ({pendingUsers.length})
                         </h3>
                     </div>
 
                     {pendingUsers.length === 0 ? (
                         <div className="text-center py-16">
-                            <HiOutlineShieldCheck className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
+                            <HiOutlineShieldCheck className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
                             <p className="text-gray-500 text-lg">Không có yêu cầu xác minh nào đang chờ</p>
                             <p className="text-gray-400 text-sm mt-2">Tất cả yêu cầu đã được xử lý</p>
                         </div>
@@ -188,8 +188,8 @@ export default function VerificationManagement() {
                                                                 className="h-12 w-12 rounded-full object-cover"
                                                             />
                                                         ) : (
-                                                            <div className="h-12 w-12 rounded-full bg-cyan-100 flex items-center justify-center">
-                                                                <span className="text-lg font-medium text-cyan-700">
+                                                            <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                                                                <span className="text-lg font-medium text-emerald-700">
                                                                     {user.name?.charAt(0).toUpperCase()}
                                                                 </span>
                                                             </div>
@@ -223,7 +223,7 @@ export default function VerificationManagement() {
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button
                                                         onClick={() => handleViewDetail(user)}
-                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        className="p-2 text-blue-600 hover:bg-green-50 rounded-lg transition-colors"
                                                         title="Xem chi tiết"
                                                     >
                                                         <HiOutlineEye className="w-5 h-5" />
@@ -231,7 +231,7 @@ export default function VerificationManagement() {
                                                     <button
                                                         onClick={() => handleApprove(user.id)}
                                                         disabled={approveMutation.isPending}
-                                                        className="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors disabled:opacity-50"
+                                                        className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
                                                         title="Phê duyệt"
                                                     >
                                                         <HiOutlineCheck className="w-5 h-5" />
@@ -239,7 +239,7 @@ export default function VerificationManagement() {
                                                     <button
                                                         onClick={() => handleRejectClick(user)}
                                                         disabled={rejectMutation.isPending}
-                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                                                        className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
                                                         title="Từ chối"
                                                     >
                                                         <HiOutlineX className="w-5 h-5" />
@@ -265,13 +265,13 @@ export default function VerificationManagement() {
                         />
                         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
                             {/* Header */}
-                            <div className="bg-gradient-to-r from-cyan-600 to-teal-600 px-6 py-4">
+                            <div className="bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <HiOutlineIdentification className="w-7 h-7 text-white" />
                                         <div>
                                             <h2 className="text-xl font-bold text-white">Chi tiết xác minh CCCD</h2>
-                                            <p className="text-cyan-100 text-sm">{selectedUser.name}</p>
+                                            <p className="text-emerald-100 text-sm">{selectedUser.name}</p>
                                         </div>
                                     </div>
                                     <button
@@ -289,7 +289,7 @@ export default function VerificationManagement() {
                                     {/* User Info */}
                                     <div className="space-y-4">
                                         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                                            <HiOutlineUser className="w-5 h-5 text-cyan-600" />
+                                            <HiOutlineUser className="w-5 h-5 text-emerald-600" />
                                             Thông tin tài khoản
                                         </h3>
                                         <div className="bg-gray-50 rounded-lg p-4 space-y-3">
@@ -315,7 +315,7 @@ export default function VerificationManagement() {
                                     {/* CCCD Info */}
                                     <div className="space-y-4">
                                         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                                            <HiOutlineIdentification className="w-5 h-5 text-cyan-600" />
+                                            <HiOutlineIdentification className="w-5 h-5 text-emerald-600" />
                                             Thông tin CCCD
                                         </h3>
                                         <div className="bg-gray-50 rounded-lg p-4 space-y-3">
@@ -358,7 +358,7 @@ export default function VerificationManagement() {
                                     {(selectedUser.identityCard?.frontImage || selectedUser.identityCard?.backImage || selectedUser.identityCard?.selfieImage) && (
                                         <div className="md:col-span-2 space-y-4">
                                             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                                                <HiOutlineEye className="w-5 h-5 text-cyan-600" />
+                                                <HiOutlineEye className="w-5 h-5 text-emerald-600" />
                                                 Hình ảnh CCCD
                                             </h3>
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -403,7 +403,7 @@ export default function VerificationManagement() {
                                 <button
                                     onClick={() => handleRejectClick(selectedUser)}
                                     disabled={rejectMutation.isPending}
-                                    className="px-5 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                                    className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center gap-2"
                                 >
                                     <HiOutlineX className="w-5 h-5" />
                                     Từ chối
@@ -411,7 +411,7 @@ export default function VerificationManagement() {
                                 <button
                                     onClick={() => handleApprove(selectedUser.id)}
                                     disabled={approveMutation.isPending}
-                                    className="px-5 py-2.5 bg-cyan-600 text-white rounded-lg font-medium hover:bg-cyan-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                                    className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center gap-2"
                                 >
                                     <HiOutlineCheck className="w-5 h-5" />
                                     {approveMutation.isPending ? 'Đang xử lý...' : 'Phê duyệt'}
@@ -437,8 +437,8 @@ export default function VerificationManagement() {
                         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md">
                             <div className="p-6">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                                        <HiOutlineX className="w-6 h-6 text-red-600" />
+                                    <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                                        <HiOutlineX className="w-6 h-6 text-emerald-600" />
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-bold text-gray-900">Từ chối xác minh</h3>
@@ -448,14 +448,14 @@ export default function VerificationManagement() {
 
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Lý do từ chối <span className="text-red-500">*</span>
+                                        Lý do từ chối <span className="text-emerald-500">*</span>
                                     </label>
                                     <textarea
                                         value={rejectionReason}
                                         onChange={(e) => setRejectionReason(e.target.value)}
                                         placeholder="Nhập lý do từ chối xác minh..."
                                         rows={4}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
                                     />
                                 </div>
 
@@ -473,7 +473,7 @@ export default function VerificationManagement() {
                                     <button
                                         onClick={handleRejectConfirm}
                                         disabled={rejectMutation.isPending || !rejectionReason.trim()}
-                                        className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {rejectMutation.isPending ? 'Đang xử lý...' : 'Xác nhận từ chối'}
                                     </button>
