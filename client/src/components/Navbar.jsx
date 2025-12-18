@@ -315,8 +315,8 @@ export const Navbar = () => {
                   }}
                   className={({ isActive }) =>
                     isActive
-                      ? "text-sm text-primary font-medium transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-50"
-                      : "text-sm hover:text-primary hover:bg-emerald-50/50 transition-all flex items-center gap-1.5 px-3 py-2 rounded-lg"
+                      ? "text-sm text-emerald-700 font-medium transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-50"
+                      : "text-sm hover:text-emerald-700 hover:bg-emerald-50/50 transition-all flex items-center gap-1.5 px-3 py-2 rounded-lg"
                   }
                 >
                   {item.icon && <item.icon className="h-4 w-4" />}
@@ -659,8 +659,8 @@ export const Navbar = () => {
                   to={item.link}
                   className={({ isActive }) =>
                     isActive
-                      ? "flex items-center justify-between py-3 px-3 text-primary font-semibold bg-primary/10 rounded-lg transition-all"
-                      : "flex items-center justify-between py-3 px-3 hover:text-primary hover:bg-muted/50 font-medium rounded-lg transition-all"
+                      ? "flex items-center justify-between py-3 px-3 text-emerald-700 font-semibold bg-emerald-50 rounded-lg transition-all"
+                      : "flex items-center justify-between py-3 px-3 hover:text-emerald-700 hover:bg-emerald-50/50 font-medium rounded-lg transition-all"
                   }
                   onClick={() => {
                     setIsMenuOpen(false);
@@ -710,8 +710,8 @@ export const Navbar = () => {
                       to={item.link}
                       className={({ isActive }) =>
                         isActive
-                          ? "flex items-center py-3 px-3 text-primary font-semibold bg-primary/10 rounded-lg transition-all"
-                          : "flex items-center py-3 px-3 hover:text-primary hover:bg-muted/50 font-medium rounded-lg transition-all"
+                          ? "flex items-center py-3 px-3 text-emerald-700 font-semibold bg-emerald-50 rounded-lg transition-all"
+                          : "flex items-center py-3 px-3 hover:text-emerald-700 hover:bg-emerald-50/50 font-medium rounded-lg transition-all"
                       }
                       onClick={() => setIsMenuOpen(false)}
                     >
