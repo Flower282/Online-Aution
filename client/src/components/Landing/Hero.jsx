@@ -43,7 +43,7 @@ export const Hero = () => {
               All auction items on one platform
             </p>
             <div className="flex flex-wrap gap-3" data-aos="fade-up" data-aos-delay="300">
-              <Link to="/signup">
+              <Link to="/login">
                 <button className="px-6 py-2 border-2 border-gray-900 rounded-full text-gray-900 font-semibold hover:bg-gray-900 hover:text-white transition-all duration-300 transform hover:scale-105 text-sm">
                   Get Started
                 </button>
