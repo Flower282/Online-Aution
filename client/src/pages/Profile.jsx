@@ -198,6 +198,11 @@ export default function Profile() {
         };
         dispatch(setUser({ user: updatedUser }));
         console.log('✅ Redux store updated with new location:', updatedUser.location);
+
+        // Also refresh user data from server to ensure we have the latest data
+        dispatch(checkAuth()).catch(error => {
+          console.error('Failed to refresh user data:', error);
+        });
       }
 
       // Exit edit mode
@@ -899,8 +904,14 @@ export default function Profile() {
       <VerificationModal
         isOpen={showVerificationModal}
         onClose={() => setShowVerificationModal(false)}
-        onVerified={() => {
+        onVerified={async () => {
           setShowVerificationModal(false);
+          // Refresh user data to get updated phone number
+          try {
+            await dispatch(checkAuth());
+          } catch (error) {
+            console.error('Failed to refresh user data:', error);
+          }
           setSuccessMessage("Tài khoản đã được xác minh thành công!");
           setTimeout(() => setSuccessMessage(""), 10000);
         }}

@@ -131,8 +131,8 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
 
                     // 🔥 CHECK PROFILE & VERIFICATION: User phải cập nhật thông tin và xác minh tài khoản
                     const User = (await import('../models/user.js')).default;
-                    const user = await User.findById(userId).select('verification.isVerified phone address location.city location.region');
-                    
+                    const user = await User.findById(userId).select('verification.isVerified verification.phone.number phone address location.city location.region location.ward');
+
                     if (!user?.verification?.isVerified) {
                         socket.emit('auction:bid:error', {
                             code: 'VERIFICATION_REQUIRED',
@@ -141,16 +141,21 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                         return;
                     }
 
-                    const isProfileComplete = user.phone && user.address && user.location?.city && user.location?.region;
+                    // Get phone number from verification.phone.number (if verified) or fallback to user.phone
+                    const phoneNumber = user.verification?.phone?.number || user.phone || null;
+                    // Get region from location.region or location.ward (ward is mapped to region in updateProfile)
+                    const region = user.location?.region || user.location?.ward || null;
+
+                    const isProfileComplete = phoneNumber && user.address && user.location?.city && region;
                     if (!isProfileComplete) {
                         socket.emit('auction:bid:error', {
                             code: 'PROFILE_INCOMPLETE',
-                            message: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, quận/huyện) trước khi đặt giá',
+                            message: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, phường/xã) trước khi đặt giá',
                             missingFields: {
-                                phone: !user.phone,
+                                phone: !phoneNumber,
                                 address: !user.address,
                                 city: !user.location?.city,
-                                region: !user.location?.region
+                                region: !region
                             }
                         });
                         return;
@@ -279,8 +284,8 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
 
                 // 🔥 CHECK PROFILE & VERIFICATION: User phải cập nhật thông tin và xác minh tài khoản
                 const User = (await import('../models/user.js')).default;
-                const user = await User.findById(userId).select('verification.isVerified phone address location.city location.region');
-                
+                const user = await User.findById(userId).select('verification.isVerified verification.phone.number phone address location.city location.region location.ward');
+
                 if (!user?.verification?.isVerified) {
                     socket.emit('auction:bid:error', {
                         code: 'VERIFICATION_REQUIRED',
@@ -289,16 +294,21 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                     return;
                 }
 
-                const isProfileComplete = user.phone && user.address && user.location?.city && user.location?.region;
+                // Get phone number from verification.phone.number (if verified) or fallback to user.phone
+                const phoneNumber = user.verification?.phone?.number || user.phone || null;
+                // Get region from location.region or location.ward (ward is mapped to region in updateProfile)
+                const region = user.location?.region || user.location?.ward || null;
+
+                const isProfileComplete = phoneNumber && user.address && user.location?.city && region;
                 if (!isProfileComplete) {
                     socket.emit('auction:bid:error', {
                         code: 'PROFILE_INCOMPLETE',
-                        message: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, quận/huyện) trước khi đặt giá',
+                        message: 'Bạn cần cập nhật đầy đủ thông tin cá nhân (số điện thoại, địa chỉ, tỉnh/thành phố, phường/xã) trước khi đặt giá',
                         missingFields: {
-                            phone: !user.phone,
+                            phone: !phoneNumber,
                             address: !user.address,
                             city: !user.location?.city,
-                            region: !user.location?.region
+                            region: !region
                         }
                     });
                     return;

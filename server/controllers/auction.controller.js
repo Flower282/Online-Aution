@@ -8,41 +8,67 @@ import { processAuctionDeposits } from './deposit.controller.js';
 export const createAuction = async (req, res) => {
     try {
         const { itemName, startingPrice, itemDescription, itemCategory, itemStartDate, itemEndDate } = req.body;
-        let imageUrl = '';
 
-        if (req.file) {
-            try {
-                imageUrl = await uploadImage(req.file);
-
-                // ✅ Tự động xóa file tạm sau khi upload thành công
-                const fs = await import('fs');
-                fs.unlinkSync(req.file.path);
-                console.log('🗑️ Deleted temp file:', req.file.filename);
-            } catch (error) {
-                // Xóa file tạm ngay cả khi upload fail
-                try {
-                    const fs = await import('fs');
-                    if (req.file && req.file.path) {
-                        fs.unlinkSync(req.file.path);
-                    }
-                } catch (unlinkError) {
-                    console.error('Failed to delete temp file:', unlinkError.message);
-                }
-
-                return res.status(500).json({ message: 'Error uploading image to Cloudinary', error: error.message });
-            }
+        // Validate required fields
+        if (!itemName || !startingPrice || !itemDescription || !itemCategory || !itemStartDate || !itemEndDate) {
+            return res.status(400).json({ message: 'All fields are required' });
         }
 
-        const start = itemStartDate ? new Date(itemStartDate) : new Date();
+        // Validate image
+        if (!req.file) {
+            return res.status(400).json({ message: 'Item photo is required' });
+        }
+
+        let imageUrl = '';
+
+        try {
+            imageUrl = await uploadImage(req.file);
+
+            // ✅ Tự động xóa file tạm sau khi upload thành công
+            const fs = await import('fs');
+            fs.unlinkSync(req.file.path);
+            console.log('🗑️ Deleted temp file:', req.file.filename);
+        } catch (error) {
+            // Xóa file tạm ngay cả khi upload fail
+            try {
+                const fs = await import('fs');
+                if (req.file && req.file.path) {
+                    fs.unlinkSync(req.file.path);
+                }
+            } catch (unlinkError) {
+                console.error('Failed to delete temp file:', unlinkError.message);
+            }
+
+            return res.status(500).json({ message: 'Error uploading image to Cloudinary', error: error.message });
+        }
+
+        // Validate dates
+        const start = new Date(itemStartDate);
         const end = new Date(itemEndDate);
+        const now = new Date();
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return res.status(400).json({ message: 'Invalid date format' });
+        }
+
+        if (start < now) {
+            return res.status(400).json({ message: 'Start time cannot be in the past' });
+        }
+
         if (end <= start) {
             return res.status(400).json({ message: 'Auction end date must be after start date' });
         }
 
+        // Validate price
+        const price = parseFloat(startingPrice);
+        if (isNaN(price) || price <= 0) {
+            return res.status(400).json({ message: 'Starting price must be a positive number' });
+        }
+
         const newAuction = new Product({
             itemName,
-            startingPrice,
-            currentPrice: startingPrice,
+            startingPrice: price,
+            currentPrice: price,
             itemDescription,
             itemCategory,
             itemPhoto: imageUrl,
@@ -54,6 +80,7 @@ export const createAuction = async (req, res) => {
 
         res.status(201).json({ message: 'Auction created successfully', newAuction });
     } catch (error) {
+        console.error('Error creating auction:', error);
         res.status(500).json({ message: 'Error creating auction', error: error.message });
     }
 };

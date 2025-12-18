@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { checkAuth } from '../store/auth/authSlice';
 import {
     getVerificationStatus,
     verifyPhone,
@@ -21,6 +22,7 @@ import { IoClose } from 'react-icons/io5';
 
 export default function VerificationModal({ isOpen, onClose, onVerified: _onVerified }) {
     const queryClient = useQueryClient();
+    const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
 
     const [activeTab, setActiveTab] = useState('phone');
@@ -59,6 +61,13 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
             // Đợi refetch hoàn thành để cập nhật UI
             await refetch();
             queryClient.invalidateQueries(['verificationStatus']);
+
+            // Fetch lại user data để cập nhật phone number trong Redux store
+            try {
+                await dispatch(checkAuth()).unwrap();
+            } catch (error) {
+                console.error('Failed to refresh user data:', error);
+            }
 
             if (wasEditing) {
                 // Đang edit số điện thoại -> ở yên tab phone
