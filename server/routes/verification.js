@@ -7,6 +7,7 @@ import {
     getVerificationStatus,
     verifyPhone,
     verifyEmail,
+    sendVerificationEmailRequest,
     submitIdentityCard,
     reviewIdentityCard,
     getPendingVerifications,
@@ -47,8 +48,11 @@ verificationRouter.get('/status', secureRoute, getVerificationStatus);
 // Xác minh số điện thoại
 verificationRouter.post('/phone', secureRoute, verifyPhone);
 
-// Xác minh email
-verificationRouter.post('/email', secureRoute, verifyEmail);
+// Gửi email xác minh
+verificationRouter.post('/email/send', secureRoute, sendVerificationEmailRequest);
+
+// Xác minh email qua token (public route - không cần auth)
+verificationRouter.get('/email/verify', verifyEmail);
 
 // Gửi thông tin CCCD
 verificationRouter.post('/identity-card',

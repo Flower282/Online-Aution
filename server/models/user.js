@@ -119,6 +119,11 @@ const userSchema = new mongoose.Schema({
             verifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
         }
     },
+    // Thông tin đặt lại mật khẩu
+    passwordReset: {
+        token: { type: String, default: null },
+        expiresAt: { type: Date, default: null }
+    }
 }, { timestamps: true });
 
 // Index để đảm bảo số điện thoại unique (chỉ khi có giá trị)

@@ -5,7 +5,7 @@ import { placeBid, viewAuction, deleteAuction, toggleLikeAuction, checkDeposit, 
 import { useSelector } from "react-redux";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import socket, { ensureSocketConnected } from "../utils/socket.js";
-import { X } from "lucide-react"; // Keep X icon for modal close button
+import { X, Heart } from "lucide-react"; // Keep X icon for modal close button
 import Toast from "../components/Toast.jsx";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import VerificationModal from "../components/VerificationModal.jsx";
@@ -668,6 +668,9 @@ export const ViewAuction = () => {
                       border: isLiked ? '2px solid #ef4444' : '2px solid #e5e7eb'
                     }}
                   >
+                    <Heart
+                      className={`w-4 h-5 transition-all ${isLiked ? 'fill-red-600 text-red-600' : 'text-gray-700'}`}
+                    />
                     <span className={`font-semibold text-sm ${isLiked ? 'text-red-600' : 'text-gray-700'}`}>
                       {likesCount}
                     </span>

@@ -136,6 +136,44 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
+/**
+ * Helper function: Reset all verification to initial state
+ * @param {string} userId - User ID to reset verification for
+ */
+const resetUserVerification = async (userId) => {
+    await User.findByIdAndUpdate(userId, {
+        // Reset tất cả verification về trạng thái ban đầu
+        'verification.isVerified': false,
+        // Reset phone verification
+        'verification.phone.number': null,
+        'verification.phone.isVerified': false,
+        'verification.phone.verifiedAt': null,
+        // Reset email verification
+        'verification.email.isVerified': false,
+        'verification.email.verifiedAt': null,
+        'verification.email.verificationToken': null,
+        'verification.email.tokenExpires': null,
+        // Reset identity card verification
+        'verification.identityCard.numberHash': null,
+        'verification.identityCard.numberMasked': null,
+        'verification.identityCard.fullName': null,
+        'verification.identityCard.dateOfBirth': null,
+        'verification.identityCard.gender': null,
+        'verification.identityCard.placeOfOrigin': null,
+        'verification.identityCard.placeOfResidence': null,
+        'verification.identityCard.issueDate': null,
+        'verification.identityCard.expiryDate': null,
+        'verification.identityCard.frontImage': null,
+        'verification.identityCard.backImage': null,
+        'verification.identityCard.selfieImage': null,
+        'verification.identityCard.status': 'not_submitted',
+        'verification.identityCard.rejectionReason': null,
+        'verification.identityCard.submittedAt': null,
+        'verification.identityCard.verifiedAt': null,
+        'verification.identityCard.verifiedBy': null
+    });
+};
+
 export const deleteUserById = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -165,12 +203,17 @@ export const deleteUserById = async (req, res) => {
             });
         }
 
-        // Deactivate the user (set isActive to false)
+        // Deactivate the user
         await User.findByIdAndUpdate(userId, { isActive: false });
+
+        // Reset all verification
+        await resetUserVerification(userId);
+
+        console.log(`🔒 User ${userId} deactivated - All verification reset`);
 
         res.status(200).json({
             success: true,
-            message: 'User deactivated successfully. Their auctions are now marked as inactive.'
+            message: 'User deactivated successfully. All verification has been reset. User must verify again when reactivated.'
         });
     } catch (error) {
         res.status(500).json({
