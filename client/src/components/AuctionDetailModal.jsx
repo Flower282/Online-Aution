@@ -20,6 +20,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
     const [_topBids, setTopBids] = useState(bids || auction.bids || []);
     const [totalBids, setTotalBids] = useState(auction.bids?.length || 0);
     const { user } = useSelector((state) => state.auth);
+    const isAdmin = user?.user?.role === "admin";
     const queryClient = useQueryClient();
 
     // Socket.io integration for real-time updates
@@ -299,7 +300,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
                                 </div>
                             </div>
 
-                            {!isEnded && (
+                            {!isEnded && !isAdmin && (
                                 <div className="space-y-4">
                                     <div>
                                         <label className="text-sm text-muted-foreground">
