@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicAuctions } from "../../api/auction";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 export const Auction = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -46,7 +47,7 @@ export const Auction = () => {
       id: auction._id,
       image: auction.itemPhoto || "https://via.placeholder.com/500",
       title: auction.itemName,
-      currentBid: `₹${auction.currentPrice.toLocaleString()}`,
+      currentBid: formatCurrency(auction.currentPrice),
       bids: auction.bidsCount,
       timeLeft: timeString,
       timeColor: timeColor
@@ -131,7 +132,7 @@ export const Auction = () => {
         ? 'opacity-0'
         : 'opacity-100 translate-x-0'
     }`}>
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden h-full">
+      <div className="bg-white rounded-xl shadow-xl overflow-hidden h-full">
         {/* Image Section */}
         <div className="relative h-64 bg-gradient-to-br from-gray-50 to-gray-100">
           <img
@@ -139,35 +140,38 @@ export const Auction = () => {
             alt={auction.title}
             className="w-full h-full object-contain p-4"
           />
+          {/* Live Auction Badge - Top Right */}
+          <div className="absolute top-3 right-3 bg-sky-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg">
+            Live Auction
+          </div>
           {/* Time Badge */}
-          <div className={`absolute top-4 right-4 bg-gradient-to-r ${auction.timeColor} text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2`}>
+          <div className={`absolute top-3 left-3 bg-gradient-to-r ${auction.timeColor} text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg flex items-center gap-1.5`}>
             <FaClock className="h-3 w-3" />
             {auction.timeLeft}
           </div>
         </div>
         
         {/* Info Section */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 space-y-3">
           <div>
-            <span className="text-sky-600 font-semibold text-xs uppercase tracking-wide">Live Auction</span>
-            <h3 className="text-xl font-bold text-gray-900 mt-1 line-clamp-2">
+            <h3 className="text-base font-bold text-gray-900 line-clamp-2">
               {auction.title}
             </h3>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gradient-to-br from-sky-50 to-sky-100 p-4 rounded-xl">
-              <p className="text-xs text-gray-600 font-medium mb-1">Current Bid</p>
-              <p className="text-xl font-black text-sky-600">{auction.currentBid}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-gradient-to-br from-sky-50 to-sky-100 p-3 rounded-lg">
+              <p className="text-xs text-gray-600 font-medium mb-0.5">Current Bid</p>
+              <p className="text-base font-black text-sky-600">{auction.currentBid}</p>
             </div>
-            <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-4 rounded-xl">
-              <p className="text-xs text-gray-600 font-medium mb-1">Total Bids</p>
-              <p className="text-xl font-black text-amber-600">{auction.bids}</p>
+            <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-3 rounded-lg">
+              <p className="text-xs text-gray-600 font-medium mb-0.5">Total Bids</p>
+              <p className="text-base font-black text-amber-600">{auction.bids}</p>
             </div>
           </div>
 
           <Link to='/login' className="block">
-            <button className="w-full bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-800 text-white py-3 px-6 rounded-xl font-semibold text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+            <button className="w-full bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-800 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
               Place Bid Now
             </button>
           </Link>
@@ -182,7 +186,7 @@ export const Auction = () => {
         <div className="flex justify-between items-center mb-12" data-aos="fade-up">
           <h2 className="text-4xl font-extrabold text-gray-900">Live Auctions</h2>
           <Link
-            to="/login"
+            to="/auction"
             className="text-sky-600 hover:text-sky-700 flex items-center font-semibold transition-colors group"
           >
             View all <FaChevronRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -190,7 +194,7 @@ export const Auction = () => {
         </div>
 
         {/* Slideshow Container */}
-        <div className="relative rounded-3xl shadow-2xl overflow-visible p-6 pt-20 pb-20 max-w-6xl mx-auto border-4 border-green-600" data-aos="zoom-in" data-aos-delay="100" style={{ background: `linear-gradient(to bottom right, rgb(240 253 244), rgb(209 250 229)), url('/transparent-christmas-tree.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto, 120px', backgroundPosition: 'center, center', backgroundBlendMode: 'normal, soft-light' }}>
+        <div className="relative rounded-2xl shadow-2xl overflow-visible p-6 pt-16 pb-16 max-w-5xl mx-auto border-4 border-green-600" data-aos="zoom-in" data-aos-delay="100" style={{ background: `linear-gradient(to bottom right, rgb(240 253 244), rgb(209 250 229)), url('/transparent-christmas-tree.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto, 120px', backgroundPosition: 'center, center', backgroundBlendMode: 'normal, soft-light' }}>
           {/* Christmas Lights Decoration - Top */}
           <div className="absolute -top-8 left-0 right-0 h-24 z-40 pointer-events-none" style={{ backgroundImage: 'url(/christmas-lights.gif)', backgroundRepeat: 'repeat-x', backgroundSize: 'auto 100%', backgroundPosition: 'center' }}>
           </div>

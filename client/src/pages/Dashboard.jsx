@@ -254,7 +254,7 @@ const Dashboard = () => {
         </div>
       )}
 
-      <main className="max-w-7xl mx-auto px-4 py-10">
+      <main className="max-w-5xl mx-auto px-8 py-10">
 
         {/* Hero Search Section */}
         <div className="min-h-[70vh] flex flex-col items-center justify-center mb-16" ref={searchRef}>
@@ -552,7 +552,7 @@ const Dashboard = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {data.latestAuctions.map((auction, index) => (
                 <div key={auction._id} className="scale-95 hover:scale-100 transition-transform" data-aos="fade-up" data-aos-delay={500 + index * 50}>
                   <AuctionCard auction={auction} />
@@ -591,7 +591,7 @@ const Dashboard = () => {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {data.latestUserAuctions.map((auction, index) => {
                 const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
                 const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
