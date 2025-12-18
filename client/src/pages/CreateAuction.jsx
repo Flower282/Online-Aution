@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createAuction } from "../api/auction.js";
-import { useRef } from "react";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 
 export const CreateAuction = () => {
   const fileInputRef = useRef();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     itemName: "",
@@ -42,6 +43,13 @@ export const CreateAuction = () => {
     onError: (error) =>
       setError(error?.response?.data?.message || "Something went wrong"),
   });
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate("/login", { state: { from: "/create" } });
+    }
+  }, [user, navigate]);
 
   const categories = [
     "Electronics",
