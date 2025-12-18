@@ -159,21 +159,54 @@ export const createDeposit = async (req, res) => {
             (product.startingPrice * product.depositPercentage) / 100
         );
 
-        // Nếu thanh toán bằng ví (wallet) thì trừ tiền trong ví ngay khi đặt cọc
-        if (paymentMethod === 'wallet') {
-            const currentBalance = user.balance || 0;
-            if (currentBalance < depositAmount) {
-                return res.status(400).json({
-                    error: 'Số dư ví không đủ để đặt cọc',
-                    code: 'INSUFFICIENT_WALLET_BALANCE',
-                    currentBalance,
-                    requiredAmount: depositAmount
-                });
-            }
+        // ==================== KIỂM TRA VÀ TRỪ TIỀN TỪ VÍ ====================
+        // Chỉ cho phép thanh toán bằng ví (wallet) để đảm bảo kiểm tra số dư
+        if (paymentMethod !== 'wallet') {
+            return res.status(400).json({
+                error: 'Hiện tại chỉ hỗ trợ thanh toán bằng ví. Vui lòng nạp tiền vào ví trước khi đặt cọc.',
+                code: 'WALLET_ONLY',
+                supportedMethods: ['wallet']
+            });
+        }
 
-            user.balance = currentBalance - depositAmount;
-            await user.save();
-            console.log(`💰 Wallet deposit: User ${userId} -${depositAmount}. Balance: ${currentBalance} -> ${user.balance}`);
+        // Kiểm tra số dư ví có đủ để đặt cọc không
+        const currentBalance = user.balance || 0;
+        if (currentBalance < depositAmount) {
+            return res.status(400).json({
+                error: 'Số dư ví không đủ để đặt cọc',
+                code: 'INSUFFICIENT_WALLET_BALANCE',
+                currentBalance,
+                requiredAmount: depositAmount,
+                missingAmount: depositAmount - currentBalance
+            });
+        }
+
+        // Trừ tiền từ ví ngay khi đặt cọc
+        const previousBalance = currentBalance;
+        user.balance = previousBalance - depositAmount;
+        await user.save();
+        console.log(`💰 Wallet deposit: User ${userId} -${depositAmount}. Balance: ${previousBalance} -> ${user.balance}`);
+
+        // Tạo transaction record cho đặt cọc
+        try {
+            const Transaction = (await import('../models/transaction.js')).default;
+            await Transaction.create({
+                user: userId,
+                type: 'deposit',
+                amount: depositAmount,
+                status: 'completed',
+                paymentMethod: 'wallet',
+                orderId: productId,
+                description: `Đặt cọc cho sản phẩm: ${product.itemName}`,
+                balanceBefore: previousBalance,
+                balanceAfter: user.balance,
+                relatedAuction: productId,
+                relatedDeposit: null, // Will be updated after deposit is created
+                completedAt: new Date()
+            });
+        } catch (transactionError) {
+            console.error('Error creating deposit transaction record:', transactionError);
+            // Không block deposit nếu transaction record fail
         }
 
         // Create or update deposit
@@ -191,6 +224,18 @@ export const createDeposit = async (req, res) => {
             { upsert: true, new: true }
         );
 
+        // Update transaction record with deposit ID
+        try {
+            const Transaction = (await import('../models/transaction.js')).default;
+            await Transaction.findOneAndUpdate(
+                { user: userId, orderId: productId, type: 'deposit', status: 'completed' },
+                { relatedDeposit: deposit._id },
+                { sort: { createdAt: -1 } }
+            );
+        } catch (transactionError) {
+            console.error('Error updating deposit transaction record:', transactionError);
+        }
+
         res.status(200).json({
             message: 'Deposit submitted successfully. You can now bid on this auction!',
             deposit: {
@@ -200,7 +245,8 @@ export const createDeposit = async (req, res) => {
                 paymentMethod: deposit.paymentMethod,
                 paidAt: deposit.paidAt
             },
-            canBid: true
+            canBid: true,
+            newBalance: user.balance
         });
     } catch (error) {
         console.error('Error creating deposit:', error);

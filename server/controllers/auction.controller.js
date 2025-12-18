@@ -933,6 +933,105 @@ export const payForWonAuction = async (req, res) => {
         auction.platformCommissionAmount = platformCommissionAmount;
         auction.sellerAmount = sellerAmount;
 
+        // ==================== KIỂM TRA VÀ TRỪ TIỀN TỪ VÍ ====================
+        // Tính số tiền cần thanh toán = finalPrice - depositAmount (đã trừ tiền cọc)
+        const depositAmount = auction.depositAmount || 0;
+        const amountToPay = finalPrice - depositAmount;
+
+        // Lấy thông tin user để kiểm tra số dư ví
+        const winnerUser = await User.findById(req.user.id).select('balance');
+        if (!winnerUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const currentBalance = winnerUser.balance || 0;
+
+        // Kiểm tra số dư ví có đủ để thanh toán không
+        if (currentBalance < amountToPay) {
+            return res.status(400).json({
+                error: 'Số dư ví không đủ để thanh toán',
+                code: 'INSUFFICIENT_WALLET_BALANCE',
+                currentBalance,
+                requiredAmount: amountToPay,
+                finalPrice,
+                depositAmount,
+                amountToPay
+            });
+        }
+
+        // Trừ tiền từ ví người thắng
+        const previousBalance = currentBalance;
+        winnerUser.balance = previousBalance - amountToPay;
+        await winnerUser.save();
+        console.log(`💰 Payment: User ${req.user.id} -${amountToPay} (Final: ${finalPrice}, Deposit: ${depositAmount}). Balance: ${previousBalance} -> ${winnerUser.balance}`);
+
+        // Cộng tiền vào ví người bán (sellerAmount)
+        const sellerUser = await User.findById(auction.seller._id || auction.seller).select('balance');
+        if (sellerUser) {
+            const sellerPreviousBalance = sellerUser.balance || 0;
+            sellerUser.balance = sellerPreviousBalance + sellerAmount;
+            await sellerUser.save();
+            console.log(`💰 Seller payment: User ${auction.seller._id || auction.seller} +${sellerAmount}. Balance: ${sellerPreviousBalance} -> ${sellerUser.balance}`);
+        }
+
+        // Tạo transaction record cho thanh toán (TRƯỚC KHI SAVE AUCTION)
+        let paymentTransaction = null;
+        let sellerTransaction = null;
+        try {
+            const Transaction = (await import('../models/transaction.js')).default;
+
+            // Transaction cho người mua (trừ tiền)
+            paymentTransaction = await Transaction.create({
+                user: req.user.id,
+                type: 'payment',
+                amount: amountToPay,
+                status: 'completed',
+                paymentMethod: 'wallet',
+                paymentGateway: 'wallet',
+                orderId: auction._id.toString(),
+                description: `Thanh toán sản phẩm: ${auction.itemName}`,
+                balanceBefore: previousBalance,
+                balanceAfter: winnerUser.balance,
+                relatedAuction: auction._id,
+                completedAt: new Date()
+            });
+            console.log(`✅ Payment transaction created: ${paymentTransaction._id}`);
+
+            // Transaction cho người bán (cộng tiền)
+            if (sellerUser) {
+                const sellerBalanceBefore = sellerUser.balance - sellerAmount;
+                sellerTransaction = await Transaction.create({
+                    user: auction.seller._id || auction.seller,
+                    type: 'payment',
+                    amount: sellerAmount,
+                    status: 'completed',
+                    paymentMethod: 'wallet',
+                    paymentGateway: 'wallet',
+                    orderId: auction._id.toString(),
+                    description: `Nhận tiền bán sản phẩm: ${auction.itemName}`,
+                    balanceBefore: sellerBalanceBefore,
+                    balanceAfter: sellerUser.balance,
+                    relatedAuction: auction._id,
+                    completedAt: new Date()
+                });
+                console.log(`✅ Seller transaction created: ${sellerTransaction._id}`);
+            }
+        } catch (transactionError) {
+            console.error('❌ Error creating transaction record:', transactionError);
+            console.error('❌ Transaction error details:', transactionError.message, transactionError.stack);
+            // Nếu transaction fail, rollback balance changes
+            winnerUser.balance = previousBalance;
+            await winnerUser.save();
+            if (sellerUser) {
+                sellerUser.balance = sellerUser.balance - sellerAmount;
+                await sellerUser.save();
+            }
+            return res.status(500).json({
+                error: 'Failed to create transaction record',
+                details: transactionError.message
+            });
+        }
+
         // Đánh dấu đã thanh toán
         auction.paymentStatus = 'paid';
         auction.paymentCompletedAt = now;
@@ -940,10 +1039,6 @@ export const payForWonAuction = async (req, res) => {
         auction.isSold = true;
 
         await auction.save();
-
-        // Lưu ý: Ở đây chỉ xử lý logic trạng thái.
-        // Nếu cần trừ tiền ví người thắng và cộng ví người bán,
-        // có thể triển khai thêm trong tương lai (sử dụng User.balance).
 
         return res.status(200).json({
             message: 'Payment for auction completed successfully',
