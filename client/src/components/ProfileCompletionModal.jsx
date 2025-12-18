@@ -16,7 +16,7 @@ const ProfileCompletionModal = ({ isOpen, onClose, missingFields = {} }) => {
         if (missingFields.phone) fields.push({ icon: Phone, label: 'Số điện thoại' });
         if (missingFields.address) fields.push({ icon: MapPin, label: 'Địa chỉ' });
         if (missingFields.city) fields.push({ icon: Map, label: 'Tỉnh/Thành phố' });
-        if (missingFields.region) fields.push({ icon: Map, label: 'Quận/Huyện' });
+        if (missingFields.ward) fields.push({ icon: Map, label: 'Phường/Xã' });
         return fields;
     };
 

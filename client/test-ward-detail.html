@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test Ward Detail API</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #fff;
+        }
+
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .error {
+            background: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        pre {
+            background: #2d2d2d;
+            padding: 10px;
+            overflow-x: auto;
+            font-size: 11px;
+            max-height: 600px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Test Ward Detail API</h1>
+    <button onclick="testAllWardEndpoints()">Test All Possible Ward Endpoints</button>
+    <button onclick="testWardsResponse()">Check Full Wards Response Structure</button>
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'https://34tinhthanh.com/api';
+        const results = document.getElementById('results');
+        const PROVINCE_CODE = '01'; // Hanoi
+        const SAMPLE_WARD_CODE = '00004'; // From previous response
+
+        function addResult(type, title, content) {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${title}</strong><br>${content}`;
+            results.appendChild(div);
+        }
+
+        function addJson(data) {
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 2);
+            results.appendChild(pre);
+        }
+
+        async function testWardsResponse() {
+            results.innerHTML = '';
+            addResult('info', '⏳ Testing', 'Fetching wards and analyzing full structure...');
+
+            try {
+                const response = await fetch(`${API_BASE}/wards?province_code=${PROVINCE_CODE}`);
+                const wards = await response.json();
+
+                addResult('success', '✅ Wards Fetched', `Total: ${wards.length}`);
+
+                // Lấy 1 ward mẫu và hiển thị TẤT CẢ fields
+                const sampleWard = wards[0];
+                addResult('info', '📋 All Fields in Ward Object', Object.keys(sampleWard).join(', '));
+
+                // Hiển thị full ward object
+                addResult('info', '🔍 Full Ward Object (first ward)', '');
+                addJson(sampleWard);
+
+                // Tìm các field liên quan đến district
+                const districtFields = Object.keys(sampleWard).filter(key =>
+                    key.toLowerCase().includes('district') ||
+                    key.toLowerCase().includes('quan') ||
+                    key.toLowerCase().includes('huyen')
+                );
+
+                if (districtFields.length > 0) {
+                    addResult('success', '✅ District-related fields found!', districtFields.join(', '));
+                } else {
+                    addResult('error', '❌ No district fields found', 'Ward object does not contain district information');
+                }
+
+            } catch (error) {
+                addResult('error', '❌ Error', error.message);
+            }
+        }
+
+        async function testAllWardEndpoints() {
+            results.innerHTML = '';
+
+            const endpoints = [
+                `/api/ward/${SAMPLE_WARD_CODE}`,
+                `/api/wards/${SAMPLE_WARD_CODE}`,
+                `/api/ward?ward_code=${SAMPLE_WARD_CODE}`,
+                `/api/wards?ward_code=${SAMPLE_WARD_CODE}`,
+            ];
+
+            for (const endpoint of endpoints) {
+                addResult('info', '⏳ Testing', endpoint);
+
+                try {
+                    const response = await fetch(`https://34tinhthanh.com${endpoint}`);
+                    const text = await response.text();
+
+                    if (response.status === 200) {
+                        try {
+                            const data = JSON.parse(text);
+                            addResult('success', `✅ ${endpoint}`, `Status: ${response.status}`);
+                            addJson(data);
+                        } catch (e) {
+                            addResult('error', `❌ ${endpoint}`, `Status: ${response.status}, but response is not JSON: ${text.substring(0, 100)}`);
+                        }
+                    } else {
+                        addResult('error', `❌ ${endpoint}`, `Status: ${response.status}`);
+                    }
+                } catch (error) {
+                    addResult('error', `❌ ${endpoint}`, error.message);
+                }
+            }
+        }
+
+        // Auto run
+        testWardsResponse();
+    </script>
+</body>
+
+</html>

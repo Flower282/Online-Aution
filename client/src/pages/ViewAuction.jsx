@@ -43,6 +43,7 @@ export const ViewAuction = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [missingFields, setMissingFields] = useState({});
 
+  // Requires authentication (protected route)
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
     queryFn: () => viewAuction(id),
@@ -569,10 +570,10 @@ export const ViewAuction = () => {
       phone: !userData?.phone,
       address: !userData?.address,
       city: !userData?.location?.city,
-      region: !userData?.location?.region
+      ward: !userData?.location?.ward
     };
 
-    const isComplete = !missing.phone && !missing.address && !missing.city && !missing.region;
+    const isComplete = !missing.phone && !missing.address && !missing.city && !missing.ward;
     return { isComplete, missingFields: missing };
   };
 

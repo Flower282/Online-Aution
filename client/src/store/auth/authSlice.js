@@ -69,6 +69,7 @@ const initialState = {
     user: null,
     loading: true,
     error: null,
+    isManualLogout: false, // Track if logout was user-initiated
 };
 
 // auth slice
@@ -78,6 +79,9 @@ const authSlice = createSlice({
     reducers: {
         setUser: (state, action) => {
             state.user = action.payload;
+        },
+        clearManualLogout: (state) => {
+            state.isManualLogout = false;
         },
     },
     extraReducers: (builder) => {
@@ -132,6 +136,7 @@ const authSlice = createSlice({
                 state.user = null;
                 state.loading = false;
                 state.error = null;
+                state.isManualLogout = true; // Mark as manual logout
             })
             .addCase(logout.rejected, (state, { payload }) => {
                 state.error = payload;
@@ -139,5 +144,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { setUser } = authSlice.actions;
+export const { setUser, clearManualLogout } = authSlice.actions;
 export default authSlice.reducer;

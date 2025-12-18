@@ -3,6 +3,7 @@ import { OpenLayout } from "../layout/OpenLayout";
 import { About } from "../pages/About";
 import { Contact } from "../pages/Contact";
 import { Landing } from "../pages/Landing";
+import { AuctionList } from "../pages/AuctionList";
 // Temporarily hidden Legal imports
 // import AcceptableUsePolicy from "../pages/legal/AcceptableUsePolicy";
 // import CodeOfConduct from "../pages/legal/CodeOfConduct";
@@ -42,6 +43,11 @@ export const openRoutes = [
       {
         path: "about",
         element: <About />,
+        errorElement: <Error />,
+      },
+      {
+        path: "auction",
+        element: <AuctionList />,
         errorElement: <Error />,
       },
       // Temporarily hidden Legal routes

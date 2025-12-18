@@ -1,7 +1,7 @@
 import { useState } from "react";
 import AuctionCard from "../components/AuctionCard";
 import { useQuery } from "@tanstack/react-query";
-import { getAuctions } from "../api/auction";
+import { getPublicAuctions } from "../api/auction";
 import LoadingScreen from "../components/LoadingScreen";
 import { useNavigate } from "react-router";
 
@@ -14,9 +14,11 @@ export const AuctionList = () => {
   const [sortBy, setSortBy] = useState("none"); // "none", "price-low", "price-high", "date-newest", "date-oldest", "ending-soon"
   const [activeTab, setActiveTab] = useState("all");
   const navigate = useNavigate();
+  
+  // Use public API to allow viewing without authentication
   const { data, isLoading, error } = useQuery({
     queryKey: ["allAuction"],
-    queryFn: getAuctions,
+    queryFn: getPublicAuctions,
     staleTime: 30 * 1000,
     refetchInterval: 10000, // Auto refresh every 10 seconds
     refetchOnWindowFocus: true, // Refresh when user returns to tab

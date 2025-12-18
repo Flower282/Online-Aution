@@ -18,42 +18,48 @@ import {
 } from '../controllers/auction.controller.js';
 import upload from '../middleware/multer.js';
 import { checkAdmin } from '../middleware/checkAdmin.js';
+import { secureRoute } from '../middleware/auth.js';
 
 const auctionRouter = express.Router();
 
-// Stats & Dashboard
-auctionRouter
-    .get('/stats', dashboardData)
+// ==================== PUBLIC ROUTES (No Auth Required) ====================
+// Note: These must come BEFORE /:id to avoid route conflicts
 
-// Admin endpoints
-auctionRouter
-    .get('/admin/all', checkAdmin, getAllAuctionsAdmin)
+// Public: List all approved auctions
+auctionRouter.get('/', showAuction);
 
-// Won auctions (auctions user has won)
-auctionRouter
-    .get('/won', getWonAuctions)
+// ==================== PROTECTED ROUTES (Auth Required) ====================
+// Note: Specific routes must come BEFORE generic /:id route
 
-// List & Create auctions
-auctionRouter
-    .get('/', showAuction)
-    .post('/', upload.single('itemPhoto'), createAuction);
+// Stats & Dashboard (requires auth)
+auctionRouter.get('/stats', secureRoute, dashboardData);
 
-// My auctions (auctions user created)
-auctionRouter
-    .get("/myauction", myAuction)
+// Admin endpoints (requires auth + admin role)
+auctionRouter.get('/admin/all', secureRoute, checkAdmin, getAllAuctionsAdmin);
 
-// Deposit endpoints (must come before /:id to avoid route conflicts)
-auctionRouter
-    .get('/:id/deposit', getDepositInfo)         // Get deposit info
-    .post('/:id/deposit', submitDeposit)         // Submit deposit payment
-    .post('/:id/finalize', finalizeAuction)      // Finalize auction (admin/system)
+// Won auctions (requires auth)
+auctionRouter.get('/won', secureRoute, getWonAuctions);
 
-// Auction specific operations
-auctionRouter
-    .get('/:id', auctionById)
-    .post('/:id/like', toggleLike)               // Like/unlike auction
-    .post('/:id', placeBid)                      // Place bid
-    .delete('/:id', checkAdmin, deleteAuction)   // Delete auction (admin only)
+// My auctions (requires auth)
+auctionRouter.get("/myauction", secureRoute, myAuction);
+
+// Create auction (requires auth)
+auctionRouter.post('/', secureRoute, upload.single('itemPhoto'), createAuction);
+
+// ==================== DYNAMIC ROUTES ====================
+
+// Deposit endpoints (require auth) - must come before /:id
+auctionRouter.get('/:id/deposit', secureRoute, getDepositInfo);
+auctionRouter.post('/:id/deposit', secureRoute, submitDeposit);
+auctionRouter.post('/:id/finalize', secureRoute, finalizeAuction);
+
+// Protected: View single auction details (requires auth)
+auctionRouter.get('/:id', secureRoute, auctionById);
+
+// Write operations on specific auction (require auth)
+auctionRouter.post('/:id/like', secureRoute, toggleLike);
+auctionRouter.post('/:id', secureRoute, placeBid);
+auctionRouter.delete('/:id', secureRoute, checkAdmin, deleteAuction);
 
 
 export default auctionRouter;
