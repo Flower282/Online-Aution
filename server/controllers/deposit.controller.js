@@ -80,8 +80,8 @@ export const createDeposit = async (req, res) => {
             return res.status(400).json({ error: 'Invalid product ID' });
         }
 
-        // Kiểm tra xác minh tài khoản và thông tin cá nhân
-        const user = await User.findById(userId).select('verification.isVerified phone address location.city location.region');
+        // Kiểm tra xác minh tài khoản và thông tin cá nhân + số dư ví
+        const user = await User.findById(userId).select('verification.isVerified phone address location.city location.region balance');
         if (!user?.verification?.isVerified) {
             return res.status(403).json({
                 error: 'Bạn cần xác minh tài khoản trước khi đặt cọc',
@@ -154,6 +154,23 @@ export const createDeposit = async (req, res) => {
             (product.startingPrice * product.depositPercentage) / 100
         );
 
+        // Nếu thanh toán bằng ví (wallet) thì trừ tiền trong ví ngay khi đặt cọc
+        if (paymentMethod === 'wallet') {
+            const currentBalance = user.balance || 0;
+            if (currentBalance < depositAmount) {
+                return res.status(400).json({
+                    error: 'Số dư ví không đủ để đặt cọc',
+                    code: 'INSUFFICIENT_WALLET_BALANCE',
+                    currentBalance,
+                    requiredAmount: depositAmount
+                });
+            }
+
+            user.balance = currentBalance - depositAmount;
+            await user.save();
+            console.log(`💰 Wallet deposit: User ${userId} -${depositAmount}. Balance: ${currentBalance} -> ${user.balance}`);
+        }
+
         // Create or update deposit
         const deposit = await Deposit.findOneAndUpdate(
             { user: userId, product: productId },
@@ -205,7 +222,53 @@ export const getMyDeposits = async (req, res) => {
             .populate('product', 'itemName itemPhoto currentPrice startingPrice itemEndDate seller')
             .sort({ createdAt: -1 });
 
-        // Calculate stats
+        // Tính toán lịch sử dòng tiền (cash flow) cho ví
+        // moneyIn: tiền hoàn về ví từ cọc (refunded, chỉ tính paymentMethod = wallet)
+        // moneyOut: tiền đã trừ khỏi ví khi đặt cọc (paid/deducted, chỉ tính paymentMethod = wallet)
+        let moneyIn = 0;
+        let moneyOut = 0;
+
+        const formattedDeposits = deposits.map(d => {
+            let walletFlow = 'none'; // 'in' | 'out' | 'none'
+            let walletChange = 0;
+
+            if (d.paymentMethod === 'wallet') {
+                if (d.status === 'paid' || d.status === 'deducted') {
+                    walletFlow = 'out';
+                    walletChange = -d.amount;
+                    moneyOut += d.amount;
+                } else if (d.status === 'refunded') {
+                    walletFlow = 'in';
+                    walletChange = d.amount;
+                    moneyIn += d.amount;
+                }
+            }
+
+            return {
+                id: d._id,
+                amount: d.amount,
+                status: d.status,
+                paymentMethod: d.paymentMethod,
+                transactionId: d.transactionId,
+                paidAt: d.paidAt,
+                refundedAt: d.refundedAt,
+                deductedAt: d.deductedAt,
+                product: d.product ? {
+                    id: d.product._id,
+                    itemName: d.product.itemName,
+                    itemPhoto: d.product.itemPhoto,
+                    currentPrice: d.product.currentPrice,
+                    startingPrice: d.product.startingPrice,
+                    itemEndDate: d.product.itemEndDate,
+                    isEnded: new Date(d.product.itemEndDate) < new Date()
+                } : null,
+                createdAt: d.createdAt,
+                // Thông tin cash flow
+                walletFlow,       // 'in' | 'out' | 'none'
+                walletChange      // âm: tiền ra, dương: tiền vào, 0: không ảnh hưởng ví
+            };
+        });
+
         const stats = {
             total: deposits.length,
             paid: deposits.filter(d => d.status === 'paid').length,
@@ -214,30 +277,12 @@ export const getMyDeposits = async (req, res) => {
             totalAmount: deposits.reduce((sum, d) => sum + d.amount, 0),
             refundedAmount: deposits
                 .filter(d => d.status === 'refunded')
-                .reduce((sum, d) => sum + d.amount, 0)
+                .reduce((sum, d) => sum + d.amount, 0),
+            // Thêm thống kê dòng tiền ví
+            walletMoneyIn: moneyIn,
+            walletMoneyOut: moneyOut,
+            walletNet: moneyIn - moneyOut
         };
-
-        // Format deposits
-        const formattedDeposits = deposits.map(d => ({
-            id: d._id,
-            amount: d.amount,
-            status: d.status,
-            paymentMethod: d.paymentMethod,
-            transactionId: d.transactionId,
-            paidAt: d.paidAt,
-            refundedAt: d.refundedAt,
-            deductedAt: d.deductedAt,
-            product: d.product ? {
-                id: d.product._id,
-                itemName: d.product.itemName,
-                itemPhoto: d.product.itemPhoto,
-                currentPrice: d.product.currentPrice,
-                startingPrice: d.product.startingPrice,
-                itemEndDate: d.product.itemEndDate,
-                isEnded: new Date(d.product.itemEndDate) < new Date()
-            } : null,
-            createdAt: d.createdAt
-        }));
 
         res.status(200).json({
             stats,
@@ -285,7 +330,23 @@ export const processAuctionDeposits = async (productId, winnerId) => {
                 deposit.status = 'refunded';
                 deposit.refundedAt = now;
                 deposit.notes = 'Deposit refunded - auction lost';
-                // TODO: Process actual refund via payment gateway
+
+                // Nếu đặt cọc bằng ví, hoàn tiền lại vào ví người dùng
+                if (deposit.paymentMethod === 'wallet') {
+                    try {
+                        const user = await User.findById(deposit.user);
+                        if (user) {
+                            const previousBalance = user.balance || 0;
+                            user.balance = previousBalance + deposit.amount;
+                            await user.save();
+                            console.log(`💸 Wallet refund: User ${user._id} +${deposit.amount}. Balance: ${previousBalance} -> ${user.balance}`);
+                        }
+                    } catch (walletErr) {
+                        console.error('Error refunding wallet for deposit:', walletErr);
+                    }
+                }
+
+                // TODO: Process actual refund via payment gateway for other methods
                 refunded++;
             }
             await deposit.save();

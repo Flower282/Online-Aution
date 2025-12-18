@@ -396,6 +396,34 @@ export const ViewAuction = () => {
   // Check if seller is inactive
   const isSellerInactive = data.seller?.isActive === false;
 
+  // Product / auction status label for detail page
+  const getAuctionStatusInfo = () => {
+    const auctionStatus = data.auctionStatus; // active, ended, completed, cancelled, expired
+    const paymentStatus = data.paymentStatus; // pending, paid, expired (nếu có)
+
+    if (auctionStatus === 'cancelled') {
+      return { label: 'Đã hủy', className: 'bg-red-100 text-red-800' };
+    }
+
+    if (auctionStatus === 'expired') {
+      return { label: 'Hết hạn (không có người tham gia)', className: 'bg-gray-100 text-gray-800' };
+    }
+
+    if (auctionStatus === 'completed' || paymentStatus === 'paid') {
+      return { label: 'Đã thanh toán / Hoàn tất', className: 'bg-emerald-100 text-emerald-800' };
+    }
+
+    if (auctionStatus === 'ended' || !isActive) {
+      // Đã kết thúc nhưng chưa hoàn tất thanh toán
+      return { label: 'Đã kết thúc, chờ thanh toán', className: 'bg-yellow-100 text-yellow-800' };
+    }
+
+    // Mặc định: đang diễn ra
+    return { label: 'Đang đấu giá', className: 'bg-green-100 text-green-800' };
+  };
+
+  const auctionStatusInfo = getAuctionStatusInfo();
+
   const handleBidSubmit = (e) => {
     e.preventDefault();
     
@@ -656,12 +684,9 @@ export const ViewAuction = () => {
                     {data.itemCategory}
                   </span>
                   <span
-                    className={`px-2 py-1 rounded-md text-xs font-medium ${isActive
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                      }`}
+                    className={`px-2 py-1 rounded-md text-xs font-medium ${auctionStatusInfo.className}`}
                   >
-                    {isActive ? "Active" : "Ended"}
+                    {auctionStatusInfo.label}
                   </span>
                 </div>
                 {/* Like Button - Hidden for admin */}
