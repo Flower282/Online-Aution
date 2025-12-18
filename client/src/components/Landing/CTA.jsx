@@ -26,7 +26,7 @@ export const CTA = () => {
               into cash. Getting started is quick and easy! ❄️
             </p>
             <div className="flex flex-col sm:flex-row gap-5 justify-center" data-aos="fade-up" data-aos-delay="300">
-              <Link to="/signup">
+              <Link to="/login">
                 <div className="bg-white cursor-pointer text-teal-700 px-10 py-4 rounded-xl hover:bg-yellow-50 transition-all duration-300 font-bold text-lg shadow-2xl hover:shadow-3xl hover:scale-105 transform">
                    Join Now
                 </div>
