@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux";
 import { CTA } from "../components/Landing/CTA";
-import { Features } from "../components/Landing/Features";
 import { Hero } from "../components/Landing/Hero";
 import Dashboard from "./Dashboard";
 import LoadingScreen from "../components/LoadingScreen";
@@ -17,7 +16,6 @@ export const Landing = () => {
         <>
           <Hero />
           <Auction />
-          <Features />
           <CTA />
         </>
       )}

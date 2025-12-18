@@ -771,8 +771,6 @@ const navMenu = [
   { name: "Dashboard", link: "/", icon: LayoutDashboard },
   { name: "Auction", link: "/auction", icon: Eye },
   { name: "Tạo mới", link: "/create", icon: Plus },
-  { name: "About", link: "/about", icon: Info },
-  { name: "Contact", link: "/contact", icon: Phone },
 ];
 
 // Main navigation links for logged-in users (shown directly in navbar)
@@ -780,8 +778,6 @@ const mainNavLinks = [
   { name: "Dashboard", link: "/", icon: LayoutDashboard },
   { name: "Auction", link: "/auction", icon: Eye },
   { name: "Tạo mới", link: "/create", icon: Plus },
-  { name: "About", link: "/about", icon: Info },
-  { name: "Contact", link: "/contact", icon: Phone },
 ];
 
 // Dropdown menu items for user account
@@ -815,8 +811,6 @@ const protectedNavLink = [
   { name: "Dashboard", link: "/" },
   { name: "Auction", link: "/auction" },
   { name: "Tạo mới", link: "/create" },
-  { name: "About", link: "/about" },
-  { name: "Contact", link: "/contact" },
   { name: "My Auction", link: "/myauction" },
   { name: "Won Auctions", link: "/won" },
   { name: "My Deposits", link: "/deposits" },
@@ -841,10 +835,10 @@ const getDropdownItems = (userRole) => {
   return dropdownMenuItems;
 };
 
-// Helper function for mobile menu - returns first 5 items (matching desktop nav)
+// Helper function for mobile menu - returns first 3 items (matching desktop nav)
 const getNavLinks = (userRole) => {
   if (userRole === 'admin') {
     return adminNavLink;
   }
-  return protectedNavLink.slice(0, 5); // Dashboard, Auction, Create, About, Contact
+  return protectedNavLink.slice(0, 3); // Dashboard, Auction, Create
 };

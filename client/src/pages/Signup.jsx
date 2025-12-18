@@ -48,7 +48,7 @@ const Signup = () => {
         <div className="w-full max-w-5xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 bg-white rounded-2xl shadow-2xl overflow-hidden">
             {/* Left Side - Signup Form */}
-            <div className="bg-white p-10 border-r-2 border-red-200 min-h-[700px]" data-aos="zoom-in">
+            <div className="bg-white p-10 border-r-2 border-red-200 max-h-[550px]" data-aos="zoom-in">
             <div className="text-center mb-8" data-aos="fade-down" data-aos-delay="100">
               <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
                 Join Us Today!

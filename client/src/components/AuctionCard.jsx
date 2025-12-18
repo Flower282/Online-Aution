@@ -71,12 +71,12 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
 
   return (
     <Link to={`/auction/${auction._id}`} onClick={handleClick}>
-      <div className={`bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group border flex flex-col h-full ${isEnded
+      <div className={`bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group border flex flex-col h-full ${isEnded
         ? 'border-gray-300 opacity-70 grayscale-[30%]'
         : 'border-gray-200 hover:border-red-300'
         }`}>
         {/* Image Container */}
-        <div className="relative w-full h-48 overflow-hidden bg-gray-50 flex-shrink-0">
+        <div className="relative w-full h-36 overflow-hidden bg-gray-50 flex-shrink-0">
           <img
             src={auction.itemPhoto || "https://picsum.photos/400"}
             alt={auction.itemName}
@@ -127,19 +127,19 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
         </div>
 
         {/* Content */}
-        <div className="p-4 flex flex-col flex-1 bg-red-50/30">
+        <div className="p-3 flex flex-col flex-1 bg-red-50/30">
           {/* Title */}
-          <h3 className="text-base font-bold text-gray-800 mb-3 uppercase">
+          <h3 className="text-sm font-bold text-gray-800 mb-2 uppercase line-clamp-1">
             {auction.itemName}
           </h3>
 
           {/* Price Section with Pink Background */}
-          <div className="bg-red-50 rounded-lg p-3 mb-3">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs text-gray-600"> Giá hiện tại</span>
+          <div className="bg-red-50 rounded-lg p-2 mb-2">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-xs text-gray-600">Giá hiện tại</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold text-red-600">
+              <span className="text-lg font-bold text-red-600">
                 {formatCurrency(currentPrice)}
               </span>
               {priceIncrease > 0 && (
@@ -166,7 +166,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           {/* Bid Now Button */}
           {!isEnded && !isPending && !isRejected && !isAdmin && (
             <button
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-auto"
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-auto text-sm"
               onClick={(e) => {
                 if (onClick) {
                   e.preventDefault();
