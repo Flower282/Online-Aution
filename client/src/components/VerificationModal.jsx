@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import {
     getVerificationStatus,
     verifyPhone,
-    verifyEmail,
+    sendVerificationEmail,
     submitIdentityCard
 } from '../api/verification';
 import {
@@ -78,32 +78,12 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
         }
     });
 
-    // Mutation xác minh email
+    // Mutation gửi email xác minh
     const emailMutation = useMutation({
-        mutationFn: verifyEmail,
+        mutationFn: sendVerificationEmail,
         onSuccess: async (data) => {
             setError('');
-
-            // Đợi refetch hoàn thành để cập nhật UI
-            await refetch();
-            queryClient.invalidateQueries(['verificationStatus']);
-
-            // Kiểm tra CCCD
-            const identityStatus = verificationStatus?.identityCard?.status;
-            if (identityStatus === 'approved') {
-                // Tất cả đã hoàn thành
-                setSuccess('Xác minh email thành công! Tài khoản đã được xác minh hoàn tất.');
-            } else {
-                // Chuyển sang tab CCCD
-                const message = identityStatus === 'pending'
-                    ? 'Xác minh email thành công! CCCD đang chờ duyệt.'
-                    : data.message + ' Chuyển sang xác minh CCCD...';
-                setSuccess(message);
-                setTimeout(() => {
-                    setActiveTab('identity');
-                    setSuccess('');
-                }, 1500);
-            }
+            setSuccess(data.message || 'Email xác minh đã được gửi. Vui lòng kiểm tra hộp thư của bạn và nhấp vào liên kết để xác minh.');
         },
         onError: (err) => {
             setError(err.message);
@@ -409,17 +389,25 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                     <p className="text-gray-600 mb-2">
                                                         Email của bạn: <strong>{user?.user?.email}</strong>
                                                     </p>
-                                                    <p className="text-sm text-gray-500">
-                                                        Nhấn nút bên dưới để xác minh email
+                                                    <p className="text-sm text-gray-500 mb-4">
+                                                        Nhấn nút bên dưới để nhận email xác minh. Sau đó kiểm tra hộp thư và nhấp vào liên kết để xác minh.
                                                     </p>
+                                                    {success && (
+                                                        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm">
+                                                            {success}
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <button
                                                     type="submit"
                                                     disabled={emailMutation.isPending}
                                                     className="w-full py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                                 >
-                                                    {emailMutation.isPending ? 'Đang xác minh...' : 'Xác minh email'}
+                                                    {emailMutation.isPending ? 'Đang gửi email...' : 'Gửi email xác minh'}
                                                 </button>
+                                                <p className="text-xs text-gray-500 text-center">
+                                                    Không nhận được email? Kiểm tra thư mục spam hoặc yêu cầu gửi lại.
+                                                </p>
                                             </form>
                                         )}
                                     </div>
