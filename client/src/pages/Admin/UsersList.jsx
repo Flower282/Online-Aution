@@ -116,7 +116,7 @@ export const UsersList = () => {
     if (!location) return 'Unknown';
     const parts = [];
     if (location.city) parts.push(location.city);
-    if (location.region) parts.push(location.region);
+    if (location.ward) parts.push(location.ward);
     if (location.country) parts.push(location.country);
     return parts.length > 0 ? parts.join(', ') : 'Unknown';
   };

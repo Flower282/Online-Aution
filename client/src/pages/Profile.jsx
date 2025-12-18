@@ -6,11 +6,53 @@ import { useSelector, useDispatch } from "react-redux";
 import { HiOutlineShieldCheck, HiOutlineIdentification } from "react-icons/hi";
 import { setUser } from "../store/auth/authSlice";
 import VerificationModal from "../components/VerificationModal";
-import { getProvinces, getDistricts } from "../utils/vietnamProvinces";
+import { getProvinces, getWards } from "../utils/vietnamProvinces";
+import { checkAuth } from "../store/auth/authSlice";
+import axios from "../utils/axiosConfig";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function Profile() {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const { user, loading } = useSelector((state) => state.auth);
+
+  // Fetch user data if not available
+  useEffect(() => {
+    const fetchUserData = async () => {
+      // If user is not loaded and not currently loading, fetch it
+      if (!user && !loading) {
+        console.log('🔄 User data not found, fetching...');
+        try {
+          await dispatch(checkAuth());
+        } catch (error) {
+          console.error('❌ Failed to fetch user data:', error);
+        }
+      } else if (user && !user.user) {
+        // If user object exists but user.user is missing, try to fetch
+        console.log('🔄 User.user not found, fetching user data...');
+        try {
+          const response = await axios.get(API_ENDPOINTS.USER, {
+            withCredentials: true,
+          });
+          if (response.data) {
+            dispatch(setUser({ user: response.data }));
+            console.log('✅ User data fetched and updated');
+          }
+        } catch (error) {
+          console.error('❌ Failed to fetch user data:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [user, loading, dispatch]);
+
+  // Debug: Check if user data exists
+  useEffect(() => {
+    console.log('🔍 Profile component - User data:', user);
+    console.log('🔍 Profile component - User.user:', user?.user);
+    console.log('🔍 Profile component - Location:', user?.user?.location);
+  }, [user]);
+
   const [isError, setIsError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [showVerificationModal, setShowVerificationModal] = useState(false);
@@ -26,24 +68,30 @@ export default function Profile() {
     name: user?.user?.name || "",
     address: user?.user?.address || "",
     city: user?.user?.location?.city || "",
-    region: user?.user?.location?.region || "",
+    ward: user?.user?.location?.ward || "",
     country: user?.user?.location?.country || "",
   });
 
   // Vietnam provinces data
   const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
   const [selectedProvinceCode, setSelectedProvinceCode] = useState("");
-  const [selectedDistrictCode, setSelectedDistrictCode] = useState("");
+  const [wards, setWards] = useState([]);
+  const [selectedWardCode, setSelectedWardCode] = useState("");
 
   // Sync profileData with user.user whenever it changes
   useEffect(() => {
     if (user?.user) {
+      // Backend stores ward in 'region' field, map it to 'ward' for frontend
+      const wardValue = user.user.location?.ward ||
+        (user.user.location?.region && user.user.location?.region !== "Unknown"
+          ? user.user.location.region
+          : "");
+
       setProfileData({
         name: user.user.name || "",
         address: user.user.address || "",
         city: user.user.location?.city || "",
-        region: user.user.location?.region || "",
+        ward: wardValue, // Map from region field
         country: user.user.location?.country || "",
       });
     }
@@ -54,22 +102,42 @@ export default function Profile() {
     const loadProvinces = async () => {
       const data = await getProvinces();
       setProvinces(data);
-    };
-    loadProvinces();
-  }, []);
 
-  // Load districts when province changes
-  useEffect(() => {
-    const loadDistricts = async () => {
-      if (selectedProvinceCode) {
-        const data = await getDistricts(selectedProvinceCode);
-        setDistricts(data);
-      } else {
-        setDistricts([]);
+      // If user has city data, find and set the selected province code
+      if (user?.user?.location?.city && data.length > 0) {
+        const matchingProvince = data.find(p => p.name === user.user.location.city);
+        if (matchingProvince) {
+          setSelectedProvinceCode(matchingProvince.id);
+          console.log('📍 Found matching province:', matchingProvince);
+        }
       }
     };
-    loadDistricts();
-  }, [selectedProvinceCode]);
+    loadProvinces();
+  }, [user?.user?.location?.city]);
+
+  // Load wards when province changes
+  useEffect(() => {
+    const loadWards = async () => {
+      if (selectedProvinceCode) {
+        const data = await getWards(selectedProvinceCode);
+        setWards(data);
+
+        // After loading wards, try to sync selectedWardCode from current ward
+        if (profileData.ward && data.length > 0) {
+          const matchingWard = data.find(w => w.name === profileData.ward);
+          if (matchingWard) {
+            setSelectedWardCode(matchingWard.id);
+            console.log('📍 Syncing ward code after load:', matchingWard);
+          }
+        }
+      } else {
+        setWards([]);
+        setSelectedWardCode("");
+      }
+    };
+    loadWards();
+  }, [selectedProvinceCode, profileData.ward]);
+
 
   // Lấy trạng thái xác minh
   const verification = user?.user?.verification;
@@ -103,22 +171,41 @@ export default function Profile() {
 
   // Update profile mutation
   const updateProfileMutation = useMutation({
-    mutationFn: (data) => updateProfile(data),
+    mutationFn: (data) => {
+      console.log('📤 Calling updateProfile with data:', data);
+      return updateProfile(data);
+    },
     onSuccess: (data) => {
+      console.log('✅ Profile update success, response:', data);
+      console.log('✅ Updated user data:', data.user);
+      console.log('✅ Location in response:', data.user?.location);
+
       setSuccessMessage("Profile updated successfully");
       setTimeout(() => {
         setSuccessMessage("");
       }, 5000);
 
-      // Update Redux store with new user data (useEffect will sync profileData automatically)
+      // Update Redux store with new user data
+      // Merge location object properly to ensure all fields are updated
       if (data.user) {
-        dispatch(setUser({ user: { ...user.user, ...data.user } }));
+        const updatedUser = {
+          ...user.user,
+          ...data.user,
+          location: {
+            ...user.user.location,
+            ...data.user.location
+          }
+        };
+        dispatch(setUser({ user: updatedUser }));
+        console.log('✅ Redux store updated with new location:', updatedUser.location);
       }
 
       // Exit edit mode
       setIsEditingProfile(false);
     },
     onError: (error) => {
+      console.error('❌ Profile update error:', error);
+      console.error('❌ Error response:', error?.response?.data);
       setIsError(error?.message || "Failed to update profile");
       setTimeout(() => {
         setIsError("");
@@ -142,18 +229,25 @@ export default function Profile() {
     const provinceCode = e.target.value;
 
     setSelectedProvinceCode(provinceCode);
-    setProfileData((prev) => ({ ...prev, city: provinceName, region: "" }));
-    setSelectedDistrictCode("");
+    setProfileData((prev) => ({ ...prev, city: provinceName, ward: "" }));
+    setSelectedWardCode("");
   };
 
-  const handleDistrictChange = (e) => {
+  const handleWardChange = (e) => {
     const selectedOption = e.target.options[e.target.selectedIndex];
-    const districtName = selectedOption.text;
-    const districtCode = e.target.value;
+    const wardName = selectedOption.text;
+    const wardCode = e.target.value;
 
-    setSelectedDistrictCode(districtCode);
-    setProfileData((prev) => ({ ...prev, region: districtName }));
+    console.log('🏘️ Ward selected:', { wardName, wardCode });
+
+    setSelectedWardCode(wardCode);
+    setProfileData((prev) => {
+      const updated = { ...prev, ward: wardName };
+      console.log('📝 ProfileData updated with ward:', updated);
+      return updated;
+    });
   };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -177,14 +271,43 @@ export default function Profile() {
 
   const handleProfileSubmit = (e) => {
     e.preventDefault();
-    // Set country to Vietnam before submit
-    updateProfileMutation.mutate({
-      ...profileData,
+
+    // Format data for backend - backend expects FLAT format, not location object
+    // Backend only accepts: { name, address, city, region, country }
+    // Map ward to region since backend doesn't have ward field
+    const submitData = {
+      name: profileData.name,
+      address: profileData.address,
+      city: profileData.city || "",
+      region: profileData.ward || "", // Map ward to region (backend uses region field)
       country: "Việt Nam"
-    });
+    };
+
+    console.log('📤 Submitting profile data (flat format):', submitData);
+    console.log('📤 Ward mapped to region:', profileData.ward);
+
+    updateProfileMutation.mutate(submitData);
   };
 
   const handleEditProfile = () => {
+    // When entering edit mode, sync selectedProvinceCode from current city
+    if (user?.user?.location?.city && provinces.length > 0) {
+      const matchingProvince = provinces.find(p => p.name === user.user.location.city);
+      if (matchingProvince) {
+        setSelectedProvinceCode(matchingProvince.id);
+        console.log('📍 Syncing province code on edit:', matchingProvince);
+      }
+    }
+
+    // Also sync selectedWardCode from current ward
+    if (profileData.ward && wards.length > 0) {
+      const matchingWard = wards.find(w => w.name === profileData.ward);
+      if (matchingWard) {
+        setSelectedWardCode(matchingWard.id);
+        console.log('📍 Syncing ward code on edit:', matchingWard);
+      }
+    }
+
     setIsEditingProfile(true);
   };
 
@@ -195,12 +318,36 @@ export default function Profile() {
         name: user.user.name || "",
         address: user.user.address || "",
         city: user.user.location?.city || "",
-        region: user.user.location?.region || "",
+        ward: user.user.location?.ward || "",
         country: user.user.location?.country || "",
       });
     }
     setIsEditingProfile(false);
   };
+
+  // Show loading state while checking auth or fetching user data
+  if (loading || (!user && !loading)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading user data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Early return if user data is not available after loading
+  if (!user || !user.user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">No user data available.</p>
+          <p className="text-sm text-gray-500">Please try logging in again.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
@@ -444,7 +591,7 @@ export default function Profile() {
                       {/* City (Tỉnh/Thành phố) */}
                       <div>
                         <label htmlFor="profileCity" className="block text-sm font-medium text-gray-700 mb-1">
-                          Tỉnh/Thành phố
+                          Tỉnh/Thành phố {provinces.length > 0 && `(${provinces.length})`}
                         </label>
                         <select
                           id="profileCity"
@@ -453,6 +600,9 @@ export default function Profile() {
                           className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         >
                           <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                          {provinces.length === 0 && (
+                            <option disabled>Đang tải...</option>
+                          )}
                           {provinces.map((province) => (
                             <option key={province.id} value={province.id}>
                               {province.name}
@@ -461,22 +611,25 @@ export default function Profile() {
                         </select>
                       </div>
 
-                      {/* Region (Quận/Huyện) */}
+                      {/* Ward (Phường/Xã) */}
                       <div>
-                        <label htmlFor="profileRegion" className="block text-sm font-medium text-gray-700 mb-1">
-                          Quận/Huyện
+                        <label htmlFor="profileWard" className="block text-sm font-medium text-gray-700 mb-1">
+                          Phường/Xã {wards.length > 0 && `(${wards.length})`}
                         </label>
                         <select
-                          id="profileRegion"
-                          value={selectedDistrictCode}
-                          onChange={handleDistrictChange}
+                          id="profileWard"
+                          value={selectedWardCode}
+                          onChange={handleWardChange}
                           disabled={!selectedProvinceCode}
                           className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
                         >
-                          <option value="">-- Chọn Quận/Huyện --</option>
-                          {districts.map((district) => (
-                            <option key={district.id} value={district.id}>
-                              {district.name}
+                          <option value="">-- Chọn Phường/Xã --</option>
+                          {wards.length === 0 && selectedProvinceCode && (
+                            <option disabled>Đang tải...</option>
+                          )}
+                          {wards.map((ward) => (
+                            <option key={ward.id} value={ward.id}>
+                              {ward.name}
                             </option>
                           ))}
                         </select>
@@ -540,7 +693,9 @@ export default function Profile() {
                         </label>
                         <div className="flex items-start gap-2 px-3 py-2 bg-gray-50 rounded-md min-h-[48px]">
                           <CiLocationOn className="h-5 w-5 text-gray-400 mt-0.5" />
-                          <span className="text-sm text-gray-900">{profileData.address || "Not provided"}</span>
+                          <span className="text-sm text-gray-900">
+                            {user.user.address || profileData.address || "Not provided"}
+                          </span>
                         </div>
                       </div>
 
@@ -550,17 +705,30 @@ export default function Profile() {
                           Tỉnh/Thành phố
                         </label>
                         <div className="px-3 py-2 bg-gray-50 rounded-md">
-                          <span className="text-sm text-gray-900">{profileData.city || "Chưa cung cấp"}</span>
+                          <span className="text-sm text-gray-900">
+                            {user.user.location?.city || profileData.city || "Chưa cung cấp"}
+                          </span>
                         </div>
                       </div>
 
-                      {/* Region (Quận/Huyện) */}
+                      {/* Ward (Phường/Xã) */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Quận/Huyện
+                          Phường/Xã
                         </label>
                         <div className="px-3 py-2 bg-gray-50 rounded-md">
-                          <span className="text-sm text-gray-900">{profileData.region || "Chưa cung cấp"}</span>
+                          <span className="text-sm text-gray-900">
+                            {(() => {
+                              // Try ward first, then region (in case backend uses region), then other fields
+                              const wardValue = user.user.location?.ward ||
+                                user.user.location?.region ||
+                                user.user.location?.commune ||
+                                user.user.location?.village ||
+                                profileData.ward ||
+                                profileData.region;
+                              return wardValue && wardValue !== "Unknown" ? wardValue : "Chưa cung cấp";
+                            })()}
+                          </span>
                         </div>
                       </div>
 
