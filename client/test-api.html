@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vietnam API</title>
+</head>
+
+<body>
+    <h1>Test API 34tinhthanh.com</h1>
+    <button onclick="testProvinces()">Test Provinces</button>
+    <button onclick="testDistricts()">Test Districts (Hanoi)</button>
+    <pre id="result"></pre>
+
+    <script>
+        const API_BASE = 'https://34tinhthanh.com/api';
+        const resultDiv = document.getElementById('result');
+
+        async function testProvinces() {
+            try {
+                resultDiv.textContent = 'Loading provinces...';
+                const response = await fetch(`${API_BASE}/provinces`);
+                const data = await response.json();
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                console.log('Provinces:', data);
+            } catch (error) {
+                resultDiv.textContent = 'Error: ' + error.message;
+                console.error(error);
+            }
+        }
+
+        async function testDistricts() {
+            try {
+                resultDiv.textContent = 'Loading districts...';
+                const response = await fetch(`${API_BASE}/districts?province_code=01`);
+                const data = await response.json();
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                console.log('Districts:', data);
+            } catch (error) {
+                resultDiv.textContent = 'Error: ' + error.message;
+                console.error(error);
+            }
+        }
+
+        // Auto test on load
+        testProvinces();
+    </script>
+</body>
+
+</html>
