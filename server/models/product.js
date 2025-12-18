@@ -74,6 +74,50 @@ const productSchema = new mongoose.Schema({
         enum: ['active', 'ended', 'completed', 'cancelled', 'expired'],
         default: 'active'
     },
+    /**
+     * Payment info for winner after auction ends
+     * - paymentDeadline: hạn cuối để người thắng thanh toán (mặc định 1 tuần sau khi phiên kết thúc)
+     * - paymentStatus:
+     *   - pending: đã có winner, đang chờ thanh toán
+     *   - paid: người thắng đã thanh toán đủ
+     *   - expired: quá hạn thanh toán, phiên có thể bị hủy
+     * - finalPrice: giá cuối cùng đã đấu giá (fix lại để không phụ thuộc currentPrice nếu sau này thay đổi)
+     * - platformCommissionPercentage: % phí sàn theo quy định đấu giá quốc tế
+     * - platformCommissionAmount: số tiền phí sàn
+     * - sellerAmount: số tiền thực tế người đăng sản phẩm nhận được
+     * - paymentCompletedAt: thời điểm hoàn tất thanh toán
+     */
+    paymentDeadline: {
+        type: Date,
+        default: null
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'paid', 'expired'],
+        default: 'pending'
+    },
+    finalPrice: {
+        type: Number,
+        default: 0
+    },
+    platformCommissionPercentage: {
+        type: Number,
+        default: 10, // 10% phí sàn (có thể chỉnh theo quy định đấu giá quốc tế)
+        min: 0,
+        max: 100
+    },
+    platformCommissionAmount: {
+        type: Number,
+        default: 0
+    },
+    sellerAmount: {
+        type: Number,
+        default: 0
+    },
+    paymentCompletedAt: {
+        type: Date,
+        default: null
+    },
     status: {
         type: String,
         enum: ['pending', 'approved', 'rejected'],

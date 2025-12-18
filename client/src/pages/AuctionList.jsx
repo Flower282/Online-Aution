@@ -89,7 +89,7 @@ export const AuctionList = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
-      <main className="container mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-8 py-8">
         {/* Hero section */}
         <div className="mb-12 text-center space-y-4 relative" data-aos="fade-down">
           <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-6xl animate-bounce">
@@ -468,7 +468,7 @@ export const AuctionList = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAuctions.map((auction, index) => (
               <div key={auction._id} data-aos="fade-up" data-aos-delay={index * 50}>
                 <AuctionCard

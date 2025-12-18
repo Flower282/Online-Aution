@@ -1,4 +1,5 @@
 // import { AdsComponent } from "../components/AdsComponent";
+import { Features } from "../components/Landing/Features";
 
 export const About = () => {
   return (
@@ -12,6 +13,9 @@ export const About = () => {
 
         </div>
       </div>
+      
+      {/* Features Section */}
+      <Features />
     </div>
   );
 };

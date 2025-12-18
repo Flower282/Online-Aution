@@ -18,6 +18,8 @@ export const API_ENDPOINTS = {
         LOGOUT: `${API_URL}/auth/logout`,
         REFRESH_TOKEN: `${API_URL}/auth/refresh-token`,
         REQUEST_REACTIVATION: `${API_URL}/auth/request-reactivation`,
+        FORGOT_PASSWORD: `${API_URL}/auth/forgot-password`,
+        RESET_PASSWORD: `${API_URL}/auth/reset-password`,
     },
 
     // User endpoints
@@ -48,7 +50,8 @@ export const API_ENDPOINTS = {
     VERIFICATION: {
         STATUS: `${API_URL}/verification/status`,
         PHONE: `${API_URL}/verification/phone`,
-        EMAIL: `${API_URL}/verification/email`,
+        EMAIL_SEND: `${API_URL}/verification/email/send`,
+        EMAIL_VERIFY: `${API_URL}/verification/email/verify`,
         IDENTITY_CARD: `${API_URL}/verification/identity-card`,
         ADMIN_PENDING: `${API_URL}/verification/admin/pending`,
     },

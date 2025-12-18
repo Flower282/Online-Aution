@@ -2,6 +2,7 @@ import User from "../models/user.js"
 import Login from "../models/Login.js"
 import bcrypt from "bcrypt";
 import dotenv from "dotenv"
+import crypto from "crypto";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 import { getClientIp, getLocationFromIp } from "../utils/geoDetails.js";
 dotenv.config();
@@ -37,7 +38,7 @@ export const handleUserLogin = async (req, res) => {
 
         // Check if user is active
         if (!user.isActive) {
-            return res.status(403).json({ 
+            return res.status(403).json({
                 error: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin.",
                 isDeactivated: true,
                 email: user.email,
@@ -73,18 +74,23 @@ export const handleUserLogin = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         })
 
-        // Getting user gro location
+        // Getting user geo location
         const ip = getClientIp(req);
         const userAgent = req.headers["user-agent"];
         const location = await getLocationFromIp(ip);
 
-        // Update user's last login and location
-        await User.findByIdAndUpdate(user._id, {
-            lastLogin: new Date(),
-            location: location,
-            ipAddress: ip,
-            userAgent: userAgent
-        });
+        // Update user's last login and technical info
+        // NOTE: Không ghi đè location (city/region/ward) do người dùng đã chọn trong Profile
+        // để tránh mất thông tin Tỉnh/Thành & Phường/Xã đã lưu vào database.
+        await User.findByIdAndUpdate(
+            user._id,
+            {
+                lastLogin: new Date(),
+                ipAddress: ip,
+                userAgent: userAgent,
+            },
+            { new: false }
+        );
 
         // Saving login details
         const login = new Login({
@@ -388,3 +394,104 @@ export const handleGetToken = async (req, res) => {
         });
     }
 }
+
+/**
+ * Yêu cầu đặt lại mật khẩu (quên mật khẩu)
+ * Public: không cần đăng nhập
+ */
+export const requestPasswordReset = async (req, res) => {
+    try {
+        const { email } = req.body || {};
+
+        if (!email || typeof email !== "string") {
+            return res.status(400).json({ error: "Email là bắt buộc" });
+        }
+
+        const trimmedEmail = email.trim().toLowerCase();
+
+        if (!trimmedEmail) {
+            return res.status(400).json({ error: "Email là bắt buộc" });
+        }
+
+        const user = await User.findOne({ email: trimmedEmail });
+
+        // Để bảo mật, luôn trả về message giống nhau kể cả khi user không tồn tại
+        const genericMessage =
+            "Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu. Vui lòng kiểm tra hộp thư của bạn.";
+
+        if (!user) {
+            return res.status(200).json({ message: genericMessage });
+        }
+
+        // Không cho reset nếu tài khoản bị vô hiệu hóa
+        if (!user.isActive) {
+            return res.status(403).json({
+                error: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin hoặc gửi yêu cầu mở khóa.",
+            });
+        }
+
+        return res.status(200).json({ message: genericMessage });
+    } catch (error) {
+        console.error("Error in requestPasswordReset:", error);
+        return res.status(500).json({ error: "Không thể xử lý yêu cầu. Vui lòng thử lại sau." });
+    }
+};
+
+/**
+ * Đặt lại mật khẩu bằng token
+ * Public: không cần đăng nhập
+ */
+export const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body || {};
+
+        if (!token || typeof token !== "string") {
+            return res.status(400).json({ error: "Token không hợp lệ" });
+        }
+
+        if (!newPassword || typeof newPassword !== "string") {
+            return res.status(400).json({ error: "Mật khẩu mới là bắt buộc" });
+        }
+
+        const trimmedPassword = newPassword.trim();
+        if (!trimmedPassword || trimmedPassword.length < 6) {
+            return res.status(400).json({ error: "Mật khẩu mới phải có ít nhất 6 ký tự" });
+        }
+
+        // Tìm user có token này
+        const user = await User.findOne({
+            "passwordReset.token": token,
+        });
+
+        if (!user) {
+            return res.status(400).json({ error: "Token đặt lại mật khẩu không hợp lệ hoặc đã được sử dụng." });
+        }
+
+        // Kiểm tra hết hạn
+        const expiresAt = user.passwordReset?.expiresAt;
+        if (!expiresAt || new Date() > expiresAt) {
+            // Xóa token hết hạn
+            user.passwordReset = { token: null, expiresAt: null };
+            await user.save();
+
+            return res
+                .status(400)
+                .json({ error: "Token đặt lại mật khẩu đã hết hạn. Vui lòng gửi lại yêu cầu quên mật khẩu." });
+        }
+
+        // Cập nhật mật khẩu mới
+        const hashedPassword = await bcrypt.hash(trimmedPassword, 10);
+        user.password = hashedPassword;
+        user.passwordReset = { token: null, expiresAt: null };
+
+        // Optional: Xóa refresh token để bắt buộc đăng nhập lại trên tất cả thiết bị
+        user.refreshToken = null;
+
+        await user.save();
+
+        return res.status(200).json({ message: "Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại." });
+    } catch (error) {
+        console.error("Error in resetPassword:", error);
+        return res.status(500).json({ error: "Không thể đặt lại mật khẩu. Vui lòng thử lại sau." });
+    }
+};
