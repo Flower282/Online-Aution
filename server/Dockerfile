@@ -30,6 +30,9 @@ COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 # Copy application code
 COPY --chown=nodejs:nodejs . .
 
+# Create uploads directory with correct permissions
+RUN mkdir -p /app/uploads && chown -R nodejs:nodejs /app/uploads
+
 # Build arguments for environment variables (set by deployment platform)
 ARG PORT
 ARG ORIGIN
