@@ -225,7 +225,7 @@ export const CreateAuction = () => {
                   rows={4}
                   className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-vertical"
                   placeholder="Nhập mô tả chi tiết của sản phẩm bao gồm điều kiện, đặc điểm, và thông tin liên quan"
-                  requiredPro
+                  required
                 />
               </div>
 

@@ -135,7 +135,7 @@ export const Auction = () => {
   const leftAuction = displayAuctions[currentSlide];
   const rightAuction = displayAuctions[(currentSlide + 1) % displayAuctions.length];
 
-  const renderAuctionCard = (auction, position) => (
+  const renderAuctionCard = (auction, _position) => (
     <div className={`flex-shrink-0 w-full lg:w-1/2 p-4 transition-all duration-700 ease-out ${isTransitioning
       ? 'opacity-0'
       : 'opacity-100 translate-x-0'

@@ -34,7 +34,7 @@ export const MyDeposits = () => {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('bank_transfer');
 
     // Fetch deposits
-    const { data: depositsData, isLoading: depositsLoading, error: depositsError, refetch, isFetching } = useQuery({
+    const { data: depositsData, isLoading: depositsLoading, error: depositsError, refetch, isFetching: _isFetching } = useQuery({
         queryKey: ["myDeposits"],
         queryFn: getMyDeposits,
         staleTime: 30 * 1000,
@@ -296,8 +296,8 @@ export const MyDeposits = () => {
                                             date = new Date(transaction.createdAt).toLocaleString('vi-VN');
                                             amount = transaction.amount;
                                             const status = statusLabels[transaction.status] || statusLabels.pending;
-                                            statusLabel = status.label;
-                                            statusColor = status.color;
+                                            const _statusLabel = status.label;
+                                            const _statusColor = status.color;
                                         }
 
                                         return (
