@@ -189,7 +189,7 @@ export const MyDeposits = () => {
                         <p className="text-xl font-bold text-gray-800">{stats.total || 0}</p>
                     </div>
                     <div className="bg-blue-50 p-3 rounded-lg shadow-md border border-blue-200">
-                        <p className="text-xs text-blue-600 mb-0.5">Đang giữ</p>
+                        <p className="text-xs text-blue-600 mb-0.5">Đang đặt cọc</p>
                         <p className="text-xl font-bold text-blue-800">{stats.paid || 0}</p>
                     </div>
                     <div className="bg-emerald-50 p-3 rounded-lg shadow-md border border-emerald-200">

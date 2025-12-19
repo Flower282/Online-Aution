@@ -18,6 +18,7 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isApprovalMenuOpen, setIsApprovalMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
   const searchRef = useRef(null);
   const { user } = useSelector((state) => state.auth);
@@ -162,16 +163,20 @@ export const Navbar = () => {
   const [hasNewPendingReactivations, setHasNewPendingReactivations] = useState(false);
 
   useEffect(() => {
-    if (user?.user?._id && totalWonNotifications > 0) {
-      const storageKey = `wonAuctions_seen_${user.user._id}`;
-      const lastSeenCount = parseInt(localStorage.getItem(storageKey) || '0');
+    // Nếu không có user hoặc không có thông báo thắng đấu giá → không hiển thị badge
+    if (!user?.user?._id || totalWonNotifications <= 0) {
+      setUnseenWonCount(0);
+      return;
+    }
 
-      // Only show badge if there are new items since last view
-      if (totalWonNotifications > lastSeenCount) {
-        setUnseenWonCount(totalWonNotifications - lastSeenCount);
-      } else {
-        setUnseenWonCount(0);
-      }
+    const storageKey = `wonAuctions_seen_${user.user._id}`;
+    const lastSeenCount = parseInt(localStorage.getItem(storageKey) || '0');
+
+    // Chỉ hiển thị badge nếu số lượng mới > số đã xem
+    if (totalWonNotifications > lastSeenCount) {
+      setUnseenWonCount(totalWonNotifications - lastSeenCount);
+    } else {
+      setUnseenWonCount(0);
     }
   }, [totalWonNotifications, user?.user?._id]);
 
@@ -304,15 +309,6 @@ export const Navbar = () => {
                 <NavLink
                   to={item.link}
                   key={item.link}
-                  onClick={() => {
-                    if (item.name === "Đấu giá chờ duyệt") {
-                      markPendingAuctionsAsSeen();
-                    } else if (item.name === "Xác thực chờ duyệt") {
-                      markPendingVerificationsAsSeen();
-                    } else if (item.name === "Yêu cầu chờ duyệt") {
-                      markPendingReactivationsAsSeen();
-                    }
-                  }}
                   className={({ isActive }) =>
                     isActive
                       ? "text-[11px] md:text-xs text-emerald-700 font-medium transition-colors flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50"
@@ -321,23 +317,97 @@ export const Navbar = () => {
                 >
                   {item.icon && <item.icon className="h-4 w-4" />}
                   {item.name}
-                  {item.name === "Đấu giá chờ duyệt" && pendingCount > 0 && (
-                    <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
-                      {pendingCount}
-                    </span>
-                  )}
-                  {item.name === "Yêu cầu chờ duyệt" && pendingReactivationsCount > 0 && (
-                    <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
-                      {pendingReactivationsCount}
-                    </span>
-                  )}
-                  {item.name === "Xác thực chờ duyệt" && pendingVerificationsCount > 0 && (
-                    <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
-                      {pendingVerificationsCount}
-                    </span>
-                  )}
                 </NavLink>
               ))}
+
+              {/* Approval menu box for admin */}
+              {isAdmin && (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsApprovalMenuOpen((prev) => !prev)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] md:text-xs font-medium bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 transition-all"
+                  >
+                    Phê duyệt
+                    {(pendingCount + pendingReactivationsCount + pendingVerificationsCount) > 0 && (
+                      <span className="ml-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                        {pendingCount + pendingReactivationsCount + pendingVerificationsCount}
+                      </span>
+                    )}
+                    <ChevronDown className={`h-3 w-3 transition-transform ${isApprovalMenuOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {isApprovalMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 py-3 text-sm">
+                      <p className="px-4 pb-2 text-xs font-semibold text-gray-500 border-b border-gray-100">
+                        Các mục chờ phê duyệt
+                      </p>
+
+                      <NavLink
+                        to="/admin/auctions/pending"
+                        onClick={() => {
+                          setIsApprovalMenuOpen(false);
+                          markPendingAuctionsAsSeen();
+                        }}
+                        className={({ isActive }) =>
+                          `flex items-center justify-between px-4 py-2.5 hover:bg-red-50 transition-colors ${isActive ? "text-red-700 font-semibold" : "text-gray-700"}`
+                        }
+                      >
+                        <span className="flex items-center gap-2">
+                          <Package className="h-4 w-4 text-red-500" />
+                          Đấu giá chờ duyệt
+                        </span>
+                        {pendingCount > 0 && (
+                          <span className={`bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${hasNewPendingAuctions ? "animate-pulse" : ""}`}>
+                            {pendingCount}
+                          </span>
+                        )}
+                      </NavLink>
+
+                      <NavLink
+                        to="/admin/reactivation-requests"
+                        onClick={() => {
+                          setIsApprovalMenuOpen(false);
+                          markPendingReactivationsAsSeen();
+                        }}
+                        className={({ isActive }) =>
+                          `flex items-center justify-between px-4 py-2.5 hover:bg-red-50 transition-colors ${isActive ? "text-red-700 font-semibold" : "text-gray-700"}`
+                        }
+                      >
+                        <span className="flex items-center gap-2">
+                          <UserCheck className="h-4 w-4 text-red-500" />
+                          Yêu cầu chờ duyệt
+                        </span>
+                        {pendingReactivationsCount > 0 && (
+                          <span className={`bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${hasNewPendingReactivations ? "animate-pulse" : ""}`}>
+                            {pendingReactivationsCount}
+                          </span>
+                        )}
+                      </NavLink>
+
+                      <NavLink
+                        to="/admin/verifications"
+                        onClick={() => {
+                          setIsApprovalMenuOpen(false);
+                          markPendingVerificationsAsSeen();
+                        }}
+                        className={({ isActive }) =>
+                          `flex items-center justify-between px-4 py-2.5 hover:bg-red-50 transition-colors ${isActive ? "text-red-700 font-semibold" : "text-gray-700"}`
+                        }
+                      >
+                        <span className="flex items-center gap-2">
+                          <ShieldCheck className="h-4 w-4 text-red-500" />
+                          Xác thực chờ duyệt
+                        </span>
+                        {pendingVerificationsCount > 0 && (
+                          <span className={`bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${hasNewPendingVerifications ? "animate-pulse" : ""}`}>
+                            {pendingVerificationsCount}
+                          </span>
+                        )}
+                      </NavLink>
+                    </div>
+                  )}
+                </div>
+              )}
             </nav>
           </div>
 
@@ -798,12 +868,17 @@ const adminDropdownMenuItems = [
   { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
 ];
 
-// Admin navigation links
+// Admin navigation links (đầy đủ, dùng cho mobile)
 const adminNavLink = [
   { name: "Danh sách Đấu giá", link: "/auction", icon: Eye },
   { name: "Đấu giá chờ duyệt", link: "/admin/auctions/pending", icon: Package },
   { name: "Yêu cầu chờ duyệt", link: "/admin/reactivation-requests", icon: UserCheck },
   { name: "Xác thực chờ duyệt", link: "/admin/verifications", icon: ShieldCheck },
+];
+
+// Admin main nav links (hiển thị trực tiếp trên navbar desktop)
+const adminMainNavLinks = [
+  { name: "Danh sách Đấu giá", link: "/auction", icon: Eye },
 ];
 
 // All protected links for mobile menu
@@ -822,7 +897,7 @@ const protectedNavLink = [
 // Helper function to get main navigation links based on user role
 const getMainNavLinks = (userRole) => {
   if (userRole === 'admin') {
-    return adminNavLink;
+    return adminMainNavLinks;
   }
   return mainNavLinks;
 };

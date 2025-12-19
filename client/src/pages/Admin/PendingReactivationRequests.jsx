@@ -134,7 +134,6 @@ const PendingReactivationRequests = () => {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-red-600 mb-2">Yêu Cầu Kích Hoạt Lại Chờ Duyệt</h1>
-                    <p className="text-gray-600">Xem xét và phê duyệt yêu cầu kích hoạt lại tài khoản từ người dùng bị vô hiệu hóa</p>
                 </div>
 
                 {/* Error State */}
