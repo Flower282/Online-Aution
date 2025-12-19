@@ -31,7 +31,7 @@ export const ViewAuction = () => {
     if (!id) return;
 
     console.log('🔵 Joining auction room:', id);
-    
+
     // Join auction room
     socket.emit('auction:join', { auctionId: id });
 
@@ -63,12 +63,12 @@ export const ViewAuction = () => {
       }
       // Refresh query to update UI
       queryClient.invalidateQueries({ queryKey: ["viewAuctions", id] });
-      
+
       // Show notification if bid is from another user
       if (update.userId !== user?.user?._id) {
-        setToast({ 
-          message: `Có người vừa đặt giá: $${update.amount}`, 
-          type: "info" 
+        setToast({
+          message: `Có người vừa đặt giá: $${update.amount}`,
+          type: "info"
         });
       }
     });
@@ -195,7 +195,7 @@ export const ViewAuction = () => {
   const handleBidSubmit = (e) => {
     e.preventDefault();
     const bidAmount = parseFloat(e.target.bidAmount.value.trim());
-    
+
     if (!bidAmount || bidAmount <= 0) {
       setToast({ message: "Vui lòng nhập giá hợp lệ", type: "error" });
       return;
@@ -203,14 +203,14 @@ export const ViewAuction = () => {
 
     // user.user._id vì Redux state có cấu trúc { user: { user: { _id, name, ... } } }
     const userId = user?.user?._id;
-    
+
     if (!userId) {
       setToast({ message: "Vui lòng đăng nhập để đặt giá", type: "error" });
       return;
     }
 
     console.log('🟢 Placing bid via socket:', { auctionId: id, userId, amount: bidAmount });
-    
+
     // Send bid via socket instead of HTTP
     socket.emit('auction:bid', {
       auctionId: id,
@@ -414,7 +414,7 @@ export const ViewAuction = () => {
           <div className="bg-white rounded-md shadow-md border border-gray-200 overflow-hidden">
             {data.bids.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
-                No bids yet. Be the first to bid!
+                Không có lịch sử đấu giá.
               </div>
             ) : (
               <div className="divide-y divide-gray-200">

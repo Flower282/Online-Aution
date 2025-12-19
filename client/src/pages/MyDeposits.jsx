@@ -9,7 +9,7 @@ import { formatCurrency } from "../utils/formatCurrency";
 import Toast from "../components/Toast";
 
 const statusConfig = {
-    pending: { label: 'Chờ thanh toán', color: 'amber', emoji: '⏱' },
+    pending: { label: 'Chờ thanh toán', color: 'amber', emoji: '' },
     paid: { label: 'Đã đặt cọc', color: 'blue', emoji: '' },
     refunded: { label: 'Đã hoàn tiền', color: 'green', emoji: '' },
     deducted: { label: 'Đã trừ vào giá', color: 'purple', emoji: '' },
@@ -34,7 +34,7 @@ export const MyDeposits = () => {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('bank_transfer');
 
     // Fetch deposits
-    const { data: depositsData, isLoading: depositsLoading, error: depositsError, refetch, isFetching } = useQuery({
+    const { data: depositsData, isLoading: depositsLoading, error: depositsError, refetch, isFetching: _isFetching } = useQuery({
         queryKey: ["myDeposits"],
         queryFn: getMyDeposits,
         staleTime: 30 * 1000,
@@ -169,9 +169,7 @@ export const MyDeposits = () => {
                                 Số dư tài khoản
                             </p>
                             <p className="text-3xl font-bold">{formatCurrency(balance)}</p>
-                            <p className="text-emerald-200 text-xs mt-1">
-                                Dùng để đặt cọc tham gia đấu giá
-                            </p>
+
                         </div>
                         <button
                             onClick={() => setShowTopUpModal(true)}
@@ -298,8 +296,8 @@ export const MyDeposits = () => {
                                             date = new Date(transaction.createdAt).toLocaleString('vi-VN');
                                             amount = transaction.amount;
                                             const status = statusLabels[transaction.status] || statusLabels.pending;
-                                            statusLabel = status.label;
-                                            statusColor = status.color;
+                                            const _statusLabel = status.label;
+                                            const _statusColor = status.color;
                                         }
 
                                         return (

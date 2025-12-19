@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Gift, Heart, Sparkles } from "lucide-react";
+import { Gift, Heart } from "lucide-react";
 
 export const Footer = () => {
   return (

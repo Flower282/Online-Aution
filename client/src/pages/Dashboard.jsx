@@ -486,8 +486,7 @@ const Dashboard = () => {
                 >
                   <div className="mb-4">
                     <span className="inline-block bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide">
-                      New Auction
-                    </span>
+                      Sản phẩm                    </span>
                   </div>
 
                   <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -511,7 +510,7 @@ const Dashboard = () => {
                     </div>
 
                     <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-emerald-100">
-                      <span className="text-gray-600 font-medium"> Total Bids:</span>
+                      <span className="text-gray-600 font-medium"> Số lượt đấu giá:</span>
                       <span className="text-xl font-bold text-gray-900">
                         {recentAuctions[currentSlide]?.bidsCount || 0}
                       </span>
@@ -552,7 +551,7 @@ const Dashboard = () => {
             }`}
         >
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-extrabold text-gray-900" data-aos="fade-right" data-aos-delay="450">Tất Cả Đấu Giá</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900" data-aos="fade-right" data-aos-delay="450">Danh sách đấu giá</h2>
             <Link
               to="/auction"
               className="text-lime-600 hover:text-lime-700 font-bold text-sm hover:underline transition-colors"

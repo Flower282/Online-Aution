@@ -59,7 +59,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
   };
 
   // Calculate price increase percentage (only when logged in)
-  const priceIncrease = isLoggedIn && startingPrice > 0 && currentPrice > startingPrice
+  const _priceIncrease = isLoggedIn && startingPrice > 0 && currentPrice > startingPrice
     ? (((currentPrice - startingPrice) / startingPrice) * 100).toFixed(0)
     : 0;
 
