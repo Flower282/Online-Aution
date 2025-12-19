@@ -181,7 +181,7 @@ const Login = () => {
                   disabled={loading}
                   className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  {loading ? " Logging in..." : "Sign In"}
+                  {loading ? " Logging in..." : "Đăng nhập"}
                 </button>
               </form>
 
