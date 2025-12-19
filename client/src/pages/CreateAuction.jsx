@@ -422,31 +422,31 @@ export const HelpSection = () => {
   return (
     <div className="mt-8 bg-emerald-50 border-2 border-emerald-200 rounded-lg p-6" data-aos="fade-up" data-aos-delay="600">
       <h3 className="text-lg font-semibold text-emerald-900 mb-3" data-aos="fade-right" data-aos-delay="650">
-        💡 Tips for Creating a Successful Christmas Auction
+        Tips for Creating a Successful Christmas Auction
       </h3>
       <ul className="space-y-2 text-emerald-800 text-sm">
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="700">
-          <span className="text-emerald-600 mr-2">📷</span>
+          <span className="text-emerald-600 mr-2"></span>
           Use clear, high-quality photos that show your item from multiple angles
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="750">
-          <span className="text-emerald-600 mr-2">📝</span>
+          <span className="text-emerald-600 mr-2"></span>
           Write detailed descriptions including condition, dimensions, and any flaws
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="800">
-          <span className="text-emerald-600 mr-2">💰</span>
+          <span className="text-emerald-600 mr-2"></span>
           Set a reasonable starting price to attract bidders
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="850">
-          <span className="text-emerald-600 mr-2">⏰</span>
-          Choose appropriate auction duration (tối thiểu 1 giờ, khuyến nghị 3-7 ngày)
+          <span className="text-emerald-600 mr-2"></span>
+          Choose appropriate auction duration
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="900">
-          <span className="text-emerald-600 mr-2">🕐</span>
+          <span className="text-emerald-600 mr-2"></span>
           Bạn có thể chọn chính xác giờ và phút cho thời gian bắt đầu/kết thúc
         </li>
         <li className="flex items-start" data-aos="fade-left" data-aos-delay="950">
-          <span className="text-emerald-600 mr-2">🏷️</span>
+          <span className="text-emerald-600 mr-2"></span>
           Select the most accurate category to help buyers find your item
         </li>
       </ul>
