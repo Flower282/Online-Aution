@@ -221,7 +221,7 @@ export const MyDeposits = () => {
                 {/* Top 5 Transactions Table */}
                 {allTransactions.length === 0 ? (
                     <div className="bg-white rounded-xl shadow-lg p-8 text-center" data-aos="zoom-in" data-aos-delay="400">
-                        <div className="text-5xl mb-3 animate-bounce">💳</div>
+                        <div className="text-5xl mb-3 animate-bounce"></div>
                         <h3 className="text-lg font-semibold text-gray-700 mb-2">Chưa có giao dịch</h3>
                         <p className="text-gray-500 mb-6">
                             Bạn chưa có giao dịch nào. Hãy nạp tiền hoặc tham gia đấu giá ngay!
@@ -257,11 +257,11 @@ export const MyDeposits = () => {
                                 <tbody className="divide-y divide-gray-200">
                                     {allTransactions.slice(0, 5).map((item, index) => {
                                         const transactionTypeLabels = {
-                                            topup: { label: 'Nạp tiền', emoji: '💰', sign: '+' },
-                                            withdraw: { label: 'Rút tiền', emoji: '💸', sign: '-' },
-                                            payment: { label: 'Thanh toán', emoji: '💳', sign: '-' },
-                                            refund: { label: 'Hoàn tiền', emoji: '↩️', sign: '+' },
-                                            deposit: { label: 'Đặt cọc', emoji: '🛡️', sign: '-' }
+                                            topup: { label: 'Nạp tiền', emoji: '', sign: '+' },
+                                            withdraw: { label: 'Rút tiền', emoji: '', sign: '-' },
+                                            payment: { label: 'Thanh toán', emoji: '', sign: '-' },
+                                            refund: { label: 'Hoàn tiền', emoji: '', sign: '+' },
+                                            deposit: { label: 'Đặt cọc', emoji: '', sign: '-' }
                                         };
 
                                         const statusLabels = {
@@ -280,7 +280,7 @@ export const MyDeposits = () => {
                                         if (item._type === 'deposit') {
                                             const deposit = item;
                                             typeLabel = 'Đặt cọc';
-                                            emoji = '🛡️';
+                                            emoji = '';
                                             sign = '-';
                                             description = deposit.product ? deposit.product.itemName : 'Sản phẩm đã bị xóa';
                                             date = new Date(deposit.paidAt || deposit.createdAt).toLocaleString('vi-VN');

@@ -232,11 +232,11 @@ const Dashboard = () => {
       {/* Verification Warning Banner - fixed top-right, offset to avoid navbar/profile */}
       {!isVerified && showVerificationBanner && (
         <div className="fixed top-24 sm:top-28 right-4 sm:right-6 z-40 w-[280px] sm:w-[320px]">
-          <div className="p-3 bg-emerald-50 border-2 border-emerald-200 rounded-xl shadow-xl relative">
+          <div className="p-3 bg-red-50 border-2 border-red-200 rounded-xl shadow-xl relative">
             {/* Close button */}
             <button
               onClick={() => setShowVerificationBanner(false)}
-              className="absolute top-2 right-2 text-emerald-600 hover:text-emerald-800 transition-colors"
+              className="absolute top-2 right-2 text-red-600 hover:text-red-800 transition-colors"
               aria-label="Close"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,13 +246,13 @@ const Dashboard = () => {
 
             <div className="flex items-start gap-2 pr-4">
               <div className="flex-1">
-                <h3 className="font-semibold text-sm text-emerald-800">⚠️ Chưa xác minh</h3>
-                <p className="text-xs text-emerald-700 mt-1">
+                <h3 className="font-semibold text-sm text-red-800">⚠️ Chưa xác minh</h3>
+                <p className="text-xs text-red-700 mt-1">
                   Xác minh để nạp tiền & đấu giá
                 </p>
                 <button
                   onClick={() => setShowVerificationModal(true)}
-                  className="mt-2 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-medium hover:bg-emerald-700 transition-colors flex items-center gap-1.5 w-full justify-center"
+                  className="mt-2 px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition-colors flex items-center gap-1.5 w-full justify-center"
                 >
                   Xác minh ngay
                 </button>
@@ -279,7 +279,7 @@ const Dashboard = () => {
             <div className="relative flex gap-3">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                  <Search className="h-8 w-8 text-emerald-500" />
+                  <Search className="h-8 w-8 text-red-500" />
                 </div>
                 <input
                   type="text"
@@ -295,15 +295,15 @@ const Dashboard = () => {
                     }
                   }}
                   autoComplete="off"
-                  className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-emerald-300 rounded-2xl shadow-2xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all placeholder:text-gray-400"
+                  className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-red-300 rounded-2xl shadow-2xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all placeholder:text-gray-400"
                 />
               </div>
 
               <button
                 onClick={handleSearchSubmit}
-                className="px-8 py-6 bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 text-white font-bold text-xl rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
+                className="px-8 py-6 bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white font-bold text-xl rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
               >
-                <Search className="h-6 w-6" />
+                <Search className="h-6 w-6 text-white" />
                 Tìm kiếm
               </button>
             </div>
@@ -486,7 +486,7 @@ const Dashboard = () => {
                 >
                   <div className="mb-4">
                     <span className="inline-block bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide">
-                      🎁 Đấu Giá Mới
+                      New Auction
                     </span>
                   </div>
 
@@ -511,7 +511,7 @@ const Dashboard = () => {
                     </div>
 
                     <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-emerald-100">
-                      <span className="text-gray-600 font-medium">🎁 Tổng lượt đấu giá:</span>
+                      <span className="text-gray-600 font-medium"> Total Bids:</span>
                       <span className="text-xl font-bold text-gray-900">
                         {recentAuctions[currentSlide]?.bidsCount || 0}
                       </span>
@@ -608,20 +608,36 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {data.latestUserAuctions.map((auction, index) => {
-                  const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
-                  const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
-                  return (
-                    <div
-                      key={auction._id}
-                      className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
-                      data-aos="fade-up"
-                      data-aos-delay={700 + index * 50}
-                    >
-                      <AuctionCard auction={auction} />
-                    </div>
-                  );
-                })}
+                {(() => {
+                  // Sắp xếp: các phiên đang diễn ra lên trước, đã kết thúc xuống sau
+                  const sortedUserAuctions = [...data.latestUserAuctions].sort((a, b) => {
+                    const aEndValue = a.itemEndDate || a.endDate || a.itemEndTime;
+                    const bEndValue = b.itemEndDate || b.endDate || b.itemEndTime;
+
+                    const aEnded = a.timeLeft ? a.timeLeft <= 0 : aEndValue ? new Date(aEndValue) <= new Date() : false;
+                    const bEnded = b.timeLeft ? b.timeLeft <= 0 : bEndValue ? new Date(bEndValue) <= new Date() : false;
+
+                    if (aEnded && !bEnded) return 1;   // a ended, b active -> b trước
+                    if (!aEnded && bEnded) return -1;  // a active, b ended -> a trước
+                    return 0;
+                  });
+
+                  return sortedUserAuctions.map((auction, index) => {
+                    const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
+                    const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
+
+                    return (
+                      <div
+                        key={auction._id}
+                        className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
+                        data-aos="fade-up"
+                        data-aos-delay={700 + index * 50}
+                      >
+                        <AuctionCard auction={auction} />
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             )}
           </div>

@@ -147,7 +147,7 @@ export const AuctionList = () => {
         {/* Filter tabs */}
         <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-emerald-200 shadow-lg relative z-20" data-aos="fade-up" data-aos-delay="300">
           <h3 className="text-lg font-bold text-emerald-700 mb-4 flex items-center gap-2">
-            Lọc và Sắp xếp
+            Lọc và sắp xếp
           </h3>
 
           <div className="flex flex-wrap gap-3 relative">
@@ -350,7 +350,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${statusFilter === "all" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    ⭐ Tất cả
+                    Tất cả
                   </button>
                   <button
                     onClick={() => {
@@ -361,7 +361,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${statusFilter === "active" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    ✅ Đang diễn ra
+                    Đang diễn ra
                   </button>
                   <button
                     onClick={() => {
@@ -372,7 +372,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${statusFilter === "ended" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    ⏸️ Đã kết thúc
+                    ⏸ Đã kết thúc
                   </button>
                 </div>
               )}
