@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for Frontend
+name: CI/CD Pipeline for Backend
 
 on:
   pull_request:
