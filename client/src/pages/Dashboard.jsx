@@ -196,13 +196,13 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-200 max-w-md">
-          <h2 className="text-2xl font-bold text-emerald-600 mb-4">Error Loading Dashboard</h2>
-          <p className="text-gray-600 mb-6">{error.message || "Failed to load dashboard data"}</p>
+          <h2 className="text-2xl font-bold text-emerald-600 mb-4">Lỗi Tải Trang Chủ</h2>
+          <p className="text-gray-600 mb-6">{error.message || "Không thể tải dữ liệu trang chủ"}</p>
           <button
             onClick={() => window.location.reload()}
             className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white px-6 py-3 rounded-lg hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 transition-colors"
           >
-            Retry
+            Thử lại
           </button>
         </div>
       </div>
@@ -214,13 +214,13 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-200 max-w-md">
-          <h2 className="text-2xl font-bold text-emerald-600 mb-4">Error Loading Dashboard</h2>
-          <p className="text-gray-600 mb-6">Unable to load dashboard data. Please try again.</p>
+          <h2 className="text-2xl font-bold text-emerald-600 mb-4">Lỗi Tải Trang Chủ</h2>
+          <p className="text-gray-600 mb-6">Không thể tải dữ liệu trang chủ. Vui lòng thử lại.</p>
           <button
             onClick={() => window.location.reload()}
             className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 text-white px-6 py-3 rounded-lg hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-700 transition-colors"
           >
-            Refresh
+            Làm mới
           </button>
         </div>
       </div>
@@ -433,7 +433,7 @@ const Dashboard = () => {
             className={`mt-28 mb-16 transition-all duration-1000 ease-out ${newAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
               }`}
           >
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-6">New Auctions</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-6">Đấu Giá Mới</h2>
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-emerald-200">
               <div className="grid md:grid-cols-2 gap-0">
                 {/* Image Section */}
@@ -495,12 +495,12 @@ const Dashboard = () => {
                   </h3>
 
                   <p className="text-gray-600 mb-6 line-clamp-3">
-                    {recentAuctions[currentSlide]?.itemDescription || "Join the bidding now!"}
+                    {recentAuctions[currentSlide]?.itemDescription || "Tham gia đấu giá ngay!"}
                   </p>
 
                   <div className="space-y-4 mb-8">
                     <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-emerald-100">
-                      <span className="text-gray-600 font-medium">{user?.user ? "Current Price:" : "Starting Price:"}</span>
+                      <span className="text-gray-600 font-medium">{user?.user ? "Giá hiện tại:" : "Giá khởi điểm:"}</span>
                       <span className="text-3xl font-bold text-emerald-600">
                         {formatCurrency(
                           user?.user
@@ -552,19 +552,19 @@ const Dashboard = () => {
             }`}
         >
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-extrabold text-gray-900" data-aos="fade-right" data-aos-delay="450">All Auctions</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900" data-aos="fade-right" data-aos-delay="450">Tất Cả Đấu Giá</h2>
             <Link
               to="/auction"
               className="text-lime-600 hover:text-lime-700 font-bold text-sm hover:underline transition-colors"
             >
-              View More →
+              Xem thêm →
             </Link>
           </div>
 
           {!data.latestAuctions || data.latestAuctions.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-lime-100">
               <p className="text-gray-600 text-xl font-medium">
-                No auctions available at the moment.
+                Hiện chưa có đấu giá nào.
               </p>
             </div>
           ) : (
@@ -586,23 +586,23 @@ const Dashboard = () => {
               }`}
           >
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent" data-aos="fade-right" data-aos-delay="650">Your Christmas Auctions</h2>
+              <h2 className="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent" data-aos="fade-right" data-aos-delay="650">Đấu Giá Của Bạn</h2>
               <Link
                 to="/myauction"
                 className="text-emerald-600 hover:text-emerald-700 font-bold text-sm hover:underline transition-colors"
               >
-                View More →
+                Xem thêm →
               </Link>
             </div>
 
             {!data.latestUserAuctions || data.latestUserAuctions.length === 0 ? (
               <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-emerald-200">
                 <p className="text-gray-600 text-xl font-medium mb-6">
-                  You haven't created any auctions yet.
+                  Bạn chưa tạo đấu giá nào.
                 </p>
                 <Link to="/create">
                   <button className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
-                    Create Your First Auction
+                    Tạo Đấu Giá Đầu Tiên
                   </button>
                 </Link>
               </div>
