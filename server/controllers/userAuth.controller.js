@@ -38,11 +38,22 @@ export const handleUserLogin = async (req, res) => {
 
         // Check if user is active
         if (!user.isActive) {
+            const hasRequestedReactivation = user.reactivationRequest?.requested || false;
+            const wasRejected = user.reactivationRequest?.rejected || false;
+
+            let errorMessage = "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin.";
+            if (wasRejected) {
+                errorMessage = user.reactivationRequest?.adminNote ||
+                    "Yêu cầu kích hoạt lại tài khoản của bạn đã bị từ chối. Vui lòng liên hệ admin để biết thêm chi tiết.";
+            }
+
             return res.status(403).json({
-                error: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ admin.",
+                error: errorMessage,
                 isDeactivated: true,
                 email: user.email,
-                hasRequestedReactivation: user.reactivationRequest?.requested || false
+                hasRequestedReactivation,
+                reactivationRejected: wasRejected,
+                reactivationMessage: user.reactivationRequest?.adminNote || null
             });
         }
 

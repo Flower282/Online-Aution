@@ -293,6 +293,47 @@ export const reactivateUser = async (req, res) => {
     }
 };
 
+// Reject reactivation request (keep user inactive and mark request as rejected)
+export const rejectReactivationRequest = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { reason } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        if (user.isActive) {
+            return res.status(400).json({
+                success: false,
+                message: 'User is already active'
+            });
+        }
+
+        await User.findByIdAndUpdate(userId, {
+            'reactivationRequest.requested': false,
+            'reactivationRequest.rejected': true,
+            'reactivationRequest.rejectedAt': new Date(),
+            'reactivationRequest.adminNote': reason || 'Yêu cầu kích hoạt lại tài khoản của bạn đã bị từ chối bởi quản trị viên.'
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Reactivation request rejected successfully'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error rejecting reactivation request',
+            error: error.message
+        });
+    }
+};
+
 // Migration: Add isActive field to all existing users
 export const migrateUsersIsActive = async (req, res) => {
     try {

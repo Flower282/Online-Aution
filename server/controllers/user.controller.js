@@ -243,11 +243,14 @@ export const requestReactivation = async (req, res) => {
             });
         }
 
-        // Save reactivation request
+        // Save reactivation request (reset any previous rejection)
         user.reactivationRequest = {
             requested: true,
             requestedAt: new Date(),
-            message: message || 'User requested account reactivation'
+            message: message || 'User requested account reactivation',
+            rejected: false,
+            rejectedAt: null,
+            adminNote: null
         };
 
         await user.save();
