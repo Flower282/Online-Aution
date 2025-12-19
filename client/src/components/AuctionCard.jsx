@@ -14,7 +14,12 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
   const sellerName = auction?.sellerName || auction?.seller?.name;
   const isSellerInactive = auction?.sellerActive === false || sellerName === "Tài khoản bị vô hiệu hóa";
   const isEnded = timeLeft <= 0;
-  const currentPrice = auction.currentPrice || auction.startingPrice;
+  const isLoggedIn = !!user?.user;
+  // Ensure we always have a price to display - get startingPrice from database
+  const startingPrice = auction.startingPrice ?? 0;
+  const currentPrice = auction.currentPrice ?? startingPrice;
+  // When logged in, use currentPrice; when not logged in, use startingPrice directly from database
+  const displayPrice = isLoggedIn ? currentPrice : startingPrice;
 
   // Check auction status
   const isPending = auction.status === 'pending';
@@ -53,9 +58,8 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
     }
   };
 
-  // Calculate price increase percentage
-  const startingPrice = auction.startingPrice || 0;
-  const priceIncrease = startingPrice > 0
+  // Calculate price increase percentage (only when logged in)
+  const priceIncrease = isLoggedIn && startingPrice > 0 && currentPrice > startingPrice
     ? (((currentPrice - startingPrice) / startingPrice) * 100).toFixed(0)
     : 0;
 
@@ -136,13 +140,13 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           {/* Price Section with Pink Background */}
           <div className="bg-emerald-50 rounded-lg p-2 mb-2">
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-xs text-gray-600">Giá hiện tại</span>
+              <span className="text-xs text-gray-600">{isLoggedIn ? "Giá hiện tại" : "Giá khởi điểm"}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-lg font-bold text-emerald-600">
-                {formatCurrency(currentPrice)}
+                {formatCurrency(displayPrice)}
               </span>
-              {priceIncrease > 0 && (
+              {isLoggedIn && priceIncrease > 0 && (
                 <span className="text-sm font-semibold text-emerald-600 flex items-center gap-1">
                   ↗ +{priceIncrease}%
                 </span>

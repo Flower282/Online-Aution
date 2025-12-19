@@ -4,8 +4,11 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicAuctions } from "../../api/auction";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { useSelector } from "react-redux";
 
 export const Auction = () => {
+  const { user } = useSelector((state) => state.auth);
+  const isLoggedIn = !!user?.user;
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -25,10 +28,10 @@ export const Auction = () => {
     const hours = Math.floor(timeLeft / (1000 * 60 * 60));
     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
     const days = Math.floor(hours / 24);
-    
+
     let timeString;
     let timeColor;
-    
+
     if (auction.isEnded) {
       timeString = "Ended";
       timeColor = "from-gray-500 to-gray-600";
@@ -43,12 +46,18 @@ export const Auction = () => {
       timeColor = "from-emerald-500 to-emerald-600";
     }
 
+    // Ensure we always have a price to display
+    const startingPrice = auction.startingPrice ?? 0;
+    const currentPrice = auction.currentPrice ?? startingPrice;
+
     return {
       id: auction._id,
       image: auction.itemPhoto || "https://via.placeholder.com/500",
       title: auction.itemName,
-      currentBid: formatCurrency(auction.currentPrice),
-      bids: auction.bidsCount,
+      // When logged in, use currentPrice; when not logged in, use startingPrice directly from database
+      currentBid: formatCurrency(isLoggedIn ? currentPrice : startingPrice),
+      startingPrice: startingPrice,
+      bids: auction.bidsCount ?? 0,
       timeLeft: timeString,
       timeColor: timeColor
     };
@@ -60,7 +69,7 @@ export const Auction = () => {
   // Auto slide every 5 seconds
   useEffect(() => {
     if (!isPlaying || displayAuctions.length === 0) return;
-    
+
     const timer = setInterval(() => {
       setIsTransitioning(true);
       setTreeRotation(prev => prev - 360);
@@ -127,11 +136,10 @@ export const Auction = () => {
   const rightAuction = displayAuctions[(currentSlide + 1) % displayAuctions.length];
 
   const renderAuctionCard = (auction, position) => (
-    <div className={`flex-shrink-0 w-full lg:w-1/2 p-4 transition-all duration-700 ease-out ${
-      isTransitioning 
-        ? 'opacity-0'
-        : 'opacity-100 translate-x-0'
-    }`}>
+    <div className={`flex-shrink-0 w-full lg:w-1/2 p-4 transition-all duration-700 ease-out ${isTransitioning
+      ? 'opacity-0'
+      : 'opacity-100 translate-x-0'
+      }`}>
       <div className="bg-white rounded-xl shadow-xl overflow-hidden h-full">
         {/* Image Section */}
         <div className="relative h-64 bg-gradient-to-br from-gray-50 to-gray-100">
@@ -150,7 +158,7 @@ export const Auction = () => {
             {auction.timeLeft}
           </div>
         </div>
-        
+
         {/* Info Section */}
         <div className="p-4 space-y-3">
           <div>
@@ -161,7 +169,7 @@ export const Auction = () => {
 
           <div className="grid grid-cols-2 gap-2">
             <div className="bg-gradient-to-br from-lime-50 to-lime-100 p-3 rounded-lg">
-              <p className="text-xs text-gray-600 font-medium mb-0.5">Current Bid</p>
+              <p className="text-xs text-gray-600 font-medium mb-0.5">{isLoggedIn ? "Current Bid" : "Starting Price"}</p>
               <p className="text-base font-black text-lime-600">{auction.currentBid}</p>
             </div>
             <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-3 rounded-lg">
@@ -198,24 +206,24 @@ export const Auction = () => {
           {/* Christmas Lights Decoration - Top */}
           <div className="absolute -top-8 left-0 right-0 h-24 z-40 pointer-events-none" style={{ backgroundImage: 'url(/christmas-lights.gif)', backgroundRepeat: 'repeat-x', backgroundSize: 'auto 100%', backgroundPosition: 'center' }}>
           </div>
-          
+
           {/* Christmas Lights Decoration - Bottom */}
           <div className="absolute -bottom-8 left-0 right-0 h-24 z-40 pointer-events-none" style={{ backgroundImage: 'url(/christmas-lights.gif)', backgroundRepeat: 'repeat-x', backgroundSize: 'auto 100%', backgroundPosition: 'center', transform: 'scaleY(-1)' }}>
           </div>
-          
+
           <div className="flex flex-col lg:flex-row gap-0 items-center">
             {/* Left Product */}
             {renderAuctionCard(leftAuction, 'left')}
-            
+
             {/* Right Product */}
             {renderAuctionCard(rightAuction, 'right')}
           </div>
 
           {/* Christmas Tree Divider - Floating on top */}
           <div className="hidden lg:block absolute left-1/2 -top-16 z-50 pointer-events-none" style={{ transform: `translate(-50%, 0) rotate(${treeRotation}deg)`, transition: 'transform 0.7s ease-out' }}>
-            <img 
-              src="/transparent-christmas-tree.png" 
-              alt="Christmas Tree" 
+            <img
+              src="/transparent-christmas-tree.png"
+              alt="Christmas Tree"
               className="w-32 h-40 object-contain drop-shadow-2xl"
             />
           </div>
@@ -245,11 +253,10 @@ export const Auction = () => {
                       }, 300);
                     }
                   }}
-                  className={`h-2 rounded-full transition-all duration-500 ${
-                    index === currentSlide 
-                      ? 'w-8 bg-lime-600' 
-                      : 'w-2 bg-gray-300 hover:bg-gray-400'
-                  }`}
+                  className={`h-2 rounded-full transition-all duration-500 ${index === currentSlide
+                    ? 'w-8 bg-lime-600'
+                    : 'w-2 bg-gray-300 hover:bg-gray-400'
+                    }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
               ))}

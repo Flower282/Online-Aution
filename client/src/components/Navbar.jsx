@@ -436,9 +436,9 @@ export const Navbar = () => {
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2 mt-1.5">
-                                    <span className="text-xs text-gray-500">Giá hiện tại:</span>
+                                    <span className="text-xs text-gray-500">{user?.user ? "Giá hiện tại:" : "Giá khởi điểm:"}</span>
                                     <span className="text-sm font-bold text-emerald-600">
-                                      {new Intl.NumberFormat('vi-VN').format(auction.currentPrice)}đ
+                                      {new Intl.NumberFormat('vi-VN').format(user?.user ? (auction.currentPrice ?? auction.startingPrice ?? 0) : (auction.startingPrice ?? 0))}đ
                                     </span>
                                   </div>
                                 </div>
