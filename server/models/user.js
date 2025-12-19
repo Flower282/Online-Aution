@@ -30,7 +30,10 @@ const userSchema = new mongoose.Schema({
     reactivationRequest: {
         requested: { type: Boolean, default: false },
         requestedAt: { type: Date, default: null },
-        message: { type: String, default: null }
+        message: { type: String, default: null },
+        rejected: { type: Boolean, default: false },
+        rejectedAt: { type: Date, default: null },
+        adminNote: { type: String, default: null }
     },
     ipAddress: {
         type: String

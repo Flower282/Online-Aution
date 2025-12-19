@@ -24,7 +24,9 @@ export const UsersList = () => {
   // Filter states
   const [accountStatusFilter, setAccountStatusFilter] = useState('all'); // all, active, inactive
   const [verificationFilter, setVerificationFilter] = useState('all'); // all, verified, not_verified
-  const [dateFilter, setDateFilter] = useState('all'); // all, today, week, month, custom
+  const [dateFilter, setDateFilter] = useState('all'); // all, today, week, month
+  const [showStatusMenu, setShowStatusMenu] = useState(false); // dropdown for account status
+  const [showVerificationMenu, setShowVerificationMenu] = useState(false); // dropdown for verification
 
   // Debounce search term - chỉ search sau 400ms ngừng gõ
   useEffect(() => {
@@ -211,104 +213,201 @@ export const UsersList = () => {
           </div>
         </div>
 
-        {/* Search and Filters */}
-        <div className="bg-emerald-50 rounded-lg shadow-sm border-2 border-emerald-200 p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Search */}
-            <div className="lg:col-span-2">
-              <label htmlFor="search" className="block text-sm font-medium text-emerald-700 mb-2">
-                Tìm Kiếm Người Dùng
-              </label>
-              <input
-                type="text"
-                id="search"
-                placeholder="Tìm theo tên hoặc email..."
-                value={searchTerm}
-                onChange={handleSearch}
-                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-                autoComplete="off"
-                className="w-full px-3 py-2 border-2 border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
-              />
-            </div>
-
-            {/* Account Status Filter */}
-            <div>
-              <label htmlFor="accountStatus" className="block text-sm font-medium text-emerald-700 mb-2">
-                Trạng Thái Tài Khoản
-              </label>
-              <select
-                id="accountStatus"
-                value={accountStatusFilter}
-                onChange={(e) => setAccountStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border-2 border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
-              >
-                <option value="all">Tất Cả Trạng Thái</option>
-                <option value="active">Hoạt Động</option>
-                <option value="inactive">Không Hoạt Động</option>
-              </select>
-            </div>
-
-            {/* Verification Filter */}
-            <div>
-              <label htmlFor="verification" className="block text-sm font-medium text-emerald-700 mb-2">
-                Xác Minh
-              </label>
-              <select
-                id="verification"
-                value={verificationFilter}
-                onChange={(e) => setVerificationFilter(e.target.value)}
-                className="w-full px-3 py-2 border-2 border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
-              >
-                <option value="all">Tất Cả Người Dùng</option>
-                <option value="verified">Đã Xác Minh</option>
-                <option value="not_verified">Chưa Xác Minh</option>
-              </select>
-            </div>
+        {/* Search and Filters - giao diện giống thanh lọc AuctionList */}
+        <div className="bg-white rounded-2xl p-6 mb-6 border-2 border-emerald-200 shadow-lg">
+          {/* Search Users */}
+          <div className="mb-4">
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+              Search Users
+            </label>
+            <input
+              type="text"
+              id="search"
+              placeholder="Search by name or email..."
+              value={searchTerm}
+              onChange={handleSearch}
+              onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+              autoComplete="off"
+              className="w-full px-4 py-2.5 border-2 border-red-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all text-sm"
+            />
           </div>
 
-          {/* Date Range Filter */}
-          <div className="mt-4 flex items-center gap-3">
-            <label className="text-sm font-medium text-emerald-700">Ngày Tạo:</label>
-            <div className="flex gap-2">
+          {/* Filter tabs style giống AuctionList */}
+          <div className="border-t border-emerald-100 pt-4 mt-2">
+            <h3 className="text-sm font-bold text-emerald-700 mb-3 flex items-center gap-2">
+              Lọc và sắp xếp người dùng
+            </h3>
+
+            <div className="flex flex-wrap gap-3 relative">
+              {/* Tất cả */}
               <button
-                onClick={() => setDateFilter('all')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'all'
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                onClick={() => {
+                  setAccountStatusFilter('all');
+                  setVerificationFilter('all');
+                  setDateFilter('all');
+                }}
+                className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${accountStatusFilter === 'all' && verificationFilter === 'all' && dateFilter === 'all'
+                  ? 'bg-emerald-600 text-white shadow-lg scale-105'
+                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                   }`}
               >
-                Tất Cả
+                Tất cả
               </button>
-              <button
-                onClick={() => setDateFilter('today')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'today'
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                  }`}
-              >
-                Hôm Nay
-              </button>
-              <button
-                onClick={() => setDateFilter('week')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'week'
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                  }`}
-              >
-                7 Ngày Qua
-              </button>
-              <button
-                onClick={() => setDateFilter('month')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'month'
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                  }`}
-              >
-                30 Ngày Qua
-              </button>
-            </div>
-            <div className="ml-auto text-sm text-emerald-700">
-              Hiển thị {filteredUsers.length} / {users.length} người dùng
+
+              {/* Account Status Filter - dropdown box (All / Active / Inactive) */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowStatusMenu(!showStatusMenu)}
+                  className={`px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${accountStatusFilter !== 'all'
+                    ? 'bg-emerald-600 text-white shadow-lg'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    }`}
+                >
+                  Trạng thái tài khoản:{" "}
+                  {accountStatusFilter === 'all' ? 'Tất cả' : accountStatusFilter === 'active' ? 'Active' : 'Inactive'}
+                  <svg className={`w-4 h-4 transition-transform ${showStatusMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {showStatusMenu && (
+                  <div className="absolute top-full left-0 mt-2 bg-white border-2 border-emerald-200 rounded-lg shadow-2xl z-[100] min-w-[220px]">
+                    <button
+                      onClick={() => {
+                        setAccountStatusFilter('all');
+                        setShowStatusMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${accountStatusFilter === 'all' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Tất cả
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAccountStatusFilter('active');
+                        setShowStatusMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${accountStatusFilter === 'active' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Active
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAccountStatusFilter('inactive');
+                        setShowStatusMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${accountStatusFilter === 'inactive' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Inactive
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Verification Filter - dropdown box (All / Verified / Not Verified) */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowVerificationMenu(!showVerificationMenu);
+                    setShowStatusMenu(false);
+                  }}
+                  className={`px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${verificationFilter !== 'all'
+                    ? 'bg-emerald-600 text-white shadow-lg'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    }`}
+                >
+                  Xác minh:{" "}
+                  {verificationFilter === 'all'
+                    ? 'Tất cả'
+                    : verificationFilter === 'verified'
+                      ? 'Đã xác minh'
+                      : 'Chưa xác minh'}
+                  <svg className={`w-4 h-4 transition-transform ${showVerificationMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {showVerificationMenu && (
+                  <div className="absolute top-full left-0 mt-2 bg-white border-2 border-emerald-200 rounded-lg shadow-2xl z-[100] min-w-[220px]">
+                    <button
+                      onClick={() => {
+                        setVerificationFilter('all');
+                        setShowVerificationMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${verificationFilter === 'all' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Tất cả
+                    </button>
+                    <button
+                      onClick={() => {
+                        setVerificationFilter('verified');
+                        setShowVerificationMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${verificationFilter === 'verified' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Đã xác minh
+                    </button>
+                    <button
+                      onClick={() => {
+                        setVerificationFilter('not_verified');
+                        setShowVerificationMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${verificationFilter === 'not_verified' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Chưa xác minh
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Date Range Filter */}
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
+                <span className="text-xs font-medium text-gray-600 mr-1">Ngày tạo:</span>
+                <button
+                  onClick={() => setDateFilter('all')}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${dateFilter === 'all'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Tất cả
+                </button>
+                <button
+                  onClick={() => setDateFilter('today')}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${dateFilter === 'today'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Hôm nay
+                </button>
+                <button
+                  onClick={() => setDateFilter('week')}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${dateFilter === 'week'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  7 ngày
+                </button>
+                <button
+                  onClick={() => setDateFilter('month')}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${dateFilter === 'month'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  30 ngày
+                </button>
+                <span className="text-xs text-gray-500 ml-2">
+                  Đang hiển thị {filteredUsers.length} / {users.length} users
+                </span>
+              </div>
             </div>
           </div>
         </div>
