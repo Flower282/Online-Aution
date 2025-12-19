@@ -117,7 +117,6 @@ export default function VerificationManagement() {
                         <HiOutlineIdentification className="w-8 h-8 text-emerald-600" />
                         <h1 className="text-3xl font-bold text-red-600">Quản lý xác minh CCCD</h1>
                     </div>
-                    <p className="text-gray-600">Xem xét và phê duyệt yêu cầu xác minh căn cước công dân của người dùng</p>
                 </div>
 
                 {/* Stats Card */}

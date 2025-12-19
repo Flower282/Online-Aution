@@ -240,9 +240,7 @@ const PendingAuctions = () => {
                     <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-600 mb-2">
                         Đấu Giá Chờ Duyệt
                     </h1>
-                    <p className="text-gray-600">
-                        Xem xét và phê duyệt các đấu giá được gửi ({pagination.totalPending || 0} chờ duyệt)
-                    </p>
+
                 </div>
 
                 {/* Auctions List */}
