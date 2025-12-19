@@ -162,13 +162,13 @@ export const AdminDashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Error</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Lỗi Truy Cập</h2>
               <p className="text-emerald-600 mb-6">{error}</p>
               <button
                 onClick={() => window.location.reload()}
                 className="bg-sky-500 hover:bg-sky-600 text-white px-6 py-2.5 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg"
               >
-                Try Again
+                Thử Lại
               </button>
             </div>
           </div>
@@ -182,8 +182,8 @@ export const AdminDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold text-red-600 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage auctions, users, and monitor system activity</p>
+          <h1 className="text-3xl font-bold text-red-600 mb-2">Bảng Điều Khiển</h1>
+          <p className="text-gray-600">Quản lý đấu giá, người dùng và theo dõi hoạt động hệ thống</p>
         </div>
 
         {/* Statistics Cards - Row 1 */}
@@ -194,7 +194,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
-                      Active Auctions
+                      Đấu Giá Đang Hoạt Động
                     </h3>
                     <p className="text-2xl font-bold text-emerald-900 mt-2">
                       {dashboardData.stats.activeAuctions || 0}
@@ -213,7 +213,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
-                      Total Auctions
+                      Tổng Số Đấu Giá
                     </h3>
                     <p className="text-2xl font-bold text-emerald-900 mt-2">
                       {dashboardData.stats.totalAuctions || 0}
@@ -231,7 +231,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
-                      Total Users
+                      Tổng Số Người Dùng
                     </h3>
                     <p className="text-2xl font-bold text-emerald-900 mt-2">
                       {dashboardData.stats.totalUsers || 0}
@@ -252,14 +252,14 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-orange-700 uppercase tracking-wide">
-                      Pending Auctions
+                      Đấu Giá Chờ Duyệt
                     </h3>
                     <p className="text-2xl font-bold text-orange-900 mt-2">
                       {dashboardData.stats.pendingAuctions || 0}
                     </p>
                     {dashboardData.stats.pendingAuctions > 0 && (
                       <p className="text-xs text-orange-600 mt-1 font-medium">
-                        ⚠️ Needs approval
+                        ⚠️ Cần phê duyệt
                       </p>
                     )}
                   </div>
@@ -275,7 +275,7 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-orange-700 uppercase tracking-wide">
-                      Pending Verifications
+                      Xác Minh Chờ Duyệt
                     </h3>
                     <p className="text-2xl font-bold text-orange-900 mt-2">
                       {pendingVerifications}
@@ -296,14 +296,14 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-orange-700 uppercase tracking-wide">
-                      Pending Reactivations
+                      Yêu Cầu Kích Hoạt Lại
                     </h3>
                     <p className="text-2xl font-bold text-orange-900 mt-2">
                       {pendingReactivations}
                     </p>
                     {pendingReactivations > 0 && (
                       <p className="text-xs text-orange-600 mt-1 font-medium">
-                        🔄 Requests to review
+                        🔄 Cần xem xét
                       </p>
                     )}
                   </div>
@@ -321,23 +321,23 @@ export const AdminDashboard = () => {
           <div className="mb-8 max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Recent Active Auctions</h2>
-                <p className="text-sm text-gray-500 mt-1">✅ Showing only approved auctions</p>
+                <h2 className="text-2xl font-bold text-gray-900">Các Hoạt Động Đấu Giá Gần Đây</h2>
+                <p className="text-sm text-gray-500 mt-1">✅ Chỉ hiển thị đấu giá đã phê duyệt</p>
               </div>
               <Link
                 to="/auction"
                 className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline"
               >
-                View All Auctions
+                Xem Tất Cả
               </Link>
             </div>
 
             {!dashboardData.recentAuctions || dashboardData.recentAuctions.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-sm shadow-sm border border-gray-200">
-                <p className="text-gray-500 text-lg">No approved active auctions at the moment.</p>
+                <p className="text-gray-500 text-lg">Hiện không có đấu giá đã phê duyệt.</p>
                 {dashboardData.stats?.pendingAuctions > 0 && (
                   <p className="text-yellow-600 text-sm mt-2">
-                    You have {dashboardData.stats.pendingAuctions} pending auction{dashboardData.stats.pendingAuctions !== 1 ? 's' : ''} waiting for approval.
+                    Bạn có {dashboardData.stats.pendingAuctions} đấu giá chờ duyệt.
                   </p>
                 )}
               </div>
@@ -498,54 +498,63 @@ export const AdminDashboard = () => {
         {/* User Management Section */}
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Recent Users</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Người Dùng Đã Truy Cập Gần Đây</h2>
             <Link
               to="/admin/users"
               className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline"
             >
-              View All Users
+              Xem Tất Cả
             </Link>
           </div>
 
           {/* Users Table */}
           <div className="bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Latest 10 Users</h3>
+            <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-emerald-100 via-teal-100 to-cyan-100">
+              <h3 className="text-lg font-bold text-emerald-800">10 Người Dùng Mới Nhất</h3>
             </div>
 
             {!users || users.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-gray-500">No users found matching your criteria.</p>
+                <p className="text-gray-500">Không tìm thấy người dùng nào.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto bg-gradient-to-br from-emerald-50 to-teal-50">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        User
+                        Người Dùng
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Role
+                        Vai Trò
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Joined
+                        Ngày Tham Gia
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Last Login
+                        Lần Cuối Đăng Nhập
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Xác minh
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
+                        Hành Động
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {(users || []).map((user) => (
-                      <tr key={user._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
+                    {(users || []).map((user, index) => {
+                      // 3 mức màu xanh lá cây, lặp lại theo chu kỳ
+                      const bgColors = ['#d1fae5', '#bdf6da', '#a7f3d0']; // emerald-100, giữa 100-200, emerald-200
+                      const bgColor = bgColors[index % 3];
+                      
+                      return (
+                        <tr 
+                          key={user._id} 
+                          className="hover:bg-emerald-400 hover:shadow-md transition-all duration-200"
+                          style={{ backgroundColor: bgColor }}
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
                               <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
@@ -572,7 +581,7 @@ export const AdminDashboard = () => {
                           {new Date(user.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
+                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Chưa bao giờ'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.verification?.isVerified
@@ -587,7 +596,7 @@ export const AdminDashboard = () => {
                             onClick={() => handleDeleteClick(user)}
                             disabled={user.role === 'admin'}
                             className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            title={user.role === 'admin' ? 'Cannot deactivate admin users' : 'Deactivate user'}
+                            title={user.role === 'admin' ? 'Không thể vô hiệu hóa admin' : 'Vô hiệu hóa người dùng'}
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
@@ -595,7 +604,8 @@ export const AdminDashboard = () => {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    );
+                    })}
                   </tbody>
                 </table>
               </div>
