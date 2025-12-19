@@ -142,11 +142,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
               <span className="text-lg font-bold text-emerald-600">
                 {formatCurrency(currentPrice)}
               </span>
-              {priceIncrease > 0 && (
-                <span className="text-sm font-semibold text-emerald-600 flex items-center gap-1">
-                  ↗ +{priceIncrease}%
-                </span>
-              )}
+              
             </div>
           </div>
 
