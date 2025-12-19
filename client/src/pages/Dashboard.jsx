@@ -232,11 +232,11 @@ const Dashboard = () => {
       {/* Verification Warning Banner - fixed top-right, offset to avoid navbar/profile */}
       {!isVerified && showVerificationBanner && (
         <div className="fixed top-24 sm:top-28 right-4 sm:right-6 z-40 w-[280px] sm:w-[320px]">
-          <div className="p-3 bg-emerald-50 border-2 border-emerald-200 rounded-xl shadow-xl relative">
+          <div className="p-3 bg-red-50 border-2 border-red-200 rounded-xl shadow-xl relative">
             {/* Close button */}
             <button
               onClick={() => setShowVerificationBanner(false)}
-              className="absolute top-2 right-2 text-emerald-600 hover:text-emerald-800 transition-colors"
+              className="absolute top-2 right-2 text-red-600 hover:text-red-800 transition-colors"
               aria-label="Close"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,13 +246,13 @@ const Dashboard = () => {
 
             <div className="flex items-start gap-2 pr-4">
               <div className="flex-1">
-                <h3 className="font-semibold text-sm text-emerald-800">⚠️ Chưa xác minh</h3>
-                <p className="text-xs text-emerald-700 mt-1">
+                <h3 className="font-semibold text-sm text-red-800">⚠️ Chưa xác minh</h3>
+                <p className="text-xs text-red-700 mt-1">
                   Xác minh để nạp tiền & đấu giá
                 </p>
                 <button
                   onClick={() => setShowVerificationModal(true)}
-                  className="mt-2 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-medium hover:bg-emerald-700 transition-colors flex items-center gap-1.5 w-full justify-center"
+                  className="mt-2 px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition-colors flex items-center gap-1.5 w-full justify-center"
                 >
                   Xác minh ngay
                 </button>
@@ -608,20 +608,36 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {data.latestUserAuctions.map((auction, index) => {
-                  const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
-                  const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
-                  return (
-                    <div
-                      key={auction._id}
-                      className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
-                      data-aos="fade-up"
-                      data-aos-delay={700 + index * 50}
-                    >
-                      <AuctionCard auction={auction} />
-                    </div>
-                  );
-                })}
+                {(() => {
+                  // Sắp xếp: các phiên đang diễn ra lên trước, đã kết thúc xuống sau
+                  const sortedUserAuctions = [...data.latestUserAuctions].sort((a, b) => {
+                    const aEndValue = a.itemEndDate || a.endDate || a.itemEndTime;
+                    const bEndValue = b.itemEndDate || b.endDate || b.itemEndTime;
+
+                    const aEnded = a.timeLeft ? a.timeLeft <= 0 : aEndValue ? new Date(aEndValue) <= new Date() : false;
+                    const bEnded = b.timeLeft ? b.timeLeft <= 0 : bEndValue ? new Date(bEndValue) <= new Date() : false;
+
+                    if (aEnded && !bEnded) return 1;   // a ended, b active -> b trước
+                    if (!aEnded && bEnded) return -1;  // a active, b ended -> a trước
+                    return 0;
+                  });
+
+                  return sortedUserAuctions.map((auction, index) => {
+                    const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
+                    const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
+
+                    return (
+                      <div
+                        key={auction._id}
+                        className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
+                        data-aos="fade-up"
+                        data-aos-delay={700 + index * 50}
+                      >
+                        <AuctionCard auction={auction} />
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             )}
           </div>
