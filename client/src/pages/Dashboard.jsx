@@ -121,8 +121,8 @@ const Dashboard = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Get 3 most recent auctions for slideshow
-  const recentAuctions = data?.latestAuctions?.slice(0, 3) || [];
+  // Get 4 most recent auctions for slideshow
+  const recentAuctions = data?.latestAuctions?.slice(0, 4) || [];
 
   // Auto-advance slideshow
   useEffect(() => {
@@ -560,7 +560,7 @@ const Dashboard = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {data.latestAuctions.map((auction, index) => (
                 <div key={auction._id} className="scale-95 hover:scale-100 transition-transform" data-aos="fade-up" data-aos-delay={500 + index * 50}>
                   <AuctionCard auction={auction} />
@@ -599,7 +599,7 @@ const Dashboard = () => {
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {data.latestUserAuctions.map((auction, index) => {
                   const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
                   const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;

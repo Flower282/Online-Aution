@@ -312,7 +312,7 @@ export const dashboardData = async (req, res) => {
             })
                 .populate("seller", "name isActive")
                 .sort({ createdAt: -1 })
-                .limit(3)
+                .limit(4)
                 .lean();
 
             latestAuctions = globalAuction.map(auction => ({
@@ -338,7 +338,7 @@ export const dashboardData = async (req, res) => {
             const userAuction = await Product.find({ seller: userObjectId })
                 .populate("seller", "name isActive")
                 .sort({ createdAt: -1 })
-                .limit(3)
+                .limit(4)
                 .lean();
 
 

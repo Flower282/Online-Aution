@@ -467,7 +467,7 @@ export const AuctionList = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredAuctions.map((auction, index) => (
               <div key={auction._id} data-aos="fade-up" data-aos-delay={index * 50}>
                 <AuctionCard
