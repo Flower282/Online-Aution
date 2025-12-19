@@ -760,16 +760,20 @@ export const finalizeAuction = async (req, res) => {
         auction.paymentDeadline = paymentDeadline;
         auction.paymentStatus = 'pending';
 
-        // Calculate deposit (tiền đặt cọc) nếu được yêu cầu
-        if (auction.depositRequired) {
-            auction.depositAmount = Math.round(
-                (auction.currentPrice * auction.depositPercentage) / 100
-            );
-
+        // Deposit amount đã được tính khi user đặt cọc (10% của giá khởi điểm)
+        // Không tính lại ở đây, chỉ set deadline nếu chưa có
+        if (auction.depositRequired && !auction.depositDeadline) {
             // Set deposit deadline (ví dụ: 3 ngày sau khi phiên kết thúc)
             const depositDeadline = new Date(endDate);
             depositDeadline.setDate(depositDeadline.getDate() + 3);
             auction.depositDeadline = depositDeadline;
+        }
+
+        // Đảm bảo depositAmount là 10% của startingPrice (nếu chưa có)
+        if (auction.depositRequired && !auction.depositAmount) {
+            auction.depositAmount = Math.round(
+                (auction.startingPrice * (auction.depositPercentage || 10)) / 100
+            );
         }
 
         await auction.save();
