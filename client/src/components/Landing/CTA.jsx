@@ -19,21 +19,21 @@ export const CTA = () => {
 
           <div className="relative z-10 py-16 md:py-20 px-4 text-center">
             <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg" data-aos="fade-up" data-aos-delay="100">
-               Ready to Start Your Christmas Auction Journey? 
+               Sẵn Sàng Bắt Đầu Hành Trình Đấu Giá? 
             </h2>
             <p className="text-xl text-white/95 mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-md" data-aos="fade-up" data-aos-delay="200">
-              Join our community today and discover amazing Christmas deals or turn your items
-              into cash. Getting started is quick and easy! ❄️
+              Tham gia cộng đồng của chúng tôi ngay hôm nay và khám phá những ưu đãi tuyệt vời hoặc biến đồ của bạn
+              thành tiền mặt. Bắt đầu nhanh chóng và dễ dàng! ❄️
             </p>
             <div className="flex flex-col sm:flex-row gap-5 justify-center" data-aos="fade-up" data-aos-delay="300">
               <Link to="/login">
                 <div className="bg-white cursor-pointer text-green-700 px-10 py-4 rounded-xl hover:bg-yellow-50 transition-all duration-300 font-bold text-lg shadow-2xl hover:shadow-3xl hover:scale-105 transform">
-                   Join Now
+                   Tham Gia Ngay
                 </div>
               </Link>
               <Link to="/auction">
                 <div className="bg-transparent border-2 border-white cursor-pointer text-white px-10 py-4 rounded-xl hover:bg-white/20 transition-all duration-300 font-bold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transform backdrop-blur-sm">
-                   Explore Auctions
+                   Khám Phá Các Sản Phẩm Đấu Giá
                 </div>
               </Link>
             </div>

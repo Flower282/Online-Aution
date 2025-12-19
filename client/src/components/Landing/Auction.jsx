@@ -112,7 +112,7 @@ export const Auction = () => {
         <div className="container mx-auto px-4 bg-transparent">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading live auctions...</p>
+            <p className="mt-4 text-gray-600">Đang tải các cuộc đấu giá...</p>
           </div>
         </div>
       </section>
@@ -123,9 +123,9 @@ export const Auction = () => {
     return (
       <section className="py-20 bg-transparent">
         <div className="container mx-auto px-4 bg-transparent">
-          <h2 className="text-4xl font-extrabold text-gray-900 mb-12">Live Auctions</h2>
+          <h2 className="text-4xl font-extrabold text-gray-900 mb-12">Đấu Giá Trực Tiếp</h2>
           <div className="text-center py-12 bg-gradient-to-br from-lime-50 to-blue-50 rounded-3xl">
-            <p className="text-gray-600 text-lg">No active auctions at the moment. Check back soon!</p>
+            <p className="text-gray-600 text-lg">Hiện chưa có đấu giá nào đang diễn ra. Hãy quay lại sau!</p>
           </div>
         </div>
       </section>
@@ -150,7 +150,7 @@ export const Auction = () => {
           />
           {/* Live Auction Badge - Top Right */}
           <div className="absolute top-3 right-3 bg-lime-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg">
-            Live Auction
+            Đang Diễn Ra
           </div>
           {/* Time Badge */}
           <div className={`absolute top-3 left-3 bg-gradient-to-r ${auction.timeColor} text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg flex items-center gap-1.5`}>
@@ -169,18 +169,18 @@ export const Auction = () => {
 
           <div className="grid grid-cols-2 gap-2">
             <div className="bg-gradient-to-br from-lime-50 to-lime-100 p-3 rounded-lg">
-              <p className="text-xs text-gray-600 font-medium mb-0.5">{isLoggedIn ? "Current Bid" : "Starting Price"}</p>
+              <p className="text-xs text-gray-600 font-medium mb-0.5">{isLoggedIn ? "Giá Hiện Tại" : "Giá Khởi Điểm"}</p>
               <p className="text-base font-black text-lime-600">{auction.currentBid}</p>
             </div>
             <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-3 rounded-lg">
-              <p className="text-xs text-gray-600 font-medium mb-0.5">Total Bids</p>
+              <p className="text-xs text-gray-600 font-medium mb-0.5">Tổng Lượt Đặt</p>
               <p className="text-base font-black text-emerald-600">{auction.bids}</p>
             </div>
           </div>
 
           <Link to='/login' className="block">
             <button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
-              Place Bid Now
+              Đặt Giá Ngay
             </button>
           </Link>
         </div>
@@ -192,12 +192,12 @@ export const Auction = () => {
     <section className="py-20 bg-transparent">
       <div className="container mx-auto px-4 bg-transparent">
         <div className="flex justify-between items-center mb-12" data-aos="fade-up">
-          <h2 className="text-4xl font-extrabold text-gray-900">Live Auctions</h2>
+          <h2 className="text-4xl font-extrabold text-gray-900">Đấu Giá Trực Tiếp</h2>
           <Link
             to="/auction"
             className="text-lime-600 hover:text-lime-700 flex items-center font-semibold transition-colors group"
           >
-            View all <FaChevronRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+            Xem Tất Cả <FaChevronRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
