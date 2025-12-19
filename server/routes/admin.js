@@ -10,7 +10,8 @@ import {
     getPendingAuctions,
     approveAuction,
     rejectAuction,
-    getAllAuctions
+    getAllAuctions,
+    rejectReactivationRequest
 } from "../controllers/admin.controller.js";
 const adminRouter = express.Router();
 
@@ -20,6 +21,7 @@ adminRouter.get('/users', checkAdmin, getAllUsers);
 adminRouter.delete('/users/:userId', checkAdmin, deleteUserById); // Deactivate user
 adminRouter.patch('/users/:userId/reactivate', checkAdmin, reactivateUser); // Reactivate user
 adminRouter.get('/users/reactivation-requests', checkAdmin, getPendingReactivationRequests); // Get pending reactivation requests
+adminRouter.patch('/users/:userId/reactivation-requests/reject', checkAdmin, rejectReactivationRequest); // Reject reactivation request
 adminRouter.post('/migrate-users-isactive', checkAdmin, migrateUsersIsActive); // Migration: Add isActive to all users
 
 // Auction Management

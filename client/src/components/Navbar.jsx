@@ -298,7 +298,7 @@ export const Navbar = () => {
               </span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-4">
+            <nav className="hidden md:flex flex-wrap items-center gap-3">
               {/* Main nav links */}
               {(user ? getMainNavLinks(user.user.role) : navMenu).map((item) => (
                 <NavLink
@@ -315,8 +315,8 @@ export const Navbar = () => {
                   }}
                   className={({ isActive }) =>
                     isActive
-                      ? "text-sm text-emerald-700 font-medium transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-50"
-                      : "text-sm hover:text-emerald-700 hover:bg-emerald-50/50 transition-all flex items-center gap-1.5 px-3 py-2 rounded-lg"
+                      ? "text-[11px] md:text-xs text-emerald-700 font-medium transition-colors flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50"
+                      : "text-[11px] md:text-xs hover:text-emerald-700 hover:bg-emerald-50/50 transition-all flex items-center gap-1 px-2 py-1 rounded-lg"
                   }
                 >
                   {item.icon && <item.icon className="h-4 w-4" />}

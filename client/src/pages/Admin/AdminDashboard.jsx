@@ -257,11 +257,7 @@ export const AdminDashboard = () => {
                     <p className="text-2xl font-bold text-orange-900 mt-2">
                       {dashboardData.stats.pendingAuctions || 0}
                     </p>
-                    {dashboardData.stats.pendingAuctions > 0 && (
-                      <p className="text-xs text-orange-600 mt-1 font-medium">
-                        ⚠️ Cần phê duyệt
-                      </p>
-                    )}
+
                   </div>
                   <div className="bg-orange-200 p-3 rounded-full">
                     <svg className="w-6 h-6 text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -275,16 +271,12 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-orange-700 uppercase tracking-wide">
-                      Xác Minh Chờ Duyệt
+                      Phê duyệt tài khoản
                     </h3>
                     <p className="text-2xl font-bold text-orange-900 mt-2">
                       {pendingVerifications}
                     </p>
-                    {pendingVerifications > 0 && (
-                      <p className="text-xs text-orange-600 mt-1 font-medium">
-                        🆔 CCCD cần duyệt
-                      </p>
-                    )}
+
                   </div>
                   <div className="bg-orange-200 p-3 rounded-full">
                     <ShieldCheck className="w-6 h-6 text-orange-700" />
@@ -296,16 +288,12 @@ export const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-medium text-orange-700 uppercase tracking-wide">
-                      Yêu Cầu Kích Hoạt Lại
+                      Yêu Cầu Kích Hoạt
                     </h3>
                     <p className="text-2xl font-bold text-orange-900 mt-2">
                       {pendingReactivations}
                     </p>
-                    {pendingReactivations > 0 && (
-                      <p className="text-xs text-orange-600 mt-1 font-medium">
-                        🔄 Cần xem xét
-                      </p>
-                    )}
+
                   </div>
                   <div className="bg-orange-200 p-3 rounded-full">
                     <UserCheck className="w-6 h-6 text-orange-700" />
@@ -498,7 +486,7 @@ export const AdminDashboard = () => {
         {/* User Management Section */}
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Người Dùng Đã Truy Cập Gần Đây</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Truy cập gần đây</h2>
             <Link
               to="/admin/users"
               className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline"
@@ -509,9 +497,7 @@ export const AdminDashboard = () => {
 
           {/* Users Table */}
           <div className="bg-white rounded-sm shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-emerald-100 via-teal-100 to-cyan-100">
-              <h3 className="text-lg font-bold text-emerald-800">10 Người Dùng Mới Nhất</h3>
-            </div>
+
 
             {!users || users.length === 0 ? (
               <div className="text-center py-12">
@@ -547,64 +533,64 @@ export const AdminDashboard = () => {
                       // 3 mức màu xanh lá cây, lặp lại theo chu kỳ
                       const bgColors = ['#d1fae5', '#bdf6da', '#a7f3d0']; // emerald-100, giữa 100-200, emerald-200
                       const bgColor = bgColors[index % 3];
-                      
+
                       return (
-                        <tr 
-                          key={user._id} 
+                        <tr
+                          key={user._id}
                           className="hover:bg-emerald-400 hover:shadow-md transition-all duration-200"
                           style={{ backgroundColor: bgColor }}
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                <span className="text-sm font-medium text-gray-700">
-                                  {user.name.charAt(0).toUpperCase()}
-                                </span>
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {user.name.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                                <div className="text-sm text-gray-500">{user.email}</div>
                               </div>
                             </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                              <div className="text-sm text-gray-500">{user.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin'
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-green-100 text-green-800'
-                            }`}>
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(user.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Chưa bao giờ'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.verification?.isVerified
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                            {user.verification?.isVerified ? '✓ Đã xác minh' : '⚠ Chưa xác minh'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            onClick={() => handleDeleteClick(user)}
-                            disabled={user.role === 'admin'}
-                            className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            title={user.role === 'admin' ? 'Không thể vô hiệu hóa admin' : 'Vô hiệu hóa người dùng'}
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                            </svg>
-                          </button>
-                        </td>
-                      </tr>
-                    );
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin'
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-green-100 text-green-800'
+                              }`}>
+                              {user.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Chưa bao giờ'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.verification?.isVerified
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                              {user.verification?.isVerified ? '✓ Đã xác minh' : '⚠ Chưa xác minh'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button
+                              onClick={() => handleDeleteClick(user)}
+                              disabled={user.role === 'admin'}
+                              className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              title={user.role === 'admin' ? 'Không thể vô hiệu hóa admin' : 'Vô hiệu hóa người dùng'}
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      );
                     })}
                   </tbody>
                 </table>
