@@ -712,8 +712,7 @@ export const ViewAuction = () => {
               <img
                 src={data.itemPhoto || "https://picsum.photos/601"}
                 alt={data.itemName}
-                className={`w-full h-full max-w-full max-h-full object-contain transition-all duration-300 ${
-                  !isActive ? 'opacity-60 grayscale' : ''
+                className={`w-full h-full max-w-full max-h-full object-contain transition-all duration-300 ${!isActive ? 'opacity-60 grayscale' : ''
                   }`}
               />
               {/* Overlay for ended auctions */}
@@ -802,26 +801,28 @@ export const ViewAuction = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Pricing Info */}
               <div className="bg-white p-3 rounded-md shadow-md border border-emerald-200 md:col-span-2">
-                <div className="grid grid-cols-2 gap-2">
+                <div className={`grid gap-2 ${user?.user ? 'grid-cols-2' : 'grid-cols-1'}`}>
                   {/* Starting Price */}
                   <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-2 rounded-lg border border-emerald-200">
                     <p className="text-[9px] text-emerald-700 font-medium mb-0.5">
                       Starting
                     </p>
                     <p className="text-base font-bold text-emerald-800">
-                      {formatCurrency(data.startingPrice)}
+                      {formatCurrency(data?.startingPrice ?? 0)}
                     </p>
                   </div>
 
-                  {/* Current Price */}
-                  <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-2 rounded-lg border-2 border-emerald-300">
-                    <p className="text-[9px] text-emerald-700 font-medium mb-0.5">
-                      Current
-                    </p>
-                    <p className="text-lg font-bold text-emerald-800">
-                      {formatCurrency(currentPrice ?? data.currentPrice)}
-                    </p>
-                  </div>
+                  {/* Current Price - Only show if logged in */}
+                  {user?.user && (
+                    <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-2 rounded-lg border-2 border-emerald-300">
+                      <p className="text-[9px] text-emerald-700 font-medium mb-0.5">
+                        Current
+                      </p>
+                      <p className="text-lg font-bold text-emerald-800">
+                        {formatCurrency(currentPrice ?? data.currentPrice)}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Total Bids */}
                   <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-2 rounded-lg border border-emerald-200">

@@ -152,6 +152,7 @@ export const showAuction = async (req, res) => {
             itemName: auction.itemName,
             itemDescription: auction.itemDescription,
             currentPrice: auction.currentPrice,
+            startingPrice: auction.startingPrice,
             bidsCount: auction.bids?.length || 0,
             timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
             itemCategory: auction.itemCategory,

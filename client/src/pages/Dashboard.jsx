@@ -393,7 +393,11 @@ const Dashboard = () => {
                                     )}
                                   </div>
                                   <p className="text-emerald-600 font-bold mt-1">
-                                    {new Intl.NumberFormat('vi-VN').format(auction.currentPrice)}đ
+                                    {new Intl.NumberFormat('vi-VN').format(
+                                      user?.user
+                                        ? (auction.currentPrice ?? auction.startingPrice ?? 0)
+                                        : (auction.startingPrice ?? 0)
+                                    )}đ
                                   </p>
                                 </div>
                               </button>
@@ -496,9 +500,13 @@ const Dashboard = () => {
 
                   <div className="space-y-4 mb-8">
                     <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-emerald-100">
-                      <span className="text-gray-600 font-medium">Current Price:</span>
+                      <span className="text-gray-600 font-medium">{user?.user ? "Current Price:" : "Starting Price:"}</span>
                       <span className="text-3xl font-bold text-emerald-600">
-                        {formatCurrency(recentAuctions[currentSlide]?.currentPrice || recentAuctions[currentSlide]?.startingPrice)}
+                        {formatCurrency(
+                          user?.user
+                            ? (recentAuctions[currentSlide]?.currentPrice ?? recentAuctions[currentSlide]?.startingPrice ?? 0)
+                            : (recentAuctions[currentSlide]?.startingPrice ?? 0)
+                        )}
                       </span>
                     </div>
 
