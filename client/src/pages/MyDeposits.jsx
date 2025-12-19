@@ -248,11 +248,10 @@ export const MyDeposits = () => {
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b border-gray-200">
                                     <tr>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Loại</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Loại giao dịch</th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Mô tả</th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase">Thời gian</th>
                                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-700 uppercase">Số tiền</th>
-                                        <th className="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase">Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
@@ -326,11 +325,6 @@ export const MyDeposits = () => {
                                                     <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-emerald-600' : 'text-red-600'}`}>
                                                         {sign}{formatCurrency(amount)}
                                                     </p>
-                                                </td>
-                                                <td className="px-4 py-3 text-center">
-                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${statusColor}-50 text-${statusColor}-700 transition-all duration-200 hover:shadow-md`}>
-                                                        {statusLabel}
-                                                    </span>
                                                 </td>
                                             </tr>
                                         );

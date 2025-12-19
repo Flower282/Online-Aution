@@ -380,12 +380,13 @@ export const processAuctionDeposits = async (productId, winnerId) => {
                 deposit.notes = 'Deposit deducted from final auction price';
                 deducted++;
             } else {
-                // Loser - refund deposit
-                deposit.status = 'refunded';
-                deposit.refundedAt = now;
-                deposit.notes = 'Deposit refunded - auction lost';
+                // Loser - refund deposit by crediting wallet
+                // Giữ nguyên status 'paid' hoặc chuyển sang 'deducted' để không hiển thị "đã hoàn tiền" ở lịch sử deposit
+                deposit.status = 'deducted';
+                deposit.deductedAt = now;
+                deposit.notes = 'Deposit returned to wallet - auction lost';
 
-                // Nếu đặt cọc bằng ví, hoàn tiền lại vào ví người dùng
+                // Nếu đặt cọc bằng ví, hoàn tiền lại vào ví người dùng VÀ tạo transaction refund
                 if (deposit.paymentMethod === 'wallet') {
                     try {
                         const user = await User.findById(deposit.user);
@@ -394,6 +395,28 @@ export const processAuctionDeposits = async (productId, winnerId) => {
                             user.balance = previousBalance + deposit.amount;
                             await user.save();
                             console.log(`💸 Wallet refund: User ${user._id} +${deposit.amount}. Balance: ${previousBalance} -> ${user.balance}`);
+
+                            // Tạo transaction refund để hiển thị trong lịch sử giao dịch
+                            const Transaction = (await import('../models/transaction.js')).default;
+                            const Product = (await import('../models/product.js')).default;
+                            const product = await Product.findById(deposit.product).select('itemName');
+                            
+                            await Transaction.create({
+                                user: deposit.user,
+                                type: 'refund',
+                                amount: deposit.amount,
+                                status: 'completed',
+                                paymentMethod: 'wallet',
+                                paymentGateway: 'wallet',
+                                relatedAuction: deposit.product,
+                                relatedDeposit: deposit._id,
+                                balanceBefore: previousBalance,
+                                balanceAfter: user.balance,
+                                notes: `Hoàn tiền cọc - Không trúng đấu giá "${product?.itemName || 'Unknown'}"`,
+                                completedAt: now
+                            });
+
+                            console.log(`📝 Created refund transaction for user ${user._id}, deposit ${deposit._id}`);
                         }
                     } catch (walletErr) {
                         console.error('Error refunding wallet for deposit:', walletErr);
