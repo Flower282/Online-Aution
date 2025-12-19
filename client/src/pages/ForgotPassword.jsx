@@ -27,9 +27,9 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-red-50 via-white to-pink-50 page-transition">
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-emerald-50 via-white to-pink-50 page-transition">
             <main className="flex-grow flex items-center justify-center p-4">
-                <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 border border-red-100">
+                <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 border border-emerald-100">
                     <h1 className="text-2xl font-extrabold text-center text-red-600 mb-2">
                         Quên mật khẩu
                     </h1>
@@ -50,7 +50,7 @@ const ForgotPassword = () => {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-4 py-3 border-2 border-red-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all"
+                                className="w-full px-4 py-3 border-2 border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                                 placeholder="you@example.com"
                                 required
                             />
@@ -59,10 +59,10 @@ const ForgotPassword = () => {
                         {message && (
                             <div
                                 className={`px-4 py-3 rounded-lg text-sm font-medium ${status === "success"
-                                    ? "bg-green-50 text-green-700 border border-green-200"
+                                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                     : status === "error"
-                                        ? "bg-red-50 text-red-700 border border-red-200"
-                                        : "bg-blue-50 text-blue-700 border border-blue-200"
+                                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                        : "bg-green-50 text-green-700 border border-green-200"
                                     }`}
                             >
                                 {message}
@@ -72,7 +72,7 @@ const ForgotPassword = () => {
                         <button
                             type="submit"
                             disabled={status === "loading"}
-                            className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-3 px-4 rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                            className="w-full bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white py-3 px-4 rounded-lg hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                         >
                             {status === "loading" ? "Đang gửi..." : "Gửi liên kết đặt lại mật khẩu"}
                         </button>
@@ -80,7 +80,7 @@ const ForgotPassword = () => {
                         <button
                             type="button"
                             onClick={() => navigate("/login")}
-                            className="w-full mt-2 text-sm text-gray-600 hover:text-red-600 transition-colors"
+                            className="w-full mt-2 text-sm text-gray-600 hover:text-emerald-600 transition-colors"
                         >
                             Quay lại đăng nhập
                         </button>

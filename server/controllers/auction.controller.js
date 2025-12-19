@@ -7,28 +7,53 @@ import { processAuctionDeposits } from './deposit.controller.js';
 
 export const createAuction = async (req, res) => {
     try {
+        // Check authentication
+        if (!req.user || !req.user.id) {
+            console.error('❌ Create auction: User not authenticated');
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+
         const { itemName, startingPrice, itemDescription, itemCategory, itemStartDate, itemEndDate } = req.body;
 
         // Validate required fields
         if (!itemName || !startingPrice || !itemDescription || !itemCategory || !itemStartDate || !itemEndDate) {
+            console.error('❌ Create auction: Missing required fields', {
+                itemName: !!itemName,
+                startingPrice: !!startingPrice,
+                itemDescription: !!itemDescription,
+                itemCategory: !!itemCategory,
+                itemStartDate: !!itemStartDate,
+                itemEndDate: !!itemEndDate
+            });
             return res.status(400).json({ message: 'All fields are required' });
         }
 
         // Validate image
         if (!req.file) {
+            console.error('❌ Create auction: No image file provided');
             return res.status(400).json({ message: 'Item photo is required' });
         }
 
         let imageUrl = '';
 
         try {
+            console.log('📤 Uploading image to Cloudinary...');
             imageUrl = await uploadImage(req.file);
+            console.log('✅ Image uploaded successfully:', imageUrl);
 
             // ✅ Tự động xóa file tạm sau khi upload thành công
-            const fs = await import('fs');
-            fs.unlinkSync(req.file.path);
-            console.log('🗑️ Deleted temp file:', req.file.filename);
+            try {
+                const fs = await import('fs');
+                if (req.file && req.file.path) {
+                    fs.unlinkSync(req.file.path);
+                    console.log('🗑️ Deleted temp file:', req.file.filename);
+                }
+            } catch (unlinkError) {
+                console.warn('⚠️ Failed to delete temp file:', unlinkError.message);
+            }
         } catch (error) {
+            console.error('❌ Error uploading image to Cloudinary:', error);
+
             // Xóa file tạm ngay cả khi upload fail
             try {
                 const fs = await import('fs');
@@ -36,10 +61,14 @@ export const createAuction = async (req, res) => {
                     fs.unlinkSync(req.file.path);
                 }
             } catch (unlinkError) {
-                console.error('Failed to delete temp file:', unlinkError.message);
+                console.error('❌ Failed to delete temp file:', unlinkError.message);
             }
 
-            return res.status(500).json({ message: 'Error uploading image to Cloudinary', error: error.message });
+            return res.status(500).json({
+                message: 'Error uploading image to Cloudinary',
+                error: error.message,
+                details: process.env.NODE_ENV === 'production' ? undefined : error.stack
+            });
         }
 
         // Validate dates
@@ -48,22 +77,35 @@ export const createAuction = async (req, res) => {
         const now = new Date();
 
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            console.error('❌ Create auction: Invalid date format', { itemStartDate, itemEndDate });
             return res.status(400).json({ message: 'Invalid date format' });
         }
 
         if (start < now) {
+            console.error('❌ Create auction: Start time in past', { start, now });
             return res.status(400).json({ message: 'Start time cannot be in the past' });
         }
 
         if (end <= start) {
+            console.error('❌ Create auction: End date before start date', { start, end });
             return res.status(400).json({ message: 'Auction end date must be after start date' });
         }
 
         // Validate price
         const price = parseFloat(startingPrice);
         if (isNaN(price) || price <= 0) {
+            console.error('❌ Create auction: Invalid price', { startingPrice, price });
             return res.status(400).json({ message: 'Starting price must be a positive number' });
         }
+
+        console.log('📝 Creating auction with data:', {
+            itemName,
+            startingPrice: price,
+            itemCategory,
+            seller: req.user.id,
+            itemStartDate: start,
+            itemEndDate: end
+        });
 
         const newAuction = new Product({
             itemName,
@@ -76,12 +118,23 @@ export const createAuction = async (req, res) => {
             itemEndDate: end,
             seller: req.user.id,
         });
+
         await newAuction.save();
+        console.log('✅ Auction created successfully:', newAuction._id);
 
         res.status(201).json({ message: 'Auction created successfully', newAuction });
     } catch (error) {
-        console.error('Error creating auction:', error);
-        res.status(500).json({ message: 'Error creating auction', error: error.message });
+        console.error('❌ Error creating auction:', error);
+        console.error('❌ Error stack:', error.stack);
+        console.error('❌ Request body:', req.body);
+        console.error('❌ Request file:', req.file ? { filename: req.file.filename, size: req.file.size } : 'No file');
+        console.error('❌ User:', req.user ? { id: req.user.id, role: req.user.role } : 'No user');
+
+        res.status(500).json({
+            message: 'Error creating auction',
+            error: error.message,
+            details: process.env.NODE_ENV === 'production' ? undefined : error.stack
+        });
     }
 };
 
@@ -880,6 +933,121 @@ export const payForWonAuction = async (req, res) => {
         auction.platformCommissionAmount = platformCommissionAmount;
         auction.sellerAmount = sellerAmount;
 
+        // ==================== KIỂM TRA VÀ TRỪ TIỀN TỪ VÍ ====================
+        // Lấy số tiền cọc thực tế của người thắng từ Deposit model
+        const Deposit = (await import('../models/deposit.js')).default;
+        const winnerDeposit = await Deposit.findOne({
+            user: req.user.id,
+            product: auction._id,
+            status: { $in: ['paid', 'deducted'] }
+        });
+
+        // Số tiền cọc thực tế của người thắng (nếu có)
+        const depositAmount = winnerDeposit?.amount || auction.depositAmount || 0;
+
+        // Tính số tiền cần thanh toán = finalPrice - depositAmount (đã trừ tiền cọc)
+        const amountToPay = finalPrice - depositAmount;
+
+        console.log(`💰 Payment calculation: FinalPrice=${finalPrice}, DepositAmount=${depositAmount}, AmountToPay=${amountToPay}`);
+
+        // Lấy thông tin user để kiểm tra số dư ví
+        const winnerUser = await User.findById(req.user.id).select('balance');
+        if (!winnerUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const currentBalance = winnerUser.balance || 0;
+
+        // Kiểm tra số dư ví có đủ để thanh toán không
+        if (currentBalance < amountToPay) {
+            return res.status(400).json({
+                error: 'Số dư ví không đủ để thanh toán',
+                code: 'INSUFFICIENT_WALLET_BALANCE',
+                currentBalance,
+                requiredAmount: amountToPay,
+                finalPrice,
+                depositAmount,
+                amountToPay
+            });
+        }
+
+        // Trừ tiền từ ví người thắng
+        const previousBalance = currentBalance;
+        winnerUser.balance = previousBalance - amountToPay;
+        await winnerUser.save();
+        console.log(`💰 Payment: User ${req.user.id} -${amountToPay} (Final: ${finalPrice}, Deposit: ${depositAmount}). Balance: ${previousBalance} -> ${winnerUser.balance}`);
+
+        // Cộng tiền vào ví người bán (sellerAmount)
+        const sellerUser = await User.findById(auction.seller._id || auction.seller).select('balance');
+        if (sellerUser) {
+            const sellerPreviousBalance = sellerUser.balance || 0;
+            sellerUser.balance = sellerPreviousBalance + sellerAmount;
+            await sellerUser.save();
+            console.log(`💰 Seller payment: User ${auction.seller._id || auction.seller} +${sellerAmount}. Balance: ${sellerPreviousBalance} -> ${sellerUser.balance}`);
+        }
+
+        // Tạo transaction record cho thanh toán (TRƯỚC KHI SAVE AUCTION)
+        let paymentTransaction = null;
+        let sellerTransaction = null;
+        try {
+            const Transaction = (await import('../models/transaction.js')).default;
+
+            console.log(`📝 Creating payment transaction for user ${req.user.id}, amount ${amountToPay}`);
+
+            // Transaction cho người mua (trừ tiền)
+            const paymentData = {
+                user: req.user.id,
+                type: 'payment',
+                amount: amountToPay,
+                status: 'completed',
+                paymentMethod: 'wallet',
+                paymentGateway: 'wallet',
+                gatewayOrderId: auction._id.toString(),
+                notes: `Thanh toán sản phẩm: ${auction.itemName}`,
+                balanceBefore: previousBalance,
+                balanceAfter: winnerUser.balance,
+                relatedAuction: auction._id,
+                completedAt: new Date()
+            };
+            console.log('📝 Payment transaction data:', JSON.stringify(paymentData, null, 2));
+
+            paymentTransaction = await Transaction.create(paymentData);
+            console.log(`✅ Payment transaction created: ${paymentTransaction._id}`);
+
+            // Transaction cho người bán (cộng tiền)
+            if (sellerUser) {
+                const sellerBalanceBefore = sellerUser.balance - sellerAmount;
+                const sellerData = {
+                    user: auction.seller._id || auction.seller,
+                    type: 'payment',
+                    amount: sellerAmount,
+                    status: 'completed',
+                    paymentMethod: 'wallet',
+                    paymentGateway: 'wallet',
+                    gatewayOrderId: auction._id.toString(),
+                    notes: `Nhận tiền bán sản phẩm: ${auction.itemName}`,
+                    balanceBefore: sellerBalanceBefore,
+                    balanceAfter: sellerUser.balance,
+                    relatedAuction: auction._id,
+                    completedAt: new Date()
+                };
+                console.log('📝 Seller transaction data:', JSON.stringify(sellerData, null, 2));
+
+                sellerTransaction = await Transaction.create(sellerData);
+                console.log(`✅ Seller transaction created: ${sellerTransaction._id}`);
+            }
+        } catch (transactionError) {
+            console.error('❌ Error creating transaction record:', transactionError);
+            console.error('❌ Transaction error details:', transactionError.message);
+            console.error('❌ Transaction error stack:', transactionError.stack);
+            if (transactionError.errors) {
+                console.error('❌ Validation errors:', JSON.stringify(transactionError.errors, null, 2));
+            }
+            // Không rollback balance vì đã trừ tiền thành công
+            // Chỉ log lỗi và tiếp tục
+            console.warn('⚠️ Balance updated but transaction record failed. Manual review may be needed.');
+        }
+
         // Đánh dấu đã thanh toán
         auction.paymentStatus = 'paid';
         auction.paymentCompletedAt = now;
@@ -888,9 +1056,11 @@ export const payForWonAuction = async (req, res) => {
 
         await auction.save();
 
-        // Lưu ý: Ở đây chỉ xử lý logic trạng thái.
-        // Nếu cần trừ tiền ví người thắng và cộng ví người bán,
-        // có thể triển khai thêm trong tương lai (sử dụng User.balance).
+        console.log(`✅ Payment completed successfully for auction ${auction._id}`);
+        console.log(`💰 Winner balance: ${previousBalance} -> ${winnerUser.balance}`);
+        if (sellerUser) {
+            console.log(`💰 Seller balance: ${sellerUser.balance - sellerAmount} -> ${sellerUser.balance}`);
+        }
 
         return res.status(200).json({
             message: 'Payment for auction completed successfully',
@@ -907,6 +1077,14 @@ export const payForWonAuction = async (req, res) => {
                 platformCommissionPercentage: auction.platformCommissionPercentage,
                 platformCommissionAmount: auction.platformCommissionAmount,
                 sellerAmount: auction.sellerAmount
+            },
+            payment: {
+                finalPrice: finalPrice,
+                depositAmount: depositAmount,
+                amountPaid: amountToPay,
+                calculation: `${finalPrice} - ${depositAmount} = ${amountToPay}`,
+                newBalance: winnerUser.balance,
+                transactionId: paymentTransaction?._id?.toString()
             }
         });
     } catch (error) {

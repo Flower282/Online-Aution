@@ -118,7 +118,7 @@ export const TransactionHistory = () => {
                             <ArrowLeft className="h-5 w-5 text-gray-600" />
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                            <h1 className="text-2xl font-bold text-red-600 flex items-center gap-2">
                                 Lịch sử giao dịch
                             </h1>
                             <p className="text-sm text-gray-600 mt-0.5">Xem tất cả giao dịch trong {days} ngày gần nhất</p>
@@ -223,7 +223,7 @@ export const TransactionHistory = () => {
                                                         <p className="text-xs text-gray-500">{date}</p>
                                                     </td>
                                                     <td className="px-4 py-3 text-right">
-                                                        <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-green-600' : 'text-red-600'}`}>
+                                                        <p className={`text-sm font-bold transition-all duration-200 ${sign === '+' ? 'text-emerald-600' : 'text-emerald-600'}`}>
                                                             {sign}{formatCurrency(amount)}
                                                         </p>
                                                     </td>

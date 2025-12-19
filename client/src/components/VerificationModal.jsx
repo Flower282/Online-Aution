@@ -34,8 +34,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
         gender: '',
         placeOfOrigin: '',
         placeOfResidence: '',
-        issueDate: '',
-        expiryDate: ''
+        issueDate: ''
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -114,8 +113,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                 gender: '',
                 placeOfOrigin: '',
                 placeOfResidence: '',
-                issueDate: '',
-                expiryDate: ''
+                issueDate: ''
             });
             // Đợi refetch hoàn thành để cập nhật UI
             await refetch();
@@ -177,6 +175,20 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
             return;
         }
 
+        // Kiểm tra tuổi >= 18
+        const birthDate = new Date(identityData.dateOfBirth);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+
+        const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+
+        if (actualAge < 18) {
+            setError('Bạn phải đủ 18 tuổi trở lên mới có thể xác minh căn cước công dân');
+            return;
+        }
+
         const formData = new FormData();
         Object.keys(identityData).forEach(key => {
             if (identityData[key]) {
@@ -211,7 +223,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                 {/* Modal */}
                 <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5">
+                    <div className="bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-5">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <HiOutlineShieldCheck className="w-8 h-8 text-white" />
@@ -237,7 +249,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                             <div className={`flex-1 h-2 rounded-full ${identityStatus === 'approved' ? 'bg-white' : 'bg-white/30'}`} />
                         </div>
                         <p className="text-emerald-100 text-xs mt-2">
-                            {isFullyVerified ? '✅ Đã xác minh hoàn tất' :
+                            {isFullyVerified ? ' Đã xác minh hoàn tất' :
                                 `${[phoneVerified, emailVerified, identityStatus === 'approved'].filter(Boolean).length}/3 bước hoàn thành`}
                         </p>
                     </div>
@@ -261,7 +273,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                     >
                                         <CiPhone className="w-5 h-5" />
                                         <span className="font-medium">Số điện thoại</span>
-                                        {phoneVerified && <CiCircleCheck className="w-5 h-5 text-green-500" />}
+                                        {phoneVerified && <CiCircleCheck className="w-5 h-5 text-emerald-500" />}
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('email')}
@@ -272,7 +284,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                     >
                                         <CiMail className="w-5 h-5" />
                                         <span className="font-medium">Email</span>
-                                        {emailVerified && <CiCircleCheck className="w-5 h-5 text-green-500" />}
+                                        {emailVerified && <CiCircleCheck className="w-5 h-5 text-emerald-500" />}
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('identity')}
@@ -283,7 +295,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                     >
                                         <HiOutlineIdentification className="w-5 h-5" />
                                         <span className="font-medium">CCCD</span>
-                                        {identityStatus === 'approved' && <CiCircleCheck className="w-5 h-5 text-green-500" />}
+                                        {identityStatus === 'approved' && <CiCircleCheck className="w-5 h-5 text-emerald-500" />}
                                         {identityStatus === 'pending' && (
                                             <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Đang chờ</span>
                                         )}
@@ -298,7 +310,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                     </div>
                                 )}
                                 {success && (
-                                    <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm flex items-center gap-2">
+                                    <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-sm flex items-center gap-2">
                                         <CiCircleCheck className="w-5 h-5 flex-shrink-0" />
                                         {success}
                                     </div>
@@ -309,8 +321,8 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                     <div className="space-y-4">
                                         {phoneVerified && !isEditingPhone ? (
                                             <div className="text-center py-6">
-                                                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <CiCircleCheck className="w-10 h-10 text-green-600" />
+                                                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <CiCircleCheck className="w-10 h-10 text-emerald-600" />
                                                 </div>
                                                 <h3 className="text-lg font-semibold text-gray-900">Số điện thoại đã xác minh</h3>
                                                 <p className="text-gray-500 mb-4">{verificationStatus?.phone?.number}</p>
@@ -329,7 +341,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                         ) : (
                                             <form onSubmit={handlePhoneSubmit} className="space-y-4">
                                                 {isEditingPhone && (
-                                                    <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
+                                                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                                                         <p className="font-medium">⚠️ Đổi số điện thoại</p>
                                                         <p className="text-xs mt-1">Số hiện tại: {verificationStatus?.phone?.number}</p>
                                                     </div>
@@ -348,7 +360,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                                                         />
                                                     </div>
-                                                    <p className="mt-1 text-xs text-gray-500">
+                                                    <p className="mt-1 text-xs text-red-600">
                                                         Nhập số điện thoại Việt Nam (10 số)
                                                     </p>
                                                 </div>
@@ -383,8 +395,8 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                     <div className="space-y-4">
                                         {emailVerified ? (
                                             <div className="text-center py-6">
-                                                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <CiCircleCheck className="w-10 h-10 text-green-600" />
+                                                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <CiCircleCheck className="w-10 h-10 text-emerald-600" />
                                                 </div>
                                                 <h3 className="text-lg font-semibold text-gray-900">Email đã xác minh</h3>
                                                 <p className="text-gray-500">{user?.user?.email}</p>
@@ -398,7 +410,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                     <p className="text-gray-600 mb-2">
                                                         Email của bạn: <strong>{user?.user?.email}</strong>
                                                     </p>
-                                                    <p className="text-sm text-gray-500 mb-4">
+                                                    <p className="text-sm text-red-600 mb-4">
                                                         Nhấn nút bên dưới để nhận email xác minh. Sau đó kiểm tra hộp thư và nhấp vào liên kết để xác minh.
                                                     </p>
                                                     {success && (
@@ -414,7 +426,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                 >
                                                     {emailMutation.isPending ? 'Đang gửi email...' : 'Gửi email xác minh'}
                                                 </button>
-                                                <p className="text-xs text-gray-500 text-center">
+                                                <p className="text-xs text-red-600 text-center">
                                                     Không nhận được email? Kiểm tra thư mục spam hoặc yêu cầu gửi lại.
                                                 </p>
                                             </form>
@@ -426,8 +438,8 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                     <div className="space-y-4">
                                         {identityStatus === 'approved' ? (
                                             <div className="text-center py-6">
-                                                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <CiCircleCheck className="w-10 h-10 text-green-600" />
+                                                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                    <CiCircleCheck className="w-10 h-10 text-emerald-600" />
                                                 </div>
                                                 <h3 className="text-lg font-semibold text-gray-900">CCCD đã xác minh</h3>
                                                 <p className="text-gray-500">{verificationStatus?.identityCard?.fullName}</p>
@@ -461,7 +473,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div className="md:col-span-2">
                                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                            Số CCCD <span className="text-red-500">*</span>
+                                                            Số CCCD <span className="text-emerald-500">*</span>
                                                         </label>
                                                         <div className="relative">
                                                             <CiCreditCard1 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -479,7 +491,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
 
                                                     <div className="md:col-span-2">
                                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                            Họ và tên <span className="text-red-500">*</span>
+                                                            Họ và tên <span className="text-emerald-500">*</span>
                                                         </label>
                                                         <div className="relative">
                                                             <CiUser className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -496,7 +508,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
 
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                            Ngày sinh <span className="text-red-500">*</span>
+                                                            Ngày sinh <span className="text-emerald-500">*</span>
                                                         </label>
                                                         <div className="relative">
                                                             <CiCalendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -566,19 +578,6 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                                                         />
                                                     </div>
-
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                            Ngày hết hạn
-                                                        </label>
-                                                        <input
-                                                            type="date"
-                                                            name="expiryDate"
-                                                            value={identityData.expiryDate}
-                                                            onChange={handleIdentityChange}
-                                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                                                        />
-                                                    </div>
                                                 </div>
 
                                                 <div className="pt-2">
@@ -599,8 +598,8 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                     </div>
 
                     {/* Footer */}
-                    <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                        <p className="text-xs text-gray-500 text-center">
+                    <div className="bg-red-50 px-6 py-4 border-t border-red-200">
+                        <p className="text-xs text-red-600 text-center">
                             🔒 Thông tin của bạn được bảo mật và chỉ sử dụng cho mục đích xác minh
                         </p>
                     </div>

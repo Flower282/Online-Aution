@@ -62,13 +62,21 @@ const Dashboard = () => {
     const auctions = auctionsData || [];
 
     // Filter auctions by name, description, category
-    const filteredAuctions = auctions
+    let filteredAuctions = auctions
       .filter(auction =>
         auction.itemName?.toLowerCase().includes(query) ||
         auction.itemDescription?.toLowerCase().includes(query) ||
         auction.itemCategory?.toLowerCase().includes(query)
-      )
-      .slice(0, 6);
+      );
+
+    // Sort: active auctions first, then ended auctions
+    filteredAuctions = [...filteredAuctions].sort((a, b) => {
+      const aEnded = a.isEnded || (a.timeLeft !== undefined && a.timeLeft <= 0);
+      const bEnded = b.isEnded || (b.timeLeft !== undefined && b.timeLeft <= 0);
+      if (aEnded && !bEnded) return 1; // a ended, b active -> b first
+      if (!aEnded && bEnded) return -1; // a active, b ended -> a first
+      return 0; // Keep original order for same status
+    }).slice(0, 6);
 
     // Filter categories
     const filteredCategories = categories
@@ -187,12 +195,12 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
-        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-200 max-w-md">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Dashboard</h2>
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-200 max-w-md">
+          <h2 className="text-2xl font-bold text-emerald-600 mb-4">Error Loading Dashboard</h2>
           <p className="text-gray-600 mb-6">{error.message || "Failed to load dashboard data"}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white px-6 py-3 rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-colors"
+            className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white px-6 py-3 rounded-lg hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 transition-colors"
           >
             Retry
           </button>
@@ -205,12 +213,12 @@ const Dashboard = () => {
   if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
-        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-red-200 max-w-md">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">No Data Available</h2>
-          <p className="text-gray-600 mb-6">Unable to load dashboard statistics. Please try again.</p>
+        <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-200 max-w-md">
+          <h2 className="text-2xl font-bold text-emerald-600 mb-4">Error Loading Dashboard</h2>
+          <p className="text-gray-600 mb-6">Unable to load dashboard data. Please try again.</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white px-6 py-3 rounded-lg hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-colors"
+            className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 text-white px-6 py-3 rounded-lg hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-700 transition-colors"
           >
             Refresh
           </button>
@@ -224,11 +232,11 @@ const Dashboard = () => {
       {/* Verification Warning Banner - fixed top-right, offset to avoid navbar/profile */}
       {!isVerified && showVerificationBanner && (
         <div className="fixed top-24 sm:top-28 right-4 sm:right-6 z-40 w-[280px] sm:w-[320px]">
-          <div className="p-3 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-xl relative">
+          <div className="p-3 bg-emerald-50 border-2 border-emerald-200 rounded-xl shadow-xl relative">
             {/* Close button */}
             <button
               onClick={() => setShowVerificationBanner(false)}
-              className="absolute top-2 right-2 text-amber-600 hover:text-amber-800 transition-colors"
+              className="absolute top-2 right-2 text-emerald-600 hover:text-emerald-800 transition-colors"
               aria-label="Close"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,13 +246,13 @@ const Dashboard = () => {
 
             <div className="flex items-start gap-2 pr-4">
               <div className="flex-1">
-                <h3 className="font-semibold text-sm text-amber-800">⚠️ Chưa xác minh</h3>
-                <p className="text-xs text-amber-700 mt-1">
+                <h3 className="font-semibold text-sm text-emerald-800">⚠️ Chưa xác minh</h3>
+                <p className="text-xs text-emerald-700 mt-1">
                   Xác minh để nạp tiền & đấu giá
                 </p>
                 <button
                   onClick={() => setShowVerificationModal(true)}
-                  className="mt-2 px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-medium hover:bg-amber-700 transition-colors flex items-center gap-1.5 w-full justify-center"
+                  className="mt-2 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-medium hover:bg-emerald-700 transition-colors flex items-center gap-1.5 w-full justify-center"
                 >
                   Xác minh ngay
                 </button>
@@ -259,7 +267,7 @@ const Dashboard = () => {
         {/* Hero Search Section */}
         <div className="min-h-[70vh] flex flex-col items-center justify-center mb-16" ref={searchRef}>
           <div className="text-center mb-8" data-aos="fade-down">
-            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-orange-500 mb-4" data-aos="zoom-in" data-aos-delay="100">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-red-500 mb-4" data-aos="zoom-in" data-aos-delay="100">
               🎄 Online Auction
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
@@ -271,7 +279,7 @@ const Dashboard = () => {
             <div className="relative flex gap-3">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                  <Search className="h-8 w-8 text-red-500" />
+                  <Search className="h-8 w-8 text-emerald-500" />
                 </div>
                 <input
                   type="text"
@@ -287,13 +295,13 @@ const Dashboard = () => {
                     }
                   }}
                   autoComplete="off"
-                  className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-red-300 rounded-2xl shadow-2xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all placeholder:text-gray-400"
+                  className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-emerald-300 rounded-2xl shadow-2xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all placeholder:text-gray-400"
                 />
               </div>
 
               <button
                 onClick={handleSearchSubmit}
-                className="px-8 py-6 bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white font-bold text-xl rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
+                className="px-8 py-6 bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 text-white font-bold text-xl rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
               >
                 <Search className="h-6 w-6" />
                 Tìm kiếm
@@ -325,7 +333,7 @@ const Dashboard = () => {
                               <button
                                 key={category}
                                 onClick={() => handleResultClick(`/auction?category=${encodeURIComponent(category)}`)}
-                                className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-full font-medium transition-colors"
+                                className="px-4 py-2 bg-blue-100 hover:bg-green-200 text-blue-700 rounded-full font-medium transition-colors"
                               >
                                 {category}
                               </button>
@@ -337,8 +345,8 @@ const Dashboard = () => {
                       {/* Auctions Results */}
                       {searchResults.auctions.length > 0 && (
                         <div>
-                          <div className="px-4 py-3 bg-gradient-to-r from-red-50 to-orange-50 border-b border-t border-gray-100">
-                            <span className="text-sm font-semibold text-red-700 uppercase tracking-wider">
+                          <div className="px-4 py-3 bg-gradient-to-r from-emerald-50 to-orange-50 border-b border-t border-gray-100">
+                            <span className="text-sm font-semibold text-emerald-700 uppercase tracking-wider">
                               🏷️ Sản phẩm ({searchResults.auctions.length})
                             </span>
                           </div>
@@ -352,7 +360,7 @@ const Dashboard = () => {
                               <button
                                 key={auction._id}
                                 onClick={() => handleResultClick(`/auction/${auction._id}`)}
-                                className="w-full px-4 py-3 flex items-center gap-4 hover:bg-red-50 transition-colors text-left border-b border-gray-50 last:border-b-0"
+                                className="w-full px-4 py-3 flex items-center gap-4 hover:bg-emerald-50 transition-colors text-left border-b border-gray-50 last:border-b-0"
                               >
                                 <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 shadow">
                                   {auction.itemPhoto ? (
@@ -371,11 +379,11 @@ const Dashboard = () => {
                                 <div className="flex-1 min-w-0">
                                   <p className="font-semibold text-gray-900 truncate text-lg">{auction.itemName}</p>
                                   <div className="flex flex-wrap items-center gap-2 mt-1">
-                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
                                       {auction.itemCategory}
                                     </span>
                                     {!isEnded ? (
-                                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
                                         {daysLeft > 0 ? `${daysLeft} ngày` : `${hoursLeft}h còn lại`}
                                       </span>
                                     ) : (
@@ -384,7 +392,7 @@ const Dashboard = () => {
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-red-600 font-bold mt-1">
+                                  <p className="text-emerald-600 font-bold mt-1">
                                     {new Intl.NumberFormat('vi-VN').format(auction.currentPrice)}đ
                                   </p>
                                 </div>
@@ -422,10 +430,10 @@ const Dashboard = () => {
               }`}
           >
             <h2 className="text-3xl font-extrabold text-gray-900 mb-6">New Auctions</h2>
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-red-200">
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-emerald-200">
               <div className="grid md:grid-cols-2 gap-0">
                 {/* Image Section */}
-                <div className="relative h-[400px] md:h-[500px] overflow-hidden bg-gradient-to-br from-red-50 to-pink-50">
+                <div className="relative h-[400px] md:h-[500px] overflow-hidden bg-gradient-to-br from-emerald-50 to-pink-50">
                   <div
                     className={`absolute inset-0 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
                       }`}
@@ -444,14 +452,14 @@ const Dashboard = () => {
                     className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
                     disabled={isTransitioning}
                   >
-                    <ChevronLeft className="h-6 w-6 text-red-600" />
+                    <ChevronLeft className="h-6 w-6 text-emerald-600" />
                   </button>
                   <button
                     onClick={handleNext}
                     className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
                     disabled={isTransitioning}
                   >
-                    <ChevronRight className="h-6 w-6 text-red-600" />
+                    <ChevronRight className="h-6 w-6 text-emerald-600" />
                   </button>
 
                   {/* Play/Pause Button */}
@@ -460,20 +468,20 @@ const Dashboard = () => {
                     className="absolute bottom-4 right-4 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
                   >
                     {isPlaying ? (
-                      <Pause className="h-5 w-5 text-red-600" />
+                      <Pause className="h-5 w-5 text-emerald-600" />
                     ) : (
-                      <Play className="h-5 w-5 text-red-600" />
+                      <Play className="h-5 w-5 text-emerald-600" />
                     )}
                   </button>
                 </div>
 
                 {/* Info Section */}
                 <div
-                  className={`p-8 md:p-12 flex flex-col justify-center bg-gradient-to-br from-red-50 via-pink-50 to-white transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
+                  className={`p-8 md:p-12 flex flex-col justify-center bg-gradient-to-br from-emerald-50 via-pink-50 to-white transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'
                     }`}
                 >
                   <div className="mb-4">
-                    <span className="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide">
+                    <span className="inline-block bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide">
                       🎁 New Auction
                     </span>
                   </div>
@@ -487,14 +495,14 @@ const Dashboard = () => {
                   </p>
 
                   <div className="space-y-4 mb-8">
-                    <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-red-100">
+                    <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-emerald-100">
                       <span className="text-gray-600 font-medium">Current Price:</span>
-                      <span className="text-3xl font-bold text-red-600">
+                      <span className="text-3xl font-bold text-emerald-600">
                         {formatCurrency(recentAuctions[currentSlide]?.currentPrice || recentAuctions[currentSlide]?.startingPrice)}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-red-100">
+                    <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-emerald-100">
                       <span className="text-gray-600 font-medium">🎁 Total Bids:</span>
                       <span className="text-xl font-bold text-gray-900">
                         {recentAuctions[currentSlide]?.bidsCount || 0}
@@ -504,7 +512,7 @@ const Dashboard = () => {
 
                   <button
                     onClick={() => navigate(`/auction/${recentAuctions[currentSlide]?._id}`)}
-                    className="w-full bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-4 rounded-xl hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+                    className="w-full bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white py-4 rounded-xl hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     🎄 Xem đấu giá
                   </button>
@@ -516,8 +524,8 @@ const Dashboard = () => {
                         key={index}
                         onClick={() => goToSlide(index)}
                         className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide
-                          ? 'w-8 bg-red-600'
-                          : 'w-2 bg-gray-300 hover:bg-red-300'
+                          ? 'w-8 bg-emerald-600'
+                          : 'w-2 bg-gray-300 hover:bg-emerald-300'
                           }`}
                         disabled={isTransitioning}
                       />
@@ -539,14 +547,14 @@ const Dashboard = () => {
             <h2 className="text-3xl font-extrabold text-gray-900" data-aos="fade-right" data-aos-delay="450">All Auctions</h2>
             <Link
               to="/auction"
-              className="text-sky-600 hover:text-sky-700 font-bold text-sm hover:underline transition-colors"
+              className="text-lime-600 hover:text-lime-700 font-bold text-sm hover:underline transition-colors"
             >
               View More →
             </Link>
           </div>
 
           {!data.latestAuctions || data.latestAuctions.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-sky-100">
+            <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-lime-100">
               <p className="text-gray-600 text-xl font-medium">
                 No auctions available at the moment.
               </p>
@@ -564,51 +572,51 @@ const Dashboard = () => {
 
         {/* Your Auctions Section - Only show if user is logged in */}
         {user && (
-        <div
-          ref={yourAuctionsRef}
-          className={`transition-all duration-1000 ease-out ${yourAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-        >
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent" data-aos="fade-right" data-aos-delay="650">Your Christmas Auctions</h2>
-            <Link
-              to="/myauction"
-              className="text-red-600 hover:text-red-700 font-bold text-sm hover:underline transition-colors"
-            >
-              View More →
-            </Link>
-          </div>
-
-          {!data.latestUserAuctions || data.latestUserAuctions.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-red-200">
-              <p className="text-gray-600 text-xl font-medium mb-6">
-                You haven't created any auctions yet.
-              </p>
-              <Link to="/create">
-                <button className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white px-8 py-4 rounded-xl hover:from-red-600 hover:via-red-700 hover:to-red-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
-                  Create Your First Auction
-                </button>
+          <div
+            ref={yourAuctionsRef}
+            className={`transition-all duration-1000 ease-out ${yourAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+          >
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent" data-aos="fade-right" data-aos-delay="650">Your Christmas Auctions</h2>
+              <Link
+                to="/myauction"
+                className="text-emerald-600 hover:text-emerald-700 font-bold text-sm hover:underline transition-colors"
+              >
+                View More →
               </Link>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.latestUserAuctions.map((auction, index) => {
-                const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
-                const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
-                return (
-                  <div
-                    key={auction._id}
-                    className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
-                    data-aos="fade-up"
-                    data-aos-delay={700 + index * 50}
-                  >
-                    <AuctionCard auction={auction} />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+
+            {!data.latestUserAuctions || data.latestUserAuctions.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-emerald-200">
+                <p className="text-gray-600 text-xl font-medium mb-6">
+                  You haven't created any auctions yet.
+                </p>
+                <Link to="/create">
+                  <button className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                    Create Your First Auction
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {data.latestUserAuctions.map((auction, index) => {
+                  const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
+                  const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
+                  return (
+                    <div
+                      key={auction._id}
+                      className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
+                      data-aos="fade-up"
+                      data-aos-delay={700 + index * 50}
+                    >
+                      <AuctionCard auction={auction} />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         )}
       </main>
 

@@ -81,6 +81,15 @@ const transactionSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    // Balance tracking
+    balanceBefore: {
+        type: Number,
+        default: null
+    },
+    balanceAfter: {
+        type: Number,
+        default: null
+    },
     // Timestamps
     completedAt: {
         type: Date,

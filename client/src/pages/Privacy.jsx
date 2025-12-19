@@ -24,7 +24,7 @@ export default function Privacy() {
       {/* Page content */}
       <main className="p-4 sm:p-6 lg:p-8 mx-auto">
         <div className="mb-6" data-aos="fade-down">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-red-600">
             Privacy & Security
           </h1>
           <p className="text-gray-500 pb-4">
@@ -113,7 +113,7 @@ export default function Privacy() {
                 <div className="ml-4">
                   <button
                     disabled
-                    className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 cursor-not-allowed"
+                    className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 cursor-not-allowed"
                   >
                     Enable
                   </button>
