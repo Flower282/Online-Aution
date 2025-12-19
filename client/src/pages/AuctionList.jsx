@@ -147,7 +147,7 @@ export const AuctionList = () => {
         {/* Filter tabs */}
         <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-emerald-200 shadow-lg relative z-20" data-aos="fade-up" data-aos-delay="300">
           <h3 className="text-lg font-bold text-emerald-700 mb-4 flex items-center gap-2">
-            🎯 Lọc và Sắp xếp
+            Lọc và sắp xếp
           </h3>
 
           <div className="flex flex-wrap gap-3 relative">
@@ -168,7 +168,7 @@ export const AuctionList = () => {
                 : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                 }`}
             >
-              ⭐ Tất cả
+              Tất cả
             </button>
 
             {/* Category Dropdown */}
@@ -185,7 +185,7 @@ export const AuctionList = () => {
                   : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                   }`}
               >
-                🎁 Danh mục {categoryFilter !== "all" && `(${categoryFilter})`}
+                Danh mục {categoryFilter !== "all" && `(${categoryFilter})`}
                 <svg className={`w-4 h-4 transition-transform ${showCategoryMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -226,7 +226,7 @@ export const AuctionList = () => {
                   : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                   }`}
               >
-                ⏰ Thời gian
+                Thời gian
                 <svg className={`w-4 h-4 transition-transform ${showTimeMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -243,7 +243,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "date-newest" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    ✨ Mới nhất
+                    Mới nhất
                   </button>
                   <button
                     onClick={() => {
@@ -254,7 +254,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "date-oldest" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    📅 Cũ nhất
+                    Cũ nhất
                   </button>
                   <button
                     onClick={() => {
@@ -265,7 +265,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "ending-soon" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    🔥 Sắp kết thúc
+                    Sắp kết thúc
                   </button>
                 </div>
               )}
@@ -285,7 +285,7 @@ export const AuctionList = () => {
                   : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                   }`}
               >
-                💰 Giá
+                Giá
                 <svg className={`w-4 h-4 transition-transform ${showPriceMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -302,7 +302,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "price-low" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    📉 Giá thấp đến cao
+                    Giá thấp đến cao
                   </button>
                   <button
                     onClick={() => {
@@ -313,7 +313,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "price-high" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    📈 Giá cao đến thấp
+                    Giá cao đến thấp
                   </button>
                 </div>
               )}
@@ -333,7 +333,7 @@ export const AuctionList = () => {
                   : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                   }`}
               >
-                📊 Trạng thái {statusFilter !== "all" && `(${statusFilter === "active" ? "Đang diễn ra" : "Đã kết thúc"})`}
+                Trạng thái {statusFilter !== "all" && `(${statusFilter === "active" ? "Đang diễn ra" : "Đã kết thúc"})`}
                 <svg className={`w-4 h-4 transition-transform ${showStatusMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -350,7 +350,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${statusFilter === "all" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    ⭐ Tất cả
+                    Tất cả
                   </button>
                   <button
                     onClick={() => {
@@ -361,7 +361,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${statusFilter === "active" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    ✅ Đang diễn ra
+                    Đang diễn ra
                   </button>
                   <button
                     onClick={() => {
@@ -372,7 +372,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${statusFilter === "ended" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    ⏸️ Đã kết thúc
+                    ⏸ Đã kết thúc
                   </button>
                 </div>
               )}

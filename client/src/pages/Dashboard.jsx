@@ -486,7 +486,7 @@ const Dashboard = () => {
                 >
                   <div className="mb-4">
                     <span className="inline-block bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide">
-                      🎁 Đấu Giá Mới
+                      New Auction
                     </span>
                   </div>
 
@@ -511,7 +511,7 @@ const Dashboard = () => {
                     </div>
 
                     <div className="flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-emerald-100">
-                      <span className="text-gray-600 font-medium">🎁 Tổng lượt đấu giá:</span>
+                      <span className="text-gray-600 font-medium"> Total Bids:</span>
                       <span className="text-xl font-bold text-gray-900">
                         {recentAuctions[currentSlide]?.bidsCount || 0}
                       </span>
