@@ -206,7 +206,7 @@ export const UsersList = () => {
         {/* Header */}
         <div className="mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">All Users</h1>
+            <h1 className="text-3xl font-bold text-red-600 mb-2">All Users</h1>
             <p className="text-gray-600">Manage and monitor all registered users</p>
           </div>
         </div>
@@ -227,7 +227,7 @@ export const UsersList = () => {
                 onChange={handleSearch}
                 onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
                 autoComplete="off"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>
 
@@ -445,7 +445,7 @@ export const UsersList = () => {
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <div className="flex flex-col gap-1">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false
-                            ? 'bg-emerald-100 text-emerald-800'
+                            ? 'bg-red-100 text-red-800'
                             : 'bg-emerald-100 text-emerald-800'
                             }`}>
                             {user.isActive === false ? 'Inactive' : 'Active'}
@@ -476,7 +476,7 @@ export const UsersList = () => {
                             <button
                               onClick={() => handleDeleteClick(user)}
                               disabled={user.role === 'admin'}
-                              className="text-emerald-600 hover:text-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                               title={user.role === 'admin' ? 'Cannot deactivate admin users' : 'Deactivate user'}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -605,14 +605,14 @@ export const UsersList = () => {
                 <button
                   onClick={handleDeleteCancel}
                   disabled={deleteLoading}
-                  className="flex-1 px-5 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 shadow-md"
+                  className="flex-1 px-5 py-3 border-2 border-red-300 text-red-700 rounded-xl font-bold hover:bg-red-50 hover:border-red-400 transition-all disabled:opacity-50 shadow-md"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleteLoading}
-                  className="flex-1 px-5 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-emerald-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
                 >
                   {deleteLoading ? 'Đang xử lý...' : 'Vô hiệu hóa'}
                 </button>
@@ -649,7 +649,7 @@ export const UsersList = () => {
                 <button
                   onClick={handleReactivateCancel}
                   disabled={reactivateLoading}
-                  className="flex-1 px-5 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 shadow-md"
+                  className="flex-1 px-5 py-3 border-2 border-red-300 text-red-700 rounded-xl font-bold hover:bg-red-50 hover:border-red-400 transition-all disabled:opacity-50 shadow-md"
                 >
                   Hủy
                 </button>

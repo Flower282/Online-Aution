@@ -62,13 +62,21 @@ const Dashboard = () => {
     const auctions = auctionsData || [];
 
     // Filter auctions by name, description, category
-    const filteredAuctions = auctions
+    let filteredAuctions = auctions
       .filter(auction =>
         auction.itemName?.toLowerCase().includes(query) ||
         auction.itemDescription?.toLowerCase().includes(query) ||
         auction.itemCategory?.toLowerCase().includes(query)
-      )
-      .slice(0, 6);
+      );
+
+    // Sort: active auctions first, then ended auctions
+    filteredAuctions = [...filteredAuctions].sort((a, b) => {
+      const aEnded = a.isEnded || (a.timeLeft !== undefined && a.timeLeft <= 0);
+      const bEnded = b.isEnded || (b.timeLeft !== undefined && b.timeLeft <= 0);
+      if (aEnded && !bEnded) return 1; // a ended, b active -> b first
+      if (!aEnded && bEnded) return -1; // a active, b ended -> a first
+      return 0; // Keep original order for same status
+    }).slice(0, 6);
 
     // Filter categories
     const filteredCategories = categories
@@ -259,7 +267,7 @@ const Dashboard = () => {
         {/* Hero Search Section */}
         <div className="min-h-[70vh] flex flex-col items-center justify-center mb-16" ref={searchRef}>
           <div className="text-center mb-8" data-aos="fade-down">
-            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-500 mb-4" data-aos="zoom-in" data-aos-delay="100">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-red-500 mb-4" data-aos="zoom-in" data-aos-delay="100">
               🎄 Online Auction
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
@@ -564,51 +572,51 @@ const Dashboard = () => {
 
         {/* Your Auctions Section - Only show if user is logged in */}
         {user && (
-        <div
-          ref={yourAuctionsRef}
-          className={`transition-all duration-1000 ease-out ${yourAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-        >
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent" data-aos="fade-right" data-aos-delay="650">Your Christmas Auctions</h2>
-            <Link
-              to="/myauction"
-              className="text-emerald-600 hover:text-emerald-700 font-bold text-sm hover:underline transition-colors"
-            >
-              View More →
-            </Link>
-          </div>
-
-          {!data.latestUserAuctions || data.latestUserAuctions.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-emerald-200">
-              <p className="text-gray-600 text-xl font-medium mb-6">
-                You haven't created any auctions yet.
-              </p>
-              <Link to="/create">
-                <button className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
-                  Create Your First Auction
-                </button>
+          <div
+            ref={yourAuctionsRef}
+            className={`transition-all duration-1000 ease-out ${yourAuctionsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+          >
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent" data-aos="fade-right" data-aos-delay="650">Your Christmas Auctions</h2>
+              <Link
+                to="/myauction"
+                className="text-emerald-600 hover:text-emerald-700 font-bold text-sm hover:underline transition-colors"
+              >
+                View More →
               </Link>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.latestUserAuctions.map((auction, index) => {
-                const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
-                const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
-                return (
-                  <div
-                    key={auction._id}
-                    className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
-                    data-aos="fade-up"
-                    data-aos-delay={700 + index * 50}
-                  >
-                    <AuctionCard auction={auction} />
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+
+            {!data.latestUserAuctions || data.latestUserAuctions.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-2xl shadow-lg border-2 border-emerald-200">
+                <p className="text-gray-600 text-xl font-medium mb-6">
+                  You haven't created any auctions yet.
+                </p>
+                <Link to="/create">
+                  <button className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white px-8 py-4 rounded-xl hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                    Create Your First Auction
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {data.latestUserAuctions.map((auction, index) => {
+                  const endDateValue = auction.itemEndDate || auction.endDate || auction.itemEndTime;
+                  const isEnded = auction.timeLeft ? auction.timeLeft <= 0 : endDateValue ? new Date(endDateValue) <= new Date() : false;
+                  return (
+                    <div
+                      key={auction._id}
+                      className={`w-full scale-95 hover:scale-100 transition-transform ${isEnded ? "opacity-40 grayscale blur-[1px]" : ""}`}
+                      data-aos="fade-up"
+                      data-aos-delay={700 + index * 50}
+                    >
+                      <AuctionCard auction={auction} />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         )}
       </main>
 

@@ -237,7 +237,7 @@ const PendingAuctions = () => {
 
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-600 mb-2">
+                    <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-600 mb-2">
                         🎅 Pending Auctions
                     </h1>
                     <p className="text-gray-600">
@@ -352,7 +352,7 @@ const PendingAuctions = () => {
                                                             handleRejectClick(auction);
                                                         }}
                                                         disabled={rejectMutation.isPending}
-                                                        className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         title="Reject"
                                                     >
                                                         <XCircle className="w-5 h-5" />
@@ -411,7 +411,7 @@ const PendingAuctions = () => {
                                     setShowApproveModal(false);
                                     setAuctionToApprove(null);
                                 }}
-                                className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-all"
+                                className="flex-1 bg-red-200 text-red-700 py-3 rounded-lg font-semibold hover:bg-red-300 transition-all"
                             >
                                 Cancel
                             </button>
@@ -456,14 +456,14 @@ const PendingAuctions = () => {
                                     setSelectedAuction(null);
                                     setRejectionReason("");
                                 }}
-                                className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-all"
+                                className="flex-1 bg-red-200 text-red-700 py-3 rounded-lg font-semibold hover:bg-red-300 transition-all"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleRejectConfirm}
                                 disabled={rejectMutation.isPending}
-                                className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all disabled:opacity-50"
+                                className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all disabled:opacity-50"
                             >
                                 {rejectMutation.isPending ? "Rejecting..." : "Confirm"}
                             </button>

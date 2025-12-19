@@ -131,7 +131,7 @@ export default function PayAuction() {
                     <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-emerald-50 flex items-center gap-3">
                         <Trophy className="h-7 w-7 text-yellow-500" />
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-800">
+                            <h1 className="text-2xl font-bold text-red-600">
                                 Xác Nhận Thanh Toán
                             </h1>
                             <p className="text-sm text-gray-600">

@@ -327,7 +327,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
                                                     className="pl-7"
                                                 />
                                             </div>
-                                            <Button onClick={handleBidSubmit} className="px-8">
+                                            <Button onClick={handleBidSubmit} className="px-8 bg-red-600 hover:bg-red-700 text-white">
                                                 Đặt giá
                                             </Button>
                                         </div>

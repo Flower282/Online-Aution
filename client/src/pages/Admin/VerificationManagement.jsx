@@ -115,7 +115,7 @@ export default function VerificationManagement() {
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-2">
                         <HiOutlineIdentification className="w-8 h-8 text-emerald-600" />
-                        <h1 className="text-3xl font-bold text-gray-900">Quản lý xác minh CCCD</h1>
+                        <h1 className="text-3xl font-bold text-red-600">Quản lý xác minh CCCD</h1>
                     </div>
                     <p className="text-gray-600">Xem xét và phê duyệt yêu cầu xác minh căn cước công dân của người dùng</p>
                 </div>
@@ -239,7 +239,7 @@ export default function VerificationManagement() {
                                                     <button
                                                         onClick={() => handleRejectClick(user)}
                                                         disabled={rejectMutation.isPending}
-                                                        className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
+                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                                                         title="Từ chối"
                                                     >
                                                         <HiOutlineX className="w-5 h-5" />
@@ -276,9 +276,9 @@ export default function VerificationManagement() {
                                     </div>
                                     <button
                                         onClick={() => setShowDetailModal(false)}
-                                        className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                                        className="p-2 rounded-full hover:bg-red-500/30 transition-colors"
                                     >
-                                        <IoClose className="w-6 h-6 text-white" />
+                                        <IoClose className="w-6 h-6 text-red-200 hover:text-white" />
                                     </button>
                                 </div>
                             </div>
@@ -403,7 +403,7 @@ export default function VerificationManagement() {
                                 <button
                                     onClick={() => handleRejectClick(selectedUser)}
                                     disabled={rejectMutation.isPending}
-                                    className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                                    className="px-5 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
                                 >
                                     <HiOutlineX className="w-5 h-5" />
                                     Từ chối
@@ -437,8 +437,8 @@ export default function VerificationManagement() {
                         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md">
                             <div className="p-6">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                                        <HiOutlineX className="w-6 h-6 text-emerald-600" />
+                                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                        <HiOutlineX className="w-6 h-6 text-red-600" />
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-bold text-gray-900">Từ chối xác minh</h3>
@@ -466,14 +466,14 @@ export default function VerificationManagement() {
                                             setUserToReject(null);
                                             setRejectionReason('');
                                         }}
-                                        className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                                        className="flex-1 px-4 py-2.5 border border-red-300 text-red-700 rounded-lg font-medium hover:bg-red-50 transition-colors"
                                     >
                                         Hủy
                                     </button>
                                     <button
                                         onClick={handleRejectConfirm}
                                         disabled={rejectMutation.isPending || !rejectionReason.trim()}
-                                        className="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {rejectMutation.isPending ? 'Đang xử lý...' : 'Xác nhận từ chối'}
                                     </button>

@@ -134,9 +134,9 @@ export default function WonAuctions() {
                 {/* Hero section */}
                 <div className="mb-12 text-center space-y-4" data-aos="fade-down">
                     <div className="flex justify-center mb-4">
-                        <Package className="h-16 w-16 text-emerald-600" />
+                        <Package className="h-16 w-16 text-red-600" />
                     </div>
-                    <h1 className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 bg-clip-text text-transparent text-4xl font-bold" data-aos="zoom-in" data-aos-delay="100">
+                    <h1 className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent text-4xl font-bold" data-aos="zoom-in" data-aos-delay="100">
                         Lịch Sử Đấu Giá
                     </h1>
                     <p className="text-gray-700 max-w-2xl mx-auto font-medium">

@@ -364,7 +364,7 @@ export default function Profile() {
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">
           <div className="mb-6" data-aos="fade-down">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-red-600">
               Profile Settings
             </h1>
             <p className="text-gray-500">
@@ -434,15 +434,15 @@ export default function Profile() {
                       ✓ Đã xác minh
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
                       ○ Chưa xác minh
                     </span>
                   )}
                 </div>
 
                 {!isVerified && (
-                  <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                    <p className="text-sm text-emerald-700">
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-700">
                       <strong>⚠️ Lưu ý:</strong> Bạn cần xác minh tài khoản để nạp tiền, đặt cọc và tham gia đấu giá.
                     </p>
                   </div>
@@ -450,23 +450,23 @@ export default function Profile() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Số điện thoại */}
-                  <div className={`p-4 rounded-lg border-2 ${phoneVerified ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="250">
+                  <div className={`p-4 rounded-lg border-2 ${phoneVerified ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`} data-aos="zoom-in" data-aos-delay="250">
                     <div className="flex items-center gap-2 mb-2">
-                      <CiPhone className={`h-5 w-5 ${phoneVerified ? 'text-emerald-600' : 'text-gray-400'}`} />
+                      <CiPhone className={`h-5 w-5 ${phoneVerified ? 'text-emerald-600' : 'text-red-600'}`} />
                       <span className="font-medium text-gray-900">Số điện thoại</span>
                     </div>
-                    <p className={`text-sm ${phoneVerified ? 'text-emerald-700' : 'text-gray-500'}`}>
+                    <p className={`text-sm ${phoneVerified ? 'text-emerald-700' : 'text-red-700'}`}>
                       {phoneVerified ? '✓ Đã xác minh' : '○ Chưa xác minh'}
                     </p>
                   </div>
 
                   {/* Email */}
-                  <div className={`p-4 rounded-lg border-2 ${emailVerified ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200'}`} data-aos="zoom-in" data-aos-delay="300">
+                  <div className={`p-4 rounded-lg border-2 ${emailVerified ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`} data-aos="zoom-in" data-aos-delay="300">
                     <div className="flex items-center gap-2 mb-2">
-                      <CiMail className={`h-5 w-5 ${emailVerified ? 'text-emerald-600' : 'text-gray-400'}`} />
+                      <CiMail className={`h-5 w-5 ${emailVerified ? 'text-emerald-600' : 'text-red-600'}`} />
                       <span className="font-medium text-gray-900">Email</span>
                     </div>
-                    <p className={`text-sm ${emailVerified ? 'text-emerald-700' : 'text-gray-500'}`}>
+                    <p className={`text-sm ${emailVerified ? 'text-emerald-700' : 'text-red-700'}`}>
                       {emailVerified ? '✓ Đã xác minh' : '○ Chưa xác minh'}
                     </p>
                   </div>
@@ -474,21 +474,21 @@ export default function Profile() {
                   {/* CCCD */}
                   <div className={`p-4 rounded-lg border-2 ${identityCardStatus === 'approved' ? 'bg-emerald-50 border-emerald-200' :
                     identityCardStatus === 'pending' ? 'bg-yellow-50 border-yellow-200' :
-                      identityCardStatus === 'rejected' ? 'bg-emerald-50 border-emerald-200' :
-                        'bg-gray-50 border-gray-200'
+                      identityCardStatus === 'rejected' ? 'bg-red-50 border-red-200' :
+                        'bg-red-50 border-red-200'
                     }`} data-aos="zoom-in" data-aos-delay="350">
                     <div className="flex items-center gap-2 mb-2">
                       <HiOutlineIdentification className={`h-5 w-5 ${identityCardStatus === 'approved' ? 'text-emerald-600' :
                         identityCardStatus === 'pending' ? 'text-yellow-600' :
-                          identityCardStatus === 'rejected' ? 'text-emerald-600' :
-                            'text-gray-400'
+                          identityCardStatus === 'rejected' ? 'text-red-600' :
+                            'text-red-600'
                         }`} />
                       <span className="font-medium text-gray-900">CCCD</span>
                     </div>
                     <p className={`text-sm ${identityCardStatus === 'approved' ? 'text-emerald-700' :
                       identityCardStatus === 'pending' ? 'text-yellow-700' :
-                        identityCardStatus === 'rejected' ? 'text-emerald-700' :
-                          'text-gray-500'
+                        identityCardStatus === 'rejected' ? 'text-red-700' :
+                          'text-red-700'
                       }`}>
                       {identityCardStatus === 'approved' ? '✓ Đã xác minh' :
                         identityCardStatus === 'pending' ? '⏳ Đang chờ duyệt' :
@@ -525,7 +525,7 @@ export default function Profile() {
                       <button
                         type="button"
                         onClick={handleEditProfile}
-                        className="px-4 py-2 text-sm font-medium text-lime-600 hover:text-lime-700 border border-lime-600 rounded-md hover:bg-lime-50 transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 border border-red-600 rounded-md hover:bg-red-50 transition-colors"
                       >
                         Edit
                       </button>
@@ -767,7 +767,7 @@ export default function Profile() {
                         type="button"
                         onClick={handleProfileSubmit}
                         disabled={updateProfileMutation.isPending}
-                        className="px-6 py-2.5 bg-lime-600 text-white font-medium rounded-md hover:bg-lime-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-6 py-2.5 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
                       </button>
@@ -888,7 +888,7 @@ export default function Profile() {
                     <button
                       type="submit"
                       disabled={isPending}
-                      className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isPending ? "Saving..." : "Save Changes"}
                     </button>
