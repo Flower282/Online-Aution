@@ -753,9 +753,9 @@ export const ViewAuction = () => {
                     }}
                   >
                     <Heart
-                      className={`w-4 h-5 transition-all ${isLiked ? 'fill-emerald-600 text-emerald-600' : 'text-gray-700'}`}
+                      className={`w-4 h-5 transition-all ${isLiked ? 'fill-red-600 text-red-600' : 'text-gray-700'}`}
                     />
-                    <span className={`font-semibold text-sm ${isLiked ? 'text-emerald-600' : 'text-gray-700'}`}>
+                    <span className={`font-semibold text-sm ${isLiked ? 'text-red-600' : 'text-gray-700'}`}>
                       {likesCount}
                     </span>
                   </button>

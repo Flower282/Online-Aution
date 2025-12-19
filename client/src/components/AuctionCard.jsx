@@ -92,8 +92,8 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           {!isAdmin && (
             <button
               className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-sm transition-all duration-300 ${isLiked
-                ? 'bg-emerald-500 hover:bg-emerald-600 text-white scale-110'
-                : 'bg-white/90 hover:bg-emerald-50 text-emerald-500'
+                ? 'bg-red-500 hover:bg-red-600 text-white scale-110'
+                : 'bg-white/90 hover:bg-red-50 text-red-500'
                 } shadow-md hover:shadow-lg`}
               onClick={handleLike}
               disabled={isLiking}
