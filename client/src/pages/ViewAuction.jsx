@@ -712,7 +712,8 @@ export const ViewAuction = () => {
               <img
                 src={data.itemPhoto || "https://picsum.photos/601"}
                 alt={data.itemName}
-                className={`h-full w-full object-cover transition-all duration-300 ${!isActive ? 'opacity-60 grayscale' : ''
+                className={`w-full h-full max-w-full max-h-full object-contain transition-all duration-300 ${
+                  !isActive ? 'opacity-60 grayscale' : ''
                   }`}
               />
               {/* Overlay for ended auctions */}
