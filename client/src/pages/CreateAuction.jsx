@@ -181,8 +181,8 @@ export const CreateAuction = () => {
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6 text-center" data-aos="fade-down">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 mb-2">
-            Create Christmas Auction
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
+            Create Auction
           </h1>
           <p className="text-gray-700">List your item for the Christmas season </p>
         </div>

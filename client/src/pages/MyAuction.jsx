@@ -3,7 +3,7 @@ import AuctionCard from "../components/AuctionCard";
 import { useQuery } from "@tanstack/react-query";
 import { getMyAuctions } from "../api/auction";
 import LoadingScreen from "../components/LoadingScreen";
-import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Filter, ChevronDown } from "lucide-react";
 
 export const MyAuction = () => {
   const [filter, setFilter] = useState("all");
@@ -63,6 +63,18 @@ export const MyAuction = () => {
     filteredAuctions = filteredAuctions.filter((auction) => auction.status === statusFilter);
   }
 
+  // Sort: active auctions first, then ended auctions (only for approved status)
+  if (statusFilter === "all" || statusFilter === "approved") {
+    filteredAuctions = [...filteredAuctions].sort((a, b) => {
+      // Check if auction is ended based on itemEndDate
+      const aEnded = a.itemEndDate ? new Date(a.itemEndDate) < new Date() : false;
+      const bEnded = b.itemEndDate ? new Date(b.itemEndDate) < new Date() : false;
+      if (aEnded && !bEnded) return 1; // a ended, b active -> b first
+      if (!aEnded && bEnded) return -1; // a active, b ended -> a first
+      return 0; // Keep original order for same status
+    });
+  }
+
   // Count auctions by status
   const statusCounts = {
     all: auctions.length,
@@ -87,7 +99,7 @@ export const MyAuction = () => {
       rejected: {
         icon: XCircle,
         label: 'Rejected',
-        className: 'bg-emerald-100 text-emerald-700 border-emerald-300',
+        className: 'bg-red-100 text-red-700 border-red-300',
       },
     };
 
@@ -107,80 +119,88 @@ export const MyAuction = () => {
       <main className="max-w-7xl mx-auto px-4 py-10">
         {/* Header */}
         <div className="mb-8" data-aos="fade-down">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 mb-2">
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
             My Christmas Auctions
           </h1>
           <p className="text-gray-700">Manage your auction listings </p>
         </div>
 
-        {/* Filters */}
-        <div className="mb-10 space-y-6" data-aos="fade-up" data-aos-delay="100">
-          {/* Category Filter */}
-          <div>
-            <h2 className="text-xl font-bold mb-4 text-gray-900">
-              Filter by Category
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {categories.map((category) => (
+        {/* Filters Menu - Horizontal Layout */}
+        <div className="mb-10 bg-white rounded-xl shadow-lg border-2 border-gray-200 p-4" data-aos="fade-up" data-aos-delay="100">
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* Filter Icon & Label */}
+            <div className="flex items-center gap-2">
+              <Filter className="w-5 h-5 text-red-600" />
+              <span className="text-lg font-bold text-gray-900">Lọc:</span>
+            </div>
+
+            {/* Category Filter Dropdown */}
+            <div className="relative flex-1 min-w-[200px]">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Sản phẩm
+              </label>
+              <div className="relative">
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  className="w-full px-4 py-2.5 pr-10 rounded-lg border-2 border-gray-300 bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 appearance-none cursor-pointer hover:border-red-400 transition-colors"
+                >
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category === "all" ? "Tất cả sản phẩm" : category.charAt(0).toUpperCase() + category.slice(1)}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Status Filter Buttons */}
+            <div className="flex-1 min-w-[300px]">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Trạng thái
+              </label>
+              <div className="flex flex-wrap gap-2">
                 <button
-                  key={category}
-                  onClick={() => setFilter(category)}
-                  className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${filter === category
-                    ? "bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
-                    : "bg-white text-gray-700 border-2 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 shadow-md"
+                  onClick={() => setStatusFilter("all")}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${statusFilter === "all"
+                    ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg"
+                    : "bg-white text-gray-700 border-2 border-gray-300 hover:bg-red-50 hover:border-red-300 shadow-md"
                     }`}
                 >
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                  Tất cả ({statusCounts.all})
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div>
-            <h2 className="text-xl font-bold mb-4 text-gray-900">
-              Filter by Status
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => setStatusFilter("all")}
-                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${statusFilter === "all"
-                  ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg"
-                  : "bg-white text-gray-700 border-2 border-blue-200 hover:bg-green-50 shadow-md"
-                  }`}
-              >
-                All ({statusCounts.all})
-              </button>
-              <button
-                onClick={() => setStatusFilter("pending")}
-                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "pending"
-                  ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg"
-                  : "bg-white text-gray-700 border-2 border-yellow-200 hover:bg-yellow-50 shadow-md"
-                  }`}
-              >
-                <Clock className="w-4 h-4" />
-                Pending ({statusCounts.pending})
-              </button>
-              <button
-                onClick={() => setStatusFilter("approved")}
-                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "approved"
-                  ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg"
-                  : "bg-white text-gray-700 border-2 border-emerald-200 hover:bg-emerald-50 shadow-md"
-                  }`}
-              >
-                <CheckCircle className="w-4 h-4" />
-                Approved ({statusCounts.approved})
-              </button>
-              <button
-                onClick={() => setStatusFilter("rejected")}
-                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "rejected"
-                  ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg"
-                  : "bg-white text-gray-700 border-2 border-emerald-200 hover:bg-emerald-50 shadow-md"
-                  }`}
-              >
-                <XCircle className="w-4 h-4" />
-                Rejected ({statusCounts.rejected})
-              </button>
+                <button
+                  onClick={() => setStatusFilter("pending")}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "pending"
+                    ? "bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg"
+                    : "bg-white text-gray-700 border-2 border-yellow-200 hover:bg-yellow-50 shadow-md"
+                    }`}
+                >
+                  <Clock className="w-4 h-4" />
+                  Pending ({statusCounts.pending})
+                </button>
+                <button
+                  onClick={() => setStatusFilter("approved")}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "approved"
+                    ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg"
+                    : "bg-white text-gray-700 border-2 border-emerald-200 hover:bg-emerald-50 shadow-md"
+                    }`}
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Approved ({statusCounts.approved})
+                </button>
+                <button
+                  onClick={() => setStatusFilter("rejected")}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${statusFilter === "rejected"
+                    ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg"
+                    : "bg-white text-gray-700 border-2 border-red-200 hover:bg-red-50 shadow-md"
+                    }`}
+                >
+                  <XCircle className="w-4 h-4" />
+                  Rejected ({statusCounts.rejected})
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -225,9 +245,9 @@ export const MyAuction = () => {
 
                 {/* Rejection Reason (if rejected) */}
                 {auction.status === 'rejected' && auction.rejectionReason && (
-                  <div className="mt-3 bg-emerald-50 border-2 border-emerald-200 rounded-lg p-3">
-                    <p className="text-sm font-semibold text-emerald-700 mb-1">Rejection Reason:</p>
-                    <p className="text-sm text-emerald-600">{auction.rejectionReason}</p>
+                  <div className="mt-3 bg-red-50 border-2 border-red-200 rounded-lg p-3">
+                    <p className="text-sm font-semibold text-red-700 mb-1">Rejection Reason:</p>
+                    <p className="text-sm text-red-600">{auction.rejectionReason}</p>
                   </div>
                 )}
 

@@ -37,7 +37,7 @@ export const Navbar = () => {
       { name: "Giới thiệu", link: "/about", icon: Info, keywords: ["about", "gioi thieu", "ve chung toi"] },
       { name: "Liên hệ", link: "/contact", icon: Phone, keywords: ["contact", "lien he", "ho tro"] },
     ];
-    
+
     // Filter out Favorites for admin
     if (isAdmin) {
       return pages.filter(page => page.link !== "/favorites");
@@ -290,10 +290,10 @@ export const Navbar = () => {
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2 group">
               <div className="relative">
-                <Gavel className="h-7 w-7 text-emerald-600 group-hover:text-emerald-700 transition-colors christmas-sparkle" />
+                <Gavel className="h-7 w-7 text-red-600 group-hover:text-red-700 transition-colors christmas-sparkle" />
                 <Sparkles className="h-3.5 w-3.5 text-yellow-500 absolute -top-1 -right-1 animate-pulse" />
               </div>
-              <span className="font-bold text-xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 bg-clip-text text-transparent">
+              <span className="font-bold text-xl bg-gradient-to-r from-red-500 via-red-600 to-red-600 bg-clip-text text-transparent">
                 Online Auction
               </span>
             </Link>
@@ -343,7 +343,7 @@ export const Navbar = () => {
 
           <div className="hidden lg:flex flex-1 max-w-md mx-6" ref={searchRef}>
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-600" />
               <Input
                 placeholder="Tìm kiếm đấu giá, trang... (Enter để tìm)"
                 value={searchTerm}
@@ -361,7 +361,7 @@ export const Navbar = () => {
                   }
                 }}
                 autoComplete="off"
-                className="pl-9 bg-emerald-50 border-emerald-200 focus:border-emerald-400 focus:ring-emerald-400"
+                className="pl-9 bg-red-50 border-red-200 focus:border-red-400 focus:ring-red-400"
               />
 
               {/* Search Results Dropdown */}
@@ -536,9 +536,9 @@ export const Navbar = () => {
                                   setIsDropdownOpen(false);
                                   handleLogout();
                                 }}
-                                className="flex items-center justify-start gap-2 w-full px-4 py-3 text-sm text-emerald-600 hover:bg-emerald-50 transition-colors text-left"
+                                className="flex items-center justify-start gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
                               >
-                                <item.icon className={`h-5 w-5 ${item.iconColor || 'text-emerald-600'}`} />
+                                <item.icon className={`h-5 w-5 ${item.iconColor || 'text-red-600'}`} />
                                 <span className="flex-1 font-medium text-left">{item.name}</span>
                               </button>
                             );
@@ -581,7 +581,7 @@ export const Navbar = () => {
                 <Button variant="outline" className="hidden sm:flex border-emerald-600 text-emerald-600 hover:bg-emerald-50 min-w-[105px]" asChild>
                   <Link to="/login">Đăng nhập</Link>
                 </Button>
-                <Button className="hidden sm:flex bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-700 shadow-lg min-w-[105px]" asChild>
+                <Button className="hidden sm:flex bg-red-600 hover:bg-red-700 shadow-lg min-w-[105px]" asChild>
                   <Link to="/signup">Đăng ký</Link>
                 </Button>
               </>
@@ -612,7 +612,7 @@ export const Navbar = () => {
         <div className="flex justify-between items-center p-4 border-b-2 border-emerald-300 bg-gradient-to-r from-emerald-100 via-emerald-50 to-emerald-100">
           <div className="flex items-center space-x-2">
             <Gavel className="h-6 w-6 text-emerald-600 christmas-sparkle" />
-            <span className="text-xl font-bold bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-red-500 via-red-600 to-red-600 bg-clip-text text-transparent">
               Auction
             </span>
           </div>
@@ -722,7 +722,7 @@ export const Navbar = () => {
                 <li>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start items-center text-destructive hover:text-destructive hover:bg-destructive/10 gap-2 px-3 py-3 rounded-lg"
+                    className="w-full justify-start items-center text-red-600 hover:text-red-700 hover:bg-red-50 gap-2 px-3 py-3 rounded-lg"
                     onClick={() => {
                       setIsMenuOpen(false);
                       handleLogout();
@@ -741,7 +741,7 @@ export const Navbar = () => {
                   Đăng nhập
                 </Link>
               </Button>
-              <Button className="w-full" asChild>
+              <Button className="w-full bg-red-600 hover:bg-red-700" asChild>
                 <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
                   Đăng ký
                 </Link>
@@ -759,7 +759,7 @@ export const LoginSignup = () => {
       <Button variant="ghost" className="hidden md:flex" asChild>
         <Link to="/login">Đăng nhập</Link>
       </Button>
-      <Button className="hidden md:flex" asChild>
+      <Button className="hidden md:flex bg-red-600 hover:bg-red-700" asChild>
         <Link to="/signup">Đăng ký</Link>
       </Button>
     </>
@@ -783,19 +783,19 @@ const mainNavLinks = [
 // Dropdown menu items for user account
 const dropdownMenuItems = [
   { name: "My Auction", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
-  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-emerald-500" },
+  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-yellow-500" },
   { name: "My Deposits", link: "/deposits", icon: Wallet, iconColor: "text-emerald-500" },
-  { name: "Favorites", link: "/favorites", icon: Heart, iconColor: "text-emerald-500" },
+  { name: "Favorites", link: "/favorites", icon: Heart, iconColor: "text-red-500" },
   { name: "Profile", link: "/profile", icon: Settings, iconColor: "text-gray-500" },
-  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-emerald-600" },
+  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
 ];
 
 // Admin dropdown items (same structure as user, but profile link points to /admin/profile)
 const adminDropdownMenuItems = [
   { name: "My Auction", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
-  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-emerald-500" },
+  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-yellow-500" },
   { name: "Profile", link: "/admin/profile", icon: Settings, iconColor: "text-gray-500" },
-  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-emerald-600" },
+  { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
 ];
 
 // Admin navigation links

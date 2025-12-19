@@ -182,7 +182,7 @@ export const AdminDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-red-600 mb-2">Admin Dashboard</h1>
           <p className="text-gray-600">Manage auctions, users, and monitor system activity</p>
         </div>
 
@@ -631,14 +631,14 @@ export const AdminDashboard = () => {
                 <button
                   onClick={handleDeleteCancel}
                   disabled={deleteLoading}
-                  className="flex-1 px-5 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 shadow-md"
+                  className="flex-1 px-5 py-3 border-2 border-red-300 text-red-700 rounded-xl font-bold hover:bg-red-50 hover:border-red-400 transition-all disabled:opacity-50 shadow-md"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleteLoading}
-                  className="flex-1 px-5 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-bold hover:from-emerald-700 hover:to-emerald-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                  className="flex-1 px-5 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
                 >
                   {deleteLoading ? 'Đang xử lý...' : 'Vô hiệu hóa'}
                 </button>

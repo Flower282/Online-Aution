@@ -48,9 +48,7 @@ export const Footer = () => {
         </div>
         <div className="border-t border-emerald-400/30 mt-8 pt-6 text-center">
           <p className="text-emerald-50 text-sm flex items-center justify-center gap-2">
-            <Sparkles className="h-4 w-4" />
-            © 2025 Online Auction System. All rights reserved. Made with
-            <Sparkles className="h-4 w-4" />
+            © 2025 Online Auction System. All rights reserved.
           </p>
         </div>
       </div>

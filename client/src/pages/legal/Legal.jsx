@@ -3,7 +3,7 @@ export default function Legal() {
     <div className="min-h-screen px-4 sm:px-6 lg:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="p-8 pl-3">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-red-600 mb-2">
             Legal Documents
           </h1>
           {/*
