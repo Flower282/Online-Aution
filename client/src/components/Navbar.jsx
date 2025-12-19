@@ -305,11 +305,11 @@ export const Navbar = () => {
                   to={item.link}
                   key={item.link}
                   onClick={() => {
-                    if (item.name === "Pending Auctions") {
+                    if (item.name === "Đấu giá chờ duyệt") {
                       markPendingAuctionsAsSeen();
-                    } else if (item.name === "Pending Verifications") {
+                    } else if (item.name === "Xác thực chờ duyệt") {
                       markPendingVerificationsAsSeen();
-                    } else if (item.name === "Pending Requests") {
+                    } else if (item.name === "Yêu cầu chờ duyệt") {
                       markPendingReactivationsAsSeen();
                     }
                   }}
@@ -321,17 +321,17 @@ export const Navbar = () => {
                 >
                   {item.icon && <item.icon className="h-4 w-4" />}
                   {item.name}
-                  {item.name === "Pending Auctions" && pendingCount > 0 && (
+                  {item.name === "Đấu giá chờ duyệt" && pendingCount > 0 && (
                     <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
                       {pendingCount}
                     </span>
                   )}
-                  {item.name === "Pending Requests" && pendingReactivationsCount > 0 && (
+                  {item.name === "Yêu cầu chờ duyệt" && pendingReactivationsCount > 0 && (
                     <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
                       {pendingReactivationsCount}
                     </span>
                   )}
-                  {item.name === "Pending Verifications" && pendingVerificationsCount > 0 && (
+                  {item.name === "Xác thực chờ duyệt" && pendingVerificationsCount > 0 && (
                     <span className={`bg-emerald-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
                       {pendingVerificationsCount}
                     </span>
@@ -664,34 +664,34 @@ export const Navbar = () => {
                   }
                   onClick={() => {
                     setIsMenuOpen(false);
-                    if (item.name === "Won Auctions") {
+                    if (item.name === "Đấu giá đã thắng") {
                       markWonAuctionsAsSeen();
-                    } else if (item.name === "Pending Auctions") {
+                    } else if (item.name === "Đấu giá chờ duyệt") {
                       markPendingAuctionsAsSeen();
-                    } else if (item.name === "Pending Verifications") {
+                    } else if (item.name === "Xác thực chờ duyệt") {
                       markPendingVerificationsAsSeen();
-                    } else if (item.name === "Pending Requests") {
+                    } else if (item.name === "Yêu cầu chờ duyệt") {
                       markPendingReactivationsAsSeen();
                     }
                   }}
                 >
                   <span>{item.name}</span>
-                  {item.name === "Pending Auctions" && pendingCount > 0 && (
+                  {item.name === "Đấu giá chờ duyệt" && pendingCount > 0 && (
                     <span className={`bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingAuctions ? 'animate-pulse' : ''}`}>
                       {pendingCount}
                     </span>
                   )}
-                  {item.name === "Pending Requests" && pendingReactivationsCount > 0 && (
+                  {item.name === "Yêu cầu chờ duyệt" && pendingReactivationsCount > 0 && (
                     <span className={`bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingReactivations ? 'animate-pulse' : ''}`}>
                       {pendingReactivationsCount}
                     </span>
                   )}
-                  {item.name === "Pending Verifications" && pendingVerificationsCount > 0 && (
+                  {item.name === "Xác thực chờ duyệt" && pendingVerificationsCount > 0 && (
                     <span className={`bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ${hasNewPendingVerifications ? 'animate-pulse' : ''}`}>
                       {pendingVerificationsCount}
                     </span>
                   )}
-                  {item.name === "Won Auctions" && unseenWonCount > 0 && (
+                  {item.name === "Đấu giá đã thắng" && unseenWonCount > 0 && (
                     <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
                       {unseenWonCount}
                     </span>
@@ -768,55 +768,55 @@ export const LoginSignup = () => {
 
 // Guest navigation menu (same as logged-in users, but will redirect to login for protected routes)
 const navMenu = [
-  { name: "Dashboard", link: "/", icon: LayoutDashboard },
-  { name: "Auction", link: "/auction", icon: Eye },
+  { name: "Trang chủ", link: "/", icon: LayoutDashboard },
+  { name: "Danh sách Đấu giá", link: "/auction", icon: Eye },
   { name: "Tạo mới", link: "/create", icon: Plus },
 ];
 
 // Main navigation links for logged-in users (shown directly in navbar)
 const mainNavLinks = [
-  { name: "Dashboard", link: "/", icon: LayoutDashboard },
-  { name: "Auction", link: "/auction", icon: Eye },
+  { name: "Trang chủ", link: "/", icon: LayoutDashboard },
+  { name: "Danh sách Đấu giá", link: "/auction", icon: Eye },
   { name: "Tạo mới", link: "/create", icon: Plus },
 ];
 
 // Dropdown menu items for user account
 const dropdownMenuItems = [
-  { name: "My Auction", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
-  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-yellow-500" },
-  { name: "My Deposits", link: "/deposits", icon: Wallet, iconColor: "text-emerald-500" },
-  { name: "Favorites", link: "/favorites", icon: Heart, iconColor: "text-red-500" },
-  { name: "Profile", link: "/profile", icon: Settings, iconColor: "text-gray-500" },
+  { name: "Đấu giá của tôi", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
+  { name: "Đấu giá đã thắng", link: "/won", icon: Trophy, iconColor: "text-yellow-500" },
+  { name: "Tiền cọc của tôi", link: "/deposits", icon: Wallet, iconColor: "text-emerald-500" },
+  { name: "Yêu thích", link: "/favorites", icon: Heart, iconColor: "text-red-500" },
+  { name: "Hồ sơ", link: "/profile", icon: Settings, iconColor: "text-gray-500" },
   { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
 ];
 
 // Admin dropdown items (same structure as user, but profile link points to /admin/profile)
 const adminDropdownMenuItems = [
-  { name: "My Auction", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
-  { name: "Won Auctions", link: "/won", icon: Trophy, iconColor: "text-yellow-500" },
-  { name: "Profile", link: "/admin/profile", icon: Settings, iconColor: "text-gray-500" },
+  { name: "Đấu giá của tôi", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
+  { name: "Đấu giá đã thắng", link: "/won", icon: Trophy, iconColor: "text-yellow-500" },
+  { name: "Hồ sơ", link: "/admin/profile", icon: Settings, iconColor: "text-gray-500" },
   { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
 ];
 
 // Admin navigation links
 const adminNavLink = [
-  { name: "Auction", link: "/auction", icon: Eye },
-  { name: "Pending Auctions", link: "/admin/auctions/pending", icon: Package },
-  { name: "Pending Requests", link: "/admin/reactivation-requests", icon: UserCheck },
-  { name: "Pending Verifications", link: "/admin/verifications", icon: ShieldCheck },
+  { name: "Danh sách Đấu giá", link: "/auction", icon: Eye },
+  { name: "Đấu giá chờ duyệt", link: "/admin/auctions/pending", icon: Package },
+  { name: "Yêu cầu chờ duyệt", link: "/admin/reactivation-requests", icon: UserCheck },
+  { name: "Xác thực chờ duyệt", link: "/admin/verifications", icon: ShieldCheck },
 ];
 
 // All protected links for mobile menu
 const protectedNavLink = [
-  { name: "Dashboard", link: "/" },
-  { name: "Auction", link: "/auction" },
+  { name: "Trang chủ", link: "/" },
+  { name: "Danh sách Đấu giá", link: "/auction" },
   { name: "Tạo mới", link: "/create" },
-  { name: "My Auction", link: "/myauction" },
-  { name: "Won Auctions", link: "/won" },
-  { name: "My Deposits", link: "/deposits" },
-  { name: "Favorites", link: "/favorites" },
-  { name: "Profile", link: "/profile" },
-  { name: "Privacy", link: "/privacy" },
+  { name: "Đấu giá của tôi", link: "/myauction" },
+  { name: "Đấu giá đã thắng", link: "/won" },
+  { name: "Tiền cọc của tôi", link: "/deposits" },
+  { name: "Yêu thích", link: "/favorites" },
+  { name: "Hồ sơ", link: "/profile" },
+  { name: "Quyền riêng tư", link: "/privacy" },
 ];
 
 // Helper function to get main navigation links based on user role

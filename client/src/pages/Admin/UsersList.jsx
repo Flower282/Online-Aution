@@ -203,13 +203,13 @@ export const UsersList = () => {
   if (initialLoading) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent max-w-7xl mx-auto">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-red-600 mb-2">All Users</h1>
-            <p className="text-gray-600">Manage and monitor all registered users</p>
+            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-600 mb-2">Tất Cả Người Dùng</h1>
+            <p className="text-gray-600">Quản lý và theo dõi tất cả người dùng đã đăng ký</p>
           </div>
         </div>
 
@@ -429,7 +429,7 @@ export const UsersList = () => {
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center space-x-1">
-                      <span>User</span>
+                      <span>Người Dùng</span>
                       {getSortIcon('name')}
                     </div>
                   </th>
@@ -438,7 +438,7 @@ export const UsersList = () => {
                     onClick={() => handleSort('role')}
                   >
                     <div className="flex items-center space-x-1">
-                      <span>Role</span>
+                      <span>Vai Trò</span>
                       {getSortIcon('role')}
                     </div>
                   </th>
@@ -447,7 +447,7 @@ export const UsersList = () => {
                     onClick={() => handleSort('createdAt')}
                   >
                     <div className="flex items-center space-x-1">
-                      <span>Date Created</span>
+                      <span>Ngày Tạo</span>
                       {getSortIcon('createdAt')}
                     </div>
                   </th>
@@ -456,21 +456,21 @@ export const UsersList = () => {
                     onClick={() => handleSort('lastLogin')}
                   >
                     <div className="flex items-center space-x-1">
-                      <span>Last Login</span>
+                      <span>Đăng Nhập Cuối</span>
                       {getSortIcon('lastLogin')}
                     </div>
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Location
+                    Vị Trí
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Xác minh
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    Trạng Thái
                   </th>
                   <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    Hành Động
                   </th>
                 </tr>
               </thead>
@@ -478,12 +478,17 @@ export const UsersList = () => {
                 {filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
-                      No users found matching your criteria.
+                      Không tìm thấy người dùng phù hợp với tiêu chí của bạn.
                     </td>
                   </tr>
                 ) : (
-                  filteredUsers.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-50">
+                  filteredUsers.map((user, index) => {
+                    // Tạo màu nền gradient 5 cấp độ nhạt hơn (mức ~150): xanh lá cây, xanh ngọc, xanh dương nhạt, lặp lại
+                    const bgColors = ['#e0fcec', '#dcfbee', '#dafdf6', '#e5fdf8', '#e0fcfe']; // emerald-150, emerald-150, teal-150, teal-150, cyan-150
+                    const bgColor = bgColors[index % 5];
+                    
+                    return (
+                    <tr key={user._id} style={{ backgroundColor: bgColor }} className="hover:bg-emerald-300 hover:shadow-md transition-all duration-200">
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-8 w-8">
@@ -508,9 +513,9 @@ export const UsersList = () => {
                         </div>
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-emerald-100 text-emerald-800'
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border-2 ${user.role === 'admin'
+                          ? 'bg-purple-100 text-purple-800 border-purple-300'
+                          : 'bg-blue-100 text-blue-800 border-blue-300'
                           }`}>
                           {user.role}
                         </span>
@@ -525,9 +530,9 @@ export const UsersList = () => {
                         {formatLocation(user.location)}
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${user.verification?.isVerified
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-gray-100 text-gray-600'
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border-2 ${user.verification?.isVerified
+                          ? 'bg-teal-100 text-teal-800 border-teal-300'
+                          : 'bg-gray-100 text-gray-600 border-gray-300'
                           }`}>
                           {user.verification?.isVerified ? (
                             <>
@@ -543,18 +548,18 @@ export const UsersList = () => {
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <div className="flex flex-col gap-1">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-emerald-100 text-emerald-800'
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border-2 ${user.isActive === false
+                            ? 'bg-red-100 text-red-800 border-red-300'
+                            : 'bg-emerald-100 text-emerald-800 border-emerald-300'
                             }`}>
-                            {user.isActive === false ? 'Inactive' : 'Active'}
+                            {user.isActive === false ? 'Không Hoạt Động' : 'Hoạt Động'}
                           </span>
                           {user.reactivationRequest?.requested && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 animate-pulse">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 border-2 border-yellow-300 animate-pulse">
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                               </svg>
-                              Pending Request
+                              Yêu Cầu Chờ Duyệt
                             </span>
                           )}
                         </div>
@@ -565,7 +570,7 @@ export const UsersList = () => {
                             <button
                               onClick={() => handleReactivateClick(user)}
                               className="text-emerald-600 hover:text-emerald-900 transition-colors"
-                              title="Reactivate user"
+                              title="Kích hoạt lại người dùng"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -576,7 +581,7 @@ export const UsersList = () => {
                               onClick={() => handleDeleteClick(user)}
                               disabled={user.role === 'admin'}
                               className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                              title={user.role === 'admin' ? 'Cannot deactivate admin users' : 'Deactivate user'}
+                              title={user.role === 'admin' ? 'Không thể vô hiệu hóa người dùng admin' : 'Vô hiệu hóa người dùng'}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
@@ -586,7 +591,8 @@ export const UsersList = () => {
                         </div>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </table>

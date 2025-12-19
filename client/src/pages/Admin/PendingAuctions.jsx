@@ -238,10 +238,10 @@ const PendingAuctions = () => {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-600 mb-2">
-                        🎅 Pending Auctions
+                        Đấu Giá Chờ Duyệt
                     </h1>
                     <p className="text-gray-600">
-                        Review and approve auction submissions ({pagination.totalPending || 0} pending)
+                        Xem xét và phê duyệt các đấu giá được gửi ({pagination.totalPending || 0} chờ duyệt)
                     </p>
                 </div>
 
@@ -249,8 +249,8 @@ const PendingAuctions = () => {
                 {auctions.length === 0 ? (
                     <div className="bg-white p-12 rounded-2xl shadow-lg text-center border-2 border-emerald-200">
                         <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-2xl font-bold text-gray-700 mb-2">No Pending Auctions</h3>
-                        <p className="text-gray-500">All auctions have been reviewed! 🎉</p>
+                        <h3 className="text-2xl font-bold text-gray-700 mb-2">Không Có Đấu Giá Chờ Duyệt</h3>
+                        <p className="text-gray-500">Tất cả đấu giá đã được xem xét!</p>
                     </div>
                 ) : (
                     <div className="bg-white rounded-2xl shadow-lg border-2 border-yellow-200 overflow-hidden">
@@ -258,13 +258,13 @@ const PendingAuctions = () => {
                             <table className="w-full">
                                 <thead className="bg-gradient-to-r from-yellow-50 to-emerald-50 border-b-2 border-yellow-200">
                                     <tr>
-                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Item Name</th>
-                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Category</th>
-                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Starting Price</th>
-                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Duration</th>
-                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Seller</th>
-                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700">Submitted</th>
-                                        <th className="px-6 py-4 text-center text-sm font-bold text-gray-700">Actions</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">Tên Sản Phẩm</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">Danh Mục</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">Giá Khởi Điểm</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">Thời Lượng</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">Người Bán</th>
+                                        <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 whitespace-nowrap">Ngày Gửi</th>
+                                        <th className="px-6 py-4 text-center text-sm font-bold text-gray-700 whitespace-nowrap">Hành Động</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-yellow-100">
@@ -310,7 +310,7 @@ const PendingAuctions = () => {
                                                 <p className="text-sm font-medium text-blue-600">
                                                     {calculateDuration(auction.itemStartDate, auction.itemEndDate)}
                                                 </p>
-                                                <p className="text-xs text-gray-500">after approval</p>
+                                                <p className="text-xs text-gray-500">sau khi phê duyệt</p>
                                             </td>
                                             <td
                                                 className="px-6 py-4 cursor-pointer"
@@ -342,7 +342,7 @@ const PendingAuctions = () => {
                                                         }}
                                                         disabled={approveMutation.isPending}
                                                         className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        title="Approve"
+                                                        title="Phê duyệt"
                                                     >
                                                         <CheckCircle className="w-5 h-5" />
                                                     </button>
@@ -353,7 +353,7 @@ const PendingAuctions = () => {
                                                         }}
                                                         disabled={rejectMutation.isPending}
                                                         className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        title="Reject"
+                                                        title="Từ chối"
                                                     >
                                                         <XCircle className="w-5 h-5" />
                                                     </button>
@@ -375,17 +375,17 @@ const PendingAuctions = () => {
                             disabled={!pagination.hasPrevPage}
                             className="px-4 py-2 bg-white border-2 border-emerald-200 rounded-lg font-semibold text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Previous
+                            Trước
                         </button>
                         <span className="px-4 py-2 bg-white border-2 border-emerald-200 rounded-lg font-semibold">
-                            Page {pagination.currentPage} of {pagination.totalPages}
+                            Trang {pagination.currentPage} / {pagination.totalPages}
                         </span>
                         <button
                             onClick={() => setCurrentPage((p) => p + 1)}
                             disabled={!pagination.hasNextPage}
                             className="px-4 py-2 bg-white border-2 border-emerald-200 rounded-lg font-semibold text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Next
+                            Sau
                         </button>
                     </div>
                 )}
@@ -397,10 +397,10 @@ const PendingAuctions = () => {
                     <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl pointer-events-auto border-2 border-emerald-300 animate-bounce-in">
                         <div className="flex items-center gap-3 mb-6">
                             <CheckCircle className="w-8 h-8 text-emerald-500" />
-                            <h2 className="text-2xl font-bold text-gray-800">Approve Auction</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">Phê Duyệt Đấu Giá</h2>
                         </div>
                         <p className="text-gray-700 text-center text-lg mb-6">
-                            Are you sure you want to approve this auction?
+                            Bạn có chắc chắn muốn phê duyệt đấu giá này?
                         </p>
                         <p className="text-center text-gray-600 mb-6">
                             <strong className="text-emerald-600">{auctionToApprove?.itemName}</strong>
@@ -413,14 +413,14 @@ const PendingAuctions = () => {
                                 }}
                                 className="flex-1 bg-red-200 text-red-700 py-3 rounded-lg font-semibold hover:bg-red-300 transition-all"
                             >
-                                Cancel
+                                Hủy
                             </button>
                             <button
                                 onClick={handleApproveConfirm}
                                 disabled={approveMutation.isPending}
                                 className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all disabled:opacity-50"
                             >
-                                {approveMutation.isPending ? "Approving..." : "Confirm"}
+                                {approveMutation.isPending ? "Đang phê duyệt..." : "Xác nhận"}
                             </button>
                         </div>
                     </div>
@@ -433,19 +433,19 @@ const PendingAuctions = () => {
                     <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl pointer-events-auto border-2 border-emerald-300 animate-bounce-in">
                         <div className="flex items-center gap-3 mb-6">
                             <AlertCircle className="w-8 h-8 text-emerald-500" />
-                            <h2 className="text-2xl font-bold text-gray-800">Reject Auction</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">Từ Chối Đấu Giá</h2>
                         </div>
                         <p className="text-gray-700 text-center text-lg mb-4">
-                            Are you sure you want to reject this auction?
+                            Bạn có chắc chắn muốn từ chối đấu giá này?
                         </p>
                         <p className="text-center text-gray-600 mb-4">
                             <strong className="text-emerald-600">{selectedAuction?.itemName}</strong>
                         </p>
-                        <p className="text-sm text-gray-600 mb-2">Please provide a rejection reason:</p>
+                        <p className="text-sm text-gray-600 mb-2">Vui lòng cung cấp lý do từ chối:</p>
                         <textarea
                             value={rejectionReason}
                             onChange={(e) => setRejectionReason(e.target.value)}
-                            placeholder="Enter rejection reason..."
+                            placeholder="Nhập lý do từ chối..."
                             className="w-full border-2 border-gray-300 rounded-lg p-3 mb-4 focus:border-emerald-500 focus:outline-none resize-none"
                             rows="4"
                         />
@@ -458,14 +458,14 @@ const PendingAuctions = () => {
                                 }}
                                 className="flex-1 bg-red-200 text-red-700 py-3 rounded-lg font-semibold hover:bg-red-300 transition-all"
                             >
-                                Cancel
+                                Hủy
                             </button>
                             <button
                                 onClick={handleRejectConfirm}
                                 disabled={rejectMutation.isPending}
                                 className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition-all disabled:opacity-50"
                             >
-                                {rejectMutation.isPending ? "Rejecting..." : "Confirm"}
+                                {rejectMutation.isPending ? "Đang từ chối..." : "Xác nhận"}
                             </button>
                         </div>
                     </div>
