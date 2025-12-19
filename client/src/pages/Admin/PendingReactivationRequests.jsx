@@ -96,7 +96,7 @@ const PendingReactivationRequests = () => {
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
+        if (!dateString) return 'Chưa có';
 
         const date = new Date(dateString);
         const now = new Date();
@@ -108,16 +108,16 @@ const PendingReactivationRequests = () => {
         // If same day (days = 0), show relative time
         if (diffInDays === 0) {
             if (diffInMinutes < 1) {
-                return 'Just now';
+                return 'Vừa xong';
             } else if (diffInMinutes < 60) {
-                return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+                return `${diffInMinutes} ${diffInMinutes === 1 ? 'phút' : 'phút'} trước`;
             } else {
-                return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+                return `${diffInHours} ${diffInHours === 1 ? 'giờ' : 'giờ'} trước`;
             }
         }
 
         // Otherwise show full date
-        return date.toLocaleString('en-US', {
+        return date.toLocaleString('vi-VN', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -221,7 +221,7 @@ const PendingReactivationRequests = () => {
                                                 <div className="text-sm text-gray-900">{formatDate(request.reactivationRequest?.requestedAt)}</div>
                                                 <div className="text-xs text-gray-500">
                                                     {request.reactivationRequest?.requestedAt &&
-                                                        `${Math.floor((Date.now() - new Date(request.reactivationRequest.requestedAt)) / (1000 * 60 * 60 * 24))} days ago`
+                                                        `${Math.floor((Date.now() - new Date(request.reactivationRequest.requestedAt)) / (1000 * 60 * 60 * 24))} ngày trước`
                                                     }
                                                 </div>
                                             </td>
@@ -245,7 +245,7 @@ const PendingReactivationRequests = () => {
                                                             Đang xử lý...
                                                         </>
                                                     ) : (
-                                                        <>Approve</>
+                                                        <>Phê duyệt</>
                                                     )}
                                                 </button>
                                                 <button
@@ -253,7 +253,7 @@ const PendingReactivationRequests = () => {
                                                     disabled={processingId === request._id}
                                                     className="inline-flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                                 >
-                                                    Reject
+                                                    Từ chối
                                                 </button>
                                             </td>
                                         </tr>
@@ -332,7 +332,7 @@ const PendingReactivationRequests = () => {
                                             Đang xử lý...
                                         </>
                                     ) : (
-                                        <>Confirm</>
+                                        <>Xác nhận</>
                                     )}
                                 </button>
                             </div>
