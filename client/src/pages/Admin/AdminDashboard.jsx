@@ -190,21 +190,19 @@ export const AdminDashboard = () => {
         {dashboardData && dashboardData.stats && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 max-w-6xl mx-auto">
-              <div className="bg-green-50 rounded-xl shadow-sm border-2 border-green-300 p-6 hover:shadow-md transition-all">
+              <div className="bg-emerald-50 rounded-xl shadow-sm border-2 border-emerald-300 p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-medium text-green-700 uppercase tracking-wide">
+                    <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
                       Active Auctions
                     </h3>
-                    <p className="text-2xl font-bold text-green-900 mt-2">
+                    <p className="text-2xl font-bold text-emerald-900 mt-2">
                       {dashboardData.stats.activeAuctions || 0}
                     </p>
-                    <p className="text-xs text-green-600 mt-1">
-                      ✅ Approved only
-                    </p>
+
                   </div>
-                  <div className="bg-green-200 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-emerald-200 p-3 rounded-full">
+                    <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
                   </div>
@@ -229,18 +227,18 @@ export const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="bg-amber-50 rounded-xl shadow-sm border-2 border-amber-300 p-6 hover:shadow-md transition-all">
+              <div className="bg-emerald-50 rounded-xl shadow-sm border-2 border-emerald-300 p-6 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-medium text-amber-700 uppercase tracking-wide">
+                    <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
                       Total Users
                     </h3>
-                    <p className="text-2xl font-bold text-amber-900 mt-2">
+                    <p className="text-2xl font-bold text-emerald-900 mt-2">
                       {dashboardData.stats.totalUsers || 0}
                     </p>
                   </div>
-                  <div className="bg-amber-200 p-3 rounded-full">
-                    <svg className="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="bg-emerald-200 p-3 rounded-full">
+                    <svg className="w-6 h-6 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
                   </div>
@@ -250,22 +248,22 @@ export const AdminDashboard = () => {
 
             {/* Pending Cards - Row 2 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 max-w-6xl mx-auto">
-              <Link to="/admin/auctions/pending" className="bg-rose-50 rounded-xl shadow-sm border-2 border-rose-300 p-6 hover:shadow-md transition-all block">
+              <Link to="/admin/auctions/pending" className="bg-orange-50 rounded-xl shadow-sm border-2 border-orange-300 p-6 hover:shadow-md transition-all block">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-medium text-rose-700 uppercase tracking-wide">
+                    <h3 className="text-sm font-medium text-orange-700 uppercase tracking-wide">
                       Pending Auctions
                     </h3>
-                    <p className="text-2xl font-bold text-rose-900 mt-2">
+                    <p className="text-2xl font-bold text-orange-900 mt-2">
                       {dashboardData.stats.pendingAuctions || 0}
                     </p>
                     {dashboardData.stats.pendingAuctions > 0 && (
-                      <p className="text-xs text-rose-600 mt-1 font-medium">
+                      <p className="text-xs text-orange-600 mt-1 font-medium">
                         ⚠️ Needs approval
                       </p>
                     )}
                   </div>
-                  <div className="bg-rose-200 p-3 rounded-full">
+                  <div className="bg-orange-200 p-3 rounded-full">
                     <svg className="w-6 h-6 text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -273,23 +271,23 @@ export const AdminDashboard = () => {
                 </div>
               </Link>
 
-              <Link to="/admin/verifications" className="bg-emerald-50 rounded-xl shadow-sm border-2 border-emerald-300 p-6 hover:shadow-md transition-all block">
+              <Link to="/admin/verifications" className="bg-orange-50 rounded-xl shadow-sm border-2 border-orange-300 p-6 hover:shadow-md transition-all block">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-medium text-emerald-700 uppercase tracking-wide">
+                    <h3 className="text-sm font-medium text-orange-700 uppercase tracking-wide">
                       Pending Verifications
                     </h3>
-                    <p className="text-2xl font-bold text-emerald-900 mt-2">
+                    <p className="text-2xl font-bold text-orange-900 mt-2">
                       {pendingVerifications}
                     </p>
                     {pendingVerifications > 0 && (
-                      <p className="text-xs text-emerald-600 mt-1 font-medium">
+                      <p className="text-xs text-orange-600 mt-1 font-medium">
                         🆔 CCCD cần duyệt
                       </p>
                     )}
                   </div>
-                  <div className="bg-emerald-200 p-3 rounded-full">
-                    <ShieldCheck className="w-6 h-6 text-emerald-700" />
+                  <div className="bg-orange-200 p-3 rounded-full">
+                    <ShieldCheck className="w-6 h-6 text-orange-700" />
                   </div>
                 </div>
               </Link>
@@ -498,7 +496,7 @@ export const AdminDashboard = () => {
         )}
 
         {/* User Management Section */}
-        <div className = "max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Recent Users</h2>
             <Link
@@ -588,7 +586,7 @@ export const AdminDashboard = () => {
                           <button
                             onClick={() => handleDeleteClick(user)}
                             disabled={user.role === 'admin'}
-                            className="text-emerald-600 hover:text-emerald-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             title={user.role === 'admin' ? 'Cannot deactivate admin users' : 'Deactivate user'}
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

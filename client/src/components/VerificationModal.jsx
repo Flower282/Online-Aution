@@ -34,8 +34,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
         gender: '',
         placeOfOrigin: '',
         placeOfResidence: '',
-        issueDate: '',
-        expiryDate: ''
+        issueDate: ''
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -114,8 +113,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                 gender: '',
                 placeOfOrigin: '',
                 placeOfResidence: '',
-                issueDate: '',
-                expiryDate: ''
+                issueDate: ''
             });
             // Đợi refetch hoàn thành để cập nhật UI
             await refetch();
@@ -174,6 +172,20 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
         e.preventDefault();
         if (!identityData.number || !identityData.fullName || !identityData.dateOfBirth) {
             setError('Vui lòng nhập đầy đủ thông tin bắt buộc');
+            return;
+        }
+
+        // Kiểm tra tuổi >= 18
+        const birthDate = new Date(identityData.dateOfBirth);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+
+        const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+
+        if (actualAge < 18) {
+            setError('Bạn phải đủ 18 tuổi trở lên mới có thể xác minh căn cước công dân');
             return;
         }
 
@@ -237,7 +249,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                             <div className={`flex-1 h-2 rounded-full ${identityStatus === 'approved' ? 'bg-white' : 'bg-white/30'}`} />
                         </div>
                         <p className="text-emerald-100 text-xs mt-2">
-                            {isFullyVerified ? '✅ Đã xác minh hoàn tất' :
+                            {isFullyVerified ? ' Đã xác minh hoàn tất' :
                                 `${[phoneVerified, emailVerified, identityStatus === 'approved'].filter(Boolean).length}/3 bước hoàn thành`}
                         </p>
                     </div>
@@ -292,7 +304,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
 
                                 {/* Error/Success Messages */}
                                 {error && (
-                                    <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-sm flex items-center gap-2">
+                                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center gap-2">
                                         <CiCircleRemove className="w-5 h-5 flex-shrink-0" />
                                         {error}
                                     </div>
@@ -329,7 +341,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                         ) : (
                                             <form onSubmit={handlePhoneSubmit} className="space-y-4">
                                                 {isEditingPhone && (
-                                                    <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-sm">
+                                                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                                                         <p className="font-medium">⚠️ Đổi số điện thoại</p>
                                                         <p className="text-xs mt-1">Số hiện tại: {verificationStatus?.phone?.number}</p>
                                                     </div>
@@ -348,7 +360,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                                                         />
                                                     </div>
-                                                    <p className="mt-1 text-xs text-gray-500">
+                                                    <p className="mt-1 text-xs text-red-600">
                                                         Nhập số điện thoại Việt Nam (10 số)
                                                     </p>
                                                 </div>
@@ -398,7 +410,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                     <p className="text-gray-600 mb-2">
                                                         Email của bạn: <strong>{user?.user?.email}</strong>
                                                     </p>
-                                                    <p className="text-sm text-gray-500 mb-4">
+                                                    <p className="text-sm text-red-600 mb-4">
                                                         Nhấn nút bên dưới để nhận email xác minh. Sau đó kiểm tra hộp thư và nhấp vào liên kết để xác minh.
                                                     </p>
                                                     {success && (
@@ -414,7 +426,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                 >
                                                     {emailMutation.isPending ? 'Đang gửi email...' : 'Gửi email xác minh'}
                                                 </button>
-                                                <p className="text-xs text-gray-500 text-center">
+                                                <p className="text-xs text-red-600 text-center">
                                                     Không nhận được email? Kiểm tra thư mục spam hoặc yêu cầu gửi lại.
                                                 </p>
                                             </form>
@@ -445,9 +457,9 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                 </p>
                                             </div>
                                         ) : identityStatus === 'rejected' ? (
-                                            <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                                                <h4 className="font-medium text-emerald-700 mb-1">Xác minh bị từ chối</h4>
-                                                <p className="text-emerald-600 text-sm">
+                                            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                                <h4 className="font-medium text-red-700 mb-1">Xác minh bị từ chối</h4>
+                                                <p className="text-red-600 text-sm">
                                                     {verificationStatus?.identityCard?.rejectionReason || 'Thông tin không hợp lệ'}
                                                 </p>
                                                 <p className="text-sm text-gray-600 mt-2">
@@ -566,19 +578,6 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                                                             className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                                                         />
                                                     </div>
-
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                            Ngày hết hạn
-                                                        </label>
-                                                        <input
-                                                            type="date"
-                                                            name="expiryDate"
-                                                            value={identityData.expiryDate}
-                                                            onChange={handleIdentityChange}
-                                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                                                        />
-                                                    </div>
                                                 </div>
 
                                                 <div className="pt-2">
@@ -599,8 +598,8 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
                     </div>
 
                     {/* Footer */}
-                    <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                        <p className="text-xs text-gray-500 text-center">
+                    <div className="bg-red-50 px-6 py-4 border-t border-red-200">
+                        <p className="text-xs text-red-600 text-center">
                             🔒 Thông tin của bạn được bảo mật và chỉ sử dụng cho mục đích xác minh
                         </p>
                     </div>
