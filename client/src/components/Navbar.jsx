@@ -31,7 +31,7 @@ export const Navbar = () => {
       { name: "Tạo đấu giá", link: "/create", icon: Plus, keywords: ["create", "tao", "dang ban", "moi"] },
       { name: "Đấu giá của tôi", link: "/myauction", icon: Package, keywords: ["my auction", "cua toi", "san pham cua toi"] },
       { name: "Đấu giá đã thắng", link: "/won", icon: Trophy, keywords: ["won", "thang", "chien thang"] },
-      { name: "Tiền cọc", link: "/deposits", icon: Wallet, keywords: ["deposit", "tien coc", "dat coc"] },
+      { name: "Ví của tôi", link: "/deposits", icon: Wallet, keywords: ["deposit", "vi cua toi", "ví của tôi", "my deposits"] },
       { name: "Yêu thích", link: "/favorites", icon: Heart, keywords: ["favorite", "yeu thich", "like"] },
       { name: "Hồ sơ", link: "/profile", icon: UserCircle, keywords: ["profile", "ho so", "tai khoan", "account"] },
       { name: "Giới thiệu", link: "/about", icon: Info, keywords: ["about", "gioi thieu", "ve chung toi"] },

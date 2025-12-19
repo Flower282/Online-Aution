@@ -279,7 +279,7 @@ const Dashboard = () => {
             <div className="relative flex gap-3">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                  <Search className="h-8 w-8 text-emerald-500" />
+                  <Search className="h-8 w-8 text-red-500" />
                 </div>
                 <input
                   type="text"
@@ -295,15 +295,15 @@ const Dashboard = () => {
                     }
                   }}
                   autoComplete="off"
-                  className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-emerald-300 rounded-2xl shadow-2xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all placeholder:text-gray-400"
+                  className="w-full pl-16 pr-6 py-6 text-xl bg-white border-2 border-red-300 rounded-2xl shadow-2xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all placeholder:text-gray-400"
                 />
               </div>
 
               <button
                 onClick={handleSearchSubmit}
-                className="px-8 py-6 bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 text-white font-bold text-xl rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
+                className="px-8 py-6 bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white font-bold text-xl rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center gap-3"
               >
-                <Search className="h-6 w-6" />
+                <Search className="h-6 w-6 text-white" />
                 Tìm kiếm
               </button>
             </div>
