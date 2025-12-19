@@ -9,7 +9,7 @@ import { formatCurrency } from "../utils/formatCurrency";
 export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
   const { user } = useSelector((state) => state.auth);
   const isAdmin = user?.user?.role === "admin";
-  
+
   const timeLeft = auction.timeLeft || 0;
   const sellerName = auction?.sellerName || auction?.seller?.name;
   const isSellerInactive = auction?.sellerActive === false || sellerName === "Tài khoản bị vô hiệu hóa";
@@ -142,11 +142,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
               <span className="text-lg font-bold text-emerald-600">
                 {formatCurrency(currentPrice)}
               </span>
-              {priceIncrease > 0 && (
-                <span className="text-sm font-semibold text-emerald-600 flex items-center gap-1">
-                  ↗ +{priceIncrease}%
-                </span>
-              )}
+              
             </div>
           </div>
 
@@ -166,7 +162,7 @@ export default function AuctionCard({ auction, onClick, onLikeUpdate }) {
           {/* Bid Now Button */}
           {!isEnded && !isPending && !isRejected && !isAdmin && (
             <button
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-auto text-sm"
+              className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-auto text-sm"
               onClick={(e) => {
                 if (onClick) {
                   e.preventDefault();

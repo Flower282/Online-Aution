@@ -14,7 +14,7 @@ export const AuctionList = () => {
   const [sortBy, setSortBy] = useState("none"); // "none", "price-low", "price-high", "date-newest", "date-oldest", "ending-soon"
   const [activeTab, setActiveTab] = useState("all");
   const navigate = useNavigate();
-  
+
   // Use public API to allow viewing without authentication
   const { data, isLoading, error } = useQuery({
     queryKey: ["allAuction"],
@@ -87,6 +87,17 @@ export const AuctionList = () => {
     filteredAuctions = [...filteredAuctions].sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
   }
 
+  // Always sort: active auctions first, then ended auctions (unless status filter is applied)
+  if (statusFilter === "all") {
+    filteredAuctions = [...filteredAuctions].sort((a, b) => {
+      const aEnded = a.isEnded || (a.timeLeft !== undefined && a.timeLeft <= 0);
+      const bEnded = b.isEnded || (b.timeLeft !== undefined && b.timeLeft <= 0);
+      if (aEnded && !bEnded) return 1; // a ended, b active -> b first
+      if (!aEnded && bEnded) return -1; // a active, b ended -> a first
+      return 0; // Keep original sort order for same status
+    });
+  }
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <main className="max-w-5xl mx-auto px-8 py-8">
@@ -95,7 +106,7 @@ export const AuctionList = () => {
           <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-6xl animate-bounce">
 
           </div>
-          <h1 className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 bg-clip-text text-transparent text-4xl font-bold mt-8" data-aos="zoom-in" data-aos-delay="100">
+          <h1 className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 bg-clip-text text-transparent text-4xl font-bold mt-8" data-aos="zoom-in" data-aos-delay="100">
             Đấu Giá Giáng Sinh
           </h1>
           <p className="text-emerald-900 max-w-2xl mx-auto font-medium" data-aos="fade-up" data-aos-delay="200">
@@ -137,7 +148,7 @@ export const AuctionList = () => {
           <h3 className="text-lg font-bold text-emerald-700 mb-4 flex items-center gap-2">
             🎯 Lọc và Sắp xếp
           </h3>
-          
+
           <div className="flex flex-wrap gap-3 relative">
             {/* Tất cả */}
             <button
@@ -150,11 +161,10 @@ export const AuctionList = () => {
                 setShowTimeMenu(false);
                 setShowPriceMenu(false);
               }}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-                activeTab === "all" && categoryFilter === "all" && sortBy === "none"
-                  ? "bg-emerald-600 text-white shadow-lg scale-105"
-                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-              }`}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${activeTab === "all" && categoryFilter === "all" && sortBy === "none"
+                ? "bg-emerald-600 text-white shadow-lg scale-105"
+                : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                }`}
             >
               ⭐ Tất cả
             </button>
@@ -167,18 +177,17 @@ export const AuctionList = () => {
                   setShowTimeMenu(false);
                   setShowPriceMenu(false);
                 }}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                  categoryFilter !== "all"
-                    ? "bg-emerald-600 text-white shadow-lg"
-                    : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                }`}
+                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${categoryFilter !== "all"
+                  ? "bg-emerald-600 text-white shadow-lg"
+                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                  }`}
               >
                 🎁 Danh mục {categoryFilter !== "all" && `(${categoryFilter})`}
                 <svg className={`w-4 h-4 transition-transform ${showCategoryMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
+
               {showCategoryMenu && (
                 <div className="absolute top-full left-0 mt-2 bg-white border-2 border-emerald-200 rounded-lg shadow-2xl z-[100] min-w-[200px] max-h-[300px] overflow-y-auto">
                   {categories.map(category => (
@@ -190,9 +199,8 @@ export const AuctionList = () => {
                         setSortBy("none");
                         setShowCategoryMenu(false);
                       }}
-                      className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors capitalize ${
-                        categoryFilter === category ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
-                      }`}
+                      className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors capitalize ${categoryFilter === category ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
+                        }`}
                     >
                       {category === "all" ? "Tất cả danh mục" : category}
                     </button>
@@ -209,18 +217,17 @@ export const AuctionList = () => {
                   setShowCategoryMenu(false);
                   setShowPriceMenu(false);
                 }}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                  sortBy === "date-newest" || sortBy === "date-oldest" || sortBy === "ending-soon"
-                    ? "bg-emerald-600 text-white shadow-lg"
-                    : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                }`}
+                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${sortBy === "date-newest" || sortBy === "date-oldest" || sortBy === "ending-soon"
+                  ? "bg-emerald-600 text-white shadow-lg"
+                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                  }`}
               >
                 ⏰ Thời gian
                 <svg className={`w-4 h-4 transition-transform ${showTimeMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
+
               {showTimeMenu && (
                 <div className="absolute top-full left-0 mt-2 bg-white border-2 border-emerald-200 rounded-lg shadow-2xl z-[100] min-w-[200px]">
                   <button
@@ -229,9 +236,8 @@ export const AuctionList = () => {
                       setActiveTab("time");
                       setShowTimeMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${
-                      sortBy === "date-newest" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "date-newest" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     ✨ Mới nhất
                   </button>
@@ -241,9 +247,8 @@ export const AuctionList = () => {
                       setActiveTab("time");
                       setShowTimeMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${
-                      sortBy === "date-oldest" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "date-oldest" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     📅 Cũ nhất
                   </button>
@@ -253,9 +258,8 @@ export const AuctionList = () => {
                       setActiveTab("time");
                       setShowTimeMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${
-                      sortBy === "ending-soon" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "ending-soon" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     🔥 Sắp kết thúc
                   </button>
@@ -271,18 +275,17 @@ export const AuctionList = () => {
                   setShowCategoryMenu(false);
                   setShowTimeMenu(false);
                 }}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                  sortBy === "price-low" || sortBy === "price-high"
-                    ? "bg-emerald-600 text-white shadow-lg"
-                    : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                }`}
+                className={`px-6 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${sortBy === "price-low" || sortBy === "price-high"
+                  ? "bg-emerald-600 text-white shadow-lg"
+                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                  }`}
               >
                 💰 Giá
                 <svg className={`w-4 h-4 transition-transform ${showPriceMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
+
               {showPriceMenu && (
                 <div className="absolute top-full left-0 mt-2 bg-white border-2 border-emerald-200 rounded-lg shadow-2xl z-[100] min-w-[200px]">
                   <button
@@ -291,9 +294,8 @@ export const AuctionList = () => {
                       setActiveTab("price");
                       setShowPriceMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${
-                      sortBy === "price-low" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "price-low" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     📉 Giá thấp đến cao
                   </button>
@@ -303,9 +305,8 @@ export const AuctionList = () => {
                       setActiveTab("price");
                       setShowPriceMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${
-                      sortBy === "price-high" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
-                    }`}
+                    className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors ${sortBy === "price-high" ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
+                      }`}
                   >
                     📈 Giá cao đến thấp
                   </button>
@@ -316,22 +317,20 @@ export const AuctionList = () => {
             {/* Status Filters */}
             <button
               onClick={() => setStatusFilter("active")}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-                statusFilter === "active"
-                  ? "bg-emerald-600 text-white shadow-lg scale-105"
-                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-              }`}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${statusFilter === "active"
+                ? "bg-emerald-600 text-white shadow-lg scale-105"
+                : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                }`}
             >
               ✅ Đang đấu giá
             </button>
 
             <button
               onClick={() => setStatusFilter("ended")}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-                statusFilter === "ended"
-                  ? "bg-gray-600 text-white shadow-lg scale-105"
-                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${statusFilter === "ended"
+                ? "bg-red-600 text-white shadow-lg scale-105"
+                : "bg-red-50 text-red-700 hover:bg-red-100"
+                }`}
             >
               ⏸️ Đã kết thúc
             </button>
@@ -441,14 +440,14 @@ export const AuctionList = () => {
                   </span>
                 )}
                 {statusFilter === "ended" && (
-                  <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium flex items-center gap-2">
+                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium flex items-center gap-2">
                     Đã kết thúc
                     <button
                       onClick={() => {
                         setStatusFilter("all");
                         if (categoryFilter === "all" && sortBy === "none") setActiveTab("all");
                       }}
-                      className="hover:bg-gray-200 rounded-full p-0.5"
+                      className="hover:bg-red-200 rounded-full p-0.5"
                     >
                       ✕
                     </button>
@@ -468,7 +467,7 @@ export const AuctionList = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredAuctions.map((auction, index) => (
               <div key={auction._id} data-aos="fade-up" data-aos-delay={index * 50}>
                 <AuctionCard

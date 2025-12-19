@@ -44,6 +44,9 @@ export const ViewAuction = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [missingFields, setMissingFields] = useState({});
 
+  // Description modal state
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false);
+
   // Requires authentication (protected route)
   const { data, isLoading, error } = useQuery({
     queryKey: ["viewAuctions", id],
@@ -430,7 +433,7 @@ export const ViewAuction = () => {
 
     // Đã kết thúc nhưng chưa hoàn tất thanh toán
     if (auctionStatus === 'ended' || !isActive) {
-      return { label: 'Đã kết thúc, chờ thanh toán', className: 'bg-yellow-100 text-yellow-800' };
+      return { label: 'Đã kết thúc, chờ thanh toán', className: 'bg-red-100 text-red-800' };
     }
 
     // Mặc định: đang diễn ra (fallback)
@@ -709,13 +712,14 @@ export const ViewAuction = () => {
               <img
                 src={data.itemPhoto || "https://picsum.photos/601"}
                 alt={data.itemName}
-                className={`h-full w-full object-cover transition-all duration-300 ${!isActive ? 'opacity-60 grayscale' : ''
+                className={`w-full h-full max-w-full max-h-full object-contain transition-all duration-300 ${
+                  !isActive ? 'opacity-60 grayscale' : ''
                   }`}
               />
               {/* Overlay for ended auctions */}
               {!isActive && (
                 <div className="absolute inset-0 bg-gray-900/20 flex items-center justify-center">
-                  <span className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-bold text-lg shadow-lg">
+                  <span className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-lg shadow-lg">
                     ĐÃ KẾT THÚC
                   </span>
                 </div>
@@ -772,9 +776,26 @@ export const ViewAuction = () => {
                   </span>
                 </div>
               </div>
-              <p className="text-gray-600 leading-relaxed">
-                {data.itemDescription}
-              </p>
+              {/* Description with limited lines and "View Details" button */}
+              <div className="mb-3">
+                <div className="relative">
+                  <p className="text-gray-600 leading-relaxed line-clamp-3">
+                    {data.itemDescription}
+                  </p>
+                  {/* Check if description is longer than 3 lines by comparing scrollHeight */}
+                  {data.itemDescription && (
+                    <button
+                      onClick={() => setShowDescriptionModal(true)}
+                      className="mt-2 text-red-600 hover:text-red-700 font-semibold text-sm transition-colors flex items-center gap-1"
+                    >
+                      Xem chi tiết
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Grid Layout for Cards */}
@@ -825,58 +846,58 @@ export const ViewAuction = () => {
 
                 {/* Time Left - Full width bar with countdown */}
                 <div className={`mt-2 p-2 rounded-lg border ${isActive
-                  ? 'bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-300'
+                  ? 'bg-gradient-to-br from-red-50 to-red-100 border-re-300'
                   : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-300'
                   }`}>
-                  <p className={`text-[9px] font-medium mb-1 ${isActive ? 'text-emerald-700' : 'text-gray-600'
+                  <p className={`text-[9px] font-medium mb-1 ${isActive ? 'text-red-700' : 'text-gray-600'
                     }`}>
                     Time Remaining
                   </p>
                   {timeRemaining ? (
                     timeRemaining.ended ? (
-                      <p className="text-base font-bold text-gray-500">Ended</p>
+                      <p className="text-base font-bold text-red-600">Ended</p>
                     ) : (
                       <div className="flex items-center gap-1.5">
                         {timeRemaining.days > 0 && (
-                          <div className="flex flex-col items-center bg-emerald-100 px-1.5 py-0.5 rounded">
-                            <span className="text-lg font-bold text-emerald-800">{timeRemaining.days}</span>
-                            <span className="text-[7px] text-emerald-600">days</span>
+                          <div className="flex flex-col items-center bg-red-100 px-1.5 py-0.5 rounded">
+                            <span className="text-lg font-bold text-red-800">{timeRemaining.days}</span>
+                            <span className="text-[7px] text-red-600">days</span>
                           </div>
                         )}
-                        <div className="flex flex-col items-center bg-emerald-100 px-1.5 py-0.5 rounded">
-                          <span className="text-lg font-bold text-emerald-800">{String(timeRemaining.hours).padStart(2, '0')}</span>
-                          <span className="text-[7px] text-emerald-600">hrs</span>
+                        <div className="flex flex-col items-center bg-red-100 px-1.5 py-0.5 rounded">
+                          <span className="text-lg font-bold text-red-800">{String(timeRemaining.hours).padStart(2, '0')}</span>
+                          <span className="text-[7px] text-red-600">hrs</span>
                         </div>
-                        <span className="text-emerald-800 font-bold text-sm">:</span>
-                        <div className="flex flex-col items-center bg-emerald-100 px-1.5 py-0.5 rounded">
-                          <span className="text-lg font-bold text-emerald-800">{String(timeRemaining.minutes).padStart(2, '0')}</span>
-                          <span className="text-[7px] text-emerald-600">min</span>
+                        <span className="text-red-800 font-bold text-sm">:</span>
+                        <div className="flex flex-col items-center bg-red-100 px-1.5 py-0.5 rounded">
+                          <span className="text-lg font-bold text-red-800">{String(timeRemaining.minutes).padStart(2, '0')}</span>
+                          <span className="text-[7px] text-red-600">min</span>
                         </div>
-                        <span className="text-emerald-800 font-bold text-sm">:</span>
-                        <div className="flex flex-col items-center bg-emerald-100 px-1.5 py-0.5 rounded">
-                          <span className="text-lg font-bold text-emerald-800">{String(timeRemaining.seconds).padStart(2, '0')}</span>
-                          <span className="text-[7px] text-emerald-600">sec</span>
+                        <span className="text-red-800 font-bold text-sm">:</span>
+                        <div className="flex flex-col items-center bg-red-100 px-1.5 py-0.5 rounded">
+                          <span className="text-lg font-bold text-red-800">{String(timeRemaining.seconds).padStart(2, '0')}</span>
+                          <span className="text-[7px] text-red-600">sec</span>
                         </div>
                       </div>
                     )
                   ) : (
-                    <p className="text-base font-bold text-emerald-800">Loading...</p>
+                    <p className="text-base font-bold text-red-800">Loading...</p>
                   )}
                 </div>
               </div>
 
               {/* Warning if auction ended */}
               {!isActive && (
-                <div className="bg-emerald-50 border-2 border-emerald-200 p-6 rounded-md shadow-md md:col-span-2">
+                <div className="bg-red-50 border-2 border-red-200 p-6 rounded-md shadow-md md:col-span-2">
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
-                      <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-emerald-800 mb-2">Đấu giá đã kết thúc</h3>
-                      <p className="text-emerald-700 text-sm">
+                      <h3 className="text-lg font-semibold text-red-800 mb-2">Đấu giá đã kết thúc</h3>
+                      <p className="text-red-700 text-sm">
                         Phiên đấu giá này đã kết thúc. Không thể đặt giá thêm.
                       </p>
                     </div>
@@ -1074,7 +1095,7 @@ export const ViewAuction = () => {
                             </div>
                             <button
                               type="submit"
-                              className="w-full bg-emerald-600 text-white py-2.5 px-4 rounded-md hover:bg-emerald-700 transition-colors font-semibold shadow-md text-sm"
+                              className="w-full bg-red-600 text-white py-2.5 px-4 rounded-md hover:bg-red-700 transition-colors font-semibold shadow-md text-sm"
                             >
                               Đặt giá
                             </button>
@@ -1084,10 +1105,10 @@ export const ViewAuction = () => {
                         <div className="text-center py-3">
                           {/* Cảnh báo cần xác minh tài khoản */}
                           {!isVerified && (
-                            <div className="mb-3 p-3 bg-emerald-50 border-2 border-emerald-200 rounded-lg text-left">
+                            <div className="mb-3 p-3 bg-red-50 border-2 border-red-200 rounded-lg text-left">
                               <div>
-                                <h4 className="font-semibold text-sm text-emerald-800 mb-1"> Tài khoản chưa xác minh</h4>
-                                <p className="text-xs text-emerald-700">
+                                <h4 className="font-semibold text-sm text-red-800 mb-1"> Tài khoản chưa xác minh</h4>
+                                <p className="text-xs text-red-700">
                                   Bạn cần xác minh tài khoản (số điện thoại, email, CCCD) trước khi đặt cọc và tham gia đấu giá.
                                 </p>
                               </div>
@@ -1098,7 +1119,7 @@ export const ViewAuction = () => {
                           </p>
                           <button
                             onClick={handleDepositClick}
-                            className="bg-gradient-to-r from-emerald-500 to-orange-500 hover:from-emerald-600 hover:to-orange-600 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
                           >
                             {isVerified ? 'Đặt cọc ngay' : 'Xác minh & Đặt cọc'}
                           </button>
@@ -1132,7 +1153,7 @@ export const ViewAuction = () => {
                   <button
                     onClick={handleDelete}
                     disabled={deleteAuctionMutate.isPending}
-                    className="w-full bg-emerald-600 text-white py-3 px-4 rounded-md hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {deleteAuctionMutate.isPending ? "Deleting..." : "Delete Auction"}
                   </button>
@@ -1214,13 +1235,13 @@ export const ViewAuction = () => {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
                 >
                   Delete
                 </button>
@@ -1236,7 +1257,7 @@ export const ViewAuction = () => {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
               {/* Header */}
-              <div className="bg-gradient-to-r from-emerald-500 to-orange-500 p-6 text-white">
+              <div className="bg-emerald-500 p-6 text-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <h3 className="text-xl font-bold"> Đặt cọc tham gia đấu giá</h3>
@@ -1308,7 +1329,7 @@ export const ViewAuction = () => {
                 <button
                   onClick={handleDepositSubmit}
                   disabled={isSubmittingDeposit}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-orange-500 hover:from-emerald-600 hover:to-orange-600 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmittingDeposit ? (
                     <>
@@ -1354,6 +1375,44 @@ export const ViewAuction = () => {
         onClose={() => setShowProfileModal(false)}
         missingFields={missingFields}
       />
+
+      {/* Description Detail Modal */}
+      {showDescriptionModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowDescriptionModal(false)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-red-50 to-red-100">
+              <h2 className="text-2xl font-bold text-gray-900">Chi tiết sản phẩm</h2>
+              <button
+                onClick={() => setShowDescriptionModal(false)}
+                className="p-2 hover:bg-red-200 rounded-full transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-700" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{data?.itemName}</h3>
+                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                  {data?.itemDescription}
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50 flex justify-end">
+              <button
+                onClick={() => setShowDescriptionModal(false)}
+                className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div >
   );
 };

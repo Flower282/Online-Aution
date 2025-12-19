@@ -237,7 +237,6 @@ export const submitIdentityCard = async (req, res) => {
             placeOfOrigin,
             placeOfResidence,
             issueDate,
-            expiryDate,
         } = req.body;
 
         if (!number || !fullName || !dateOfBirth) {
@@ -248,6 +247,21 @@ export const submitIdentityCard = async (req, res) => {
 
         if (!/^\d{12}$/.test(number)) {
             return res.status(400).json({ error: "Số CCCD phải gồm 12 chữ số" });
+        }
+
+        // Kiểm tra tuổi >= 18
+        const birthDate = new Date(dateOfBirth);
+        const today = new Date();
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+
+        const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+
+        if (actualAge < 18) {
+            return res.status(400).json({
+                error: "Bạn phải đủ 18 tuổi trở lên mới có thể xác minh căn cước công dân",
+            });
         }
 
         const cccdHash = hashCCCD(number);
@@ -314,7 +328,7 @@ export const submitIdentityCard = async (req, res) => {
             placeOfOrigin: placeOfOrigin || null,
             placeOfResidence: placeOfResidence || null,
             issueDate: issueDate ? new Date(issueDate) : null,
-            expiryDate: expiryDate ? new Date(expiryDate) : null,
+            expiryDate: null, // Không lưu ngày hết hạn
             frontImage: frontImageUrl,
             backImage: backImageUrl,
             selfieImage: selfieImageUrl,

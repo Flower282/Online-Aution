@@ -101,7 +101,7 @@ const Login = () => {
             {/* Right Side - Login Form */}
             <div className="bg-white p-10 border-l-2 border-emerald-200 min-h-[550px]" data-aos="zoom-in">
               <div className="text-center mb-8" data-aos="fade-down" data-aos-delay="100">
-                <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 mb-2"> Welcome Back!</h1>
+                <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-600 mb-2"> Welcome Back!</h1>
                 <p className="text-gray-700">Sign in to your Christmas account </p>
               </div>
 
@@ -153,7 +153,7 @@ const Login = () => {
                 </div>
 
                 {isError && (
-                  <div className={`border-2 px-4 mb-5 py-3 rounded-lg font-medium ${requestSuccess ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>
+                  <div className={`border-2 px-4 mb-5 py-3 rounded-lg font-medium ${requestSuccess ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
                     {isError}
                   </div>
                 )}
@@ -164,7 +164,7 @@ const Login = () => {
                     type="button"
                     onClick={handleRequestReactivation}
                     disabled={requestLoading}
-                    className="w-full mb-4 bg-gradient-to-r from-emerald-500 to-orange-500 text-white py-3 px-4 rounded-lg hover:from-emerald-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                    className="w-full mb-4 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 px-4 rounded-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                   >
                     {requestLoading ? "Đang gửi yêu cầu..." : "Gửi yêu cầu mở khóa tài khoản"}
                   </button>
@@ -179,7 +179,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-600 text-white py-3 px-4 rounded-lg hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
                   {loading ? " Logging in..." : "Sign In"}
                 </button>
@@ -188,7 +188,7 @@ const Login = () => {
               <div className="mt-5 text-center text-sm">
                 <Link
                   to="/forgot-password"
-                  className="text-emerald-600 hover:text-emerald-700 font-medium hover:underline"
+                  className="text-red-600 hover:text-red-700 font-medium hover:underline"
                 >
                   Forgot your password?
                 </Link>
@@ -198,7 +198,7 @@ const Login = () => {
                 Don't have an account?{" "}
                 <Link
                   to="/signup"
-                  className="text-emerald-600 font-bold hover:text-emerald-700 hover:underline"
+                  className="text-red-600 font-bold hover:text-red-700 hover:underline"
                 >
                   Sign up now
                 </Link>

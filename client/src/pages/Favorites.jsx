@@ -92,12 +92,21 @@ export default function Favorites() {
     // Handle empty or undefined data
     const auctions = data?.auctions || [];
 
+    // Sort: active auctions first, then ended auctions
+    const sortedAuctions = [...auctions].sort((a, b) => {
+        const aEnded = a.isEnded || (a.timeLeft !== undefined && a.timeLeft <= 0);
+        const bEnded = b.isEnded || (b.timeLeft !== undefined && b.timeLeft <= 0);
+        if (aEnded && !bEnded) return 1; // a ended, b active -> b first
+        if (!aEnded && bEnded) return -1; // a active, b ended -> a first
+        return 0; // Keep original order for same status
+    });
+
     return (
         <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
             <main className="max-w-5xl mx-auto px-8 py-8">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                    <h1 className="text-3xl font-bold text-red-600 mb-2">
                         Đấu Giá Yêu Thích
                     </h1>
                     <p className="text-gray-600">
@@ -129,8 +138,8 @@ export default function Favorites() {
                         </a>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {auctions.map((auction) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {sortedAuctions.map((auction) => (
                             <div key={auction._id}>
                                 <AuctionCard
                                     auction={auction}

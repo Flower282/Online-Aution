@@ -45,7 +45,7 @@ export const Contact = () => {
   return (
     <main className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-center mb-3" data-aos="fade-down">🎅 Contact Us</h1>
+        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-center mb-3" data-aos="fade-down">🎅 Contact Us</h1>
         <p className="text-center text-gray-700 mb-8 text-base" data-aos="fade-up" data-aos-delay="100">We'd love to hear from you! ❤️</p>
 
         <div className="bg-white rounded-2xl shadow-lg border-2 border-emerald-200 p-8" data-aos="zoom-in" data-aos-delay="200">
