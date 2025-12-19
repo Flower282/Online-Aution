@@ -363,17 +363,17 @@ export const ViewAuction = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-200 max-w-md">
-          <h2 className="text-2xl font-bold text-emerald-700 mb-4">Error Loading Auction</h2>
-          <p className="text-gray-700 mb-6">{error.message || "Failed to load auction details"}</p>
+          <h2 className="text-2xl font-bold text-emerald-700 mb-4">Lỗi tải đấu giá</h2>
+          <p className="text-gray-700 mb-6">{error.message || "Không thể tải chi tiết đấu giá"}</p>
           <div className="flex gap-3 justify-center">
             <Link to="/auction" className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold">
-              Back to Auctions
+              Quay lại đấu giá
             </Link>
             <button
               onClick={() => window.location.reload()}
               className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold"
             >
-              Retry
+              Thử lại
             </button>
           </div>
         </div>
@@ -386,10 +386,10 @@ export const ViewAuction = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f5f1e8' }}>
         <div className="text-center p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-200 max-w-md">
-          <h2 className="text-2xl font-bold text-emerald-700 mb-4">Auction Not Found</h2>
-          <p className="text-gray-700 mb-6">This auction may have been removed or doesn't exist.</p>
+          <h2 className="text-2xl font-bold text-emerald-700 mb-4">Không tìm thấy đấu giá</h2>
+          <p className="text-gray-700 mb-6">Đấu giá này có thể đã bị xóa hoặc không tồn tại.</p>
           <Link to="/auction" className="inline-block bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold">
-            Back to Auctions
+            Quay lại đấu giá
           </Link>
         </div>
       </div>
@@ -805,7 +805,7 @@ export const ViewAuction = () => {
                   {/* Starting Price */}
                   <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-2 rounded-lg border border-emerald-200">
                     <p className="text-[9px] text-emerald-700 font-medium mb-0.5">
-                      Starting
+                      Giá khởi điểm
                     </p>
                     <p className="text-base font-bold text-emerald-800">
                       {formatCurrency(data?.startingPrice ?? 0)}
@@ -816,7 +816,7 @@ export const ViewAuction = () => {
                   {user?.user && (
                     <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-2 rounded-lg border-2 border-emerald-300">
                       <p className="text-[9px] text-emerald-700 font-medium mb-0.5">
-                        Current
+                        Giá hiện tại
                       </p>
                       <p className="text-lg font-bold text-emerald-800">
                         {formatCurrency(currentPrice ?? data.currentPrice)}
@@ -827,7 +827,7 @@ export const ViewAuction = () => {
                   {/* Total Bids */}
                   <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-2 rounded-lg border border-emerald-200">
                     <p className="text-[9px] text-emerald-700 font-medium mb-0.5">
-                      Bids
+                      Lượt đấu giá
                     </p>
                     <p className="text-base font-bold text-emerald-800">
                       {data.bids.length}
@@ -837,7 +837,7 @@ export const ViewAuction = () => {
                   {/* Likes */}
                   <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-2 rounded-lg border border-rose-200">
                     <p className="text-[9px] text-rose-700 font-medium mb-0.5">
-                      Likes
+                      Yêu thích
                     </p>
                     <p className="text-base font-bold text-rose-800">
                       {likesCount}
@@ -852,37 +852,37 @@ export const ViewAuction = () => {
                   }`}>
                   <p className={`text-[9px] font-medium mb-1 ${isActive ? 'text-red-700' : 'text-gray-600'
                     }`}>
-                    Time Remaining
+                    Thời gian còn lại
                   </p>
                   {timeRemaining ? (
                     timeRemaining.ended ? (
-                      <p className="text-base font-bold text-red-600">Ended</p>
+                      <p className="text-base font-bold text-red-600">Đã kết thúc</p>
                     ) : (
                       <div className="flex items-center gap-1.5">
                         {timeRemaining.days > 0 && (
                           <div className="flex flex-col items-center bg-red-100 px-1.5 py-0.5 rounded">
                             <span className="text-lg font-bold text-red-800">{timeRemaining.days}</span>
-                            <span className="text-[7px] text-red-600">days</span>
+                            <span className="text-[7px] text-red-600">ngày</span>
                           </div>
                         )}
                         <div className="flex flex-col items-center bg-red-100 px-1.5 py-0.5 rounded">
                           <span className="text-lg font-bold text-red-800">{String(timeRemaining.hours).padStart(2, '0')}</span>
-                          <span className="text-[7px] text-red-600">hrs</span>
+                          <span className="text-[7px] text-red-600">giờ</span>
                         </div>
                         <span className="text-red-800 font-bold text-sm">:</span>
                         <div className="flex flex-col items-center bg-red-100 px-1.5 py-0.5 rounded">
                           <span className="text-lg font-bold text-red-800">{String(timeRemaining.minutes).padStart(2, '0')}</span>
-                          <span className="text-[7px] text-red-600">min</span>
+                          <span className="text-[7px] text-red-600">phút</span>
                         </div>
                         <span className="text-red-800 font-bold text-sm">:</span>
                         <div className="flex flex-col items-center bg-red-100 px-1.5 py-0.5 rounded">
                           <span className="text-lg font-bold text-red-800">{String(timeRemaining.seconds).padStart(2, '0')}</span>
-                          <span className="text-[7px] text-red-600">sec</span>
+                          <span className="text-[7px] text-red-600">giây</span>
                         </div>
                       </div>
                     )
                   ) : (
-                    <p className="text-base font-bold text-red-800">Loading...</p>
+                    <p className="text-base font-bold text-red-800">Đang tải...</p>
                   )}
                 </div>
               </div>
@@ -996,7 +996,7 @@ export const ViewAuction = () => {
                           <div className="flex items-center gap-2">
                             <div className="flex-1">
                               <h4 className={`font-semibold text-sm ${depositStatus.hasDeposit ? 'text-emerald-800' : 'text-emerald-800'}`}>
-                                {depositStatus.hasDeposit ? '✓ Đã đặt cọc' : 'Cần đặt cọc trước khi đấu giá'}
+                                {depositStatus.hasDeposit ? ' Đã đặt cọc' : 'Cần đặt cọc trước khi đấu giá'}
                               </h4>
 
                             </div>
@@ -1013,7 +1013,7 @@ export const ViewAuction = () => {
                       {/* Show bid form only if deposited */}
                       {depositStatus?.hasDeposit ? (
                         <>
-                          <h3 className="text-base font-semibold mb-3">Place Your Bid</h3>
+                          <h3 className="text-base font-semibold mb-3">Đặt giá của bạn</h3>
                           <form onSubmit={handleBidSubmit} className="space-y-3">
                             {/* Bid Range Info */}
                             <div className="bg-gradient-to-r from-green-50 to-lime-50 border border-green-200 rounded-lg p-3">
@@ -1120,7 +1120,7 @@ export const ViewAuction = () => {
                           </p>
                           <button
                             onClick={handleDepositClick}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
+                            className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
                           >
                             {isVerified ? 'Đặt cọc ngay' : 'Xác minh & Đặt cọc'}
                           </button>
@@ -1150,17 +1150,14 @@ export const ViewAuction = () => {
               {/* Admin Delete Button */}
               {user?.user?.role === "admin" && (
                 <div className="bg-white p-6 rounded-md shadow-md border border-emerald-200 md:col-span-2">
-                  <h3 className="text-lg font-semibold mb-3 text-emerald-600">Admin Actions</h3>
                   <button
                     onClick={handleDelete}
                     disabled={deleteAuctionMutate.isPending}
                     className="w-full bg-red-600 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {deleteAuctionMutate.isPending ? "Deleting..." : "Delete Auction"}
+                    {deleteAuctionMutate.isPending ? "Đang xóa..." : "Xóa sản phẩm"}
                   </button>
-                  <p className="text-sm text-gray-500 mt-2">
-                    This action cannot be undone. All bids will be permanently deleted.
-                  </p>
+
                 </div>
               )}
             </div>
@@ -1169,7 +1166,7 @@ export const ViewAuction = () => {
 
         {/* Bid History */}
         <div className="mt-12">
-          <h2 className="text-2xl font-bold text-emerald-700 mb-6">Bid History</h2>
+          <h2 className="text-2xl font-bold text-emerald-700 mb-6">Lịch sử đấu giá</h2>
           <div className="relative">
             {/* Blur overlay khi chưa đặt cọc - chỉ hiện khi không phải chủ sở hữu và auction đang active và approved và không phải admin */}
             {data.seller._id !== user?.user?._id && isActive && isApproved && !depositStatus?.hasDeposit && !isAdmin && (
@@ -1192,7 +1189,7 @@ export const ViewAuction = () => {
               }`}>
               {topTenBids.length === 0 ? (
                 <div className="p-8 text-center text-emerald-700">
-                  No bids yet. Be the first to bid!
+                  Chưa có lượt đấu giá nào. Hãy là người đầu tiên đấu giá!
                 </div>
               ) : (
                 <div className="divide-y divide-emerald-50">
@@ -1206,7 +1203,7 @@ export const ViewAuction = () => {
                           {bid.bidder?.name}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {new Date(bid.bidTime).toLocaleDateString()} at{" "}
+                          {new Date(bid.bidTime).toLocaleDateString()} lúc{" "}
                           {new Date(bid.bidTime).toLocaleTimeString()}
                         </p>
                       </div>
@@ -1229,22 +1226,22 @@ export const ViewAuction = () => {
         showDeleteConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Xác nhận xóa</h3>
               <p className="text-gray-600 mb-6">
-                Are you sure you want to delete this auction? This action cannot be undone and all bids will be permanently deleted.
+                Bạn có chắc chắn muốn xóa sản phẩm này không? Hành động này không thể hoàn tác và tất cả các lượt đấu giá sẽ bị xóa vĩnh viễn.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
                   className="flex-1 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors font-medium"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={confirmDelete}
                   className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
                 >
-                  Delete
+                  Xóa
                 </button>
               </div>
             </div>

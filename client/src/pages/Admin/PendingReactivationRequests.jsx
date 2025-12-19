@@ -24,7 +24,7 @@ const PendingReactivationRequests = () => {
             setRequests(data.requests || []);
         } catch (error) {
             console.error('Error fetching pending requests:', error);
-            setError(error.message || 'Failed to load pending requests');
+            setError(error.message || 'Không thể tải danh sách yêu cầu. Vui lòng thử lại.');
         } finally {
             setLoading(false);
         }

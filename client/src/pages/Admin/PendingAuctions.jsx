@@ -29,11 +29,11 @@ const PendingAuctions = () => {
             queryClient.invalidateQueries({ queryKey: ["pendingAuctionsCount"] });
             queryClient.invalidateQueries({ queryKey: ["adminDashboard"] });
             queryClient.invalidateQueries({ queryKey: ["allAuction"] });
-            queryClient.invalidateQueries({ queryKey: ["adminAllAuctions"] }); // ✅ Added for admin test page
+            queryClient.invalidateQueries({ queryKey: ["adminAllAuctions"] }); //  Added for admin test page
 
             const message = data?.data?.durationHours
-                ? `Auction approved! Countdown timer started (${data.data.durationHours}h) ⏰✅`
-                : "Auction approved successfully! Countdown timer has started! ⏰✅";
+            "Đã phê duyệt sản phẩm đấu giá thành công! "
+                ;
 
             setShowApproveModal(false);
             setAuctionToApprove(null);
@@ -41,7 +41,7 @@ const PendingAuctions = () => {
             setTimeout(() => setToast(null), 4000);
         },
         onError: (error) => {
-            setToast({ message: error.message || "Failed to approve auction", type: "error" });
+            setToast({ message: error.message || "Không thể phê duyệt đấu giá. Vui lòng thử lại.", type: "error" });
             setTimeout(() => setToast(null), 3000);
         },
     });
@@ -52,15 +52,15 @@ const PendingAuctions = () => {
             queryClient.invalidateQueries({ queryKey: ["pendingAuctions"] });
             queryClient.invalidateQueries({ queryKey: ["pendingAuctionsCount"] });
             queryClient.invalidateQueries({ queryKey: ["adminDashboard"] });
-            queryClient.invalidateQueries({ queryKey: ["adminAllAuctions"] }); // ✅ Added for admin test page
+            queryClient.invalidateQueries({ queryKey: ["adminAllAuctions"] }); //  Added for admin test page
             setShowRejectModal(false);
             setSelectedAuction(null);
             setRejectionReason("");
-            setToast({ message: "Auction rejected successfully! ❌", type: "success" });
+            setToast({ message: "Đã từ chối đấu giá thành công! ", type: "success" });
             setTimeout(() => setToast(null), 3000);
         },
         onError: (error) => {
-            setToast({ message: error.message || "Failed to reject auction", type: "error" });
+            setToast({ message: error.message || "Không thể từ chối đấu giá. Vui lòng thử lại.", type: "error" });
             setTimeout(() => setToast(null), 3000);
         },
     });
@@ -83,7 +83,7 @@ const PendingAuctions = () => {
 
     const handleRejectConfirm = () => {
         if (!rejectionReason.trim()) {
-            setToast({ message: "Please provide a rejection reason", type: "error" });
+            setToast({ message: "Vui lòng nhập lý do từ chối", type: "error" });
             setTimeout(() => setToast(null), 3000);
             return;
         }
@@ -188,23 +188,11 @@ const PendingAuctions = () => {
                             >
                                 <div className="p-6">
                                     <div className="flex items-start gap-4">
-                                        {/* Icon */}
-                                        <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${toast.type === "success"
-                                            ? "bg-emerald-100"
-                                            : "bg-emerald-100"
-                                            }`}>
-                                            {toast.type === "success" ? (
-                                                <CheckCircle className="w-7 h-7 text-emerald-600" />
-                                            ) : (
-                                                <XCircle className="w-7 h-7 text-emerald-600" />
-                                            )}
-                                        </div>
-
                                         {/* Message */}
                                         <div className="flex-1 pt-1">
                                             <h3 className={`text-lg font-bold mb-1 ${toast.type === "success" ? "text-emerald-800" : "text-emerald-800"
                                                 }`}>
-                                                {toast.type === "success" ? "✨ Success!" : "⚠️ Error"}
+                                                {toast.type === "success" ? "Thành công!" : "Lỗi"}
                                             </h3>
                                             <p className="text-gray-700 text-sm leading-relaxed">
                                                 {toast.message}
