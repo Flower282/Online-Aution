@@ -24,7 +24,9 @@ export const UsersList = () => {
   // Filter states
   const [accountStatusFilter, setAccountStatusFilter] = useState('all'); // all, active, inactive
   const [verificationFilter, setVerificationFilter] = useState('all'); // all, verified, not_verified
-  const [dateFilter, setDateFilter] = useState('all'); // all, today, week, month, custom
+  const [dateFilter, setDateFilter] = useState('all'); // all, today, week, month
+  const [showStatusMenu, setShowStatusMenu] = useState(false); // dropdown for account status
+  const [showVerificationMenu, setShowVerificationMenu] = useState(false); // dropdown for verification
 
   // Debounce search term - chỉ search sau 400ms ngừng gõ
   useEffect(() => {
@@ -43,7 +45,8 @@ export const UsersList = () => {
       setUsers(response.data.users || []);
       setPagination(response.data.pagination);
     } catch (error) {
-      setError('Failed to load users');
+      console.error('Error fetching users:', error);
+      setError('Không thể tải danh sách người dùng');
       setUsers([]);
     } finally {
       setInitialLoading(false);
@@ -198,114 +201,211 @@ export const UsersList = () => {
   if (initialLoading) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent max-w-7xl mx-auto">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-red-600 mb-2">All Users</h1>
-            <p className="text-gray-600">Manage and monitor all registered users</p>
+            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-600 mb-2">Tất Cả Người Dùng</h1>
+            <p className="text-gray-600">Quản lý và theo dõi tất cả người dùng đã đăng ký</p>
           </div>
         </div>
 
-        {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Search */}
-            <div className="lg:col-span-2">
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
-                Search Users
-              </label>
-              <input
-                type="text"
-                id="search"
-                placeholder="Search by name or email..."
-                value={searchTerm}
-                onChange={handleSearch}
-                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
-                autoComplete="off"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Account Status Filter */}
-            <div>
-              <label htmlFor="accountStatus" className="block text-sm font-medium text-gray-700 mb-2">
-                Account Status
-              </label>
-              <select
-                id="accountStatus"
-                value={accountStatusFilter}
-                onChange={(e) => setAccountStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-
-            {/* Verification Filter */}
-            <div>
-              <label htmlFor="verification" className="block text-sm font-medium text-gray-700 mb-2">
-                Verification
-              </label>
-              <select
-                id="verification"
-                value={verificationFilter}
-                onChange={(e) => setVerificationFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Users</option>
-                <option value="verified">Verified</option>
-                <option value="not_verified">Not Verified</option>
-              </select>
-            </div>
+        {/* Search and Filters - giao diện giống thanh lọc AuctionList */}
+        <div className="bg-white rounded-2xl p-6 mb-6 border-2 border-emerald-200 shadow-lg">
+          {/* Search Users */}
+          <div className="mb-4">
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+              Tìm kiếm người dùng
+            </label>
+            <input
+              type="text"
+              id="search"
+              placeholder="Tìm kiếm theo tên hoặc email..."
+              value={searchTerm}
+              onChange={handleSearch}
+              onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+              autoComplete="off"
+              className="w-full px-4 py-2.5 border-2 border-red-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 transition-all text-sm"
+            />
           </div>
 
-          {/* Date Range Filter */}
-          <div className="mt-4 flex items-center gap-3">
-            <label className="text-sm font-medium text-gray-700">Created Date:</label>
-            <div className="flex gap-2">
+          {/* Filter tabs style giống AuctionList */}
+          <div className="border-t border-emerald-100 pt-4 mt-2">
+            <h3 className="text-sm font-bold text-emerald-700 mb-3 flex items-center gap-2">
+              Lọc và sắp xếp người dùng
+            </h3>
+
+            <div className="flex flex-wrap gap-3 relative">
+              {/* Tất cả */}
               <button
-                onClick={() => setDateFilter('all')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                onClick={() => {
+                  setAccountStatusFilter('all');
+                  setVerificationFilter('all');
+                  setDateFilter('all');
+                }}
+                className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${accountStatusFilter === 'all' && verificationFilter === 'all' && dateFilter === 'all'
+                  ? 'bg-emerald-600 text-white shadow-lg scale-105'
+                  : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                   }`}
               >
-                All Time
+                Tất cả
               </button>
-              <button
-                onClick={() => setDateFilter('today')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'today'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                Today
-              </button>
-              <button
-                onClick={() => setDateFilter('week')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'week'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                Last 7 Days
-              </button>
-              <button
-                onClick={() => setDateFilter('month')}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${dateFilter === 'month'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-              >
-                Last 30 Days
-              </button>
-            </div>
-            <div className="ml-auto text-sm text-gray-600">
-              Showing {filteredUsers.length} of {users.length} users
+
+              {/* Account Status Filter - dropdown box (All / Active / Inactive) */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowStatusMenu(!showStatusMenu)}
+                  className={`px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${accountStatusFilter !== 'all'
+                    ? 'bg-emerald-600 text-white shadow-lg'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    }`}
+                >
+                  Trạng thái tài khoản:{" "}
+                  {accountStatusFilter === 'all' ? 'Tất cả' : accountStatusFilter === 'active' ? 'Hoạt động' : 'Không hoạt động'}
+                  <svg className={`w-4 h-4 transition-transform ${showStatusMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {showStatusMenu && (
+                  <div className="absolute top-full left-0 mt-2 bg-white border-2 border-emerald-200 rounded-lg shadow-2xl z-[100] min-w-[220px]">
+                    <button
+                      onClick={() => {
+                        setAccountStatusFilter('all');
+                        setShowStatusMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${accountStatusFilter === 'all' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Tất cả
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAccountStatusFilter('active');
+                        setShowStatusMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${accountStatusFilter === 'active' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Hoạt động
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAccountStatusFilter('inactive');
+                        setShowStatusMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${accountStatusFilter === 'inactive' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Không hoạt động
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Verification Filter - dropdown box (All / Verified / Not Verified) */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowVerificationMenu(!showVerificationMenu);
+                    setShowStatusMenu(false);
+                  }}
+                  className={`px-5 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${verificationFilter !== 'all'
+                    ? 'bg-emerald-600 text-white shadow-lg'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                    }`}
+                >
+                  Xác minh:{" "}
+                  {verificationFilter === 'all'
+                    ? 'Tất cả'
+                    : verificationFilter === 'verified'
+                      ? 'Đã xác minh'
+                      : 'Chưa xác minh'}
+                  <svg className={`w-4 h-4 transition-transform ${showVerificationMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {showVerificationMenu && (
+                  <div className="absolute top-full left-0 mt-2 bg-white border-2 border-emerald-200 rounded-lg shadow-2xl z-[100] min-w-[220px]">
+                    <button
+                      onClick={() => {
+                        setVerificationFilter('all');
+                        setShowVerificationMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${verificationFilter === 'all' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Tất cả
+                    </button>
+                    <button
+                      onClick={() => {
+                        setVerificationFilter('verified');
+                        setShowVerificationMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${verificationFilter === 'verified' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Đã xác minh
+                    </button>
+                    <button
+                      onClick={() => {
+                        setVerificationFilter('not_verified');
+                        setShowVerificationMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 transition-colors ${verificationFilter === 'not_verified' ? 'bg-emerald-100 text-emerald-700 font-semibold' : 'text-gray-700'
+                        }`}
+                    >
+                      Chưa xác minh
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Date Range Filter */}
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
+                <span className="text-xs font-medium text-gray-600 mr-1">Ngày tạo:</span>
+                <button
+                  onClick={() => setDateFilter('all')}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${dateFilter === 'all'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Tất cả
+                </button>
+                <button
+                  onClick={() => setDateFilter('today')}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${dateFilter === 'today'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Hôm nay
+                </button>
+                <button
+                  onClick={() => setDateFilter('week')}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${dateFilter === 'week'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  7 ngày
+                </button>
+                <button
+                  onClick={() => setDateFilter('month')}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${dateFilter === 'month'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  30 ngày
+                </button>
+                <span className="text-xs text-gray-500 ml-2">
+                  Đang hiển thị {filteredUsers.length} / {users.length} người dùng
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -327,7 +427,7 @@ export const UsersList = () => {
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center space-x-1">
-                      <span>User</span>
+                      <span>Người Dùng</span>
                       {getSortIcon('name')}
                     </div>
                   </th>
@@ -336,7 +436,7 @@ export const UsersList = () => {
                     onClick={() => handleSort('role')}
                   >
                     <div className="flex items-center space-x-1">
-                      <span>Role</span>
+                      <span>Vai Trò</span>
                       {getSortIcon('role')}
                     </div>
                   </th>
@@ -345,7 +445,7 @@ export const UsersList = () => {
                     onClick={() => handleSort('createdAt')}
                   >
                     <div className="flex items-center space-x-1">
-                      <span>Date Created</span>
+                      <span>Ngày Tạo</span>
                       {getSortIcon('createdAt')}
                     </div>
                   </th>
@@ -354,21 +454,21 @@ export const UsersList = () => {
                     onClick={() => handleSort('lastLogin')}
                   >
                     <div className="flex items-center space-x-1">
-                      <span>Last Login</span>
+                      <span>Đăng Nhập Cuối</span>
                       {getSortIcon('lastLogin')}
                     </div>
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Location
+                    Vị Trí
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Xác minh
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    Trạng Thái
                   </th>
                   <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    Hành Động
                   </th>
                 </tr>
               </thead>
@@ -376,115 +476,121 @@ export const UsersList = () => {
                 {filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
-                      No users found matching your criteria.
+                      Không tìm thấy người dùng phù hợp với tiêu chí của bạn.
                     </td>
                   </tr>
                 ) : (
-                  filteredUsers.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2.5 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-8 w-8">
-                            {user.avatar ? (
-                              <img
-                                className="h-8 w-8 rounded-full object-cover"
-                                src={user.avatar}
-                                alt={user.name}
-                              />
+                  filteredUsers.map((user, index) => {
+                    // Tạo màu nền gradient 5 cấp độ nhạt hơn (mức ~150): xanh lá cây, xanh ngọc, xanh dương nhạt, lặp lại
+                    const bgColors = ['#e0fcec', '#dcfbee', '#dafdf6', '#e5fdf8', '#e0fcfe']; // emerald-150, emerald-150, teal-150, teal-150, cyan-150
+                    const bgColor = bgColors[index % 5];
+
+                    return (
+                      <tr key={user._id} style={{ backgroundColor: bgColor }} className="hover:bg-emerald-300 hover:shadow-md transition-all duration-200">
+                        <td className="px-4 py-2.5 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-8 w-8">
+                              {user.avatar ? (
+                                <img
+                                  className="h-8 w-8 rounded-full object-cover"
+                                  src={user.avatar}
+                                  alt={user.name}
+                                />
+                              ) : (
+                                <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                                  <span className="text-xs font-medium text-gray-700">
+                                    {user.name.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="ml-3">
+                              <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                              <div className="text-xs text-gray-500">{user.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border-2 ${user.role === 'admin'
+                            ? 'bg-purple-100 text-purple-800 border-purple-300'
+                            : 'bg-blue-100 text-blue-800 border-blue-300'
+                            }`}>
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap text-xs text-gray-500">
+                          {formatDate(user.createdAt)}
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap text-xs text-gray-500">
+                          {formatDate(user.lastLogin)}
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap text-xs text-gray-500">
+                          {formatLocation(user.location)}
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap">
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full border-2 ${user.verification?.isVerified
+                            ? 'bg-teal-100 text-teal-800 border-teal-300'
+                            : 'bg-gray-100 text-gray-600 border-gray-300'
+                            }`}>
+                            {user.verification?.isVerified ? (
+                              <>
+                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                                Đã xác minh
+                              </>
                             ) : (
-                              <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                                <span className="text-xs font-medium text-gray-700">
-                                  {user.name.charAt(0).toUpperCase()}
-                                </span>
-                              </div>
+                              'Chưa xác minh'
+                            )}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap">
+                          <div className="flex flex-col gap-1">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border-2 ${user.isActive === false
+                              ? 'bg-red-100 text-red-800 border-red-300'
+                              : 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                              }`}>
+                              {user.isActive === false ? 'Không Hoạt Động' : 'Hoạt Động'}
+                            </span>
+                            {user.reactivationRequest?.requested && (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 border-2 border-yellow-300 animate-pulse">
+                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                </svg>
+                                Yêu Cầu Chờ Duyệt
+                              </span>
                             )}
                           </div>
-                          <div className="ml-3">
-                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                            <div className="text-xs text-gray-500">{user.email}</div>
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex justify-end gap-2">
+                            {user.isActive === false ? (
+                              <button
+                                onClick={() => handleReactivateClick(user)}
+                                className="text-emerald-600 hover:text-emerald-900 transition-colors"
+                                title="Kích hoạt lại người dùng"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleDeleteClick(user)}
+                                disabled={user.role === 'admin'}
+                                className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                title={user.role === 'admin' ? 'Không thể vô hiệu hóa người dùng admin' : 'Vô hiệu hóa người dùng'}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                </svg>
+                              </button>
+                            )}
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-emerald-100 text-emerald-800'
-                          }`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 whitespace-nowrap text-xs text-gray-500">
-                        {formatDate(user.createdAt)}
-                      </td>
-                      <td className="px-4 py-2.5 whitespace-nowrap text-xs text-gray-500">
-                        {formatDate(user.lastLogin)}
-                      </td>
-                      <td className="px-4 py-2.5 whitespace-nowrap text-xs text-gray-500">
-                        {formatLocation(user.location)}
-                      </td>
-                      <td className="px-4 py-2.5 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${user.verification?.isVerified
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-gray-100 text-gray-600'
-                          }`}>
-                          {user.verification?.isVerified ? (
-                            <>
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                              Đã xác minh
-                            </>
-                          ) : (
-                            'Chưa xác minh'
-                          )}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5 whitespace-nowrap">
-                        <div className="flex flex-col gap-1">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${user.isActive === false
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-emerald-100 text-emerald-800'
-                            }`}>
-                            {user.isActive === false ? 'Inactive' : 'Active'}
-                          </span>
-                          {user.reactivationRequest?.requested && (
-                            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 animate-pulse">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                              </svg>
-                              Pending Request
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end gap-2">
-                          {user.isActive === false ? (
-                            <button
-                              onClick={() => handleReactivateClick(user)}
-                              className="text-emerald-600 hover:text-emerald-900 transition-colors"
-                              title="Reactivate user"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleDeleteClick(user)}
-                              disabled={user.role === 'admin'}
-                              className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                              title={user.role === 'admin' ? 'Cannot deactivate admin users' : 'Deactivate user'}
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Gift, Heart, Sparkles } from "lucide-react";
+import { Gift, Heart } from "lucide-react";
 
 export const Footer = () => {
   return (
@@ -21,7 +21,7 @@ export const Footer = () => {
             </h3>
             <p className="text-emerald-100 text-sm flex items-center justify-center md:justify-start gap-1">
               <Heart className="h-4 w-4 inline" />
-              Your trusted Christmas marketplace since 2025
+              Sàn đấu giá trực tuyến đáng tin cậy từ 2025
             </p>
           </div>
           <div className="flex space-x-8">
@@ -29,7 +29,7 @@ export const Footer = () => {
               to="/about"
               className="text-white hover:text-emerald-100 text-sm font-medium transition-all hover:scale-105 flex items-center gap-1"
             >
-              About
+              Về Chúng Tôi
             </Link>
             {/* Temporarily hidden Legal link */}
             {/* <Link
@@ -42,13 +42,13 @@ export const Footer = () => {
               to="/contact"
               className="text-white hover:text-emerald-100 text-sm font-medium transition-all hover:scale-105 flex items-center gap-1"
             >
-              Contact
+              Liên Hệ
             </Link>
           </div>
         </div>
         <div className="border-t border-emerald-400/30 mt-8 pt-6 text-center">
           <p className="text-emerald-50 text-sm flex items-center justify-center gap-2">
-            © 2025 Online Auction System. All rights reserved.
+            © 2025 Hệ Thống Đấu Giá Trực Tuyến. Bảo lưu mọi quyền.
           </p>
         </div>
       </div>

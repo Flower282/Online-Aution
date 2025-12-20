@@ -42,8 +42,8 @@ export default function PayAuction() {
             const newBalance = paymentInfo?.newBalance;
 
             const message = newBalance !== undefined
-                ? `Thanh toán thành công ${formatCurrency(amountPaid)}! Số dư mới: ${formatCurrency(newBalance)} 🎉`
-                : `Thanh toán thành công ${formatCurrency(amountPaid)}! 🎉`;
+                ? `Thanh toán thành công ${formatCurrency(amountPaid)}! Số dư mới: ${formatCurrency(newBalance)} `
+                : `Thanh toán thành công ${formatCurrency(amountPaid)}! `;
 
             setToast({ message, type: "success" });
             // Sau một lúc quay lại trang lịch sử thắng đấu giá
@@ -220,8 +220,8 @@ export default function PayAuction() {
                             </div>
                             {!hasSufficientBalance && (
                                 <div className="mt-3 p-3 rounded-lg bg-emerald-100 border border-emerald-300">
-                                    <p className="text-sm text-emerald-800 font-semibold mb-1">
-                                        ⚠️ Số dư không đủ!
+                                    <p className="text-sm text-red-800 font-semibold mb-1">
+                                        Số dư không đủ!
                                     </p>
                                     <p className="text-xs text-emerald-700 mb-2">
                                         Bạn cần {formatCurrency(amountToPay)} nhưng chỉ có {formatCurrency(currentBalance)}.

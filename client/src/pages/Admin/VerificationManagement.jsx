@@ -20,8 +20,10 @@ export default function VerificationManagement() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
+    const [showApproveModal, setShowApproveModal] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
     const [userToReject, setUserToReject] = useState(null);
+    const [userToApprove, setUserToApprove] = useState(null);
 
     // Query danh sách chờ xác minh
     const { data, isLoading, error, refetch } = useQuery({
@@ -39,6 +41,8 @@ export default function VerificationManagement() {
             queryClient.invalidateQueries(['pendingVerificationsCount']);
             setShowDetailModal(false);
             setSelectedUser(null);
+            setShowApproveModal(false);
+            setUserToApprove(null);
         },
         onError: (error) => {
             setToast({ message: error.message || 'Không thể phê duyệt. Vui lòng thử lại.', type: 'error' });
@@ -68,10 +72,22 @@ export default function VerificationManagement() {
         setShowDetailModal(true);
     };
 
-    const handleApprove = (userId) => {
-        if (confirm('Bạn có chắc chắn muốn PHÊ DUYỆT xác minh CCCD này?')) {
-            approveMutation.mutate(userId);
+    const handleApproveClick = (user) => {
+        setUserToApprove(user);
+        setShowApproveModal(true);
+    };
+
+    const handleApproveConfirm = () => {
+        if (userToApprove) {
+            approveMutation.mutate(userToApprove.id);
+            setShowApproveModal(false);
+            setUserToApprove(null);
         }
+    };
+
+    const handleApproveCancel = () => {
+        setShowApproveModal(false);
+        setUserToApprove(null);
     };
 
     const handleRejectClick = (user) => {
@@ -114,10 +130,9 @@ export default function VerificationManagement() {
                 {/* Header */}
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-2">
-                        <HiOutlineIdentification className="w-8 h-8 text-emerald-600" />
+
                         <h1 className="text-3xl font-bold text-red-600">Quản lý xác minh CCCD</h1>
                     </div>
-                    <p className="text-gray-600">Xem xét và phê duyệt yêu cầu xác minh căn cước công dân của người dùng</p>
                 </div>
 
                 {/* Stats Card */}
@@ -203,21 +218,21 @@ export default function VerificationManagement() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-900 font-medium">
-                                                    {user.identityCard?.fullName || 'N/A'}
+                                                    {user.identityCard?.fullName || 'Chưa có'}
                                                 </div>
                                                 <div className="text-sm text-gray-500">
-                                                    CCCD: {user.identityCard?.number || 'N/A'}
+                                                    CCCD: {user.identityCard?.number || 'Chưa có'}
                                                 </div>
                                                 <div className="text-xs text-gray-400">
                                                     Sinh: {user.identityCard?.dateOfBirth
                                                         ? new Date(user.identityCard.dateOfBirth).toLocaleDateString('vi-VN')
-                                                        : 'N/A'}
+                                                        : 'Chưa có'}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {user.identityCard?.submittedAt
                                                     ? new Date(user.identityCard.submittedAt).toLocaleString('vi-VN')
-                                                    : 'N/A'}
+                                                    : 'Chưa có'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-center">
                                                 <div className="flex items-center justify-center gap-2">
@@ -229,7 +244,7 @@ export default function VerificationManagement() {
                                                         <HiOutlineEye className="w-5 h-5" />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleApprove(user.id)}
+                                                        onClick={() => handleApproveClick(user)}
                                                         disabled={approveMutation.isPending}
                                                         className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors disabled:opacity-50"
                                                         title="Phê duyệt"
@@ -306,7 +321,7 @@ export default function VerificationManagement() {
                                                 <p className="font-medium text-gray-900">
                                                     {selectedUser.createdAt
                                                         ? new Date(selectedUser.createdAt).toLocaleDateString('vi-VN')
-                                                        : 'N/A'}
+                                                        : 'Chưa có'}
                                                 </p>
                                             </div>
                                         </div>
@@ -340,14 +355,14 @@ export default function VerificationManagement() {
                                                     <p className="font-medium text-gray-900">
                                                         {selectedUser.identityCard?.dateOfBirth
                                                             ? new Date(selectedUser.identityCard.dateOfBirth).toLocaleDateString('vi-VN')
-                                                            : 'N/A'}
+                                                            : 'Chưa có'}
                                                     </p>
                                                 </div>
                                                 <div>
                                                     <span className="text-xs text-gray-500">Giới tính</span>
                                                     <p className="font-medium text-gray-900">
                                                         {selectedUser.identityCard?.gender === 'male' ? 'Nam' :
-                                                            selectedUser.identityCard?.gender === 'female' ? 'Nữ' : 'N/A'}
+                                                            selectedUser.identityCard?.gender === 'female' ? 'Nữ' : 'Chưa có'}
                                                     </p>
                                                 </div>
                                             </div>
@@ -409,13 +424,86 @@ export default function VerificationManagement() {
                                     Từ chối
                                 </button>
                                 <button
-                                    onClick={() => handleApprove(selectedUser.id)}
+                                    onClick={() => {
+                                        setShowDetailModal(false);
+                                        handleApproveClick(selectedUser);
+                                    }}
                                     disabled={approveMutation.isPending}
                                     className="px-5 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center gap-2"
                                 >
                                     <HiOutlineCheck className="w-5 h-5" />
                                     {approveMutation.isPending ? 'Đang xử lý...' : 'Phê duyệt'}
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Approve Modal */}
+            {showApproveModal && userToApprove && (
+                <div className="fixed inset-0 z-50 overflow-y-auto">
+                    <div className="flex min-h-screen items-center justify-center p-4">
+                        <div
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+                            onClick={handleApproveCancel}
+                        />
+                        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                            <div className="p-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                                        <HiOutlineCheck className="w-6 h-6 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-900">Phê duyệt xác minh</h3>
+                                        <p className="text-sm text-gray-500">{userToApprove.name}</p>
+                                    </div>
+                                </div>
+
+                                <div className="mb-6">
+                                    <p className="text-gray-700 mb-3">
+                                        Bạn có chắc chắn muốn <span className="font-semibold text-emerald-600">phê duyệt</span> xác minh CCCD cho:
+                                    </p>
+                                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                        <p className="font-semibold text-gray-900">{userToApprove.name}</p>
+                                        <p className="text-sm text-gray-500">{userToApprove.email}</p>
+                                        {userToApprove.identityCard?.fullName && (
+                                            <p className="text-sm text-gray-600 mt-2">
+                                                CCCD: {userToApprove.identityCard.fullName}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={handleApproveCancel}
+                                        disabled={approveMutation.isPending}
+                                        className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                    >
+                                        Hủy
+                                    </button>
+                                    <button
+                                        onClick={handleApproveConfirm}
+                                        disabled={approveMutation.isPending}
+                                        className="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {approveMutation.isPending ? (
+                                            <>
+                                                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Đang xử lý...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <HiOutlineCheck className="w-5 h-5" />
+                                                Xác nhận phê duyệt
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

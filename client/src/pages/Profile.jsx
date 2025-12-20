@@ -54,6 +54,7 @@ export default function Profile() {
 
   // Profile edit state
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [profileData, setProfileData] = useState({
     name: user?.user?.name || "",
     address: user?.user?.address || "",
@@ -138,7 +139,7 @@ export default function Profile() {
   const { mutate, isPending } = useMutation({
     mutationFn: () => changePassword(formData),
     onSuccess: () => {
-      setSuccessMessage("Password Changed Successfully");
+      setSuccessMessage("Đổi mật khẩu thành công");
       setTimeout(() => {
         setSuccessMessage("");
       }, 10000);
@@ -148,6 +149,7 @@ export default function Profile() {
         newPassword: "",
         confirmPassword: "",
       });
+      setIsEditingPassword(false);
     },
     onError: (error) => {
       setIsError(error?.response?.data?.error);
@@ -235,14 +237,14 @@ export default function Profile() {
     e.preventDefault();
     const { currentPassword, newPassword, confirmPassword } = formData;
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setIsError("Please enter all fields");
+      setIsError("Vui lòng nhập đầy đủ các trường");
       setTimeout(() => {
         setIsError("");
       }, 10000);
       return;
     }
     if (newPassword !== confirmPassword) {
-      setIsError("New password and confirm password do not match.");
+      setIsError("Mật khẩu mới và xác nhận mật khẩu không khớp.");
       setTimeout(() => {
         setIsError("");
       }, 10000);
@@ -305,6 +307,20 @@ export default function Profile() {
     setIsEditingProfile(false);
   };
 
+  const handleEditPassword = () => {
+    setIsEditingPassword(true);
+  };
+
+  const handleCancelPasswordEdit = () => {
+    setFormData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+    setIsError("");
+    setIsEditingPassword(false);
+  };
+
   // Show loading state while checking auth or fetching user data
   if (loading || (!user && !loading)) {
     return (
@@ -337,10 +353,10 @@ export default function Profile() {
         <main className="p-4 sm:p-6 lg:p-8">
           <div className="mb-6" data-aos="fade-down">
             <h1 className="text-2xl font-bold text-red-600">
-              Profile Settings
+              Cài đặt hồ sơ
             </h1>
             <p className="text-gray-500">
-              Update your personal information and password
+              Cập nhật thông tin cá nhân và mật khẩu của bạn
             </p>
           </div>
 
@@ -491,7 +507,7 @@ export default function Profile() {
                 <div className="px-4 py-5 sm:p-6" data-aos="fade-up" data-aos-delay="150">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium text-gray-900">
-                      Personal Information
+                      Thông tin cá nhân
                     </h3>
                     {!isEditingProfile && (
                       <button
@@ -499,7 +515,7 @@ export default function Profile() {
                         onClick={handleEditProfile}
                         className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 border border-red-600 rounded-md hover:bg-red-50 transition-colors"
                       >
-                        Edit
+                        Chỉnh sửa
                       </button>
                     )}
                   </div>
@@ -509,7 +525,7 @@ export default function Profile() {
                       {/* Full Name */}
                       <div>
                         <label htmlFor="profileName" className="block text-sm font-medium text-gray-700 mb-1">
-                          Full Name
+                          Họ và tên
                         </label>
                         <input
                           type="text"
@@ -518,14 +534,14 @@ export default function Profile() {
                           value={profileData.name}
                           onChange={handleProfileChange}
                           className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
-                          placeholder="Your full name"
+                          placeholder="Nhập họ và tên của bạn"
                         />
                       </div>
 
                       {/* Email (readonly) */}
                       <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                          Email Address
+                          Địa chỉ email
                         </label>
                         <input
                           type="email"
@@ -540,13 +556,13 @@ export default function Profile() {
                       {/* Phone (readonly) */}
                       <div>
                         <label htmlFor="profilePhone" className="block text-sm font-medium text-gray-700 mb-1">
-                          Phone Number
+                          Số điện thoại
                         </label>
                         <input
                           type="tel"
                           name="phone"
                           id="profilePhone"
-                          value={user.user.phone || "Not provided"}
+                          value={user.user.phone || "Chưa cung cấp"}
                           disabled
                           className="block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 sm:text-sm cursor-not-allowed"
                         />
@@ -555,7 +571,7 @@ export default function Profile() {
                       {/* Address */}
                       <div className="md:col-span-2">
                         <label htmlFor="profileAddress" className="block text-sm font-medium text-gray-700 mb-1">
-                          Address
+                          Địa chỉ
                         </label>
                         <textarea
                           name="address"
@@ -564,7 +580,7 @@ export default function Profile() {
                           value={profileData.address}
                           onChange={handleProfileChange}
                           className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
-                          placeholder="Your full address"
+                          placeholder="Nhập địa chỉ đầy đủ của bạn"
                         />
                       </div>
 
@@ -636,18 +652,18 @@ export default function Profile() {
                       {/* Full Name */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Full Name
+                          Họ và tên
                         </label>
                         <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-md">
                           <CiUser className="h-5 w-5 text-gray-400" />
-                          <span className="text-sm text-gray-900">{profileData.name || "Not provided"}</span>
+                          <span className="text-sm text-gray-900">{profileData.name || "Chưa cung cấp"}</span>
                         </div>
                       </div>
 
                       {/* Email */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Email Address
+                          Địa chỉ email
                         </label>
                         <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-md">
                           <CiMail className="h-5 w-5 text-gray-400" />
@@ -658,18 +674,18 @@ export default function Profile() {
                       {/* Phone */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Phone Number
+                          Số điện thoại
                         </label>
                         <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-md">
                           <CiPhone className="h-5 w-5 text-gray-400" />
-                          <span className="text-sm text-gray-900">{user.user.phone || "Not provided"}</span>
+                          <span className="text-sm text-gray-900">{user.user.phone || "Chưa cung cấp"}</span>
                         </div>
                       </div>
 
                       {/* Address */}
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Address
+                          Địa chỉ
                         </label>
                         <div className="flex items-start gap-2 px-3 py-2 bg-gray-50 rounded-md min-h-[48px]">
                           <CiLocationOn className="h-5 w-5 text-gray-400 mt-0.5" />
@@ -754,16 +770,27 @@ export default function Profile() {
               <form onSubmit={handleSubmit} className="divide-y divide-gray-200">
                 {/* Password */}
                 <div className="px-4 py-5 sm:p-6"  >
-                  <h3 className="text-lg font-medium text-gray-900 mb-4"  >
-                    Change Password
-                  </h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      Đổi mật khẩu
+                    </h3>
+                    {!isEditingPassword && (
+                      <button
+                        type="button"
+                        onClick={handleEditPassword}
+                        className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 border border-red-600 rounded-md hover:bg-red-50 transition-colors"
+                      >
+                        Chỉnh sửa
+                      </button>
+                    )}
+                  </div>
                   <div className="grid grid-cols-1 gap-6">
 
                     <label
                       htmlFor="currentPassword"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Current Password
+                      Mật khẩu hiện tại
                     </label>
                     <div className="relative rounded-md shadow-sm">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -775,8 +802,9 @@ export default function Profile() {
                         id="currentPassword"
                         value={formData.currentPassword}
                         onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
-                        placeholder="Enter your current password"
+                        disabled={!isEditingPassword}
+                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
+                        placeholder="Nhập mật khẩu hiện tại"
                       />
 
                     </div>
@@ -786,7 +814,7 @@ export default function Profile() {
                         htmlFor="newPassword"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        New Password
+                        Mật khẩu mới
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -798,13 +826,14 @@ export default function Profile() {
                           id="newPassword"
                           value={formData.newPassword}
                           onChange={handleChange}
-                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
-                          placeholder="Enter new password"
+                          disabled={!isEditingPassword}
+                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
+                          placeholder="Nhập mật khẩu mới"
                           minLength={8}
                         />
                       </div>
                       <p className="mt-1 text-xs text-gray-500">
-                        Password must be at least 8 characters long
+                        Mật khẩu phải có ít nhất 8 ký tự
                       </p>
                     </div>
 
@@ -813,7 +842,7 @@ export default function Profile() {
                         htmlFor="confirmPassword"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Confirm New Password
+                        Xác nhận mật khẩu mới
                       </label>
                       <div className="relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -825,8 +854,9 @@ export default function Profile() {
                           id="confirmPassword"
                           value={formData.confirmPassword}
                           onChange={handleChange}
-                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm"
-                          placeholder="Confirm new password"
+                          disabled={!isEditingPassword}
+                          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-lime-500 focus:border-lime-500 sm:text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
+                          placeholder="Xác nhận mật khẩu mới"
                         />
                       </div>
                     </div>
@@ -847,25 +877,28 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Submit button */}
-                <div className="px-4 py-5 sm:p-6" >
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      disabled
-                      className="mr-3 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isPending}
-                      className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isPending ? "Saving..." : "Save Changes"}
-                    </button>
+                {/* Submit button - Only show when editing */}
+                {isEditingPassword && (
+                  <div className="px-4 py-5 sm:p-6" >
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={handleCancelPasswordEdit}
+                        disabled={isPending}
+                        className="mr-3 px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Hủy
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isPending}
+                        className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isPending ? "Đang lưu..." : "Lưu thay đổi"}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </form>
             </div>
           </div>

@@ -9,7 +9,7 @@ import { formatCurrency } from "../utils/formatCurrency";
 import Toast from "../components/Toast";
 
 const statusConfig = {
-    pending: { label: 'Chờ thanh toán', color: 'amber', emoji: '⏱' },
+    pending: { label: 'Chờ thanh toán', color: 'amber', emoji: '' },
     paid: { label: 'Đã đặt cọc', color: 'blue', emoji: '' },
     refunded: { label: 'Đã hoàn tiền', color: 'green', emoji: '' },
     deducted: { label: 'Đã trừ vào giá', color: 'purple', emoji: '' },
@@ -34,7 +34,7 @@ export const MyDeposits = () => {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('bank_transfer');
 
     // Fetch deposits
-    const { data: depositsData, isLoading: depositsLoading, error: depositsError, refetch, isFetching } = useQuery({
+    const { data: depositsData, isLoading: depositsLoading, error: depositsError, refetch, isFetching: _isFetching } = useQuery({
         queryKey: ["myDeposits"],
         queryFn: getMyDeposits,
         staleTime: 30 * 1000,
@@ -169,9 +169,7 @@ export const MyDeposits = () => {
                                 Số dư tài khoản
                             </p>
                             <p className="text-3xl font-bold">{formatCurrency(balance)}</p>
-                            <p className="text-emerald-200 text-xs mt-1">
-                                Dùng để đặt cọc tham gia đấu giá
-                            </p>
+
                         </div>
                         <button
                             onClick={() => setShowTopUpModal(true)}
@@ -189,7 +187,7 @@ export const MyDeposits = () => {
                         <p className="text-xl font-bold text-gray-800">{stats.total || 0}</p>
                     </div>
                     <div className="bg-blue-50 p-3 rounded-lg shadow-md border border-blue-200">
-                        <p className="text-xs text-blue-600 mb-0.5">Đang giữ</p>
+                        <p className="text-xs text-blue-600 mb-0.5">Đang đặt cọc</p>
                         <p className="text-xl font-bold text-blue-800">{stats.paid || 0}</p>
                     </div>
                     <div className="bg-emerald-50 p-3 rounded-lg shadow-md border border-emerald-200">
@@ -221,7 +219,7 @@ export const MyDeposits = () => {
                 {/* Top 5 Transactions Table */}
                 {allTransactions.length === 0 ? (
                     <div className="bg-white rounded-xl shadow-lg p-8 text-center" data-aos="zoom-in" data-aos-delay="400">
-                        <div className="text-5xl mb-3 animate-bounce">💳</div>
+                        <div className="text-5xl mb-3 animate-bounce"></div>
                         <h3 className="text-lg font-semibold text-gray-700 mb-2">Chưa có giao dịch</h3>
                         <p className="text-gray-500 mb-6">
                             Bạn chưa có giao dịch nào. Hãy nạp tiền hoặc tham gia đấu giá ngay!
@@ -257,11 +255,11 @@ export const MyDeposits = () => {
                                 <tbody className="divide-y divide-gray-200">
                                     {allTransactions.slice(0, 5).map((item, index) => {
                                         const transactionTypeLabels = {
-                                            topup: { label: 'Nạp tiền', emoji: '💰', sign: '+' },
-                                            withdraw: { label: 'Rút tiền', emoji: '💸', sign: '-' },
-                                            payment: { label: 'Thanh toán', emoji: '💳', sign: '-' },
-                                            refund: { label: 'Hoàn tiền', emoji: '↩️', sign: '+' },
-                                            deposit: { label: 'Đặt cọc', emoji: '🛡️', sign: '-' }
+                                            topup: { label: 'Nạp tiền', emoji: '', sign: '+' },
+                                            withdraw: { label: 'Rút tiền', emoji: '', sign: '-' },
+                                            payment: { label: 'Thanh toán', emoji: '', sign: '-' },
+                                            refund: { label: 'Hoàn tiền', emoji: '', sign: '+' },
+                                            deposit: { label: 'Đặt cọc', emoji: '', sign: '-' }
                                         };
 
                                         const statusLabels = {
@@ -280,7 +278,7 @@ export const MyDeposits = () => {
                                         if (item._type === 'deposit') {
                                             const deposit = item;
                                             typeLabel = 'Đặt cọc';
-                                            emoji = '🛡️';
+                                            emoji = '';
                                             sign = '-';
                                             description = deposit.product ? deposit.product.itemName : 'Sản phẩm đã bị xóa';
                                             date = new Date(deposit.paidAt || deposit.createdAt).toLocaleString('vi-VN');
@@ -298,8 +296,8 @@ export const MyDeposits = () => {
                                             date = new Date(transaction.createdAt).toLocaleString('vi-VN');
                                             amount = transaction.amount;
                                             const status = statusLabels[transaction.status] || statusLabels.pending;
-                                            statusLabel = status.label;
-                                            statusColor = status.color;
+                                            const _statusLabel = status.label;
+                                            const _statusColor = status.color;
                                         }
 
                                         return (

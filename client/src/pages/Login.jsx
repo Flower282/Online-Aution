@@ -99,8 +99,8 @@ const Login = () => {
             {/* Right Side - Login Form */}
             <div className="bg-white p-10 border-l-2 border-emerald-200 min-h-[550px]" data-aos="zoom-in">
               <div className="text-center mb-8" data-aos="fade-down" data-aos-delay="100">
-                <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-600 mb-2"> Welcome Back!</h1>
-                <p className="text-gray-700">Sign in to your Christmas account </p>
+                <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-600 mb-2"> Welcome!</h1>
+                <p className="text-gray-700">Đăng nhập </p>
               </div>
 
               <form onSubmit={handleSubmit} data-aos="fade-up" data-aos-delay="200">
@@ -109,7 +109,7 @@ const Login = () => {
                     htmlFor="email"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Email Address
+                    Email
                   </label>
                   <input
                     id="email"
@@ -122,7 +122,7 @@ const Login = () => {
                       })
                     }
                     className="w-full px-4 py-3 border-2 border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-                    placeholder="you@example.com"
+                    placeholder=""
                     required
                   />
                 </div>
@@ -132,7 +132,7 @@ const Login = () => {
                     htmlFor="password"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Password
+                    Mật khẩu
                   </label>
                   <input
                     id="password"
@@ -170,7 +170,7 @@ const Login = () => {
 
                 {deactivatedInfo && deactivatedInfo.hasRequested && (
                   <div className="mb-4 bg-blue-50 border-2 border-blue-200 text-blue-700 px-4 py-3 rounded-lg font-medium text-center">
-                    ✓ Yêu cầu đã được gửi. Vui lòng chờ admin xem xét.
+                    Yêu cầu đã được gửi. Vui lòng chờ admin xem xét.
                   </div>
                 )}
 
@@ -179,7 +179,7 @@ const Login = () => {
                   disabled={loading}
                   className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  {loading ? " Logging in..." : "Sign In"}
+                  {loading ? " Logging in..." : "Đăng nhập"}
                 </button>
               </form>
 
@@ -188,17 +188,17 @@ const Login = () => {
                   to="/forgot-password"
                   className="text-red-600 hover:text-red-700 font-medium hover:underline"
                 >
-                  Forgot your password?
+                  Quên mật khẩu
                 </Link>
               </div>
 
               <div className="mt-6 text-center text-sm text-gray-600">
-                Don't have an account?{" "}
+                Tài khoản không tồn tại?{" "}
                 <Link
                   to="/signup"
                   className="text-red-600 font-bold hover:text-red-700 hover:underline"
                 >
-                  Sign up now
+                  Đăng ký
                 </Link>
               </div>
             </div>

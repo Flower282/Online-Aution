@@ -76,6 +76,20 @@ export const getPendingReactivationRequests = async () => {
     }
 };
 
+// Reject reactivation request
+export const rejectReactivationRequest = async (userId, reason) => {
+    try {
+        const res = await axios.patch(`${API_ENDPOINTS.ADMIN_USERS}/${userId}/reactivation-requests/reject`,
+            { reason },
+            { withCredentials: true }
+        );
+        return res.data;
+    } catch (error) {
+        console.error(error?.response?.data?.error || "Can't reject reactivation request");
+        throw new Error(error?.response?.data?.error || "Failed to reject reactivation request. Please try again.");
+    }
+};
+
 // Block/Unblock user (future functionality)
 export const toggleUserStatus = async (userId, status) => {
     try {

@@ -52,19 +52,19 @@ export const CreateAuction = () => {
   }, [user, navigate]);
 
   const categories = [
-    "Electronics",
-    "Antiques",
-    "Art",
-    "Books",
-    "Clothing",
-    "Collectibles",
-    "Home & Garden",
-    "Jewelry",
-    "Musical Instruments",
-    "Sports",
-    "Toys",
-    "Vehicles",
-    "Other",
+    "Điện tử",
+    "Đồ cổ",
+    "Nghệ thuật",
+    "Sách",
+    "Quần áo",
+    "Đồ sưu tầm",
+    "Nhà cửa & Vườn",
+    "Trang sức",
+    "Nhạc cụ",
+    "Thể thao",
+    "Đồ chơi",
+    "Xe cộ",
+    "Khác",
   ];
 
   const handleInputChange = (e) => {
@@ -182,9 +182,9 @@ export const CreateAuction = () => {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6 text-center" data-aos="fade-down">
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-700 mb-2">
-            Create Auction
+            Tạo sản phẩm đấu giá
           </h1>
-          <p className="text-gray-700">List your item for the Christmas season </p>
+          <p className="text-gray-700"> Tạo sản phẩm đấu giá cho mùa Giáng sinh </p>
         </div>
         <div className="bg-white rounded-lg shadow-lg border-2 border-emerald-200" data-aos="fade-up" data-aos-delay="200">
           <div className="p-6 md:p-8">
@@ -195,7 +195,7 @@ export const CreateAuction = () => {
                   htmlFor="itemName"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Item Name <span className="text-emerald-600">*</span>
+                  Tên sản phẩm <span className="text-emerald-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -204,7 +204,7 @@ export const CreateAuction = () => {
                   value={formData.itemName}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  placeholder="Enter the name of your item"
+                  placeholder="Nhập tên sản phẩm"
                   required
                 />
               </div>
@@ -215,7 +215,7 @@ export const CreateAuction = () => {
                   htmlFor="itemDescription"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Item Description <span className="text-emerald-600">*</span>
+                  Mô tả sản phẩm <span className="text-emerald-600">*</span>
                 </label>
                 <textarea
                   id="itemDescription"
@@ -224,7 +224,7 @@ export const CreateAuction = () => {
                   onChange={handleInputChange}
                   rows={4}
                   className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-vertical"
-                  placeholder="Provide a detailed description of your item including condition, features, and any relevant information"
+                  placeholder="Nhập mô tả chi tiết của sản phẩm bao gồm điều kiện, đặc điểm, và thông tin liên quan"
                   required
                 />
               </div>
@@ -237,7 +237,7 @@ export const CreateAuction = () => {
                     htmlFor="itemCategory"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Category <span className="text-emerald-600">*</span>
+                    Loại <span className="text-emerald-600">*</span>
                   </label>
                   <select
                     id="itemCategory"
@@ -247,7 +247,7 @@ export const CreateAuction = () => {
                     className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     required
                   >
-                    <option value="">Select a category</option>
+                    <option value=""> Chọn loại </option>
                     {categories.map((category) => (
                       <option key={category} value={category}>
                         {category}
@@ -278,9 +278,7 @@ export const CreateAuction = () => {
                         placeholder="50"
                         required
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
-                        x1,000 VNĐ
-                      </span>
+
                     </div>
                     {formData.startingPrice && parseFloat(formData.startingPrice) > 0 && (
                       <div className="bg-emerald-50 border border-emerald-200 rounded-md px-3 py-2">
@@ -303,7 +301,7 @@ export const CreateAuction = () => {
                     htmlFor="itemStartDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    🕐 Auction Start (Date & Time) <span className="text-emerald-600">*</span>
+                    Thời gian bắt đầu <span className="text-emerald-600">*</span>
                   </label>
                   <input
                     type="datetime-local"
@@ -327,7 +325,7 @@ export const CreateAuction = () => {
                     htmlFor="itemEndDate"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    🕐 Auction End (Date & Time) <span className="text-emerald-600">*</span>
+                    Thời gian kết thúc  <span className="text-emerald-600">*</span>
                   </label>
                   <input
                     type="datetime-local"
@@ -355,7 +353,7 @@ export const CreateAuction = () => {
                   htmlFor="itemPhoto"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  📷 Item Photo <span className="text-emerald-600">*</span>
+                  Ảnh sản phẩm <span className="text-emerald-600">*</span>
                 </label>
                 <div className="space-y-3">
                   <input
@@ -383,7 +381,7 @@ export const CreateAuction = () => {
                         }}
                         className="mt-2 text-sm text-emerald-600 hover:underline"
                       >
-                        Remove Image
+                        Xóa ảnh
                       </button>
                     </div>
                   )}
@@ -404,52 +402,13 @@ export const CreateAuction = () => {
                   disabled={isPending}
                   className="flex-1 sm:flex-none bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 text-white py-3 px-6 rounded-md hover:from-emerald-600 hover:via-emerald-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold transition-all shadow-lg hover:shadow-xl"
                 >
-                  {isPending ? " Creating Auction..." : "🎄 Create Auction"}
+                  {isPending ? "Đang tạo đấu giá..." : "Tạo sản phẩm đấu giá"}
                 </button>
               </div>
             </form>
           </div>
         </div>
-
-        {/* Help Section */}
-        <HelpSection />
       </main>
-    </div>
-  );
-};
-
-export const HelpSection = () => {
-  return (
-    <div className="mt-8 bg-emerald-50 border-2 border-emerald-200 rounded-lg p-6" data-aos="fade-up" data-aos-delay="600">
-      <h3 className="text-lg font-semibold text-emerald-900 mb-3" data-aos="fade-right" data-aos-delay="650">
-        💡 Tips for Creating a Successful Christmas Auction
-      </h3>
-      <ul className="space-y-2 text-emerald-800 text-sm">
-        <li className="flex items-start" data-aos="fade-left" data-aos-delay="700">
-          <span className="text-emerald-600 mr-2">📷</span>
-          Use clear, high-quality photos that show your item from multiple angles
-        </li>
-        <li className="flex items-start" data-aos="fade-left" data-aos-delay="750">
-          <span className="text-emerald-600 mr-2">📝</span>
-          Write detailed descriptions including condition, dimensions, and any flaws
-        </li>
-        <li className="flex items-start" data-aos="fade-left" data-aos-delay="800">
-          <span className="text-emerald-600 mr-2">💰</span>
-          Set a reasonable starting price to attract bidders
-        </li>
-        <li className="flex items-start" data-aos="fade-left" data-aos-delay="850">
-          <span className="text-emerald-600 mr-2">⏰</span>
-          Choose appropriate auction duration (tối thiểu 1 giờ, khuyến nghị 3-7 ngày)
-        </li>
-        <li className="flex items-start" data-aos="fade-left" data-aos-delay="900">
-          <span className="text-emerald-600 mr-2">🕐</span>
-          Bạn có thể chọn chính xác giờ và phút cho thời gian bắt đầu/kết thúc
-        </li>
-        <li className="flex items-start" data-aos="fade-left" data-aos-delay="950">
-          <span className="text-emerald-600 mr-2">🏷️</span>
-          Select the most accurate category to help buyers find your item
-        </li>
-      </ul>
     </div>
   );
 };

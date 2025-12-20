@@ -4,7 +4,7 @@ import { Link } from "react-router";
 import { getTransactionHistory } from "../api/wallet.js";
 import { getMyDeposits } from "../api/auction";
 import LoadingScreen from "../components/LoadingScreen";
-import { ArrowLeft, RefreshCcw } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { formatCurrency } from "../utils/formatCurrency";
 
 const statusConfig = {
@@ -42,7 +42,7 @@ export const TransactionHistory = () => {
         },
     });
 
-    const refetch = () => {
+    const _refetch = () => {
         refetchDeposits();
         refetchTransactions();
     };
@@ -77,11 +77,11 @@ export const TransactionHistory = () => {
     ].sort((a, b) => new Date(b._date) - new Date(a._date));
 
     const transactionTypeLabels = {
-        topup: { label: 'Nạp tiền', emoji: '💰', sign: '+' },
-        withdraw: { label: 'Rút tiền', emoji: '💸', sign: '-' },
-        payment: { label: 'Thanh toán', emoji: '💳', sign: '-' },
-        refund: { label: 'Hoàn tiền', emoji: '↩️', sign: '+' },
-        deposit: { label: 'Đặt cọc', emoji: '🛡️', sign: '-' }
+        topup: { label: 'Nạp tiền', emoji: '', sign: '+' },
+        withdraw: { label: 'Rút tiền', emoji: '', sign: '-' },
+        payment: { label: 'Thanh toán', emoji: '', sign: '-' },
+        refund: { label: 'Hoàn tiền', emoji: '', sign: '+' },
+        deposit: { label: 'Đặt cọc', emoji: '', sign: '-' }
     };
 
     const statusLabels = {
@@ -175,19 +175,19 @@ export const TransactionHistory = () => {
                                     </thead>
                                     <tbody className="divide-y divide-gray-200">
                                         {allTransactions.map((item, index) => {
-                                            let typeLabel, emoji, sign, description, date, amount, statusLabel, statusColor;
+                                            let typeLabel, emoji, sign, description, date, amount, _statusLabel, _statusColor;
 
                                             if (item._type === 'deposit') {
                                                 const deposit = item;
                                                 typeLabel = 'Đặt cọc';
-                                                emoji = '🛡️';
+                                                emoji = '';
                                                 sign = '-';
                                                 description = deposit.product ? deposit.product.itemName : 'Sản phẩm đã bị xóa';
                                                 date = new Date(deposit.paidAt || deposit.createdAt).toLocaleString('vi-VN');
                                                 amount = deposit.amount;
                                                 const status = statusConfig[deposit.status] || statusConfig.pending;
-                                                statusLabel = status.label;
-                                                statusColor = status.color;
+                                                _statusLabel = status.label;
+                                                _statusColor = status.color;
                                             } else {
                                                 const transaction = item;
                                                 const typeConfig = transactionTypeLabels[transaction.type] || { label: 'Giao dịch', emoji: '💼', sign: '' };
@@ -198,8 +198,8 @@ export const TransactionHistory = () => {
                                                 date = new Date(transaction.createdAt).toLocaleString('vi-VN');
                                                 amount = transaction.amount;
                                                 const status = statusLabels[transaction.status] || statusLabels.pending;
-                                                statusLabel = status.label;
-                                                statusColor = status.color;
+                                                _statusLabel = status.label;
+                                                _statusColor = status.color;
                                             }
 
                                             return (

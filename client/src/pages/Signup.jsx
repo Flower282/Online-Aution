@@ -61,8 +61,7 @@ const Signup = () => {
                     htmlFor="name"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Full Name
-                  </label>
+                    Họ và tên                  </label>
                   <input
                     id="name"
                     type="text"
@@ -84,7 +83,7 @@ const Signup = () => {
                     htmlFor="email"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Email Address
+                    Email
                   </label>
                   <input
                     id="email"
@@ -107,7 +106,7 @@ const Signup = () => {
                     htmlFor="password"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Password
+                    Mật khẩu
                   </label>
                   <input
                     id="password"
@@ -124,9 +123,7 @@ const Signup = () => {
                     required
                     minLength={8}
                   />
-                  <p className="mt-1.5 text-xs text-gray-500">
-                    Password must be at least 8 characters long
-                  </p>
+
                 </div>
 
                 {isError && (
@@ -140,17 +137,17 @@ const Signup = () => {
                   disabled={loading}
                   className="w-full bg-red-600 hover:bg-red-700 text-white py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  {loading ? "Creating account..." : "Create Account"}
+                  {loading ? "Creating account..." : "Đăng ký"}
                 </button>
               </form>
 
               <div className="mt-4 text-center text-sm text-gray-600">
-                Already have an account?{" "}
+                Đã có tài khoản?{" "}
                 <Link
                   to="/login"
                   className="text-red-600 font-bold hover:text-red-700 hover:underline"
                 >
-                  Sign in
+                  Đăng nhập
                 </Link>
               </div>
             </div>

@@ -21,6 +21,7 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
     const [totalBids, setTotalBids] = useState(auction.bids?.length || 0);
     const { user } = useSelector((state) => state.auth);
     const isAdmin = user?.user?.role === "admin";
+    const isLoggedIn = !!user?.user;
     const queryClient = useQueryClient();
 
     // Socket.io integration for real-time updates
@@ -250,20 +251,22 @@ export function AuctionDetailModal({ auction, onClose, bids, onPlaceBid: _onPlac
 
                             <div className="p-6 rounded-lg bg-muted/30 space-y-4">
                                 <div className="flex items-baseline justify-between">
-                                    <span className="text-muted-foreground">Giá hiện tại</span>
+                                    <span className="text-muted-foreground">{isLoggedIn ? "Giá hiện tại" : "Giá khởi điểm"}</span>
                                     <span className="text-3xl font-medium text-primary">
-                                        {formatCurrency(currentPrice)}
+                                        {formatCurrency(isLoggedIn ? currentPrice : auction.startingPrice)}
                                     </span>
                                 </div>
 
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">
-                                        {auction.bidsCount || 0} lượt đấu giá
-                                    </span>
-                                    <span className="text-muted-foreground">
-                                        Giá khởi điểm: {formatCurrency(auction.startingPrice)}
-                                    </span>
-                                </div>
+                                {isLoggedIn && (
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-muted-foreground">
+                                            {auction.bidsCount || 0} lượt đấu giá
+                                        </span>
+                                        <span className="text-muted-foreground">
+                                            Giá khởi điểm: {formatCurrency(auction.startingPrice)}
+                                        </span>
+                                    </div>
+                                )}
 
                                 <Separator />
 
