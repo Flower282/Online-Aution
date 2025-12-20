@@ -26,7 +26,6 @@ const Signup = () => {
       resetAuthFlags(); // Reset auth flags after successful signup
       navigate("/");
     } catch (error) {
-      console.log("Signup Failed", error);
       setIsError(error || "something went wrong");
       setTimeout(() => {
         setIsError("");

@@ -12,7 +12,6 @@ export const requestAccountReactivation = async (email, message = '') => {
         });
         return res.data;
     } catch (error) {
-        console.error("Error requesting reactivation:", error);
         throw new Error(error.response?.data?.message || error.response?.data?.error || "Failed to submit reactivation request");
     }
 };

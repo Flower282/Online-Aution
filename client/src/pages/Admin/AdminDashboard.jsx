@@ -28,7 +28,6 @@ export const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const data = await getAdminDashboard();
-      console.log('Admin Dashboard Data:', data); // Debug log
 
       // Filter out inactive users
       const activeUsers = (data.recentUsersList || []).filter(user => user.isActive !== false);
@@ -46,7 +45,6 @@ export const AdminDashboard = () => {
         const verifications = await getPendingVerifications();
         setPendingVerifications(verifications.count || 0);
       } catch (e) {
-        console.error('Error fetching pending verifications:', e);
         setPendingVerifications(0);
       }
 
@@ -55,12 +53,9 @@ export const AdminDashboard = () => {
         const reactivations = await getPendingReactivationRequests();
         setPendingReactivations(reactivations.count || 0);
       } catch (e) {
-        console.error('Error fetching pending reactivations:', e);
         setPendingReactivations(0);
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      console.error('Error details:', error.response?.data); // More detailed error
       const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to load dashboard data. You may not have admin permissions.';
       setError(errorMessage);
       setDashboardData({});
@@ -75,7 +70,6 @@ export const AdminDashboard = () => {
         setError(null);
         await fetchDashboardData(); // This now fetches both dashboard data and users
       } catch (error) {
-        console.error('Error loading admin data:', error);
         setError('Failed to load admin data');
       } finally {
         setLoading(false);
@@ -137,7 +131,6 @@ export const AdminDashboard = () => {
       setUserToDelete(null);
       setToast({ message: 'Vô hiệu hóa tài khoản thành công! Dữ liệu đã được cập nhật.', type: 'success' });
     } catch (error) {
-      console.error('Error deleting user:', error);
       setToast({ message: error.message || 'Không thể vô hiệu hóa tài khoản. Vui lòng thử lại.', type: 'error' });
     } finally {
       setDeleteLoading(false);

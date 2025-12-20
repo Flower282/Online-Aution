@@ -18,7 +18,7 @@ const cache = {
             };
             localStorage.setItem(`${CACHE_PREFIX}${key}`, JSON.stringify(cacheData));
         } catch (error) {
-            console.warn('Failed to save to cache:', error);
+            // Silent error handling
         }
     },
 
@@ -38,7 +38,6 @@ const cache = {
 
             return cacheData.data;
         } catch (error) {
-            console.warn('Failed to read from cache:', error);
             return null;
         }
     },
@@ -56,7 +55,7 @@ const cache = {
                 });
             }
         } catch (error) {
-            console.warn('Failed to clear cache:', error);
+            // Silent error handling
         }
     }
 };
@@ -71,12 +70,10 @@ export const getProvinces = async () => {
     // Check cache first
     const cached = cache.get(cacheKey);
     if (cached) {
-        console.log('📦 Using cached provinces data');
         return cached;
     }
 
     try {
-        console.log('🌐 Fetching provinces from API...');
         const response = await fetch(`${API_BASE}/provinces`);
         const data = await response.json();
 
@@ -88,11 +85,9 @@ export const getProvinces = async () => {
 
         // Save to cache
         cache.set(cacheKey, mapped);
-        console.log('✅ Provinces fetched and cached');
 
         return mapped;
     } catch (error) {
-        console.error('Error fetching provinces:', error);
         return [];
     }
 };
@@ -111,12 +106,10 @@ export const getWards = async (provinceCode) => {
     // Check cache first
     const cached = cache.get(cacheKey);
     if (cached) {
-        console.log(`📦 Using cached wards data for province ${provinceCode}`);
         return cached;
     }
 
     try {
-        console.log(`🌐 Fetching wards from API for province ${provinceCode}...`);
         const response = await fetch(`${API_BASE}/wards?province_code=${provinceCode}`);
         const data = await response.json();
 
@@ -135,11 +128,9 @@ export const getWards = async (provinceCode) => {
 
         // Save to cache
         cache.set(cacheKey, mapped);
-        console.log(`✅ Wards fetched and cached for province ${provinceCode}`);
 
         return mapped;
     } catch (error) {
-        console.error('Error fetching wards:', error);
         return [];
     }
 };
@@ -160,7 +151,6 @@ export const searchProvinces = async (query) => {
             province.name.toLowerCase().includes(lowerQuery)
         );
     } catch (error) {
-        console.error('Error searching provinces:', error);
         return [];
     }
 };
@@ -171,6 +161,5 @@ export const searchProvinces = async (query) => {
  */
 export const clearCache = (key = null) => {
     cache.clear(key);
-    console.log(key ? `🗑️ Cache cleared for: ${key}` : '🗑️ All cache cleared');
 };
 

@@ -6,7 +6,6 @@ export const getBalance = async () => {
         const res = await axios.get('/wallet/balance', { withCredentials: true });
         return res.data;
     } catch (error) {
-        console.error("Error getting balance", error.message);
         throw new Error(error.response?.data?.error || "Failed to get balance");
     }
 };
@@ -17,7 +16,6 @@ export const topUp = async (data) => {
         const res = await axios.post('/wallet/topup', data, { withCredentials: true });
         return res.data;
     } catch (error) {
-        console.error("Error topping up", error.message);
         throw new Error(error.response?.data?.error || "Failed to top up");
     }
 };
@@ -28,7 +26,6 @@ export const withdraw = async (data) => {
         const res = await axios.post('/wallet/withdraw', data, { withCredentials: true });
         return res.data;
     } catch (error) {
-        console.error("Error withdrawing", error.message);
         throw new Error(error.response?.data?.error || "Failed to withdraw");
     }
 };
@@ -47,7 +44,6 @@ export const getTransactionHistory = async (params = {}) => {
         const res = await axios.get(`/wallet/transactions?${queryParams.toString()}`, { withCredentials: true });
         return res.data;
     } catch (error) {
-        console.error("Error getting transactions", error.message);
         throw new Error(error.response?.data?.error || "Failed to get transactions");
     }
 };

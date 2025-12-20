@@ -20,7 +20,6 @@ const PendingReactivationRequests = () => {
             const data = await getPendingReactivationRequests();
             setRequests(data.requests || []);
         } catch (error) {
-            console.error('Error fetching pending requests:', error);
             setError(error.message || 'Failed to load pending requests');
         } finally {
             setLoading(false);

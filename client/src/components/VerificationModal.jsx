@@ -65,7 +65,7 @@ export default function VerificationModal({ isOpen, onClose, onVerified: _onVeri
             try {
                 await dispatch(checkAuth()).unwrap();
             } catch (error) {
-                console.error('Failed to refresh user data:', error);
+                // Silent error handling
             }
 
             if (wasEditing) {

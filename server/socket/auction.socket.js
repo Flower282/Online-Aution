@@ -337,35 +337,81 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
 
             const redisKey = `auction:${auctionId}:bids`;
 
-            // 3. Kiểm tra xem giá đã tồn tại chưa
-            const existingBidsWithSamePrice = await redisClient.zRangeByScore(
-                redisKey,
-                amount,
-                amount
-            );
+            // 3. ✅ ATOMIC BID PLACEMENT with Lua script
+            // This Lua script ensures atomicity:
+            // 1. Check if price already exists (by any user)
+            // 2. Add/update bid atomically
+            // 3. Get top 10 bids and total count
+            // All in ONE round-trip to Redis!
+            const luaScript = `
+                local key = KEYS[1]
+                local userId = ARGV[1]
+                local amount = tonumber(ARGV[2])
+                
+                -- Check if this exact price exists from OTHER users
+                local existingBids = redis.call('ZRANGEBYSCORE', key, amount, amount)
+                for _, bidUserId in ipairs(existingBids) do
+                    if bidUserId ~= userId then
+                        return {err = 'PRICE_EXISTS'}
+                    end
+                end
+                
+                -- Add or update bid (GT flag: only if new score is greater than current)
+                -- If user already has a bid, only update if new amount is higher
+                local oldScore = redis.call('ZSCORE', key, userId)
+                if oldScore and tonumber(oldScore) >= amount then
+                    return {err = 'BID_TOO_LOW'}
+                end
+                
+                -- Add/update the bid
+                redis.call('ZADD', key, amount, userId)
+                
+                -- Get top 10 bids and total count in same transaction
+                local topBids = redis.call('ZREVRANGE', key, 0, 9, 'WITHSCORES')
+                local totalBids = redis.call('ZCARD', key)
+                
+                return {topBids, totalBids}
+            `;
 
-            if (existingBidsWithSamePrice && existingBidsWithSamePrice.length > 0) {
-                socket.emit('auction:bid:error', {
-                    code: 'PRICE_EXISTS',
-                    message: `Price ${amount} already exists. Please choose a different amount.`,
-                    existingAmount: amount
+            let luaResult;
+            try {
+                luaResult = await redisClient.eval(luaScript, {
+                    keys: [redisKey],
+                    arguments: [userId, amount.toString()]
                 });
-                return;
+            } catch (error) {
+                // Handle Lua script errors
+                if (error.message && error.message.includes('PRICE_EXISTS')) {
+                    socket.emit('auction:bid:error', {
+                        code: 'PRICE_EXISTS',
+                        message: `Price ${amount} already exists. Please choose a different amount.`,
+                        existingAmount: amount
+                    });
+                    return;
+                } else if (error.message && error.message.includes('BID_TOO_LOW')) {
+                    socket.emit('auction:bid:error', {
+                        code: 'BID_TOO_LOW',
+                        message: 'Your new bid must be higher than your previous bid',
+                        currentAmount: amount
+                    });
+                    return;
+                }
+                throw error;
             }
 
-            // 4. Thêm bid vào Redis ZSET
-            const addResult = await redisClient.zAdd(
-                redisKey,
-                { score: amount, value: userId },
-                { NX: true }
-            );
-
-            // Nếu userId đã tồn tại, cập nhật score
-            if (addResult === 0) {
-                await redisClient.zAdd(redisKey, { score: amount, value: userId });
+            // 4. Parse Lua script result
+            const [topBidsRaw, totalBids] = luaResult;
+            
+            // Format top bids (Redis returns flat array: [userId1, score1, userId2, score2, ...])
+            const formattedBids = [];
+            for (let i = 0; i < topBidsRaw.length; i += 2) {
+                formattedBids.push({
+                    userId: topBidsRaw[i],
+                    amount: parseFloat(topBidsRaw[i + 1])
+                });
             }
 
-            // 5. Lấy thông tin bid mới nhất
+            // 5. Prepare bid data
             const timestamp = new Date();
             const bidData = {
                 auctionId,
@@ -375,44 +421,27 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 socketId: socket.id
             };
 
-            // 6. Ghi log vào MongoDB
-            try {
-                await mongoLogger.logBid({
-                    auctionId,
-                    userId,
-                    amount,
-                    timestamp
-                });
-            } catch (logError) {
-                console.error('MongoDB logging failed:', logError);
-            }
+            // 6. MongoDB logging (async, non-blocking)
+            mongoLogger.logBid({
+                auctionId,
+                userId,
+                amount,
+                timestamp
+            }).catch(logError => {
+                console.error('MongoDB logging failed (non-blocking):', logError);
+            });
 
-            // 7. Lấy top bids để gửi về client
-            const topBids = await redisClient.zRangeWithScores(
-                redisKey,
-                0,
-                9,
-                { REV: true }
-            );
-
-            // Format top bids thành array of objects
-            const formattedBids = topBids.map(bid => ({
-                userId: bid.value,
-                amount: bid.score
-            }));
-
-            // 8. Emit event cho tất cả clients trong room
+            // 7. Emit events
             const roomName = `auction:${auctionId}`;
-
             const updateData = {
                 ...bidData,
                 topBids: formattedBids,
-                totalBids: await redisClient.zCard(redisKey)
+                totalBids
             };
 
             io.to(roomName).emit('auction:bid:updated', updateData);
 
-            // 9. Confirm thành công cho client đã bid
+            // 8. Confirm success
             console.log('📤 Emitting auction:bid:success to socket (Redis):', socket.id);
             socket.emit('auction:bid:success', {
                 message: 'Bid placed successfully',
@@ -490,13 +519,17 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
             // Redis is available - use Redis
             const redisKey = `auction:${auctionId}:bids`;
 
-            // Lấy top 10 bids
-            const topBids = await redisClient.zRangeWithScores(
-                redisKey,
-                0,
-                9,
-                { REV: true }
-            );
+            // ✅ USE PIPELINE: Batch multiple Redis commands in one round-trip
+            // This reduces latency from 2 network calls to 1
+            const pipeline = redisClient.multi();
+            pipeline.zRangeWithScores(redisKey, 0, 9, { REV: true });  // Get top 10 bids in reverse order
+            pipeline.zCard(redisKey);                       // Get total count
+            
+            const [topBidsResult, totalBidsResult] = await pipeline.exec();
+            
+            // Handle pipeline results
+            const topBids = topBidsResult || [];
+            const totalBids = totalBidsResult || 0;
 
             // Format bids
             const formattedBids = topBids.map(bid => ({
@@ -511,7 +544,7 @@ export const handleAuctionSocket = (socket, io, { redisClient, mongoLogger }) =>
                 auctionId,
                 topBids: formattedBids,
                 highestBid,
-                totalBids: await redisClient.zCard(redisKey)
+                totalBids
             });
 
         } catch (error) {

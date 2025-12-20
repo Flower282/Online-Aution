@@ -24,7 +24,6 @@ export default function Favorites() {
 
     // 🔄 Force refresh when navigating to this page
     useEffect(() => {
-        console.log('✨ Favorites page mounted - Refreshing data');
         refetch();
     }, [refetch]); // Run only on mount
 
@@ -38,23 +37,18 @@ export default function Favorites() {
 
                 if (cleanedUp) return;
 
-                console.log('🔵 Favorites: Listening for like updates');
-
                 // Listen for like/unlike events
                 socket.on('auction:like:updated', (update) => {
-                    console.log('📡 Favorites: Like update received:', update);
-
                     // Invalidate favorites query to refresh the list
                     queryClient.invalidateQueries({ queryKey: ["favoriteAuctions"] });
 
                     // If current user unliked something, remove it from list immediately
                     if (update.userId === user?.user?._id && !update.isLiked) {
-                        console.log('🗑️ Current user unliked, refreshing list');
                         refetch();
                     }
                 });
             } catch (error) {
-                console.error('Failed to connect socket:', error);
+                // Silent error handling
             }
         };
 
@@ -62,7 +56,6 @@ export default function Favorites() {
 
         return () => {
             cleanedUp = true;
-            console.log('🔴 Favorites: Cleanup socket listeners');
             socket.off('auction:like:updated');
         };
     }, [queryClient, refetch, user?.user?._id]);

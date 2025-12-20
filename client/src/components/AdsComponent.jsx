@@ -5,7 +5,7 @@ export const AdsComponent = ({ dataAdSlot }) => {
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (err) {
-      console.error("Adsense error:", err.message);
+      // Silent error handling
     }
   }, []);
 
