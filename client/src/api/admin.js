@@ -9,7 +9,6 @@ export const getAdminDashboard = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't load admin dashboard");
         throw new Error(error?.response?.data?.error || "Failed to load admin dashboard. Please try again.");
     }
 };
@@ -23,7 +22,6 @@ export const getAllUsers = async (page = 1, search = '', role = 'all', limit = 1
         });
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't load users");
         throw new Error(error?.response?.data?.error || "Failed to load users. Please try again.");
     }
 };
@@ -37,7 +35,6 @@ export const updateUserRole = async (userId, newRole) => {
         );
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't update user role");
         throw new Error(error?.response?.data?.error || "Failed to update user role. Please try again.");
     }
 };
@@ -50,7 +47,6 @@ export const deleteUser = async (userId) => {
         );
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't deactivate user");
         throw new Error(error?.response?.data?.error || "Failed to deactivate user. Please try again.");
     }
 };
@@ -64,7 +60,6 @@ export const reactivateUser = async (userId) => {
         );
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't reactivate user");
         throw new Error(error?.response?.data?.error || "Failed to reactivate user. Please try again.");
     }
 };
@@ -77,7 +72,6 @@ export const getPendingReactivationRequests = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't load pending reactivation requests");
         throw new Error(error?.response?.data?.error || "Failed to load pending reactivation requests. Please try again.");
     }
 };
@@ -105,7 +99,6 @@ export const toggleUserStatus = async (userId, status) => {
         );
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't update user status");
         throw new Error(error?.response?.data?.error || "Failed to update user status. Please try again.");
     }
 };
@@ -121,7 +114,6 @@ export const getPendingAuctions = async (page = 1, limit = 20) => {
         });
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't load pending auctions");
         throw new Error(error?.response?.data?.message || "Failed to load pending auctions. Please try again.");
     }
 };
@@ -135,7 +127,6 @@ export const getAllAuctions = async (page = 1, limit = 20, status = 'all', searc
         });
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't load auctions");
         throw new Error(error?.response?.data?.message || "Failed to load auctions. Please try again.");
     }
 };
@@ -149,7 +140,6 @@ export const approveAuction = async (auctionId) => {
         );
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't approve auction");
         throw new Error(error?.response?.data?.message || "Failed to approve auction. Please try again.");
     }
 };
@@ -163,7 +153,6 @@ export const rejectAuction = async (auctionId, reason) => {
         );
         return res.data;
     } catch (error) {
-        console.error(error?.response?.data?.error || "Can't reject auction");
         throw new Error(error?.response?.data?.message || "Failed to reject auction. Please try again.");
     }
 };

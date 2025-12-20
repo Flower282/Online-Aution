@@ -96,12 +96,9 @@ export const ViewAuction = () => {
       if (!isAuctionActive) return;
 
       try {
-        console.log('💰 Checking deposit for auction:', id);
         const status = await checkDeposit(id);
         setDepositStatus(status);
-        console.log('💰 Deposit status:', status);
       } catch (error) {
-        console.error('Error checking deposit:', error);
         // Set default deposit status so UI still shows
         if (data?.startingPrice) {
           const defaultPercentage = 10;
@@ -163,15 +160,12 @@ export const ViewAuction = () => {
 
         if (cleanedUp) return; // Component unmounted during connection
 
-        console.log('🔵 Joining auction room:', id);
-
         // Join auction room
         socket.emit('auction:join', { auctionId: id });
 
         // Get initial state
         socket.emit('auction:get-state', { auctionId: id });
       } catch (error) {
-        console.error('Failed to connect socket:', error);
         setToast({ message: "Không thể kết nối real-time. Vui lòng tải lại trang.", type: "error" });
       }
     };
@@ -180,12 +174,11 @@ export const ViewAuction = () => {
 
     // Listen for join confirmation
     socket.on('auction:joined', (data) => {
-      console.log('✅ Joined auction:', data);
+      // Silent handling
     });
 
     // Listen for auction state
     socket.on('auction:state', (state) => {
-      console.log('📊 Auction state received:', state);
       setTopBids(state.topBids || []);
       setTotalBids(state.totalBids || 0);
       if (state.highestBid) {
@@ -195,7 +188,6 @@ export const ViewAuction = () => {
 
     // Listen for bid updates from other users
     socket.on('auction:bid:updated', (update) => {
-      console.log('📡 Bid updated:', update);
       setTopBids(update.topBids || []);
       setTotalBids(update.totalBids || 0);
       if (update.topBids && update.topBids.length > 0) {
@@ -215,8 +207,6 @@ export const ViewAuction = () => {
 
     // Listen for bid success
     socket.on('auction:bid:success', (result) => {
-      console.log('✅ Bid success:', result);
-
       // Clear input field
       if (inputRef.current) {
         inputRef.current.value = "";
@@ -243,7 +233,6 @@ export const ViewAuction = () => {
 
     // Listen for bid errors
     socket.on('auction:bid:error', (error) => {
-      console.error('❌ Bid error:', error);
       let errorMessage = error.message;
 
       if (error.code === 'PRICE_EXISTS') {
@@ -278,14 +267,11 @@ export const ViewAuction = () => {
 
     // Listen for general errors
     socket.on('auction:error', (error) => {
-      console.error('❌ Auction error:', error);
       setToast({ message: error.message, type: "error" });
     });
 
     // Listen for like/unlike updates
     socket.on('auction:like:updated', (update) => {
-      console.log('📡 ViewAuction: Like update received:', update);
-
       // Update likes count
       setLikesCount(update.likesCount);
 
@@ -301,7 +287,6 @@ export const ViewAuction = () => {
     // Cleanup on unmount
     return () => {
       cleanedUp = true;
-      console.log('🔴 Leaving auction room:', id);
       if (socket.connected) {
         socket.emit('auction:leave', { auctionId: id });
       }
@@ -482,18 +467,6 @@ export const ViewAuction = () => {
       maxBid = minBid + 10000000;
     }
 
-    console.log('🔍 Bid Submit Debug:', {
-      input: bidInputValue,
-      parsedInThousands: bidAmountInThousands,
-      actualAmount: bidAmount,
-      isValid: !isNaN(bidAmount) && bidAmount > 0,
-      currentPrice: currentPrice || data.currentPrice,
-      minBid,
-      maxBid,
-      socketConnected: socket.connected,
-      socketId: socket.id
-    });
-
     if (bidAmount < minBid) {
       setToast({ message: `Giá đặt phải từ ${minBid.toLocaleString('vi-VN')} VNĐ trở lên`, type: "error" });
       return;
@@ -514,18 +487,9 @@ export const ViewAuction = () => {
 
     // Check socket connection
     if (!socket.connected) {
-      console.error('❌ Socket not connected!');
       setToast({ message: "Kết nối thất bại. Vui lòng tải lại trang.", type: "error" });
       return;
     }
-
-    console.log('🟢 Placing bid via socket:', {
-      auctionId: id,
-      userId,
-      amount: bidAmount,
-      socketId: socket.id,
-      connected: socket.connected
-    });
 
     // Send bid via socket instead of HTTP
     socket.emit('auction:bid', {
@@ -533,8 +497,6 @@ export const ViewAuction = () => {
       userId: userId,
       amount: bidAmount
     });
-
-    console.log('📤 Bid emitted to socket');
   };
 
   const handleLike = async () => {
@@ -684,22 +646,6 @@ export const ViewAuction = () => {
   const paymentMethods = [
     { id: 'wallet', name: 'Ví điện tử', emoji: '💳' },
   ];
-
-  // Debug info - after all variables are declared
-  console.log('🔍 Debug Place Bid Visibility:', {
-    userId: user?.user?._id,
-    sellerId: data?.seller?._id,
-    isUserSeller: data?.seller?._id === user?.user?._id,
-    isActive,
-    isSellerInactive,
-    status: data?.status,
-    isApproved,
-    isAdmin,
-    depositStatus,
-    hasDeposit: depositStatus?.hasDeposit,
-    showBidFormSection: data?.seller?._id !== user?.user?._id && isActive && !isSellerInactive && isApproved && !isAdmin && user?.user?._id,
-    showBidForm: depositStatus?.hasDeposit === true
-  });
 
   return (
     <div className="min-h-screen mx-auto container" style={{ backgroundColor: '#f5f1e8' }}>

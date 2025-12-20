@@ -13,7 +13,6 @@ export const requestPasswordReset = async (email) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error requesting password reset:", error?.response?.data?.error || error.message);
         throw new Error(error?.response?.data?.error || "Không thể gửi yêu cầu. Vui lòng thử lại.");
     }
 };
@@ -30,7 +29,6 @@ export const resetPasswordWithToken = async ({ token, newPassword }) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error resetting password:", error?.response?.data?.error || error.message);
         throw new Error(error?.response?.data?.error || "Không thể đặt lại mật khẩu. Vui lòng thử lại.");
     }
 };

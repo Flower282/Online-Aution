@@ -28,8 +28,6 @@ const Login = () => {
       resetAuthFlags(); // Reset auth flags after successful login
       navigate("/");
     } catch (error) {
-      console.log("Login Failed", error);
-
       // Check if user is deactivated
       if (error?.isDeactivated) {
         setDeactivatedInfo({

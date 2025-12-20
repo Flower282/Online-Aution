@@ -132,19 +132,6 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
 
-      - name: Image digest
-        run: echo "✅ Image pushed successfully with SHA ${{ github.sha }}"
-
-      - name: Create deployment summary
-        run: |
-          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image:** ghcr.io/${{ env.OWNER_LC }}/auction-backend:latest" >> $GITHUB_STEP_SUMMARY
-          echo "- **SHA:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit:** ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Pull with: \`docker pull ghcr.io/${{ env.OWNER_LC }}/auction-backend:latest\`" >> $GITHUB_STEP_SUMMARY
-
       # Trigger Render deployment after successful GHCR push
       - name: Trigger Render Deploy Hook
         run: |

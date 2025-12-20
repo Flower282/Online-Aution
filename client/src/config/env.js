@@ -33,10 +33,4 @@ export const env = {
 // Freeze the object to prevent mutations
 Object.freeze(env);
 
-// Log configuration in development (without exposing sensitive data)
-if (import.meta.env.DEV) {
-  console.log('🔧 Environment Configuration Loaded:');
-  console.log(`  API_URL: ${env.API_URL}`);
-}
-
 export default env;

@@ -11,7 +11,6 @@ export const getVerificationStatus = async () => {
         });
         return res.data;
     } catch (error) {
-        console.error("Error getting verification status:", error.message);
         throw new Error(error.response?.data?.error || "Failed to get verification status");
     }
 };
@@ -28,7 +27,6 @@ export const verifyPhone = async (phoneNumber) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error verifying phone:", error.message);
         throw new Error(error.response?.data?.error || "Failed to verify phone");
     }
 };
@@ -45,7 +43,6 @@ export const sendVerificationEmail = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error sending verification email:", error.message);
         throw new Error(error.response?.data?.error || "Failed to send verification email");
     }
 };
@@ -62,7 +59,6 @@ export const verifyEmailToken = async (token) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error verifying email token:", error.message);
         const errorMessage = error.response?.data?.error || "Failed to verify email";
         throw new Error(errorMessage);
     }
@@ -85,7 +81,6 @@ export const submitIdentityCard = async (formData) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error submitting identity card:", error.message);
         throw new Error(error.response?.data?.error || "Failed to submit identity card");
     }
 };
@@ -100,7 +95,6 @@ export const getPendingVerifications = async () => {
         });
         return res.data;
     } catch (error) {
-        console.error("Error getting pending verifications:", error.message);
         throw new Error(error.response?.data?.error || "Failed to get pending verifications");
     }
 };
@@ -116,7 +110,6 @@ export const getVerificationDetail = async (userId) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error getting verification detail:", error.message);
         throw new Error(error.response?.data?.error || "Failed to get verification detail");
     }
 };
@@ -133,7 +126,6 @@ export const reviewIdentityCard = async (userId, action, rejectionReason = null)
         );
         return res.data;
     } catch (error) {
-        console.error("Error reviewing identity card:", error.message);
         throw new Error(error.response?.data?.error || "Failed to review identity card");
     }
 };

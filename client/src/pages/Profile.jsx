@@ -20,38 +20,28 @@ export default function Profile() {
     const fetchUserData = async () => {
       // If user is not loaded and not currently loading, fetch it
       if (!user && !loading) {
-        console.log('🔄 User data not found, fetching...');
         try {
           await dispatch(checkAuth());
         } catch (error) {
-          console.error('❌ Failed to fetch user data:', error);
+          // Silent error handling
         }
       } else if (user && !user.user) {
         // If user object exists but user.user is missing, try to fetch
-        console.log('🔄 User.user not found, fetching user data...');
         try {
           const response = await axios.get(API_ENDPOINTS.USER, {
             withCredentials: true,
           });
           if (response.data) {
             dispatch(setUser({ user: response.data }));
-            console.log('✅ User data fetched and updated');
           }
         } catch (error) {
-          console.error('❌ Failed to fetch user data:', error);
+          // Silent error handling
         }
       }
     };
 
     fetchUserData();
   }, [user, loading, dispatch]);
-
-  // Debug: Check if user data exists
-  useEffect(() => {
-    console.log('🔍 Profile component - User data:', user);
-    console.log('🔍 Profile component - User.user:', user?.user);
-    console.log('🔍 Profile component - Location:', user?.user?.location);
-  }, [user]);
 
   const [isError, setIsError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -109,7 +99,6 @@ export default function Profile() {
         const matchingProvince = data.find(p => p.name === user.user.location.city);
         if (matchingProvince) {
           setSelectedProvinceCode(matchingProvince.id);
-          console.log('📍 Found matching province:', matchingProvince);
         }
       }
     };
@@ -128,7 +117,6 @@ export default function Profile() {
           const matchingWard = data.find(w => w.name === profileData.ward);
           if (matchingWard) {
             setSelectedWardCode(matchingWard.id);
-            console.log('📍 Syncing ward code after load:', matchingWard);
           }
         }
       } else {
@@ -174,14 +162,9 @@ export default function Profile() {
   // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: (data) => {
-      console.log('📤 Calling updateProfile with data:', data);
       return updateProfile(data);
     },
     onSuccess: (data) => {
-      console.log('✅ Profile update success, response:', data);
-      console.log('✅ Updated user data:', data.user);
-      console.log('✅ Location in response:', data.user?.location);
-
       setSuccessMessage("Profile updated successfully");
       setTimeout(() => {
         setSuccessMessage("");
@@ -199,11 +182,10 @@ export default function Profile() {
           }
         };
         dispatch(setUser({ user: updatedUser }));
-        console.log('✅ Redux store updated with new location:', updatedUser.location);
 
         // Also refresh user data from server to ensure we have the latest data
         dispatch(checkAuth()).catch(error => {
-          console.error('Failed to refresh user data:', error);
+          // Silent error handling
         });
       }
 
@@ -211,8 +193,6 @@ export default function Profile() {
       setIsEditingProfile(false);
     },
     onError: (error) => {
-      console.error('❌ Profile update error:', error);
-      console.error('❌ Error response:', error?.response?.data);
       setIsError(error?.message || "Failed to update profile");
       setTimeout(() => {
         setIsError("");
@@ -245,12 +225,9 @@ export default function Profile() {
     const wardName = selectedOption.text;
     const wardCode = e.target.value;
 
-    console.log('🏘️ Ward selected:', { wardName, wardCode });
-
     setSelectedWardCode(wardCode);
     setProfileData((prev) => {
       const updated = { ...prev, ward: wardName };
-      console.log('📝 ProfileData updated with ward:', updated);
       return updated;
     });
   };
@@ -293,9 +270,6 @@ export default function Profile() {
       country: "Việt Nam"
     };
 
-    console.log('📤 Submitting profile data (flat format):', submitData);
-    console.log('📤 Ward mapped to region:', profileData.ward);
-
     updateProfileMutation.mutate(submitData);
   };
 
@@ -305,7 +279,6 @@ export default function Profile() {
       const matchingProvince = provinces.find(p => p.name === user.user.location.city);
       if (matchingProvince) {
         setSelectedProvinceCode(matchingProvince.id);
-        console.log('📍 Syncing province code on edit:', matchingProvince);
       }
     }
 
@@ -314,7 +287,6 @@ export default function Profile() {
       const matchingWard = wards.find(w => w.name === profileData.ward);
       if (matchingWard) {
         setSelectedWardCode(matchingWard.id);
-        console.log('📍 Syncing ward code on edit:', matchingWard);
       }
     }
 
@@ -943,7 +915,7 @@ export default function Profile() {
           try {
             await dispatch(checkAuth());
           } catch (error) {
-            console.error('Failed to refresh user data:', error);
+            // Silent error handling
           }
           setSuccessMessage("Tài khoản đã được xác minh thành công!");
           setTimeout(() => setSuccessMessage(""), 10000);

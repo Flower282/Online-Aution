@@ -31,7 +31,6 @@ export default function PayAuction() {
     const payMutation = useMutation({
         mutationFn: () => payForWonAuction(id),
         onSuccess: (data) => {
-            console.log(' Payment success:', data);
             // Invalidate all related queries to refresh data
             queryClient.invalidateQueries({ queryKey: ["wonAuctions"] });
             queryClient.invalidateQueries({ queryKey: ["walletBalance"] });

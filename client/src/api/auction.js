@@ -9,7 +9,6 @@ export const getPublicAuctions = async () => {
         const res = await axios.get(API_ENDPOINTS.AUCTION);
         return res.data;
     } catch (error) {
-        console.error("Error on getting public auction data", error.message);
         throw new Error(error.response?.data?.message || "Failed to load auctions. Please try again.");
     }
 }
@@ -20,7 +19,6 @@ export const getPublicAuctionById = async (id) => {
         const res = await axios.get(`${API_ENDPOINTS.AUCTION}/${id}`);
         return res.data;
     } catch (error) {
-        console.error("Error on getting public auction data", error.message);
         throw new Error(error.response?.data?.message || "Failed to load auction details. Please try again.");
     }
 }
@@ -35,7 +33,6 @@ export const getAuctions = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error on getting auction data", error.message);
         throw new Error(error.response?.data?.message || "Failed to load auctions. Please try again.");
     }
 }
@@ -48,7 +45,6 @@ export const getMyAuctions = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error on getting my auction data", error.message);
         throw new Error(error.response?.data?.message || "Failed to load your auctions. Please try again.");
     }
 }
@@ -62,7 +58,6 @@ export const viewAuction = async (id) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error on getting auction data", error.message);
         throw new Error(error.response?.data?.message || "Failed to load auction details. Please try again.");
     }
 }
@@ -76,7 +71,6 @@ export const placeBid = async ({ bidAmount, id }) => {
         )
         return res.data;
     } catch (error) {
-        console.error("Error placing bid", error.message);
         throw new Error(error.response?.data?.message || "Failed to place bid. Please try again.");
     }
 }
@@ -105,7 +99,6 @@ export const createAuction = async (data) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error creating auction", error.message);
         throw new Error(error.response?.data?.message || "Failed to create auction. Please try again.");
     }
 }
@@ -118,7 +111,6 @@ export const dashboardStats = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error on getting dashboard data", error.message);
         throw new Error(error.response?.data?.message || "Failed to load dashboard data. Please try again.");
     }
 }
@@ -131,7 +123,6 @@ export const deleteAuction = async (id) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error deleting auction", error.message);
         throw new Error(error.response?.data?.message || "Failed to delete auction. Please try again.");
     }
 }
@@ -145,7 +136,6 @@ export const toggleLikeAuction = async (id) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error toggling like", error.message);
         throw new Error(error.response?.data?.message || "Failed to like auction. Please try again.");
     }
 }
@@ -158,7 +148,6 @@ export const getFavoriteAuctions = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error getting favorite auctions", error.message);
         throw new Error(error.response?.data?.message || "Failed to load favorite auctions. Please try again.");
     }
 }
@@ -173,7 +162,6 @@ export const getAllAuctionsAdmin = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error getting all auctions for admin", error.message);
         throw new Error(error.response?.data?.message || "Failed to load auctions. Please try again.");
     }
 }
@@ -188,7 +176,6 @@ export const getWonAuctions = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error getting won auctions", error.message);
         throw new Error(error.response?.data?.message || "Failed to load won auctions. Please try again.");
     }
 }
@@ -202,7 +189,6 @@ export const payForWonAuction = async (id) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error paying for won auction", error.message);
         throw new Error(error.response?.data?.error || error.response?.data?.message || "Failed to pay for auction. Please try again.");
     }
 }
@@ -215,7 +201,6 @@ export const getDepositInfo = async (id) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error getting deposit info", error.message);
         throw new Error(error.response?.data?.message || "Failed to load deposit information. Please try again.");
     }
 }
@@ -229,7 +214,6 @@ export const submitDeposit = async (id, depositData) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error submitting deposit", error.message);
         throw new Error(error.response?.data?.message || "Failed to submit deposit. Please try again.");
     }
 }
@@ -243,7 +227,6 @@ export const finalizeAuction = async (id) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error finalizing auction", error.message);
         throw new Error(error.response?.data?.error || error.response?.data?.message || "Failed to finalize auction. Please try again.");
     }
 }
@@ -258,7 +241,6 @@ export const checkDeposit = async (productId) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error checking deposit", error.message);
         throw new Error(error.response?.data?.message || "Failed to check deposit status.");
     }
 }
@@ -272,7 +254,6 @@ export const createDeposit = async (productId, depositData) => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error creating deposit", error.message);
         throw new Error(error.response?.data?.error || error.response?.data?.message || "Failed to submit deposit.");
     }
 }
@@ -285,7 +266,6 @@ export const getMyDeposits = async () => {
         );
         return res.data;
     } catch (error) {
-        console.error("Error getting my deposits", error.message);
         throw new Error(error.response?.data?.message || "Failed to load deposits.");
     }
 }

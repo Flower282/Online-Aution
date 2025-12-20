@@ -21,16 +21,14 @@ let connectPromise = null;
 
 socket.on('connect', () => {
     isConnected = true;
-    console.log('✅ Socket connected:', socket.id);
 });
 
 socket.on('disconnect', (reason) => {
     isConnected = false;
-    console.log('🔌 Socket disconnected:', reason);
 });
 
 socket.on('connect_error', (error) => {
-    console.error('❌ Socket connection error:', error.message || error);
+    // Silent error handling
 });
 
 // Helper function to ensure socket is connected before use

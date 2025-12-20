@@ -159,7 +159,6 @@ export const UsersList = () => {
       setUserToDelete(null);
       setToast({ message: 'Vô hiệu hóa tài khoản thành công! User đã bị ẩn khỏi danh sách.', type: 'success' });
     } catch (error) {
-      console.error('Error deleting user:', error);
       setToast({ message: error.message || 'Không thể vô hiệu hóa tài khoản. Vui lòng thử lại.', type: 'error' });
     } finally {
       setDeleteLoading(false);
@@ -188,7 +187,6 @@ export const UsersList = () => {
       setUserToReactivate(null);
       setToast({ message: 'Kích hoạt lại tài khoản thành công! User đã xuất hiện trở lại.', type: 'success' });
     } catch (error) {
-      console.error('Error reactivating user:', error);
       setToast({ message: error.message || 'Không thể kích hoạt lại tài khoản. Vui lòng thử lại.', type: 'error' });
     } finally {
       setReactivateLoading(false);
