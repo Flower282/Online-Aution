@@ -53,28 +53,15 @@ export const TransactionHistory = () => {
     const transactions = allLoadedTransactions.length > 0 ? allLoadedTransactions : (transactionsData?.transactions || []);
     const pagination = transactionsData?.pagination || {};
 
-    // Filter deposits by days
-    const filteredDeposits = deposits.filter(deposit => {
-        if (days >= 9999) return true;
-        const depositDate = new Date(deposit.paidAt || deposit.createdAt);
-        const daysAgo = new Date();
-        daysAgo.setDate(daysAgo.getDate() - days);
-        return depositDate >= daysAgo;
-    });
-
-    // Combine deposits and transactions, then sort by date (newest first)
-    const allTransactions = [
-        ...filteredDeposits.map(deposit => ({
-            ...deposit,
-            _type: 'deposit',
-            _date: deposit.paidAt || deposit.createdAt || new Date()
-        })),
-        ...transactions.map(transaction => ({
+    // Lịch sử giao dịch ví: chỉ lấy từ collection Transaction
+    // (deposit đã được ghi nhận 1 dòng trong Transaction với type='deposit')
+    const allTransactions = transactions
+        .map(transaction => ({
             ...transaction,
             _type: 'transaction',
             _date: transaction.completedAt || transaction.createdAt || new Date()
         }))
-    ].sort((a, b) => new Date(b._date) - new Date(a._date));
+        .sort((a, b) => new Date(b._date) - new Date(a._date));
 
     const transactionTypeLabels = {
         topup: { label: 'Nạp tiền', emoji: '', sign: '+' },
@@ -174,37 +161,23 @@ export const TransactionHistory = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200">
-                                        {allTransactions.map((item, index) => {
+                                        {allTransactions.map((transaction, index) => {
                                             let typeLabel, emoji, sign, description, date, amount, _statusLabel, _statusColor;
 
-                                            if (item._type === 'deposit') {
-                                                const deposit = item;
-                                                typeLabel = 'Đặt cọc';
-                                                emoji = '';
-                                                sign = '-';
-                                                description = deposit.product ? deposit.product.itemName : 'Sản phẩm đã bị xóa';
-                                                date = new Date(deposit.paidAt || deposit.createdAt).toLocaleString('vi-VN');
-                                                amount = deposit.amount;
-                                                const status = statusConfig[deposit.status] || statusConfig.pending;
-                                                _statusLabel = status.label;
-                                                _statusColor = status.color;
-                                            } else {
-                                                const transaction = item;
-                                                const typeConfig = transactionTypeLabels[transaction.type] || { label: 'Giao dịch', emoji: '💼', sign: '' };
-                                                typeLabel = typeConfig.label;
-                                                emoji = typeConfig.emoji;
-                                                sign = typeConfig.sign;
-                                                description = transaction.notes || typeConfig.label;
-                                                date = new Date(transaction.createdAt).toLocaleString('vi-VN');
-                                                amount = transaction.amount;
-                                                const status = statusLabels[transaction.status] || statusLabels.pending;
-                                                _statusLabel = status.label;
-                                                _statusColor = status.color;
-                                            }
+                                            const typeConfig = transactionTypeLabels[transaction.type] || { label: 'Giao dịch', emoji: '💼', sign: '' };
+                                            typeLabel = typeConfig.label;
+                                            emoji = typeConfig.emoji;
+                                            sign = typeConfig.sign;
+                                            description = transaction.notes || typeConfig.label;
+                                            date = new Date(transaction.createdAt).toLocaleString('vi-VN');
+                                            amount = transaction.amount;
+                                            const status = statusLabels[transaction.status] || statusLabels.pending;
+                                            _statusLabel = status.label;
+                                            _statusColor = status.color;
 
                                             return (
                                                 <tr
-                                                    key={item._type === 'deposit' ? `deposit-${item.id}` : `transaction-${item._id}`}
+                                                    key={`transaction-${transaction._id}`}
                                                     className="hover:bg-gray-50 transition-all duration-200"
                                                     data-aos="fade-left"
                                                     data-aos-delay={350 + (index % 20) * 30}
