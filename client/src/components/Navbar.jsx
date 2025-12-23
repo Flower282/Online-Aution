@@ -854,7 +854,7 @@ const mainNavLinks = [
 const dropdownMenuItems = [
   { name: "Đấu giá của tôi", link: "/myauction", icon: Package, iconColor: "text-blue-500" },
   { name: "Đấu giá đã thắng", link: "/won", icon: Trophy, iconColor: "text-yellow-500" },
-  { name: "Tiền cọc của tôi", link: "/deposits", icon: Wallet, iconColor: "text-emerald-500" },
+  { name: "Ví của tôi", link: "/deposits", icon: Wallet, iconColor: "text-emerald-500" },
   { name: "Yêu thích", link: "/favorites", icon: Heart, iconColor: "text-red-500" },
   { name: "Hồ sơ", link: "/profile", icon: Settings, iconColor: "text-gray-500" },
   { name: "Đăng xuất", action: "logout", icon: LogOut, iconColor: "text-red-600" },
