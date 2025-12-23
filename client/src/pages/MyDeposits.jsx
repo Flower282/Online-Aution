@@ -85,7 +85,13 @@ export const MyDeposits = () => {
             return;
         }
 
-        // Multiply by 1000 to get actual VND amount
+        // Giới hạn tối đa: 1.000.000.000 VNĐ (tương đương 1.000.000 đơn vị x1,000)
+        if (amountInThousands > 1000000) {
+            setToast({ message: "Số tiền nạp tối đa là 1,000,000 (1.000.000.000 VNĐ)", type: "error" });
+            return;
+        }
+
+        // Nhân 1,000 để ra số tiền VNĐ thực tế
         const actualAmount = amountInThousands * 1000;
 
         // Tạm thời: Luôn dùng 'wallet' để tiền tự động cộng vào ví (không qua cổng thanh toán)
@@ -128,19 +134,14 @@ export const MyDeposits = () => {
     const transactions = transactionsData?.transactions || [];
     const balance = balanceData?.balance || 0;
 
-    // Combine deposits and transactions, then sort by date (newest first)
-    const allTransactions = [
-        ...deposits.map(deposit => ({
-            ...deposit,
-            _type: 'deposit',
-            _date: deposit.paidAt || deposit.createdAt || new Date()
-        })),
-        ...transactions.map(transaction => ({
+    // Lịch sử giao dịch: chỉ dùng transaction từ ví để tránh trùng (deposit đã có 1 dòng trong Transaction)
+    const allTransactions = transactions
+        .map(transaction => ({
             ...transaction,
             _type: 'transaction',
             _date: transaction.completedAt || transaction.createdAt || new Date()
         }))
-    ].sort((a, b) => new Date(b._date) - new Date(a._date));
+        .sort((a, b) => new Date(b._date) - new Date(a._date));
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>

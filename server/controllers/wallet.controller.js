@@ -337,11 +337,12 @@ export const topUp = async (req, res) => {
 
         // Validate amount
         if (!amount || amount <= 0) {
-            return res.status(400).json({ error: 'Amount must be greater than 0' });
+            return res.status(400).json({ error: 'Số tiền nạp phải lớn hơn 0' });
         }
 
-        if (amount > 1000000) {
-            return res.status(400).json({ error: 'Maximum top-up amount is $1,000,000' });
+        // Giới hạn số tiền nạp tối đa: 1.000.000.000 VNĐ
+        if (amount > 1000000000) {
+            return res.status(400).json({ error: 'Số tiền nạp tối đa là 1.000.000.000 VNĐ' });
         }
 
         // Validate payment method

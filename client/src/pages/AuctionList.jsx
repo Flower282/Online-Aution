@@ -16,6 +16,30 @@ export const AuctionList = () => {
   const [activeTab, setActiveTab] = useState("all");
   const navigate = useNavigate();
 
+  // Map giá trị category tiếng Anh cũ -> nhãn tiếng Việt để hiển thị đồng nhất
+  const CATEGORY_LABELS = {
+    "Electronics": "Điện tử",
+    "Antiques": "Đồ cổ",
+    "Art": "Nghệ thuật",
+    "Books": "Sách",
+    "Clothes": "Quần áo",
+    "Clothing": "Quần áo",
+    "Collectibles": "Đồ sưu tầm",
+    "Home & Garden": "Nhà Cửa & Vườn",
+    "Jewelry": "Trang sức",
+    "Instruments": "Nhạc cụ",
+    "Music Instruments": "Nhạc cụ",
+    "Sports": "Thể thao",
+    "Toys": "Đồ chơi",
+    "Vehicles": "Xe cộ",
+    "Others": "Khác",
+  };
+
+  const getCategoryLabel = (category) => {
+    if (!category || category === "all") return category;
+    return CATEGORY_LABELS[category] || category;
+  };
+
   // Use public API to allow viewing without authentication
   const { data, isLoading, error } = useQuery({
     queryKey: ["allAuction"],
@@ -57,10 +81,25 @@ export const AuctionList = () => {
   // Handle empty or undefined data
   const auctions = data || [];
 
-  const categories = [
-    "all",
-    ...new Set(auctions.map((auction) => auction.itemCategory)),
-  ];
+  // Lấy danh sách category theo giá trị gốc, nhưng loại bỏ trùng theo NHÃN hiển thị (tiếng Việt)
+  const rawCategories = Array.from(
+    new Set(auctions.map((auction) => auction.itemCategory).filter(Boolean))
+  );
+
+  const seenLabels = new Set();
+  const categoryKeys = [];
+
+  rawCategories.forEach((cat) => {
+    const label = getCategoryLabel(cat);
+    // Chuẩn hóa label để tránh trùng do khác hoa/thường hoặc khoảng trắng
+    const normalized = (label || "").toLowerCase().trim();
+    if (!seenLabels.has(normalized)) {
+      seenLabels.add(normalized);
+      categoryKeys.push(cat); // giữ key gốc để filter đúng, nhưng label thì tiếng Việt
+    }
+  });
+
+  const categories = ["all", ...categoryKeys];
 
   // Apply category filter
   let filteredAuctions =
@@ -185,7 +224,7 @@ export const AuctionList = () => {
                   : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                   }`}
               >
-                Danh mục {categoryFilter !== "all" && `(${categoryFilter})`}
+                Danh mục {categoryFilter !== "all" && `(${getCategoryLabel(categoryFilter)})`}
                 <svg className={`w-4 h-4 transition-transform ${showCategoryMenu ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -205,7 +244,7 @@ export const AuctionList = () => {
                       className={`w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition-colors capitalize ${categoryFilter === category ? "bg-emerald-100 text-emerald-700 font-semibold" : "text-gray-700"
                         }`}
                     >
-                      {category === "all" ? "Tất cả danh mục" : category}
+                      {category === "all" ? "Tất cả danh mục" : getCategoryLabel(category)}
                     </button>
                   ))}
                 </div>
@@ -386,7 +425,7 @@ export const AuctionList = () => {
                 <span className="text-sm text-emerald-700 font-medium">Đang áp dụng:</span>
                 {categoryFilter !== "all" && (
                   <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium flex items-center gap-2">
-                    Danh mục: {categoryFilter}
+                    Danh mục: {getCategoryLabel(categoryFilter)}
                     <button
                       onClick={() => {
                         setCategoryFilter("all");

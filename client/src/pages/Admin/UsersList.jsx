@@ -40,7 +40,7 @@ export const UsersList = () => {
   const fetchUsers = useCallback(async (page = 1, search = '', sort = 'createdAt', order = 'desc') => {
     try {
       setError(null);
-      const response = await getAllUsers(page, search, 'all', 100, sort, order); // Increased limit for client-side filtering
+      const response = await getAllUsers(page, search, 'all', 100, sort, order);
       // Show both active and inactive so admin can reactivate
       setUsers(response.data.users || []);
       setPagination(response.data.pagination);
