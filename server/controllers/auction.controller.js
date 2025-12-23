@@ -13,16 +13,15 @@ export const createAuction = async (req, res) => {
             return res.status(401).json({ message: 'Authentication required' });
         }
 
-        const { itemName, startingPrice, itemDescription, itemCategory, itemStartDate, itemEndDate } = req.body;
+        const { itemName, startingPrice, itemDescription, itemCategory, itemEndDate } = req.body;
 
         // Validate required fields
-        if (!itemName || !startingPrice || !itemDescription || !itemCategory || !itemStartDate || !itemEndDate) {
+        if (!itemName || !startingPrice || !itemDescription || !itemCategory || !itemEndDate) {
             console.error('❌ Create auction: Missing required fields', {
                 itemName: !!itemName,
                 startingPrice: !!startingPrice,
                 itemDescription: !!itemDescription,
                 itemCategory: !!itemCategory,
-                itemStartDate: !!itemStartDate,
                 itemEndDate: !!itemEndDate
             });
             return res.status(400).json({ message: 'All fields are required' });
@@ -71,24 +70,18 @@ export const createAuction = async (req, res) => {
             });
         }
 
-        // Validate dates
-        const start = new Date(itemStartDate);
-        const end = new Date(itemEndDate);
+        // Validate dates - itemStartDate will be set to current time automatically
         const now = new Date();
+        const end = new Date(itemEndDate);
 
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-            console.error('❌ Create auction: Invalid date format', { itemStartDate, itemEndDate });
-            return res.status(400).json({ message: 'Invalid date format' });
+        if (isNaN(end.getTime())) {
+            console.error('❌ Create auction: Invalid date format', { itemEndDate });
+            return res.status(400).json({ message: 'Invalid end date format' });
         }
 
-        if (start < now) {
-            console.error('❌ Create auction: Start time in past', { start, now });
-            return res.status(400).json({ message: 'Start time cannot be in the past' });
-        }
-
-        if (end <= start) {
-            console.error('❌ Create auction: End date before start date', { start, end });
-            return res.status(400).json({ message: 'Auction end date must be after start date' });
+        if (end <= now) {
+            console.error('❌ Create auction: End time must be in future', { end, now });
+            return res.status(400).json({ message: 'Auction end date must be after current time' });
         }
 
         // Validate price
@@ -103,7 +96,7 @@ export const createAuction = async (req, res) => {
             startingPrice: price,
             itemCategory,
             seller: req.user.id,
-            itemStartDate: start,
+            itemStartDate: now, // Auto-set to current time
             itemEndDate: end
         });
 
@@ -114,7 +107,7 @@ export const createAuction = async (req, res) => {
             itemDescription,
             itemCategory,
             itemPhoto: imageUrl,
-            itemStartDate: start,
+            itemStartDate: now, // Auto-set to current time when creating
             itemEndDate: end,
             seller: req.user.id,
         });

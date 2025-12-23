@@ -15,7 +15,6 @@ export const CreateAuction = () => {
     itemDescription: "",
     itemCategory: "",
     startingPrice: "",
-    itemStartDate: "",
     itemEndDate: "",
     itemPhoto: "",
   });
@@ -28,7 +27,6 @@ export const CreateAuction = () => {
         itemDescription: "",
         itemCategory: "",
         startingPrice: "",
-        itemStartDate: "",
         itemEndDate: "",
         itemPhoto: "",
       });
@@ -112,26 +110,19 @@ export const CreateAuction = () => {
       return;
     }
 
-    const start = new Date(formData.itemStartDate);
     const end = new Date(formData.itemEndDate);
     const now = new Date();
 
-    // Validate start time
-    if (start < now) {
-      setError("Start time cannot be in the past.");
-      return;
-    }
-
-    // Validate end time is after start time
-    if (end <= start) {
-      setError("End time must be after start time.");
+    // Validate end time is after now (start time will be set to now automatically)
+    if (end <= now) {
+      setError("Thời gian kết thúc phải sau thời điểm hiện tại.");
       return;
     }
 
     // Validate minimum duration (at least 2 minutes for testing)
-    const durationMinutes = (end - start) / (1000 * 60);
+    const durationMinutes = (end - now) / (1000 * 60);
     if (durationMinutes < 2) {
-      setError("Auction must run for at least 2 minutes.");
+      setError("Đấu giá phải diễn ra ít nhất 2 phút.");
       return;
     }
 
@@ -150,32 +141,18 @@ export const CreateAuction = () => {
     .toISOString()
     .slice(0, 16);
 
-  //   today+15 days
-  const maxStart = new Date();
-  maxStart.setDate(maxStart.getDate() + 15);
-  const maxStartDate = new Date(maxStart.getTime() - maxStart.getTimezoneOffset() * 60000)
+  // Min end date = now + 2 minutes (for testing)
+  const minEnd = new Date(now.getTime() + 2 * 60 * 1000);
+  const minEndDate = new Date(minEnd.getTime() - minEnd.getTimezoneOffset() * 60000)
     .toISOString()
     .slice(0, 16);
 
-  //   max end date (start date + 15 days)
-  let maxEndDate = "";
-  let minEndDate = "";
-  if (formData.itemStartDate) {
-    const startDate = new Date(formData.itemStartDate);
-
-    // Min end date = start date + 2 minutes (for testing)
-    const minEnd = new Date(startDate.getTime() + 2 * 60 * 1000);
-    minEndDate = new Date(minEnd.getTime() - minEnd.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
-
-    // Max end date = start date + 15 days
-    const maxEnd = new Date(startDate);
-    maxEnd.setDate(maxEnd.getDate() + 15);
-    maxEndDate = new Date(maxEnd.getTime() - maxEnd.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
-  }
+  // Max end date = now + 15 days
+  const maxEnd = new Date();
+  maxEnd.setDate(maxEnd.getDate() + 15);
+  const maxEndDate = new Date(maxEnd.getTime() - maxEnd.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 16);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f1e8' }}>
@@ -293,58 +270,29 @@ export const CreateAuction = () => {
                 </div>
               </div>
 
-              {/* Start and End Date Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-aos="fade-up" data-aos-delay="450">
-                {/* Start Date & Time */}
-                <div>
-                  <label
-                    htmlFor="itemStartDate"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Thời gian bắt đầu <span className="text-emerald-600">*</span>
-                  </label>
-                  <input
-                    type="datetime-local"
-                    id="itemStartDate"
-                    name="itemStartDate"
-                    min={today}
-                    value={formData.itemStartDate}
-                    max={maxStartDate}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                    required
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Chọn ngày và giờ bắt đầu đấu giá
-                  </p>
-                </div>
+              {/* End Date */}
+              <div data-aos="fade-up" data-aos-delay="450">
+                <label
+                  htmlFor="itemEndDate"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Thời gian kết thúc <span className="text-emerald-600">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  id="itemEndDate"
+                  name="itemEndDate"
+                  value={formData.itemEndDate}
+                  onChange={handleInputChange}
+                  min={minEndDate}
+                  max={maxEndDate}
+                  className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Chọn ngày và giờ kết thúc (tối thiểu sau 2 phút từ thời điểm hiện tại)
+                </p>
 
-                {/* End Date & Time */}
-                <div>
-                  <label
-                    htmlFor="itemEndDate"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Thời gian kết thúc  <span className="text-emerald-600">*</span>
-                  </label>
-                  <input
-                    type="datetime-local"
-                    id="itemEndDate"
-                    name="itemEndDate"
-                    value={formData.itemEndDate}
-                    onChange={handleInputChange}
-                    min={minEndDate || formData.itemStartDate}
-                    max={maxEndDate}
-                    className="w-full px-3 py-2 border-2 border-emerald-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                    required
-                    disabled={!formData.itemStartDate}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formData.itemStartDate
-                      ? "Chọn ngày và giờ kết thúc (tối thiểu sau 2 phút)"
-                      : "Vui lòng chọn thời gian bắt đầu trước"}
-                  </p>
-                </div>
               </div>
 
               {/* Item Photo */}

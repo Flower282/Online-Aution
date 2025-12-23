@@ -194,9 +194,7 @@ const PendingAuctions = () => {
                                                 }`}>
                                                 {toast.type === "success" ? "Thành công!" : "Lỗi"}
                                             </h3>
-                                            <p className="text-gray-700 text-sm leading-relaxed">
-                                                {toast.message}
-                                            </p>
+
                                         </div>
 
                                         {/* Close Button */}
