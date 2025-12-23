@@ -411,7 +411,7 @@ export const AuctionList = () => {
                     className={`w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors ${statusFilter === "ended" ? "bg-red-100 text-red-700 font-semibold" : "text-gray-700"
                       }`}
                   >
-                    ⏸ Đã kết thúc
+                    Đã kết thúc
                   </button>
                 </div>
               )}
