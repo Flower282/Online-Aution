@@ -116,9 +116,17 @@ export const AuctionList = () => {
 
   // Apply sorting
   if (sortBy === "price-low") {
-    filteredAuctions = [...filteredAuctions].sort((a, b) => a.currentBid - b.currentBid);
+    filteredAuctions = [...filteredAuctions].sort((a, b) => {
+      const priceA = a.currentPrice || a.startingPrice || 0;
+      const priceB = b.currentPrice || b.startingPrice || 0;
+      return priceA - priceB;
+    });
   } else if (sortBy === "price-high") {
-    filteredAuctions = [...filteredAuctions].sort((a, b) => b.currentBid - a.currentBid);
+    filteredAuctions = [...filteredAuctions].sort((a, b) => {
+      const priceA = a.currentPrice || a.startingPrice || 0;
+      const priceB = b.currentPrice || b.startingPrice || 0;
+      return priceB - priceA;
+    });
   } else if (sortBy === "date-newest") {
     filteredAuctions = [...filteredAuctions].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } else if (sortBy === "date-oldest") {
