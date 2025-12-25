@@ -18,6 +18,7 @@ import {
     getWonAuctions
 } from '../controllers/auction.controller.js';
 import upload from '../middleware/multer.js';
+import { validateUploadedImage } from '../middleware/imageValidation.js';
 import { checkAdmin } from '../middleware/checkAdmin.js';
 import { secureRoute } from '../middleware/auth.js';
 
@@ -45,7 +46,8 @@ auctionRouter.get('/won', secureRoute, getWonAuctions);
 auctionRouter.get("/myauction", secureRoute, myAuction);
 
 // Create auction (requires auth)
-auctionRouter.post('/', secureRoute, upload.single('itemPhoto'), createAuction);
+// Validate image: magic bytes, dimensions, content
+auctionRouter.post('/', secureRoute, upload.single('itemPhoto'), validateUploadedImage, createAuction);
 
 // ==================== DYNAMIC ROUTES ====================
 
