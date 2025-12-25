@@ -411,14 +411,87 @@ export const deleteAuction = async (req, res) => {
             return res.status(404).json({ message: 'Auction not found' });
         }
 
+        // Import models
+        const Deposit = (await import('../models/deposit.js')).default;
+        const Transaction = (await import('../models/transaction.js')).default;
+        const User = (await import('../models/user.js')).default;
+
+        // Find all paid deposits for this auction
+        const deposits = await Deposit.find({
+            product: id,
+            status: 'paid' // Only refund deposits that are paid
+        }).populate('user', 'balance');
+
+        const refundResults = [];
+
+        // Refund each deposit
+        for (const deposit of deposits) {
+            try {
+                const user = await User.findById(deposit.user._id || deposit.user);
+                if (!user) {
+                    console.error(`User not found for deposit ${deposit._id}`);
+                    continue;
+                }
+
+                const balanceBefore = user.balance;
+                const refundAmount = deposit.amount;
+
+                // Add money back to user's wallet
+                user.balance += refundAmount;
+                await user.save();
+
+                // Create refund transaction record
+                const refundTransaction = await Transaction.create({
+                    user: user._id,
+                    type: 'refund',
+                    amount: refundAmount,
+                    status: 'completed',
+                    paymentGateway: 'wallet',
+                    notes: `Hoàn tiền cọc do admin xóa sản phẩm: ${auction.itemName}`,
+                    balanceBefore: balanceBefore,
+                    balanceAfter: user.balance,
+                    relatedAuction: auction._id,
+                    relatedDeposit: deposit._id,
+                    completedAt: new Date()
+                });
+
+                // Update deposit status
+                deposit.status = 'refunded';
+                deposit.refundedAt = new Date();
+                deposit.refundTransactionId = refundTransaction._id.toString();
+                await deposit.save();
+
+                refundResults.push({
+                    userId: user._id,
+                    userName: user.name,
+                    amount: refundAmount,
+                    transactionId: refundTransaction._id
+                });
+
+                console.log(`✅ Refunded ${refundAmount} VND to user ${user.name} (${user._id}) for deposit ${deposit._id}`);
+            } catch (depositError) {
+                console.error(`❌ Error refunding deposit ${deposit._id}:`, depositError);
+                refundResults.push({
+                    depositId: deposit._id,
+                    error: depositError.message
+                });
+            }
+        }
+
         // Delete auction
         await Product.findByIdAndDelete(id);
 
         return res.status(200).json({
-            message: 'Auction deleted successfully',
+            message: 'Auction deleted successfully. All deposits have been refunded.',
             deletedAuction: {
                 _id: auction._id,
                 itemName: auction.itemName
+            },
+            refunds: {
+                totalDeposits: deposits.length,
+                successful: refundResults.filter(r => !r.error).length,
+                failed: refundResults.filter(r => r.error).length,
+                details: refundResults
             }
         });
 
