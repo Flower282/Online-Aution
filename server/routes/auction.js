@@ -15,7 +15,9 @@ import {
     submitDeposit,
     finalizeAuction,
     payForWonAuction,
-    getWonAuctions
+    getWonAuctions,
+    // Search
+    searchAuctions
 } from '../controllers/auction.controller.js';
 import upload from '../middleware/multer.js';
 import { validateUploadedImage } from '../middleware/imageValidation.js';
@@ -26,6 +28,9 @@ const auctionRouter = express.Router();
 
 // ==================== PUBLIC ROUTES (No Auth Required) ====================
 // Note: These must come BEFORE /:id to avoid route conflicts
+
+// Public: Search auctions (AJAX search)
+auctionRouter.get('/search', searchAuctions);
 
 // Public: List all approved auctions
 auctionRouter.get('/', showAuction);

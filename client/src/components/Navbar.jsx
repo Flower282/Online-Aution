@@ -10,7 +10,7 @@ import {
   IoLogOutOutline,
 } from "react-icons/io5";
 import { getPendingAuctions, getPendingReactivationRequests } from "../api/admin";
-import { getWonAuctions, getAuctions } from "../api/auction";
+import { getWonAuctions, searchAuctions } from "../api/auction";
 import { getPendingVerifications } from "../api/verification";
 
 export const Navbar = () => {
@@ -48,7 +48,7 @@ export const Navbar = () => {
 
   // Search states
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchQuery, setSearchQuery] = useState(""); // Query được gửi khi Enter
+  const [searchQuery, setSearchQuery] = useState(""); // Query chỉ được set khi nhấn Enter
   const [showSearchResults, setShowSearchResults] = useState(false);
 
   // Fetch pending auctions count for admin
@@ -81,30 +81,22 @@ export const Navbar = () => {
 
   const pendingReactivationsCount = pendingReactivationsData?.count || 0;
 
-  // Fetch auctions for search
-  const { data: auctionsData } = useQuery({
-    queryKey: ["allAuctionsForSearch"],
-    queryFn: getAuctions,
-    staleTime: 60 * 1000,
+  // AJAX search - chỉ search khi nhấn Enter (searchQuery được set)
+  const { data: searchData, isLoading: isSearching } = useQuery({
+    queryKey: ["searchAuctionsNavbar", searchQuery],
+    queryFn: () => searchAuctions(searchQuery, 5),
+    enabled: searchQuery.trim().length >= 2, // Chỉ search khi có ít nhất 2 ký tự
+    staleTime: 30 * 1000, // Cache 30 giây
   });
 
-  // Search results computation - chỉ tìm khi đã bấm Enter
+  // Search results computation - kết hợp AJAX results với static pages
   const searchResults = useMemo(() => {
     if (!searchQuery.trim() || searchQuery.trim().length < 2) {
       return { auctions: [], pages: [] };
     }
 
     const query = searchQuery.toLowerCase().trim();
-    const auctions = auctionsData || [];
-
-    // Filter auctions by name, description, category (all returned auctions are approved)
-    const filteredAuctions = auctions
-      .filter(auction =>
-        auction.itemName?.toLowerCase().includes(query) ||
-        auction.itemDescription?.toLowerCase().includes(query) ||
-        auction.itemCategory?.toLowerCase().includes(query)
-      )
-      .slice(0, 5); // Limit to 5 results
+    const auctions = searchData?.auctions || [];
 
     // Filter static pages
     const filteredPages = staticPages.filter(page =>
@@ -112,8 +104,8 @@ export const Navbar = () => {
       page.keywords.some(kw => kw.includes(query))
     ).slice(0, 4);
 
-    return { auctions: filteredAuctions, pages: filteredPages };
-  }, [searchQuery, auctionsData]);
+    return { auctions, pages: filteredPages };
+  }, [searchQuery, searchData, staticPages]);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -134,10 +126,10 @@ export const Navbar = () => {
     navigate(link);
   };
 
-  // Handle search submit (Enter key)
+  // Handle search submit (Enter key hoặc click button)
   const handleSearchSubmit = () => {
     if (searchTerm.trim().length >= 2) {
-      setSearchQuery(searchTerm);
+      setSearchQuery(searchTerm.trim());
       setShowSearchResults(true);
     }
   };
@@ -437,7 +429,12 @@ export const Navbar = () => {
               {/* Search Results Dropdown */}
               {showSearchResults && searchQuery.trim() && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 max-h-[400px] overflow-y-auto">
-                  {searchResults.auctions.length === 0 && searchResults.pages.length === 0 ? (
+                  {isSearching ? (
+                    <div className="p-4 text-center text-gray-500">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto mb-2"></div>
+                      <p>Đang tìm kiếm...</p>
+                    </div>
+                  ) : searchResults.auctions.length === 0 && searchResults.pages.length === 0 ? (
                     <div className="p-4 text-center text-gray-500">
                       <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                       <p>Không tìm thấy kết quả cho "{searchQuery}"</p>

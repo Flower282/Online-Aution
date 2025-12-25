@@ -1,7 +1,7 @@
 import AuctionCard from "../components/AuctionCard.jsx";
 import { Link, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { dashboardStats, getAuctions } from "../api/auction.js";
+import { dashboardStats, searchAuctions } from "../api/auction.js";
 import LoadingScreen from "../components/LoadingScreen.jsx";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, Play, Pause, Search } from "lucide-react"; // Keep navigation/control icons only
@@ -17,7 +17,7 @@ const Dashboard = () => {
 
   // Search states
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // Query chỉ được set khi nhấn Enter
   const [showSearchResults, setShowSearchResults] = useState(false);
   const searchRef = useRef(null);
 
@@ -38,53 +38,13 @@ const Dashboard = () => {
     refetchOnMount: true, // Always refetch when component mounts
   });
 
-  // Fetch all auctions for search
-  const { data: auctionsData } = useQuery({
-    queryKey: ["allAuctionsForDashboardSearch"],
-    queryFn: getAuctions,
-    staleTime: 60 * 1000,
+  // AJAX search - chỉ search khi nhấn Enter (searchQuery được set)
+  const { data: searchResults, isLoading: isSearching } = useQuery({
+    queryKey: ["searchAuctions", searchQuery],
+    queryFn: () => searchAuctions(searchQuery, 6),
+    enabled: searchQuery.trim().length >= 2, // Chỉ search khi có ít nhất 2 ký tự
+    staleTime: 30 * 1000, // Cache 30 giây
   });
-
-  // Get unique categories from auctions
-  const categories = useMemo(() => {
-    if (!auctionsData) return [];
-    const cats = [...new Set(auctionsData.map(a => a.itemCategory).filter(Boolean))];
-    return cats;
-  }, [auctionsData]);
-
-  // Search results computation
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
-      return { auctions: [], categories: [] };
-    }
-
-    const query = searchQuery.toLowerCase().trim();
-    const auctions = auctionsData || [];
-
-    // Filter auctions by name, description, category
-    let filteredAuctions = auctions
-      .filter(auction =>
-        auction.itemName?.toLowerCase().includes(query) ||
-        auction.itemDescription?.toLowerCase().includes(query) ||
-        auction.itemCategory?.toLowerCase().includes(query)
-      );
-
-    // Sort: active auctions first, then ended auctions
-    filteredAuctions = [...filteredAuctions].sort((a, b) => {
-      const aEnded = a.isEnded || (a.timeLeft !== undefined && a.timeLeft <= 0);
-      const bEnded = b.isEnded || (b.timeLeft !== undefined && b.timeLeft <= 0);
-      if (aEnded && !bEnded) return 1; // a ended, b active -> b first
-      if (!aEnded && bEnded) return -1; // a active, b ended -> a first
-      return 0; // Keep original order for same status
-    }).slice(0, 6);
-
-    // Filter categories
-    const filteredCategories = categories
-      .filter(cat => cat.toLowerCase().includes(query))
-      .slice(0, 4);
-
-    return { auctions: filteredAuctions, categories: filteredCategories };
-  }, [searchQuery, auctionsData, categories]);
 
   // Close search results when clicking outside
   useEffect(() => {
@@ -97,10 +57,10 @@ const Dashboard = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle search submit
+  // Handle search submit (Enter hoặc click button)
   const handleSearchSubmit = () => {
     if (searchTerm.trim().length >= 2) {
-      setSearchQuery(searchTerm);
+      setSearchQuery(searchTerm.trim());
       setShowSearchResults(true);
     }
   };
@@ -290,6 +250,10 @@ const Dashboard = () => {
                     if (searchQuery.trim()) setShowSearchResults(true);
                   }}
                   onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSearchSubmit();
+                    }
                     if (e.key === 'Escape') {
                       setShowSearchResults(false);
                     }
@@ -313,7 +277,12 @@ const Dashboard = () => {
               {/* Search Results Dropdown */}
               {showSearchResults && searchQuery.trim() && (
                 <div className="mt-4 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-20 max-h-[450px] overflow-y-auto w-full">
-                  {searchResults.auctions.length === 0 && searchResults.categories.length === 0 ? (
+                  {isSearching ? (
+                    <div className="p-6 text-center text-gray-500">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-500 mx-auto mb-3"></div>
+                      <p className="text-lg">Đang tìm kiếm...</p>
+                    </div>
+                  ) : searchResults?.auctions?.length === 0 && searchResults?.categories?.length === 0 ? (
                     <div className="p-6 text-center text-gray-500">
                       <Search className="h-10 w-10 mx-auto mb-3 text-gray-300" />
                       <p className="text-lg">Không tìm thấy kết quả cho "{searchQuery}"</p>
@@ -321,7 +290,7 @@ const Dashboard = () => {
                   ) : (
                     <>
                       {/* Categories Results */}
-                      {searchResults.categories.length > 0 && (
+                      {searchResults?.categories?.length > 0 && (
                         <div>
                           <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
                             <span className="text-sm font-semibold text-blue-700 uppercase tracking-wider">
@@ -343,7 +312,7 @@ const Dashboard = () => {
                       )}
 
                       {/* Auctions Results */}
-                      {searchResults.auctions.length > 0 && (
+                      {searchResults?.auctions?.length > 0 && (
                         <div>
                           <div className="px-4 py-3 bg-gradient-to-r from-emerald-50 to-orange-50 border-b border-t border-gray-100">
                             <span className="text-sm font-semibold text-emerald-700 uppercase tracking-wider">
