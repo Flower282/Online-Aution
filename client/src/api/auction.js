@@ -13,6 +13,38 @@ export const getPublicAuctions = async () => {
     }
 }
 
+// Search auctions (AJAX search)
+export const searchAuctions = async (query, limit = 10) => {
+    try {
+        if (!query || query.trim().length < 2) {
+            return { auctions: [], categories: [] };
+        }
+
+        // Log để kiểm tra request đã được gửi
+        console.log('🔍 Sending search request:', {
+            query: query.trim(),
+            limit,
+            url: `${API_ENDPOINTS.AUCTION}/search`
+        });
+
+        const res = await axios.get(`${API_ENDPOINTS.AUCTION}/search`, {
+            params: { q: query.trim(), limit },
+            withCredentials: true
+        });
+
+        // Log response
+        console.log('✅ Search response received:', {
+            auctionsCount: res.data?.auctions?.length || 0,
+            categoriesCount: res.data?.categories?.length || 0
+        });
+
+        return res.data;
+    } catch (error) {
+        console.error("❌ Error searching auctions", error.message);
+        throw new Error(error.response?.data?.message || "Failed to search auctions. Please try again.");
+    }
+}
+
 // Get single auction by ID (no authentication required)
 export const getPublicAuctionById = async (id) => {
     try {

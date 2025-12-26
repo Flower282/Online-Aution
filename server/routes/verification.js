@@ -3,6 +3,10 @@ import { secureRoute } from '../middleware/auth.js';
 import { checkAdmin } from '../middleware/checkAdmin.js';
 import multer from 'multer';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import { sanitizeFilename } from '../utils/fileSecurity.js';
+import { validateUploadedImages } from '../middleware/imageValidation.js';
 import {
     getVerificationStatus,
     verifyPhone,
@@ -16,14 +20,27 @@ import {
 
 const verificationRouter = express.Router();
 
+// ES6 __dirname alternative
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Cấu hình multer cho upload ảnh CCCD
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, uploadsDir);
     },
     filename: (req, file, cb) => {
+        // Sanitize filename để tránh path traversal
+        const sanitized = sanitizeFilename(file.originalname);
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, 'cccd-' + uniqueSuffix + path.extname(file.originalname));
+        const ext = path.extname(sanitized);
+        cb(null, 'cccd-' + uniqueSuffix + ext);
     }
 });
 
@@ -55,6 +72,7 @@ verificationRouter.post('/email/send', secureRoute, sendVerificationEmailRequest
 verificationRouter.get('/email/verify', verifyEmail);
 
 // Gửi thông tin CCCD
+// Validate images: magic bytes, dimensions, content
 verificationRouter.post('/identity-card',
     secureRoute,
     upload.fields([
@@ -62,6 +80,7 @@ verificationRouter.post('/identity-card',
         { name: 'backImage', maxCount: 1 },
         { name: 'selfieImage', maxCount: 1 }
     ]),
+    validateUploadedImages,
     submitIdentityCard
 );
 

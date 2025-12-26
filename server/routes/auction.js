@@ -15,9 +15,12 @@ import {
     submitDeposit,
     finalizeAuction,
     payForWonAuction,
-    getWonAuctions
+    getWonAuctions,
+    // Search
+    searchAuctions
 } from '../controllers/auction.controller.js';
 import upload from '../middleware/multer.js';
+import { validateUploadedImage } from '../middleware/imageValidation.js';
 import { checkAdmin } from '../middleware/checkAdmin.js';
 import { secureRoute } from '../middleware/auth.js';
 
@@ -25,6 +28,9 @@ const auctionRouter = express.Router();
 
 // ==================== PUBLIC ROUTES (No Auth Required) ====================
 // Note: These must come BEFORE /:id to avoid route conflicts
+
+// Public: Search auctions (AJAX search)
+auctionRouter.get('/search', searchAuctions);
 
 // Public: List all approved auctions
 auctionRouter.get('/', showAuction);
@@ -45,7 +51,8 @@ auctionRouter.get('/won', secureRoute, getWonAuctions);
 auctionRouter.get("/myauction", secureRoute, myAuction);
 
 // Create auction (requires auth)
-auctionRouter.post('/', secureRoute, upload.single('itemPhoto'), createAuction);
+// Validate image: magic bytes, dimensions, content
+auctionRouter.post('/', secureRoute, upload.single('itemPhoto'), validateUploadedImage, createAuction);
 
 // ==================== DYNAMIC ROUTES ====================
 

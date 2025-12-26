@@ -172,6 +172,82 @@ export const showAuction = async (req, res) => {
     }
 }
 
+/**
+ * Search auctions by query string (AJAX search)
+ * Public endpoint - no auth required
+ * Searches in itemName, itemDescription, and itemCategory
+ */
+export const searchAuctions = async (req, res) => {
+    try {
+        const { q, limit = 10 } = req.query;
+
+        // Validate query
+        if (!q || q.trim().length < 2) {
+            return res.status(200).json({ auctions: [], categories: [] });
+        }
+
+        const query = q.trim();
+        const userId = req.user?.id;
+
+        // Create search regex (case-insensitive)
+        const searchRegex = new RegExp(query, 'i');
+
+        // Search in approved auctions only
+        const auctions = await Product.find({
+            status: 'approved',
+            $or: [
+                { itemName: searchRegex },
+                { itemDescription: searchRegex },
+                { itemCategory: searchRegex }
+            ]
+        })
+            .populate('seller', 'name isActive')
+            .sort({ itemEndDate: -1 })
+            .limit(parseInt(limit));
+
+        // Format results
+        const formatted = auctions.map(auction => ({
+            _id: auction._id,
+            itemName: auction.itemName,
+            itemDescription: auction.itemDescription,
+            currentPrice: auction.currentPrice,
+            startingPrice: auction.startingPrice,
+            bidsCount: auction.bids?.length || 0,
+            timeLeft: Math.max(0, new Date(auction.itemEndDate) - new Date()),
+            itemCategory: auction.itemCategory,
+            sellerName: auction.seller?.isActive === false
+                ? "Tài khoản bị vô hiệu hóa"
+                : (auction.seller?.name || "Người dùng không tồn tại"),
+            sellerActive: auction.seller?.isActive !== false,
+            itemPhoto: auction.itemPhoto,
+            likesCount: auction.likesCount || 0,
+            isLikedByUser: userId ? auction.likes?.some(like => like.toString() === userId) : false,
+            isEnded: new Date(auction.itemEndDate) < new Date()
+        }));
+
+        // Sort: active auctions first, then ended auctions
+        formatted.sort((a, b) => {
+            if (a.isEnded && !b.isEnded) return 1;
+            if (!a.isEnded && b.isEnded) return -1;
+            return b.timeLeft - a.timeLeft;
+        });
+
+        // Get unique categories from search results
+        const categories = [...new Set(formatted.map(a => a.itemCategory).filter(Boolean))];
+
+        res.status(200).json({
+            auctions: formatted,
+            categories: categories.slice(0, 4) // Limit to 4 categories
+        });
+    } catch (error) {
+        console.error('Error searching auctions:', error);
+        return res.status(500).json({
+            message: 'Error searching auctions',
+            error: error.message
+        });
+    }
+}
+
 export const auctionById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -411,14 +487,87 @@ export const deleteAuction = async (req, res) => {
             return res.status(404).json({ message: 'Auction not found' });
         }
 
+        // Import models
+        const Deposit = (await import('../models/deposit.js')).default;
+        const Transaction = (await import('../models/transaction.js')).default;
+        const User = (await import('../models/user.js')).default;
+
+        // Find all paid deposits for this auction
+        const deposits = await Deposit.find({
+            product: id,
+            status: 'paid' // Only refund deposits that are paid
+        }).populate('user', 'balance');
+
+        const refundResults = [];
+
+        // Refund each deposit
+        for (const deposit of deposits) {
+            try {
+                const user = await User.findById(deposit.user._id || deposit.user);
+                if (!user) {
+                    console.error(`User not found for deposit ${deposit._id}`);
+                    continue;
+                }
+
+                const balanceBefore = user.balance;
+                const refundAmount = deposit.amount;
+
+                // Add money back to user's wallet
+                user.balance += refundAmount;
+                await user.save();
+
+                // Create refund transaction record
+                const refundTransaction = await Transaction.create({
+                    user: user._id,
+                    type: 'refund',
+                    amount: refundAmount,
+                    status: 'completed',
+                    paymentGateway: 'wallet',
+                    notes: `Hoàn tiền cọc do admin xóa sản phẩm: ${auction.itemName}`,
+                    balanceBefore: balanceBefore,
+                    balanceAfter: user.balance,
+                    relatedAuction: auction._id,
+                    relatedDeposit: deposit._id,
+                    completedAt: new Date()
+                });
+
+                // Update deposit status
+                deposit.status = 'refunded';
+                deposit.refundedAt = new Date();
+                deposit.refundTransactionId = refundTransaction._id.toString();
+                await deposit.save();
+
+                refundResults.push({
+                    userId: user._id,
+                    userName: user.name,
+                    amount: refundAmount,
+                    transactionId: refundTransaction._id
+                });
+
+                console.log(`✅ Refunded ${refundAmount} VND to user ${user.name} (${user._id}) for deposit ${deposit._id}`);
+            } catch (depositError) {
+                console.error(`❌ Error refunding deposit ${deposit._id}:`, depositError);
+                refundResults.push({
+                    depositId: deposit._id,
+                    error: depositError.message
+                });
+            }
+        }
+
         // Delete auction
         await Product.findByIdAndDelete(id);
 
         return res.status(200).json({
-            message: 'Auction deleted successfully',
+            message: 'Auction deleted successfully. All deposits have been refunded.',
             deletedAuction: {
                 _id: auction._id,
                 itemName: auction.itemName
+            },
+            refunds: {
+                totalDeposits: deposits.length,
+                successful: refundResults.filter(r => !r.error).length,
+                failed: refundResults.filter(r => r.error).length,
+                details: refundResults
             }
         });
 
