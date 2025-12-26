@@ -228,7 +228,7 @@ const Dashboard = () => {
         <div className="min-h-[70vh] flex flex-col items-center justify-center mb-16" ref={searchRef}>
           <div className="text-center mb-8" data-aos="fade-down">
             <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-red-500 to-red-500 mb-4" data-aos="zoom-in" data-aos-delay="100">
-              🎄 Online Auction
+              🎄 New Online Auction
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
               Khám phá hàng ngàn sản phẩm đấu giá hấp dẫn. Tìm kiếm ngay!
